@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# Re-vendor Discourse's official Claude Code authoring skills from
+# discourse/discourse-theme-skills into .claude/skills/.
+set -euo pipefail
+
+root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+src="$root/.reference/discourse-theme-skills"
+
+[ -d "$src/.git" ] || { echo "run bin/sync-reference first" >&2; exit 1; }
+
+git -C "$src" fetch --depth 1 origin HEAD --quiet
+git -C "$src" reset --hard FETCH_HEAD --quiet
+
+rsync -a --delete "$src/.claude/skills/" "$root/.claude/skills/"
+echo "skills synced from $(git -C "$src" rev-parse --short HEAD)"

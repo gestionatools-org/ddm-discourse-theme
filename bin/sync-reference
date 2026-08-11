@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Refresh the local corpus of upstream Discourse themes used as implementation
+# reference. The corpus is gitignored; see CLAUDE.md > Reference corpus.
+set -euo pipefail
+
+ref="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)/.reference"
+mkdir -p "$ref"
+
+repos=(
+  discourse/discourse-theme-skeleton
+  discourse/discourse-theme-skills
+  discourse/discourse-air
+  discourse/discourse-central-theme
+  discourse/discourse-discover-theme
+  discourse/discourse-right-sidebar-blocks
+  discourse/discourse-topic-cards
+  discourse/discourse-versatile-banner
+  discourse/discourse-brand-header
+  discourse/discourse-category-banners
+  discourse/discourse-featured-tiles
+  discourse/discourse-kanban-theme
+  discourse/discourse-huggingface-theme
+  discourse/discourse-swift-forums-theme
+  discourse/graceful
+  discourse/ghost
+  discourse/minima
+  awesomerobot/atlas
+  awesomerobot/discourse-sidebar-nav
+)
+
+for repo in "${repos[@]}"; do
+  name="${repo##*/}"
+  if [ -d "$ref/$name/.git" ]; then
+    echo "updating $name"
+    git -C "$ref/$name" fetch --depth 1 origin HEAD --quiet
+    git -C "$ref/$name" reset --hard FETCH_HEAD --quiet
+  else
+    echo "cloning $name"
+    git clone --quiet --depth 1 "https://github.com/$repo.git" "$ref/$name"
+  fi
+done
+
+echo "done: $(ls -1 "$ref" | wc -l | tr -d ' ') themes in .reference/"

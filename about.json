@@ -1,0 +1,14 @@
+{
+  "name": "Espublico Theme",
+  "component": false,
+  "authors": "es|public",
+  "about_url": "https://github.com/gestionatools-org/discourse-theme",
+  "license_url": "https://github.com/gestionatools-org/discourse-theme/blob/main/LICENSE",
+  "theme_version": "0.1.0",
+  "minimum_discourse_version": null,
+  "maximum_discourse_version": null,
+  "assets": {},
+  "color_schemes": {},
+  "modifiers": {},
+  "screenshots": []
+}

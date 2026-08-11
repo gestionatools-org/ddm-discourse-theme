@@ -1,0 +1,9 @@
+node_modules
+.discourse-site
+.eslintcache
+
+# Local-only Claude context and credentials
+CLAUDE.local.md
+
+# Upstream theme corpus cloned for reference (see CLAUDE.md)
+.reference/
