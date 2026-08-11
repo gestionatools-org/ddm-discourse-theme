@@ -18,6 +18,9 @@ pnpm is invoked through `npx` at a pinned version because corepack cannot reach 
 
 ## Development
 
+Development happens against the PRE instance, `https://discourse.gestiona4dev.tech`.
+Production (`https://gestionaavanza.espublico.com`) only receives reviewed work.
+
 Sync the working tree to a live Discourse instance on every save:
 
 ```bash
