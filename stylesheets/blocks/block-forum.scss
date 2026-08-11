@@ -1,0 +1,56 @@
+.block-forum {
+  &__header {
+    @include lane-header;
+  }
+
+  &__title {
+    @include lane-title;
+  }
+
+  &__empty {
+    @include lane-empty;
+  }
+
+  &__list {
+    @include lane-list;
+
+    > li {
+      display: flex;
+      align-items: baseline;
+      gap: var(--space-3);
+    }
+  }
+
+  &__item-link {
+    flex: 1 1 auto;
+    min-width: 0;
+    color: inherit;
+    font-weight: 600;
+    line-height: var(--line-height-medium);
+
+    &:hover,
+    &:focus-visible {
+      color: var(--ga-accent);
+    }
+  }
+
+  // Reply count carries this lane: these threads average 4.5 replies, so the
+  // number is the strongest signal that the forum is alive. Tinted fill rather
+  // than tinted text, so the cyan never has to meet a text contrast ratio.
+  &__item-replies {
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-half);
+    padding: var(--space-half) var(--space-2);
+    border-radius: var(--d-border-radius);
+    background: var(--ga-surface-tint);
+    color: var(--primary);
+    font-size: var(--font-down-2);
+    font-variant-numeric: tabular-nums;
+
+    .d-icon {
+      color: var(--ga-accent);
+    }
+  }
+}

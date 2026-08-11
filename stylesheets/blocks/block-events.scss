@@ -1,0 +1,50 @@
+.block-events {
+  padding: var(--space-4);
+  border: 1px solid var(--ga-border-soft);
+  border-radius: var(--d-border-radius-large);
+  background: var(--ga-surface-soft);
+
+  &__header {
+    @include lane-header;
+  }
+
+  &__title {
+    @include lane-title;
+  }
+
+  &__empty {
+    @include lane-empty;
+  }
+
+  &__list {
+    @include lane-list;
+  }
+
+  &__item-link {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-half);
+    color: inherit;
+
+    &:hover .block-events__item-title,
+    &:focus-visible .block-events__item-title {
+      color: var(--ga-accent);
+    }
+  }
+
+  &__item-date {
+    color: var(--primary-medium);
+    font-size: var(--font-down-2);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__item-title {
+    font-weight: 600;
+    line-height: var(--line-height-medium);
+  }
+
+  &__footer {
+    margin-top: var(--space-3);
+  }
+}

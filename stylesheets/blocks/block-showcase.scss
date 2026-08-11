@@ -1,0 +1,64 @@
+.block-showcase {
+  &__header {
+    @include lane-header;
+  }
+
+  &__title {
+    @include lane-title;
+  }
+
+  &__empty {
+    @include lane-empty;
+  }
+
+  &__grid {
+    display: grid;
+
+    // Intrinsic sizing: the number of columns follows the available width, so
+    // the grid never needs a breakpoint of its own.
+    grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__card {
+    @include lane-card;
+    overflow: hidden;
+  }
+
+  &__card-link {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    color: inherit;
+  }
+
+  &__card-image {
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    object-fit: cover;
+    background: var(--ga-surface-soft);
+
+    // Topics with no cover image still occupy a cell, so the grid stays even.
+    &.--placeholder {
+      display: grid;
+      place-items: center;
+      color: var(--primary-low-mid);
+      font-size: var(--font-up-3);
+    }
+  }
+
+  &__card-title {
+    padding: var(--space-3);
+    font-weight: 600;
+    line-height: var(--line-height-medium);
+
+    .block-showcase__card-link:hover &,
+    .block-showcase__card-link:focus-visible & {
+      color: var(--ga-accent);
+    }
+  }
+}

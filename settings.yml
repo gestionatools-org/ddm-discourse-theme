@@ -1,1 +1,70 @@
 # Functional configuration only. Display strings live in locales/en.yml.
+#
+# Every homepage lane is keyed by category ID, never by slug. On this instance
+# the slugs are legacy and no longer describe their category — id 4
+# "Te contamos..." is `comunidad-expertos`, id 5 "El foro del Certificado" is
+# `grupos-de-trabajo`, id 50 "Analiza" is `analitica-datos`. A slug rename would
+# silently empty a lane; an ID rename is not a thing.
+#
+# Discourse has no single-category setting type, so these are plain integers
+# (same as discourse-theme-skills' `sidebar_category_id`). 0 disables the lane.
+
+# --- Lane 1: news -----------------------------------------------------------
+# Announcements parent. Subcategory topics are included in the listing.
+news_category_id:
+  type: integer
+  default: 4
+
+news_count:
+  type: integer
+  default: 4
+  min: 1
+  max: 10
+
+# --- Lane 2: the certification forum ----------------------------------------
+# Parent of the ideas subcategory, whose topics are included.
+forum_category_id:
+  type: integer
+  default: 5
+
+forum_count:
+  type: integer
+  default: 6
+  min: 1
+  max: 15
+
+# --- Lane 3: showcase -------------------------------------------------------
+# Rendered as an image grid, so point this at a category whose topics carry a
+# cover image. Topics without one degrade to a text card.
+showcase_category_id:
+  type: integer
+  default: 78
+
+showcase_count:
+  type: integer
+  default: 6
+  min: 2
+  max: 12
+
+# --- Lane 4: events ---------------------------------------------------------
+# A plain category listing, not a calendar: `calendar_enabled` is off on this
+# site, so no real event dates are serialized. Sorted by topic recency.
+events_category_id:
+  type: integer
+  default: 59
+
+events_count:
+  type: integer
+  default: 4
+  min: 1
+  max: 10
+
+# --- Lane 5: library --------------------------------------------------------
+# Reference categories rendered as directory cards rather than topic lists.
+# Their topics have essentially zero replies (id 73's whole tree: 66 topics,
+# 0 replies ever), so "latest topic" carries no signal and a list would be a
+# misleading affordance.
+library_category_ids:
+  type: list
+  list_type: category
+  default: "73|85|14"
