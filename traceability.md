@@ -37,3 +37,11 @@
 `success` and `love` were darkened the minimum amount needed to reach 4.5:1 while preserving hue (`#00bb88`→`#008762`, `#ee0055`→`#e90053`). Every colour in both schemes is contrast-checked.
 
 **Open.** API key or staging site — without one nothing can be verified visually and `discourse_theme watch` cannot run.
+
+## 2026-08-11 — CI
+
+Pushed to `gestionatools-org/discourse-theme`. Linting green; the two test jobs fail upstream.
+
+**Template lint (fixed).** Correction to the commit message on `3e312c2`: the trigger was not a skeleton gap. `discourse/.github` #216 (2026-05-15) makes the shared workflow *skip* the template-lint step when no config is present — the skeleton passes CI precisely because it ships no `.template-lintrc.cjs`. Copying that file over from `discourse-theme-skills` is what turned the step on, and the skeleton has no `ember-template-lint` binary to run it. Deleting the file would also have fixed it; declaring the dependency was chosen instead because the homepage blocks will be `.gjs` and template lint catches accessibility defects that matter here — it rejected an alt-less `<img>` in a smoke test. Note `discourse-theme-skills` pins `@discourse/lint-configs` 2.43.0, which still exported `./template-lint`; 3.2.0 does not, so the config is self-contained.
+
+**Redis (upstream, unresolved).** `backend_tests` and `system_tests` both fail at "Create and migrate database" with `Redis::CannotConnectError`, caused by `*** FATAL CONFIG FILE ERROR (Redis 8.0.2) *** Can't open the log file` during the Start redis step. Reproducible across three runs, not flaky. The theme contributes no Ruby, no migrations and only the stock core-features spec, so nothing here can influence it; `discourse/.github` has only a `v1` tag, so there is no known-good ref to pin. Treat linting as the effective gate until Discourse fixes their CI image.
