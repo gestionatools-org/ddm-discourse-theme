@@ -1,1 +1,19 @@
-// Brand typography. Override core font variables here, never in component files.
+// Corporate typography is Roboto (presentaciones/assets/css/corporate.css).
+// Roboto ships with Discourse core, so no external font request and no
+// csp_extensions modifier is needed — keep it that way.
+:root {
+  --font-family: "Roboto", system-ui, -apple-system, sans-serif;
+  --heading-font-family: "Roboto", system-ui, -apple-system, sans-serif;
+}
+
+// The corporate decks pair heavy, tight headings with comfortable body copy.
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--heading-font-family);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}

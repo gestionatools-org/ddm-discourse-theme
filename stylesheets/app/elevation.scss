@@ -1,0 +1,11 @@
+// Corporate elevation. The decks use a single soft card shadow tinted with the
+// deep teal rather than neutral black, which keeps surfaces from reading grey.
+// In dark mode the shadow disappears and borders carry the separation instead.
+:root {
+  --ga-shadow-card: 0 2px 16px rgb(0, 48, 64, 0.06);
+}
+
+:root[data-theme="dark"],
+:root[data-scheme="dark"] {
+  --ga-shadow-card: none;
+}

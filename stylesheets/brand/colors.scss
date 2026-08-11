@@ -1,2 +1,41 @@
-// Brand tokens. Use light-dark() so a single token serves both palettes.
-// Core palette colors belong in about.json > color_schemes, not here.
+// Gestiona Avanza brand tokens.
+//
+// Source of truth: presentaciones/assets/css/corporate.css, [data-brand="gestiona-avanza"].
+// The cyan ramp was sampled pixel-by-pixel from the official logotype — do not
+// eyeball adjustments here. The full corporate catalogue lives at
+// https://design.g3stiona.com/recursos-nuevo-espublico/
+//
+// ACCESSIBILITY CONSTRAINT (RD 1112/2018 → WCAG 2.1 AA)
+// The brand cyan #00b4d3 scores 2.48:1 on white. It must NEVER carry text or
+// convey a state on a light background. On light it is a fill/border/large-mark
+// colour only. Interactive text on light uses the parent Gestiona petrol
+// #006d85 (5.96:1) — brand-coherent, since the isotype is petrol arcs around a
+// cyan arrow. On the dark surface #003040 the cyan clears AA (5.66:1) and does
+// carry interactive text there.
+:root {
+  // Cyan ramp — Gestiona Avanza
+  --ga-cyan-200: #b1e9f8;
+  --ga-cyan-400: #4cc4e0;
+  --ga-cyan-500: #00b4d3;
+  --ga-cyan-700: #00839e;
+
+  // Gestiona petrol — parent brand, used for interactive text on light
+  --ga-petrol: #006d85;
+  --ga-petrol-dark: #004d5e;
+  --ga-deep: #003040;
+
+  // esFirma gold — reserved for certification/credential surfaces
+  --ga-gold: #a94;
+
+  // Accent that always meets AA against the current surface
+  --ga-accent: light-dark(var(--ga-petrol), var(--ga-cyan-400));
+
+  // Decorative cyan — fills, rules, icon marks. Never text on light.
+  // Deliberately identical in both schemes: it is the one constant brand signal.
+  --ga-mark: var(--ga-cyan-500);
+
+  // Tinted surfaces
+  --ga-surface-soft: light-dark(#ecf0f3, #0a4453);
+  --ga-surface-tint: light-dark(#e3f4f9, #004d5e);
+  --ga-border-soft: light-dark(#d4dee3, #0f5164);
+}

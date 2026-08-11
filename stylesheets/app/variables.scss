@@ -1,2 +1,14 @@
-// Core CSS custom property overrides (layout, radii, spacing).
-// See .claude/skills/discourse-theme-authoring/css-variables.md for the full list.
+// Core CSS custom property overrides, mapped from the corporate design system.
+// Full list of overridable properties:
+//   .claude/skills/discourse-theme-authoring/css-variables.md
+:root {
+  // Corporate radius scale: 8 / 14 / 20
+  --d-border-radius: 8px;
+  --d-border-radius-large: 14px;
+  --d-button-border-radius: 8px;
+  --d-input-border-radius: 8px;
+
+  // The decks run a 1280px stage; keep the forum measure close to it so
+  // embedded slide screenshots sit at their native scale.
+  --d-max-width: 1240px;
+}

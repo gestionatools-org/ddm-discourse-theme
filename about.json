@@ -8,7 +8,38 @@
   "minimum_discourse_version": null,
   "maximum_discourse_version": null,
   "assets": {},
-  "color_schemes": {},
-  "modifiers": {},
+  "modifiers": {
+    "serialize_topic_excerpts": true
+  },
+  "color_schemes": {
+    "Gestiona Avanza": {
+      "primary": "1a3a44",
+      "secondary": "ffffff",
+      "tertiary": "006d85",
+      "quaternary": "00b4d3",
+      "header_background": "ffffff",
+      "header_primary": "003040",
+      "highlight": "b1e9f8",
+      "danger": "b3003f",
+      "success": "008762",
+      "love": "e90053",
+      "hover": "ecf0f3",
+      "selected": "e3f4f9"
+    },
+    "Gestiona Avanza Oscuro": {
+      "primary": "ecf0f3",
+      "secondary": "003040",
+      "tertiary": "4cc4e0",
+      "quaternary": "00b4d3",
+      "header_background": "002631",
+      "header_primary": "ecf0f3",
+      "highlight": "00b4d3",
+      "danger": "ff6b8f",
+      "success": "4ddbb0",
+      "love": "ff6b8f",
+      "hover": "0a4453",
+      "selected": "004d5e"
+    }
+  },
   "screenshots": []
 }
