@@ -47,6 +47,10 @@ discourse_theme watch .          # first run prompts for site URL + Global-scope
 discourse_theme watch . --reset  # change site URL or API key
 ```
 
+**The first run needs a real terminal.** `discourse_theme` drives `tty-prompt`, including arrow-key `UI.select` menus, so it cannot be driven from an agent harness or any non-TTY context: the prompts auto-answer empty, the URL becomes `http://` with a blank host, and the run dies with `EOFError: end of file reached` inside `is_https_redirect?`. Answer the URL prompt with the scheme included (`https://…`) — without it the gem assumes port 80 and takes that same branch.
+
+Once `.discourse-site` holds url + api_key + theme_id, `watch` is fully non-interactive and runs anywhere.
+
 Credentials land in `.discourse-site` (gitignored). Never commit them. Prefer a staging site or theme-creator.io over production for iteration.
 
 ### Tests
