@@ -24,10 +24,13 @@ Production (`https://gestionaavanza.espublico.com`) only receives reviewed work.
 Sync the working tree to a live Discourse instance on every save:
 
 ```bash
-export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
+export PATH="/opt/homebrew/opt/ruby/bin:$(/opt/homebrew/opt/ruby/bin/gem environment gemdir)/bin:$PATH"
 gem install discourse_theme     # once
 discourse_theme watch .
 ```
+
+Gem binaries install into the RubyGems executable dir, which on Homebrew Ruby is
+not the interpreter's own `bin` — hence both entries on `PATH`.
 
 The first run asks for the site URL and an API key, and stores them in `.discourse-site` (gitignored). Point it at a staging site, not production.
 

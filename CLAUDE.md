@@ -39,10 +39,10 @@ npx pnpm@10.28.0 lint:types     # glint/ember-tsc only
 
 ### Live development against the Discourse instance
 
-`discourse_theme` (Ruby gem) syncs the working tree to a live site on every save. It needs the Homebrew Ruby, not macOS system Ruby 2.6:
+`discourse_theme` (Ruby gem) syncs the working tree to a live site on every save. It needs the Homebrew Ruby, not macOS system Ruby 2.6 — and the **RubyGems executable dir**, which on Homebrew is *not* the same as the Ruby bindir (`/opt/homebrew/opt/ruby/bin` holds `ruby`/`gem`; installed gem binaries land under `$(gem environment gemdir)/bin`):
 
 ```bash
-export PATH="/opt/homebrew/opt/ruby/bin:$PATH"
+export PATH="/opt/homebrew/opt/ruby/bin:$(/opt/homebrew/opt/ruby/bin/gem environment gemdir)/bin:$PATH"
 discourse_theme watch .          # first run prompts for site URL + Global-scope API key
 discourse_theme watch . --reset  # change site URL or API key
 ```
