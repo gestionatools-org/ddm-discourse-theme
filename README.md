@@ -32,7 +32,13 @@ discourse_theme watch .
 Gem binaries install into the RubyGems executable dir, which on Homebrew Ruby is
 not the interpreter's own `bin` — hence both entries on `PATH`.
 
-The first run asks for the site URL and an API key, and stores them in `.discourse-site` (gitignored). Point it at a staging site, not production.
+The first run asks for the site URL and an API key and stores them in `~/.discourse_theme`,
+keyed by project path. That file lives outside the repo, so `.gitignore` does not
+cover it — treat it as a credential store. Point the CLI at a staging site, not production.
+
+It also needs a real TTY on that first run (`tty-prompt` selection menus), so run it
+from a terminal rather than from an editor or agent shell. Afterwards it is fully
+non-interactive.
 
 ## Linting
 
