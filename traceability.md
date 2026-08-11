@@ -18,4 +18,10 @@
 
 **Verification.** `pnpm lint` green across stylelint, eslint, prettier and `ember-tsc`. System specs not runnable locally (require a Discourse dev checkout); CI covers them.
 
-**Open.** Theme name / block namespace (`theme:espublico:*`) unconfirmed. Target instance URL for `discourse_theme watch` not configured. Design direction pending.
+**Open.** Target instance URL for `discourse_theme watch` not configured. Brand assets and category taxonomy pending.
+
+## 2026-08-11 — Direction agreed
+
+- **Community model:** mixed — support for public-administration customers alongside open knowledge categories.
+- **Architecture:** hybrid. Blocks confined to the custom homepage; all other surfaces via SCSS + transformers over native layouts. Rationale: the Blocks API is still experimental, so the blast radius of an API change stays limited to one page that can fall back to a stock homepage.
+- **Theme name:** `Espublico Theme`, block namespace `theme:espublico:*`.

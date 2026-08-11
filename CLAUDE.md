@@ -96,7 +96,9 @@ Two composition systems coexist:
 - **Plugin outlets** (`api.renderInOutlet`) — insertion points that splice into core templates. Mature, ubiquitous, but couple the theme to core template internals.
 - **Blocks API** (`api.renderBlocks`) — a declarative layout frame. Blocks are self-contained Glimmer components registered with `@block("theme:espublico:<name>", {...})` and placed into core outlets (`hero-blocks`, `homepage-blocks`, `main-outlet-blocks`, `sidebar-blocks`, `sidebar-discovery`) with declarative `conditions` instead of imperative `if` logic. Discourse runs it in production on Meta and it is where customization is heading, but it is **still marked experimental** — pin `minimum_discourse_version` when relying on it.
 
-Default to Blocks for anything layout-shaped; fall back to outlets when no block outlet reaches the target. Themes **cannot** register new block outlets — only plugins can.
+**Agreed scope for this theme (hybrid):** Blocks are used for the custom homepage only. Every other surface — topic list, topic view, categories, sidebar, header — is styled with SCSS and adjusted with transformers on top of native layouts. This keeps the experimental surface area contained to one page that can be swapped for a stock homepage if the API shifts. Do not introduce Blocks outside `homepage-blocks` without agreeing it first.
+
+Themes **cannot** register new block outlets — only plugins can.
 
 ```
 javascripts/discourse/
