@@ -5,6 +5,7 @@ import BlockForum from "../blocks/block-forum";
 import BlockLibrary from "../blocks/block-library";
 import BlockNews from "../blocks/block-news";
 import BlockShowcase from "../blocks/block-showcase";
+import { parseCategoryIds } from "../lib/category-topics";
 
 // The homepage is composed of five lanes. Every lane is keyed by category ID
 // because this instance's slugs are legacy and no longer match their category.
@@ -80,7 +81,7 @@ export default apiInitializer((api) => {
       id: "home-library",
       args: {
         title: "homepage.library.title",
-        categoryIds: settings.library_category_ids,
+        categoryIds: parseCategoryIds(settings.library_category_ids),
       },
     },
   ]);

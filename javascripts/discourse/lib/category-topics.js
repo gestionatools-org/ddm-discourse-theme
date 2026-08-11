@@ -30,18 +30,35 @@ export async function loadCategoryTopics(store, categoryId, count) {
 }
 
 /**
+ * Parse a `type: list` theme setting into category IDs.
+ *
+ * Discourse hands list settings to JavaScript as a pipe-separated **string**,
+ * not an array — `"73|85|14"`. An unset setting is `""`, which splits to `[""]`,
+ * so the non-finite entries have to be dropped rather than passed on as NaN.
+ *
+ * @param {String} value - raw setting value
+ * @returns {Array<Number>}
+ */
+export function parseCategoryIds(value) {
+  if (!value) {
+    return [];
+  }
+
+  return value
+    .split("|")
+    .map((id) => parseInt(id, 10))
+    .filter((id) => Number.isFinite(id));
+}
+
+/**
  * Resolve category IDs against the preloaded category list.
  *
- * `library_category_ids` is a pipe-separated list setting, which Discourse
- * hands over as an array of strings; `Category.findById` needs numbers. IDs
- * that no longer resolve are dropped rather than rendered as blanks, so a
+ * IDs that no longer resolve are dropped rather than rendered as blanks, so a
  * category deleted in admin degrades to one missing card.
  *
- * @param {Array<String|Number>} ids
+ * @param {Array<Number>} ids
  * @returns {Array<Category>}
  */
 export function resolveCategories(ids) {
-  return (ids || [])
-    .map((id) => Category.findById(parseInt(id, 10)))
-    .filter(Boolean);
+  return (ids || []).map((id) => Category.findById(id)).filter(Boolean);
 }
