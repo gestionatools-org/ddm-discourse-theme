@@ -1,4 +1,32 @@
 es:
   theme_metadata:
-    description: "Tema Discourse propio para la comunidad de es|public."
-    settings: {}
+    description: "Tema de Discourse para la comunidad de es|public."
+
+  homepage:
+    news:
+      title: "Novedades"
+      link_text: "Ver todas"
+      empty: "Todavía no hay novedades."
+    forum:
+      title: "El foro del Certificado"
+      link_text: "Entrar al foro"
+      empty: "Todavía no hay conversaciones."
+      replies:
+        one: "%{count} respuesta"
+        other: "%{count} respuestas"
+    showcase:
+      title: "Lo que hacen los certificados"
+      link_text: "Ver todo"
+      empty: "Todavía no hay trabajos publicados."
+    events:
+      title: "Eventos"
+      link_text: "Ver agenda"
+      empty: "No hay eventos programados."
+    library:
+      title: "Biblioteca"
+      subcategories:
+        one: "%{count} sección"
+        other: "%{count} secciones"
+      documents:
+        one: "%{count} documento"
+        other: "%{count} documentos"

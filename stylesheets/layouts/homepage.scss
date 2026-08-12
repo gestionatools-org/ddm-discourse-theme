@@ -1,0 +1,64 @@
+// Homepage composition.
+//
+// Placement only — each lane's own appearance lives in stylesheets/blocks/.
+// Sizing keys off a container query rather than the viewport, because the
+// homepage narrows when the sidebar opens and the layout should answer to the
+// space it actually has, not to the width of the window.
+.homepage-blocks {
+  &__layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "home-main"
+      "home-side"
+      "home-showcase"
+      "home-library";
+    gap: var(--space-5);
+    margin-block: var(--space-5);
+  }
+
+  @container homepage-blocks (width > 60rem) {
+    &__layout {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+      grid-template-areas:
+        "home-main home-side"
+        "home-showcase home-showcase"
+        "home-library home-library";
+    }
+  }
+
+  &__block,
+  &__block-container {
+    // Grid children default to min-content width; without this a long topic
+    // title would widen the column instead of wrapping.
+    min-width: 0;
+
+    &--home-main {
+      grid-area: home-main;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-5);
+    }
+
+    &--home-side {
+      grid-area: home-side;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-5);
+
+      // A lane whose category setting is 0 renders nothing; collapse the
+      // column rather than leaving a gap in the grid.
+      &:empty {
+        display: none;
+      }
+    }
+
+    &--home-showcase {
+      grid-area: home-showcase;
+    }
+
+    &--home-library {
+      grid-area: home-library;
+    }
+  }
+}

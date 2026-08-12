@@ -1,0 +1,69 @@
+// Shared chrome for the homepage lanes.
+//
+// Lives in app/ rather than layouts/ because blocks/ consumes it and
+// common.scss imports app before blocks — a mixin declared in layouts/ would be
+// referenced before it exists.
+@mixin lane-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid var(--ga-border-soft);
+}
+
+@mixin lane-title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: var(--font-up-1);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+
+  .d-icon {
+    // Decorative mark only — it never carries the text, so the brand cyan is
+    // allowed here despite failing AA as a text colour on light surfaces.
+    color: var(--ga-mark);
+    font-size: var(--font-down-1);
+  }
+}
+
+@mixin lane-empty {
+  margin: 0;
+  padding: var(--space-4) 0;
+  color: var(--primary-medium);
+}
+
+@mixin lane-card {
+  display: block;
+  height: 100%;
+  border: 1px solid var(--ga-border-soft);
+  border-radius: var(--d-border-radius-large);
+  background: var(--secondary);
+  box-shadow: var(--ga-shadow-card);
+  transition: border-color 0.15s ease;
+
+  &:hover,
+  &:focus-visible {
+    border-color: var(--ga-accent);
+  }
+}
+
+// Rows that read as a list of links: hairline separators, no bullets.
+@mixin lane-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  > li {
+    padding-block: var(--space-3);
+    border-bottom: 1px solid var(--ga-border-soft);
+
+    &:last-child {
+      border-bottom: 0;
+      padding-bottom: 0;
+    }
+  }
+}

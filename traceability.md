@@ -44,4 +44,46 @@ Pushed to `gestionatools-org/discourse-theme`. Linting green; the two test jobs 
 
 **Template lint (fixed).** Correction to the commit message on `3e312c2`: the trigger was not a skeleton gap. `discourse/.github` #216 (2026-05-15) makes the shared workflow *skip* the template-lint step when no config is present — the skeleton passes CI precisely because it ships no `.template-lintrc.cjs`. Copying that file over from `discourse-theme-skills` is what turned the step on, and the skeleton has no `ember-template-lint` binary to run it. Deleting the file would also have fixed it; declaring the dependency was chosen instead because the homepage blocks will be `.gjs` and template lint catches accessibility defects that matter here — it rejected an alt-less `<img>` in a smoke test. Note `discourse-theme-skills` pins `@discourse/lint-configs` 2.43.0, which still exported `./template-lint`; 3.2.0 does not, so the config is self-contained.
 
-**Redis (upstream, unresolved).** `backend_tests` and `system_tests` both fail at "Create and migrate database" with `Redis::CannotConnectError`, caused by `*** FATAL CONFIG FILE ERROR (Redis 8.0.2) *** Can't open the log file` during the Start redis step. Reproducible across three runs, not flaky. The theme contributes no Ruby, no migrations and only the stock core-features spec, so nothing here can influence it; `discourse/.github` has only a `v1` tag, so there is no known-good ref to pin. Treat linting as the effective gate until Discourse fixes their CI image.
+**Redis (upstream, resolved 2026-08-11).** `backend_tests` and `system_tests` both failed at "Create and migrate database" with `Redis::CannotConnectError`, caused by `*** FATAL CONFIG FILE ERROR (Redis 8.0.2) *** Can't open the log file` during the Start redis step. Reproducible across three runs, not flaky, and nothing in this theme could influence it. It cleared on its own upstream — both jobs pass now — so the earlier "treat linting as the effective gate" conclusion no longer applies. All four checks are live.
+
+## 2026-08-11 — Instance reconnaissance
+
+**Access.** A Global-scope API key against PRE unblocked the taxonomy work. Note the gem stores credentials in `~/.discourse_theme`, keyed by project path — *not* in `.discourse-site`; the skeleton's `.gitignore` entry is vestigial and offered no protection. During this session the key was leaked into the chat transcript by a redaction filter that matched on hash key names, and under `api_keys` the key name is the site URL, so the value passed through. Key must be rotated.
+
+**Taxonomy.** 35 categories, 13 top-level. Three findings reshaped the homepage design:
+
+1. **Slugs are legacy and no longer describe their category** — id 4 "Te contamos…" is `comunidad-expertos`, id 5 "El foro del Certificado" is `grupos-de-trabajo`, id 50 "Analiza" is `analitica-datos`, id 53 "Moderadores" is `vota-tu-gestiona`. Everything is therefore keyed by numeric ID; a slug rename would silently empty a lane.
+2. **Category 73's whole tree is a repository, not a forum.** 66 topics with `post_count == topic_count` exactly — not one reply in its history. Presenting it with a topic list would advertise a conversation that does not exist.
+3. **Category 78 "Pósters" is the most conversational surface on the site** (5.7 replies/topic, the highest anywhere) and one of only four publicly readable categories, yet it sits buried as a subcategory of an announcements channel.
+
+Only cat 4 and children 66, 78, 87 are public; everything else is `read_restricted`. 59 groups exist, including 33 `CAAG*` cohorts — deliberately unused, see below.
+
+## 2026-08-11 — Custom homepage
+
+**Scope decision.** Ricardo confirmed the five lanes, `custom_homepage`, and promoting cat 78. He also ruled out differentiating by cohort or certification status: *every member is a student*. That collapses the conditions to nothing — the only split is anonymous vs. signed in, which category permissions already enforce server-side. No `user` or `group` conditions anywhere.
+
+**Lane shapes derive from measured use, not tree position.** News (177 topics/year) gets excerpts; forum (1.7 and 4.5 replies/topic) gets the reply count promoted as proof of life; showcase gets an image grid; library gets directory cards and *no topic list at all*.
+
+**Layout** keys off a container query rather than the viewport, since the homepage narrows when the sidebar opens and should answer to the space it has.
+
+**Two bugs CI caught that local lint could not.**
+- `type: list` settings arrive in JavaScript as a pipe-separated **string**, not an array. The block's arg validation rejected it at registration, and that error aborted the theme's JS — which is why *seven* core-feature examples failed rather than just the homepage ones. Fixed by splitting in the initializer, where the setting enters.
+- The remaining failures were `custom_homepage` working as intended: seven examples start at `/` and expect core's topic list or `#create-topic`. Narrowed with `skip_examples`, not deleted.
+
+**Coverage gap, recorded deliberately.** `topics:read` also skips "lists topics for a category", which would pass on its own — Discourse exposes no narrower key. 19 examples drop to 10. Category listings are now unguarded by CI and need manual checking when topic-list styling changes.
+
+**Not visually verified.** The instance is login-required and this session had no browser session; only compilation (27 theme fields, 0 errors) and CI are confirmed.
+
+## 2026-08-12 — Real event dates in the events lane
+
+`discourse-calendar` was installed but disabled on PRE. Enabled it, plus `sort_categories_by_event_start_date_enabled`; the other two switches (`discourse_post_event_enabled`, `display_post_event_date_on_topic_title`) were already on.
+
+**The lane now shows a real start time where one exists.** `event_starts_at` reaches `topic_list_item` for topics carrying an `[event]` block, so the same lane renders both kinds without a second request: event date where serialized, topic date otherwise, distinguished by a `--scheduled` modifier.
+
+**Core's date helpers cannot render future dates and this is not obvious.** `relativeAgeMedium` computes `now - date` and treats anything under one minute as "now" — a negative distance clears that threshold, so `format="medium"` renders *every* future date as "now". `format="tiny"` is better but discards the sign, making an event three days out read exactly like a topic bumped three days ago. Event dates are therefore formatted absolutely with `Intl.DateTimeFormat`, locale taken from `<html lang>` so it tracks the Discourse UI rather than the browser. `moment` was rejected despite being the plugin's own idiom: it is an allowed eslint global but carries no type declaration, so `lint:types` would break.
+
+**Two verification mistakes worth remembering.** `discourse-calendar` was read from its standalone repo, which is stale — the plugin now lives in `discourse/discourse` under `plugins/`, where the category-settings connector has been rewritten for the form-based editor. And `sort_topics_by_event_start_date` was reported unset three times running because `/c/<slug>/<id>/show.json` errors while `/c/<id>/show.json` works, and a `jq // "unset"` default dressed the error up as an answer. The flag was set all along. Both facts underpinning the block itself were re-checked against the in-core copy and hold.
+
+**`[event]` fails silently when malformed.** It is a *block* bbcode, so the tag must open its own line; an emoji glued in front makes it cook as plain text. `EventValidator` returns early when zero events are extracted, without adding an error, so the post saves looking fine. Both events created during this session hit exactly this. Verify against the cooked HTML (`div.discourse-post-event`), never against a successful save.
+
+**Reference corpus is stale relative to the pinned lint config.** `@discourse/lint-configs` 3.2.0 requires the `discourse/ui-kit/*` imports and `trustHTML`; every theme in `.reference/` still uses the old `discourse/components/*`, `discourse/helpers/*` and `htmlSafe`. Copy patterns from the corpus, but let the linter arbitrate imports.

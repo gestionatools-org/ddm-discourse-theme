@@ -4,12 +4,15 @@
   "authors": "es|public",
   "about_url": "https://github.com/gestionatools-org/discourse-theme",
   "license_url": "https://github.com/gestionatools-org/discourse-theme/blob/main/LICENSE",
-  "theme_version": "0.1.0",
-  "minimum_discourse_version": null,
+  "theme_version": "0.2.0",
+  "minimum_discourse_version": "2026.7.0",
   "maximum_discourse_version": null,
   "assets": {},
   "modifiers": {
-    "serialize_topic_excerpts": true
+    "serialize_topic_excerpts": true,
+    "custom_homepage": true,
+    "topic_thumbnail_sizes": ["400x300"],
+    "svg_icons": ["newspaper"]
   },
   "color_schemes": {
     "Gestiona Avanza": {

@@ -1,4 +1,42 @@
 en:
   theme_metadata:
     description: "Custom Discourse theme for the es|public community."
-    settings: {}
+    settings:
+      news_category_id: "Category shown in the news lane. Its subcategories are included. 0 hides the lane."
+      news_count: "How many news topics to show."
+      forum_category_id: "Category shown in the certification forum lane. Its subcategories are included. 0 hides the lane."
+      forum_count: "How many forum topics to show."
+      showcase_category_id: "Category shown as an image grid. Topics without a cover image degrade to a text card. 0 hides the lane."
+      showcase_count: "How many showcase entries to show."
+      events_category_id: "Category shown in the events lane. 0 hides the lane."
+      events_count: "How many events to show."
+      library_category_ids: "Reference categories rendered as directory cards instead of topic lists."
+
+  homepage:
+    news:
+      title: "What's new"
+      link_text: "See all"
+      empty: "Nothing new yet."
+    forum:
+      title: "The certification forum"
+      link_text: "Go to the forum"
+      empty: "No conversations yet."
+      replies:
+        one: "%{count} reply"
+        other: "%{count} replies"
+    showcase:
+      title: "What our members are making"
+      link_text: "See everything"
+      empty: "Nothing published yet."
+    events:
+      title: "Events"
+      link_text: "See the calendar"
+      empty: "No events scheduled."
+    library:
+      title: "Library"
+      subcategories:
+        one: "%{count} section"
+        other: "%{count} sections"
+      documents:
+        one: "%{count} document"
+        other: "%{count} documents"
