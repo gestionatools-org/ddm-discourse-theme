@@ -21,7 +21,7 @@
 
     &:hover .block-news__item-title,
     &:focus-visible .block-news__item-title {
-      color: var(--ga-accent);
+      color: var(--tertiary);
     }
   }
 
@@ -41,7 +41,7 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
     margin: 0;
-    color: var(--primary-medium);
+    color: var(--ga-muted-fg);
     font-size: var(--font-down-1);
     line-height: var(--line-height-large);
   }

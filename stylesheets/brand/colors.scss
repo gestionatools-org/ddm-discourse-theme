@@ -1,41 +1,97 @@
 // Gestiona Avanza brand tokens.
 //
-// Source of truth: presentaciones/assets/css/corporate.css, [data-brand="gestiona-avanza"].
-// The cyan ramp was sampled pixel-by-pixel from the official logotype — do not
-// eyeball adjustments here. The full corporate catalogue lives at
-// https://design.g3stiona.com/recursos-nuevo-espublico/
+// SOURCE OF TRUTH: the identity system at `img-gestiona-avanza`, closed and
+// stable since 2026-08-04 — `tokens/gestiona-avanza.tokens.css`, validated by
+// its own `tokens/audit.py`. The ramps are generated in OKLCH at constant hue
+// with strictly decreasing lightness; `--ga-petrol-700` and `--ga-cyan-500` are
+// the brand colours themselves, sampled pixel by pixel from the official
+// logotype. Copy steps from there verbatim — never eyeball an intermediate.
+//
+// Do NOT re-derive any of this from `presentaciones/assets/css/corporate.css`.
+// That file is downstream, multi-brand presentation CSS and has shipped wrong
+// Gestiona Avanza values before. Every colour this theme carried before v0.3.0
+// came from there, and six were wrong — one was the parent brand's petrol,
+// another was a pink belonging to the rrhh sub-brand. See `docs/brand-audit.md`.
 //
 // ACCESSIBILITY CONSTRAINT (RD 1112/2018 → WCAG 2.1 AA)
-// The brand cyan #00b4d3 scores 2.48:1 on white. It must NEVER carry text or
-// convey a state on a light background. On light it is a fill/border/large-mark
-// colour only. Interactive text on light uses the parent Gestiona petrol
-// #006d85 (5.96:1) — brand-coherent, since the isotype is petrol arcs around a
-// cyan arrow. On the dark surface #003040 the cyan clears AA (5.66:1) and does
-// carry interactive text there.
+// The brand cyan #00b4d3 scores 2.48:1 on white: on a light surface it is a
+// fill, a rule or a large mark — never text, never a state. The action colour
+// inverts between schemes instead: petrol on light (5.94:1 against white),
+// brand cyan at full strength on dark (7.22:1 against petrol ink). "La marca no
+// se diluye en oscuro: se enciende."
+//
+// That inversion is declared per scheme in `about.json`, so it already lives in
+// core's `--tertiary`. Theme SCSS reaches for `var(--tertiary)` for anything
+// interactive rather than keeping a token of its own.
 :root {
-  // Cyan ramp — Gestiona Avanza
+  // --- Petrol ramp (OKLCH hue 222) ---------------------------------------
+  --ga-petrol-50: #f0f9fc;
+  --ga-petrol-100: #dbeff7;
+  --ga-petrol-200: #bce0ed;
+  --ga-petrol-300: #92c7db;
+  --ga-petrol-400: #52a0b9;
+  --ga-petrol-500: #2c86a1;
+  --ga-petrol-600: #187994;
+  --ga-petrol-700: #006d87; // brand
+  --ga-petrol-800: #005469;
+  --ga-petrol-900: #013947;
+  --ga-petrol-950: #032029;
+
+  // --- Cyan ramp (OKLCH hue 216) -----------------------------------------
+  --ga-cyan-50: #effbff;
+  --ga-cyan-100: #d6f5fd;
   --ga-cyan-200: #b1e9f8;
+  --ga-cyan-300: #76d4eb;
   --ga-cyan-400: #4cc4e0;
-  --ga-cyan-500: #00b4d3;
+  --ga-cyan-500: #00b4d3; // brand
+  --ga-cyan-600: #009dbc;
   --ga-cyan-700: #00839e;
+  --ga-cyan-800: #00677d;
+  --ga-cyan-900: #004b5b;
 
-  // Gestiona petrol — parent brand, used for interactive text on light
-  --ga-petrol: #006d85;
-  --ga-petrol-dark: #004d5e;
-  --ga-deep: #003040;
+  // --- Neutral ramp (OKLCH hue 225, near-zero chroma) --------------------
+  // Greys, borders and backgrounds sit on the same hue axis as the two brand
+  // colours, which is why nothing here reads as an unrelated grey.
+  --ga-neutral-0: #fff;
+  --ga-neutral-50: #f9fbfd;
+  --ga-neutral-100: #f1f5f7;
+  --ga-neutral-200: #e2e8eb;
+  --ga-neutral-300: #d1d8db;
+  --ga-neutral-400: #9aa5aa;
+  --ga-neutral-500: #717f86;
+  --ga-neutral-600: #58686e;
+  --ga-neutral-700: #3d4e55;
+  --ga-neutral-800: #1f3138;
+  --ga-neutral-900: #112127;
+  --ga-neutral-950: #061318;
 
-  // esFirma gold — reserved for certification/credential surfaces
-  --ga-gold: #a94;
+  // --- Dark-scheme surfaces ----------------------------------------------
+  // Declared outright by the system rather than taken from a ramp step: the
+  // dark scheme needs stops between neutral-900 and neutral-950 that the ramp
+  // does not provide.
+  --ga-dark-card: #0f1e24;
+  --ga-dark-muted: #1d2e35;
+  --ga-dark-accent: #153843;
+  --ga-dark-border: #28353b;
+  --ga-dark-muted-fg: #99a7ad;
 
-  // Accent that always meets AA against the current surface
-  --ga-accent: light-dark(var(--ga-petrol), var(--ga-cyan-400));
+  // --- Semantic surfaces --------------------------------------------------
+  // Core's --secondary is the page background (the system's --background).
+  // Cards sit one step above it, which core has no token for.
+  --ga-card: light-dark(var(--ga-neutral-0), var(--ga-dark-card));
+  --ga-muted: light-dark(var(--ga-neutral-100), var(--ga-dark-muted));
+  --ga-accent-surface: light-dark(var(--ga-cyan-50), var(--ga-dark-accent));
+  --ga-border: light-dark(var(--ga-neutral-200), var(--ga-dark-border));
+  --ga-muted-fg: light-dark(var(--ga-neutral-600), var(--ga-dark-muted-fg));
 
-  // Decorative cyan — fills, rules, icon marks. Never text on light.
-  // Deliberately identical in both schemes: it is the one constant brand signal.
+  // Decorative cyan: fills, rules, icon marks. Never text on a light surface.
+  // Deliberately identical in both schemes — the one constant brand signal.
   --ga-mark: var(--ga-cyan-500);
 
-  // Tinted surfaces
-  --ga-surface-soft: light-dark(#ecf0f3, #0a4453);
-  --ga-surface-tint: light-dark(#e3f4f9, #004d5e);
-  --ga-border-soft: light-dark(#d4dee3, #0f5164);
+  // The 3px edge, the signature of the system. Its colour is decided by the
+  // surface underneath, not by the element: this value is calibrated to 3.09:1
+  // against the light background, which is why it drops one ramp step there.
+  // Inside the dark sidebar that constraint does not apply and the edge uses
+  // the brand cyan at full strength instead.
+  --ga-edge: light-dark(var(--ga-cyan-600), var(--ga-cyan-500));
 }

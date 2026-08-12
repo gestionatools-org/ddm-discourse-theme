@@ -10,7 +10,7 @@
   gap: var(--space-3);
   margin-bottom: var(--space-3);
   padding-bottom: var(--space-2);
-  border-bottom: 1px solid var(--ga-border-soft);
+  border-bottom: 1px solid var(--ga-border);
 }
 
 @mixin lane-title {
@@ -20,7 +20,6 @@
   margin: 0;
   font-size: var(--font-up-1);
   font-weight: 700;
-  letter-spacing: -0.02em;
 
   .d-icon {
     // Decorative mark only — it never carries the text, so the brand cyan is
@@ -33,21 +32,23 @@
 @mixin lane-empty {
   margin: 0;
   padding: var(--space-4) 0;
-  color: var(--primary-medium);
+  color: var(--ga-muted-fg);
 }
 
+// Flat surface separated by a border, never by a shadow — "bordes antes que
+// sombras" (see app/elevation.scss). The card sits one step above the page
+// background, which is what --ga-card exists for.
 @mixin lane-card {
   display: block;
   height: 100%;
-  border: 1px solid var(--ga-border-soft);
+  border: 1px solid var(--ga-border);
   border-radius: var(--d-border-radius-large);
-  background: var(--secondary);
-  box-shadow: var(--ga-shadow-card);
-  transition: border-color 0.15s ease;
+  background: var(--ga-card);
+  transition: border-color var(--ga-duration-fast) var(--ga-ease);
 
   &:hover,
   &:focus-visible {
-    border-color: var(--ga-accent);
+    border-color: var(--tertiary);
   }
 }
 
@@ -59,7 +60,7 @@
 
   > li {
     padding-block: var(--space-3);
-    border-bottom: 1px solid var(--ga-border-soft);
+    border-bottom: 1px solid var(--ga-border);
 
     &:last-child {
       border-bottom: 0;

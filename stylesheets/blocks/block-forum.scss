@@ -25,12 +25,12 @@
     flex: 1 1 auto;
     min-width: 0;
     color: inherit;
-    font-weight: 600;
+    font-weight: 700;
     line-height: var(--line-height-medium);
 
     &:hover,
     &:focus-visible {
-      color: var(--ga-accent);
+      color: var(--tertiary);
     }
   }
 
@@ -44,13 +44,13 @@
     gap: var(--space-half);
     padding: var(--space-half) var(--space-2);
     border-radius: var(--d-border-radius);
-    background: var(--ga-surface-tint);
+    background: var(--ga-accent-surface);
     color: var(--primary);
     font-size: var(--font-down-2);
     font-variant-numeric: tabular-nums;
 
     .d-icon {
-      color: var(--ga-accent);
+      color: var(--tertiary);
     }
   }
 }

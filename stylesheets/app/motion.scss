@@ -1,0 +1,26 @@
+// Corporate motion: three durations, one curve.
+//
+// The curve is the same `cubic-bezier(0.22, 1, 0.36, 1)` the presentation deck
+// system uses, so a slide and a forum page move alike. Anything that animates in
+// this theme picks one of these three durations — an ad-hoc `0.15s ease` is how
+// a system stops feeling like one.
+:root {
+  --ga-duration-fast: 120ms; // hover, focus, toggle
+  --ga-duration-base: 200ms; // open/close, state change
+  --ga-duration-slow: 320ms; // panel entry, dialog
+  --ga-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+// `prefers-reduced-motion` is mandatory in the system, not optional, and it is
+// declared once globally so no future component has to remember it.
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    // stylelint-disable-next-line declaration-no-important -- must beat core's
+    // own transition declarations, which are more specific than a theme rule.
+    animation-duration: 0.01ms !important;
+    // stylelint-disable-next-line declaration-no-important -- same reason.
+    transition-duration: 0.01ms !important;
+  }
+}
