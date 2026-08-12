@@ -40,25 +40,25 @@
     width: 100%;
     aspect-ratio: 4 / 3;
     object-fit: cover;
-    background: var(--ga-surface-soft);
+    background: var(--ga-muted);
 
     // Topics with no cover image still occupy a cell, so the grid stays even.
     &.--placeholder {
       display: grid;
       place-items: center;
-      color: var(--primary-low-mid);
+      color: var(--ga-neutral-400);
       font-size: var(--font-up-3);
     }
   }
 
   &__card-title {
     padding: var(--space-3);
-    font-weight: 600;
+    font-weight: 700;
     line-height: var(--line-height-medium);
 
     .block-showcase__card-link:hover &,
     .block-showcase__card-link:focus-visible & {
-      color: var(--ga-accent);
+      color: var(--tertiary);
     }
   }
 }

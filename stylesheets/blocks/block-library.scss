@@ -48,7 +48,7 @@
 
     .block-library__card-link:hover &,
     .block-library__card-link:focus-visible & {
-      color: var(--ga-accent);
+      color: var(--tertiary);
     }
   }
 
@@ -58,7 +58,7 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
     margin: 0;
-    color: var(--primary-medium);
+    color: var(--ga-muted-fg);
     font-size: var(--font-down-1);
     line-height: var(--line-height-large);
   }
@@ -66,7 +66,7 @@
   &__card-meta {
     margin: auto 0 0;
     padding-top: var(--space-2);
-    color: var(--primary-medium);
+    color: var(--ga-muted-fg);
     font-size: var(--font-down-2);
     font-variant-numeric: tabular-nums;
   }

@@ -1,8 +1,8 @@
 .block-events {
   padding: var(--space-4);
-  border: 1px solid var(--ga-border-soft);
+  border: 1px solid var(--ga-border);
   border-radius: var(--d-border-radius-large);
-  background: var(--ga-surface-soft);
+  background: var(--ga-muted);
 
   &__header {
     @include lane-header;
@@ -28,26 +28,29 @@
 
     &:hover .block-events__item-title,
     &:focus-visible .block-events__item-title {
-      color: var(--ga-accent);
+      color: var(--tertiary);
     }
   }
 
   &__item-date {
-    color: var(--primary-medium);
+    color: var(--ga-muted-fg);
     font-size: var(--font-down-2);
     text-transform: uppercase;
     letter-spacing: 0.04em;
 
-    // A real start time, not the topic's own date. Weighted up so a scheduled
+    // A real start time, not the topic's own date. Marked out so a scheduled
     // event reads as actionable next to the plain topic dates it sits among.
+    // 500 is the system's emphasis weight; core serves only 400 and 700, so
+    // until Roboto Medium is vendored this renders at 400 and the colour is
+    // doing the work on its own.
     &.--scheduled {
-      color: var(--ga-accent);
-      font-weight: 600;
+      color: var(--tertiary);
+      font-weight: 500;
     }
   }
 
   &__item-title {
-    font-weight: 600;
+    font-weight: 700;
     line-height: var(--line-height-medium);
   }
 

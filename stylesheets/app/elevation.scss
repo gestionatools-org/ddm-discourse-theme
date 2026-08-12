@@ -1,11 +1,30 @@
-// Corporate elevation. The decks use a single soft card shadow tinted with the
-// deep teal rather than neutral black, which keeps surfaces from reading grey.
-// In dark mode the shadow disappears and borders carry the separation instead.
+// Corporate elevation.
+//
+// The system's rule is "bordes antes que sombras": flat surfaces — cards, table
+// rows, the sidebar, the header — are separated by a border, never by a shadow.
+// A management interface with shadows everywhere reads restless; with borders it
+// reads ordered. So there is deliberately no card-shadow token here: the lane
+// cards carry `--ga-border` and nothing else.
+//
+// Shadow is reserved for real overlays: dropdown, popover, dialog, toast.
+//
+// The tint flips between schemes, and that is not an oversight. On light the
+// shadow is tinted petrol, never pure black, so it stays on the same hue axis as
+// the rest of the palette. On dark the background is #071318, and the petrol
+// tint rgb(0 48 64) is *lighter* than that — applying it would produce a halo
+// rather than a shadow. Dark therefore uses pure black at higher opacity.
 :root {
-  --ga-shadow-card: 0 2px 16px rgb(0, 48, 64, 0.06);
-}
+  --ga-shadow-overlay: 0 8px 24px
+    light-dark(rgb(0 48 64 / 12%), rgb(0 0 0 / 55%));
+  --ga-shadow-popover: 0 2px 10px
+    light-dark(rgb(0 48 64 / 10%), rgb(0 0 0 / 45%));
 
-:root[data-theme="dark"],
-:root[data-scheme="dark"] {
-  --ga-shadow-card: none;
+  // Core's overlay shadows, mapped onto the two the system defines.
+  // --shadow-card dresses floating cards (user card, group card), which are
+  // overlays despite the name — it is not the shadow of a flat content card.
+  --shadow-modal: var(--ga-shadow-overlay);
+  --shadow-dropdown: var(--ga-shadow-overlay);
+  --shadow-menu-panel: var(--ga-shadow-overlay);
+  --shadow-composer: var(--ga-shadow-popover);
+  --shadow-card: var(--ga-shadow-popover);
 }

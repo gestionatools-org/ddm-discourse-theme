@@ -1,19 +1,31 @@
-// Corporate typography is Roboto (presentaciones/assets/css/corporate.css).
-// Roboto ships with Discourse core, so no external font request and no
-// csp_extensions modifier is needed — keep it that way.
+// Corporate typography: the Roboto superfamily.
+//
+// Core bundles the Roboto woff2 files, but bundling is not serving. Discourse
+// emits an `@font-face` rule for exactly three fonts — the one chosen in the
+// `base_font` site setting, the one in `heading_font`, and JetBrains Mono
+// (`discourse/lib/stylesheet/importer.rb`). A theme cannot set either setting,
+// so this declaration only resolves to a real webfont while an admin keeps
+// those settings on Roboto. Verified on PRE 2026-08-12: both are Roboto and the
+// faces are served. If the type ever falls back to system-ui, check there first.
+//
+// Core serves weights 400 and 700 only. The system's third register, 500
+// (emphasis), has no file on the site yet — anything asking for 500 currently
+// renders at 400. Vendoring `Roboto-Medium.woff2` into `assets/` is tracked as
+// part of the brand work; see `docs/brand-audit.md`, Finding 2.
 :root {
   --font-family: "Roboto", system-ui, -apple-system, sans-serif;
   --heading-font-family: "Roboto", system-ui, -apple-system, sans-serif;
 }
 
-// The corporate decks pair heavy, tight headings with comfortable body copy.
+// 700 is the system's title weight — "cada salto de peso significa algo": 400
+// text, 500 emphasis, 700 title or primary action. No tracking adjustment: the
+// system does not specify one, and inventing a negative letter-spacing here is
+// the kind of default that makes a theme read as generic.
 h1,
 h2,
 h3,
 h4,
 h5,
 h6 {
-  font-family: var(--heading-font-family);
   font-weight: 700;
-  letter-spacing: -0.02em;
 }
