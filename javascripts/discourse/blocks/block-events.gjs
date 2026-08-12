@@ -11,6 +11,33 @@ import dReplaceEmoji from "discourse/ui-kit/helpers/d-replace-emoji";
 import { i18n } from "discourse-i18n";
 import { loadCategoryTopics } from "../lib/category-topics";
 
+/**
+ * Format a real event start date.
+ *
+ * Core's date helpers are built for the past and mislead on future dates:
+ * `format="medium"` renders anything ahead of now as "now" (`relativeAgeMedium`
+ * compares `now - date` against a one-minute threshold, and a negative distance
+ * clears it), while `format="tiny"` drops the sign, so an event three days out
+ * reads exactly like a topic bumped three days ago. Event dates are therefore
+ * absolute; the topic-date fallback keeps the relative helper, which is what it
+ * was built for.
+ *
+ * The locale comes from `<html lang>` so it follows the Discourse UI rather
+ * than the browser, which can differ.
+ */
+function formatEventStart(value) {
+  const date = new Date(value);
+  const sameYear = date.getFullYear() === new Date().getFullYear();
+
+  return new Intl.DateTimeFormat(document.documentElement.lang || undefined, {
+    day: "numeric",
+    month: "short",
+    year: sameYear ? undefined : "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+}
+
 @block("theme:espublico:events", {
   description: "Compact, date-forward listing of the events category",
   args: {
@@ -58,12 +85,26 @@ export default class BlockEvents extends Component {
             {{#each topics as |topic|}}
               <li class="block-events__item">
                 <a class="block-events__item-link" href={{topic.url}}>
-                  {{! `calendar_enabled` is off on this site, so no real event
-                      date is serialized. This is the topic's own date, which
-                      is honest but is not a start time. }}
-                  <span class="block-events__item-date">
-                    {{dFormatDate topic.created_at format="tiny"}}
-                  </span>
+                  {{! `event_starts_at` only reaches the topic list for topics
+                      carrying an `[event]` block, and only while the calendar
+                      plugin is enabled. The category holds both kinds, so the
+                      lane shows a real start time where there is one and falls
+                      back to the topic's own date everywhere else. }}
+                  {{#if topic.event_starts_at}}
+                    <time
+                      class="block-events__item-date --scheduled"
+                      datetime={{topic.event_starts_at}}
+                    >
+                      {{formatEventStart topic.event_starts_at}}
+                    </time>
+                  {{else}}
+                    <time
+                      class="block-events__item-date"
+                      datetime={{topic.created_at}}
+                    >
+                      {{dFormatDate topic.created_at format="tiny"}}
+                    </time>
+                  {{/if}}
                   <span class="block-events__item-title">
                     {{trustHTML (dReplaceEmoji topic.fancy_title)}}
                   </span>

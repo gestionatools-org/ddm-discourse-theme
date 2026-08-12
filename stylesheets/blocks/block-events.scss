@@ -37,6 +37,13 @@
     font-size: var(--font-down-2);
     text-transform: uppercase;
     letter-spacing: 0.04em;
+
+    // A real start time, not the topic's own date. Weighted up so a scheduled
+    // event reads as actionable next to the plain topic dates it sits among.
+    &.--scheduled {
+      color: var(--ga-accent);
+      font-weight: 600;
+    }
   }
 
   &__item-title {
