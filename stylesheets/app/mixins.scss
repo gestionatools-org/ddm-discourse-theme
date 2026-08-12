@@ -3,13 +3,19 @@
 // Lives in app/ rather than layouts/ because blocks/ consumes it and
 // common.scss imports app before blocks — a mixin declared in layouts/ would be
 // referenced before it exists.
+// A lane header is a section header, which the system dresses with the filo on
+// its leading edge — the same gesture the decks already use on `.slide-title`.
+// The hairline underneath stays: the edge says "this is a section", the rule
+// says where the section's chrome ends and its content begins.
 @mixin lane-header {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: var(--space-3);
   margin-bottom: var(--space-3);
+  padding-inline-start: var(--space-3);
   padding-bottom: var(--space-2);
+  border-inline-start: var(--ga-edge-width) solid var(--ga-edge);
   border-bottom: 1px solid var(--ga-border);
 }
 

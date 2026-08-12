@@ -11,4 +11,16 @@
   // The decks run a 1280px stage; keep the forum measure close to it so
   // embedded slide screenshots sit at their native scale.
   --d-max-width: 1240px;
+
+  // Shape tokens from the identity system.
+  //
+  // The edge is the system's signature: a 3px cyan bar on the border of
+  // whatever is active, focused or leading. Its colour is --ga-edge and depends
+  // on the surface beneath it; this is only its thickness.
+  --ga-edge-width: 3px;
+
+  // The only diagonal permitted anywhere in the system. Measured off the
+  // isotype — the arrow's true half-angle is 19.71°, rounded to 20°. Chevrons,
+  // decorative cuts and empty-state art all use this and nothing else.
+  --ga-angle: 20deg;
 }

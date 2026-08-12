@@ -1,0 +1,81 @@
+// The homepage hero.
+//
+// This is core's welcome banner (`enable_welcome_banner`, on by default),
+// restyled rather than replaced. Core owns the markup — title, optional
+// subheader, search — and a theme block in `hero-blocks` would mean introducing
+// the experimental Blocks API outside the homepage, which the theme has
+// deliberately confined to `homepage-blocks`. SCSS over the native layout is
+// the agreed approach for every surface but that one.
+//
+// Stock, the banner is a tall centred column: title, a quoted subheader, and a
+// search field, filling roughly the first 300px of the page with no brand mark
+// on it. This turns it into a single row — isotype, title, search — which puts
+// the lanes above the fold and gives the marca its working-size appearance.
+//
+// The arc decoration deliberately does NOT go here. The system reserves it for
+// "superficies grandes y vacías"; a compact row is the opposite of that, and
+// putting it behind a dense strip is explicitly listed as a misuse. It belongs
+// on the lanes' empty states instead.
+.welcome-banner {
+  &__wrap {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+    max-width: var(--d-max-width);
+    margin-inline: auto;
+    padding-block: var(--space-4);
+  }
+
+  &__title {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin: 0;
+    font-size: var(--font-up-3);
+    line-height: var(--line-height-small);
+
+    // The isotype at its working size. The system sets a 24px floor — below it
+    // the split between the two petrol arcs stops reading as two pieces — so
+    // 40px sits comfortably clear of that.
+    &::before {
+      content: "";
+      flex: 0 0 auto;
+      width: 2.5rem;
+      height: 2.5rem;
+      background: url($isotipo) no-repeat center center;
+      background-size: contain;
+    }
+  }
+
+  // The stock subheader is a quoted tagline under the title. It is what makes
+  // the banner a two-line block; the compact hero drops it and lets the site
+  // description live where it is actually read, in the site's own metadata.
+  &__subheader {
+    display: none;
+  }
+
+  &__search-menu {
+    flex: 1 1 auto;
+    min-width: 0;
+    max-width: 26rem;
+
+    // Push search to the trailing edge, so title and search bracket the row
+    // rather than crowding its centre.
+    margin-inline-start: auto;
+  }
+
+  // Below md the row would squeeze the search field past usefulness: stack, and
+  // let both take the full measure.
+  @include viewport.until(md) {
+    &__wrap {
+      flex-direction: column;
+      align-items: stretch;
+      gap: var(--space-3);
+    }
+
+    &__search-menu {
+      max-width: none;
+      margin-inline-start: 0;
+    }
+  }
+}

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-A **full Discourse theme** (`"component": false` in `about.json`) for an es|public Discourse **Cloud** instance. It is a *remote theme*: the Discourse instance pulls it from `git@github.com:gestionatools-org/discourse-theme.git`, so `main` is effectively production. There is no build step — Discourse compiles the SCSS/JS itself at install time.
+A **full Discourse theme** (`"component": false` in `about.json`) for an es|public Discourse **Cloud** instance. It is a *remote theme*: the Discourse instance pulls it from `git@github.com:gestionatools-org/ddm-discourse-theme.git`, so `main` is effectively production. There is no build step — Discourse compiles the SCSS/JS itself at install time.
 
 Scaffolded from `discourse/discourse-theme-skeleton`, so upstream conventions apply verbatim.
 
