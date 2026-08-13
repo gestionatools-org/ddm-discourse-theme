@@ -35,10 +35,37 @@
   }
 }
 
+// An empty lane is a brand moment: a large, quiet surface, which is exactly
+// where the system puts the arc and Roboto Slab. It is also the only place on
+// this page that qualifies — the compact hero is a dense strip, and putting the
+// arc behind one is listed as a misuse.
+//
+// While only the PNG exists the system permits the whole isotype at 4 %: at
+// that opacity the cyan arrowhead is indistinguishable, so the approximation
+// changes nothing on screen. It becomes just the arcs once the vector master
+// arrives.
 @mixin lane-empty {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  min-height: 9rem;
   margin: 0;
-  padding: var(--space-4) 0;
+  padding: var(--space-6) var(--space-4);
   color: var(--ga-muted-fg);
+  font-family: var(--ga-font-slab);
+  text-align: center;
+
+  &::before {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    inset: 0;
+    background: url($isotipo) no-repeat center center;
+    background-size: auto 6rem;
+    opacity: 0.04;
+    pointer-events: none;
+  }
 }
 
 // Flat surface separated by a border, never by a shadow — "bordes antes que
