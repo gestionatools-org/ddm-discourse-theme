@@ -12,9 +12,46 @@
 // (emphasis), has no file on the site yet — anything asking for 500 currently
 // renders at 400. Vendoring `Roboto-Medium.woff2` into `assets/` is tracked as
 // part of the brand work; see `docs/brand-audit.md`, Finding 2.
+// Roboto Slab is the system's typographic signature, and core will not serve it
+// unless an admin points `heading_font` at it — which would then dress every
+// h1–h6 on the site. The system is explicit that Slab belongs to page titles and
+// brand moments only and "pierde su valor si se reparte", so the theme carries
+// its own copy instead and decides where it lands.
+//
+// Same files core bundles (discourse/discourse-fonts), same Apache 2.0 licence,
+// vendored in assets/ — same origin, so no csp_extensions modifier and no
+// external request. Only 400 and 700: those are the two registers Slab is used
+// in, and the system loads no weight it does not use.
+@font-face {
+  font-family: RobotoSlab;
+  src: url($roboto-slab-regular) format("woff2");
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: RobotoSlab;
+  src: url($roboto-slab-bold) format("woff2");
+  font-weight: 700;
+  font-display: swap;
+}
+
 :root {
   --font-family: "Roboto", system-ui, -apple-system, sans-serif;
   --heading-font-family: "Roboto", system-ui, -apple-system, sans-serif;
+
+  // The family is named without a space on purpose, matching how core registers
+  // it (discourse-fonts `lib/discourse_fonts.rb`). If an admin ever points
+  // `heading_font` at RobotoSlab, core's @font-face and ours describe the same
+  // family and the browser does not fetch the face twice. "Roboto Slab" with a
+  // space would be a different family and would fail silently to the fallback.
+  --ga-font-slab: "RobotoSlab", ui-serif, georgia, serif;
+
+  // The system's third register, Roboto Mono, is deliberately absent. It dresses
+  // identifiers — case numbers, references, codes — and this theme has no
+  // surface that shows one. Core always serves JetBrains Mono, never RobotoMono,
+  // so declaring the token without vendoring the file would give a name that
+  // resolves to nothing. Vendor it when a surface needs it.
 }
 
 // 700 is the system's title weight — "cada salto de peso significa algo": 400

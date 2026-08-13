@@ -4,12 +4,14 @@
   "authors": "es|public",
   "about_url": "https://github.com/gestionatools-org/ddm-discourse-theme",
   "license_url": "https://github.com/gestionatools-org/ddm-discourse-theme/blob/main/LICENSE",
-  "theme_version": "0.4.0",
+  "theme_version": "0.5.0",
   "minimum_discourse_version": "2026.7.0",
   "maximum_discourse_version": null,
   "assets": {
     "isotipo": "assets/gestiona-avanza-isotipo.png",
-    "logotipo": "assets/gestiona-avanza-logotipo.png"
+    "logotipo": "assets/gestiona-avanza-logotipo.png",
+    "roboto-slab-regular": "assets/RobotoSlab-Regular.woff2",
+    "roboto-slab-bold": "assets/RobotoSlab-Bold.woff2"
   },
   "modifiers": {
     "serialize_topic_excerpts": true,

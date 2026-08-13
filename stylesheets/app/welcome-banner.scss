@@ -26,11 +26,15 @@
     padding-block: var(--space-4);
   }
 
+  // A brand moment in the system's sense — the one place on the homepage that
+  // is allowed Roboto Slab. Nowhere else on this page gets it: lane titles are
+  // "títulos de bloque dentro de una página" and stay in Roboto.
   &__title {
     display: flex;
     align-items: center;
     gap: var(--space-3);
     margin: 0;
+    font-family: var(--ga-font-slab);
     font-size: var(--font-up-3);
     line-height: var(--line-height-small);
 
