@@ -1,0 +1,70 @@
+// The sidebar is petrol dark in BOTH schemes.
+//
+// This is the system's one deliberate inversion, and it exists to turn an
+// accessibility constraint into identity. The brand cyan scores 2.48:1 on white
+// — it cannot carry text or state on a light surface. On #032029 it reaches
+// 6.82:1. Giving the cyan a permanently dark surface is what lets it do its
+// job: mark the current position at full brand strength, in either scheme.
+//
+// The result is a constant silhouette — deep rail, light working area, cyan
+// edge marking where you are — recognisable at a glance, with the content area
+// left neutral.
+//
+// Every variable below was read out of core's own
+// `common/base/sidebar{,-section,-section-link}.scss`, not from the abbreviated
+// list in the authoring skill, which omits about half of them.
+:root {
+  --d-sidebar-background: light-dark(var(--ga-petrol-950), #030d11);
+  --d-sidebar-border-color: light-dark(#153843, #223036);
+  --d-sidebar-section-border-color: light-dark(#153843, #223036);
+
+  // Body text on the rail. #d6e0e4 on #032029 is 12.4:1.
+  --d-sidebar-link-color: #d6e0e4;
+  --d-sidebar-link-icon-color: #d6e0e4;
+
+  // Section headers sit one step quieter than the links they group.
+  --d-sidebar-header-color: #9db3bb;
+  --d-sidebar-header-icon-color: #9db3bb;
+
+  // Inside the rail the edge and the active text are the same cyan. Using
+  // --ga-edge here instead would put two different cyans side by side, and only
+  // in the light scheme — the gesture reads as one piece or it does not read.
+  --d-sidebar-active-color: var(--ga-cyan-500);
+  --d-sidebar-active-icon-color: var(--ga-cyan-500);
+  --d-sidebar-active-suffix-color: var(--ga-cyan-500);
+
+  // The filo carries the active state, so the row keeps the rail's own surface
+  // rather than gaining a block of fill behind it.
+  --d-sidebar-active-background: transparent;
+
+  // 500 is the system's emphasis weight. The active item must be marked by
+  // weight as well as colour — colour alone fails for anyone who cannot
+  // separate the two, and 700 is reserved for titles and primary actions, not
+  // menu items. Core serves only 400 and 700, so until Roboto Medium is
+  // vendored the browser resolves this to 400; the filo and the colour carry it
+  // in the meantime.
+  --d-sidebar-active-font-weight: 500;
+  --d-sidebar-highlight-background: #0f3c49;
+  --d-sidebar-highlight-color: #fff;
+  --d-sidebar-highlight-hover-background: #0f3c49;
+  --d-sidebar-highlight-suffix-color: var(--ga-cyan-200);
+  --d-sidebar-suffix-color: #9db3bb;
+  --d-sidebar-link-badge-color: #9db3bb;
+}
+
+// Core paints the rail's own background from --d-sidebar-background, but the
+// wrapper around it inherits the page surface, which would show as a light
+// gutter beside the dark rail in the light scheme.
+.sidebar-wrapper {
+  background: var(--d-sidebar-background);
+}
+
+// The filo. Applied to the link rather than the row so it aligns with the text
+// box, and drawn as an inset shadow rather than a border so it never shifts the
+// row's contents. Core marks the current item with three different classes
+// depending on how it was matched; all three mean "you are here".
+.sidebar-section-link.active,
+.sidebar-section-link--active,
+.sidebar-section-link.exact-url-match {
+  box-shadow: inset var(--ga-edge-width) 0 0 0 var(--ga-cyan-500);
+}
