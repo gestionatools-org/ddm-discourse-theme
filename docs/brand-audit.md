@@ -3,10 +3,14 @@
 Audit date: 2026-08-12. Every claim below is traceable to a file and line in one
 of the three repositories named under *Sources*.
 
-**Status:** Phase 0 verified, Phase 1 landed in theme v0.3.0. Findings 1, 4 and
-the palette half of 2 are resolved in code; Findings 3, 5, 6, 7 are open. The
-findings are kept as written so the reasoning survives — see *Proposed order of
-work* at the end for what remains.
+**Status at v0.5.0:** Phase 0 verified. Phase 1 (palette) landed in v0.3.0 and
+is confirmed live on PRE in both schemes. Phase 2 (the signature gestures)
+landed in v0.4.0 and v0.5.0. Findings 1, 2, 3, 4, 6 and 7 are resolved; **Finding
+5 — every core surface outside the homepage is still stock — is open**, and is
+now the whole of what remains.
+
+The findings are kept as written so the reasoning survives. See *Proposed order
+of work* at the end for what is done and what is not.
 
 ## Sources
 
@@ -497,11 +501,32 @@ across both schemes.
 Not done in this phase, and still true: weight 500 has no font file on the site,
 so `--scheduled` event dates render at 400.
 
-**Phase 2 — the signature gestures.** All four authorised.
-Vendor the logo PNGs and the medium-weight woff2 into `assets/`; wire
-`RobotoSlab` for page titles and brand moments; the filo on lane headers, nav
-pills and the sidebar's active item; the dark petrol sidebar via the
-`--d-sidebar-*` block; the arc at 4 % on the homepage and the five empty states.
+**Phase 2 — the signature gestures. Done, v0.4.0 and v0.5.0.**
+
+- **Brand mark.** Both official PNGs vendored into `assets/`. The isotype now
+  sits at working size in the hero.
+- **The hero.** Core's welcome banner restyled from a ~300px centred column into
+  a single row — isotype, title, search — putting the lanes above the fold.
+  Restyled rather than replaced: a block in `hero-blocks` would have taken the
+  experimental Blocks API outside `homepage-blocks`, which `CLAUDE.md` forbids
+  without agreement.
+- **The filo.** On every lane header and on the sidebar's active row. Inside the
+  rail it uses the brand cyan, not `--ga-edge` — that token is calibrated
+  against the light background and would show two different cyans side by side,
+  in the light scheme only.
+- **The dark rail.** `--d-sidebar-*` block, petrol in both schemes. Every
+  variable name was read out of core's own
+  `common/base/sidebar{,-section,-section-link}.scss`; the authoring skill's
+  list omits about half of them.
+- **Roboto Slab.** Vendored rather than switched on via `heading_font`, because
+  that setting would dress every `h1`–`h6` and the system reserves Slab for page
+  titles and brand moments. Applied to the hero title only.
+- **The arc.** On the lanes' empty states, not the hero: the system reserves it
+  for large empty surfaces and lists dense strips as a misuse.
+
+Still outstanding from this phase: **weight 500 has no font file**, so the
+sidebar's active row renders at 400 and leans on the filo and colour. Core ships
+no Roboto Medium; it would have to come from Google Fonts.
 
 **Phase 3 — the core surfaces.**
 The `stylesheets/app/` files that `CLAUDE.md` already promises: header, sidebar,
