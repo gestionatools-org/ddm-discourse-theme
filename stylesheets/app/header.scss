@@ -1,0 +1,30 @@
+// The site header.
+//
+// The header is the marca's working home: since v0.7.0 dropped the hero strip,
+// it is the only place on the page that carries the logo, which is what the
+// manual asks for — "Isotipo: en la barra de navegación y como favicon".
+//
+// Variable overrides only. The header search field that v0.8.0 turned on is
+// left with core's own styling: it is a stock component, it already keys off
+// the colour scheme, and this theme has no way to preview the header while
+// authoring — guessing at its internals is how you end up painting a box across
+// the whole bar. Revisit with a screenshot in hand if it needs shaping.
+:root {
+  // Core's default logo height puts our logotype below its own minimum size.
+  // The official file is 720×260, an aspect ratio of 2.77, and the manual sets
+  // a floor of 120px wide for the full logotype — below that the split between
+  // the two petrol arcs stops reading as two pieces. Core's 2.4em resolves to
+  // ~38px tall, which is only ~106px wide. 2.75em gives ~44px tall and ~122px
+  // wide, clearing the floor with a little room.
+  //
+  // This only matters while the site logo is the full logotype. If an admin
+  // uploads the isotype alone (square, 24px floor) the constraint disappears
+  // and this can go back to core's default.
+  --d-logo-height: 2.75em;
+
+  // Core dims resting header icons to --header_primary-low-mid. The system has
+  // no "quiet icon" token and treats a mark as either legible or decorative, so
+  // this lifts the resting state to the muted-text step — a value that is
+  // contrast-checked in both schemes rather than an arbitrary fade.
+  --d-header-icon-color: var(--ga-muted-fg);
+}
