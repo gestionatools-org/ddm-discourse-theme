@@ -2,6 +2,13 @@ es:
   theme_metadata:
     description: "Tema de Discourse para la comunidad de es|public."
 
+  header:
+    links:
+      aria_label: "Enlaces destacados"
+      academy: "Academy"
+      demo: "Demo Gestiona"
+      first_steps: "Primeros pasos"
+
   homepage:
     news:
       title: "Novedades"
