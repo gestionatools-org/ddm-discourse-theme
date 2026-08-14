@@ -4,7 +4,7 @@
   "authors": "es|public",
   "about_url": "https://github.com/gestionatools-org/ddm-discourse-theme",
   "license_url": "https://github.com/gestionatools-org/ddm-discourse-theme/blob/main/LICENSE",
-  "theme_version": "0.7.0",
+  "theme_version": "0.8.0",
   "minimum_discourse_version": "2026.7.0",
   "maximum_discourse_version": null,
   "assets": {
@@ -21,7 +21,8 @@
     "svg_icons": ["newspaper"]
   },
   "theme_site_settings": {
-    "enable_welcome_banner": false
+    "enable_welcome_banner": false,
+    "search_experience": "search_field"
   },
   "color_schemes": {
     "Gestiona Avanza": {

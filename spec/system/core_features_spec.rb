@@ -25,6 +25,20 @@ RSpec.describe "Core features" do
   #
   # Category listings are therefore unguarded by CI and need checking by hand
   # whenever topic-list styling changes.
+  #
+  # `search:quick_search` is skipped for a different reason. The theme sets the
+  # `search_experience` theme site setting to `search_field`, so the header
+  # renders a search input rather than core's magnifying-glass button, and the
+  # example fails on `find(".d-header #search-button")` before it can type
+  # anything. Quick search itself is untouched — same SearchMenu component,
+  # different entry point — so what is lost here is coverage of the icon flow
+  # this theme deliberately does not use. `search:full_page` still runs.
   it_behaves_like "having working core features",
-                  skip_examples: %i[topics:read topics:reply topics:create likes]
+                  skip_examples: %i[
+                    topics:read
+                    topics:reply
+                    topics:create
+                    likes
+                    search:quick_search
+                  ]
 end
