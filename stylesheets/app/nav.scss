@@ -1,0 +1,30 @@
+// Navigation pills — Latest / Top / Categories, and the same component on user
+// and group pages.
+//
+// This is "ítem activo de navegación" in the system's filo table, so the active
+// pill is where the edge belongs outside the sidebar.
+:root {
+  // Core draws the active pill's underline at 0.125em. The filo is a fixed 3px
+  // in the system: it is a signature at one thickness, not a proportion that
+  // drifts with font size.
+  --d-nav-underline-height: var(--ga-edge-width);
+
+  // Left alone this is --tertiary, which is the petrol in light and the brand
+  // cyan in dark — legible as text in both. Keep it: the underline is recoloured
+  // separately below, and this variable also dresses the active label.
+  --d-nav-color--active: var(--tertiary);
+}
+
+// The edge has to be applied to the ::after directly, and this is the reason
+// why: core's `nav-active` mixin paints both the label and the underline from
+// the single variable --d-nav-color--active. Setting that variable to the edge
+// cyan would drag the label with it, and #009dbc as text on the light surface
+// is 3.09:1 — under the 4.5:1 floor for text, which is precisely the constraint
+// the whole palette is built around. So the label keeps the petrol and only the
+// bar takes the cyan.
+.nav-pills > li {
+  a.active::after,
+  button.active::after {
+    background: var(--ga-edge);
+  }
+}

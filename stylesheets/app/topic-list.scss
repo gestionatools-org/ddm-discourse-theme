@@ -1,0 +1,42 @@
+// The topic list — the surface a member spends most of their session on, and
+// until now entirely stock.
+//
+// The system has no "topic list" component, but it does have a table: header on
+// --muted, rows separated by --border, numbers right-aligned with tabular-nums.
+// That is the spec this follows.
+:root {
+  // Core puts the list header on --secondary, the page background, so it reads
+  // as part of the page rather than as a header. --muted lifts it one step, the
+  // same treatment the system gives a table head.
+  --d-topic-list-header-background-color: var(--ga-muted);
+  --d-topic-list-header-text-color: var(--ga-muted-fg);
+
+  // Core separates content and table rows with --primary-low, a step computed
+  // off the ink colour. --ga-border is the system's own hairline, generated on
+  // the same hue axis as the two brand colours, so borders stop reading as an
+  // unrelated grey. One override reaches every content surface that inherits
+  // from it, tables included.
+  --content-border-color: var(--ga-border);
+
+  // Core's table heading is underlined at 3px. That is the filo's thickness, and
+  // a neutral bar at that weight either shouts or gets mistaken for the edge —
+  // the system is explicit that a gesture used everywhere stops meaning
+  // anything. Tables separate with a hairline; the edge stays on the nav.
+  --d-table-border-top-height: 1px;
+
+  // Titles at the system's 18px step rather than core's ratio-derived size.
+  --d-topic-list-title-font-size: var(--font-up-1);
+}
+
+// Every numeric column, per the system's hardest typographic rule: without
+// tabular figures the digits shift width as counts update and the columns stop
+// aligning down the page. Core does not set this anywhere in its topic list.
+.topic-list {
+  .posts,
+  .views,
+  .likes,
+  .age,
+  .activity {
+    font-variant-numeric: tabular-nums;
+  }
+}
