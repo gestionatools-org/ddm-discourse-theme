@@ -7,3 +7,9 @@ CLAUDE.local.md
 
 # Upstream theme corpus cloned for reference (see CLAUDE.md)
 .reference/
+
+# Agent scratch: ledgers, task briefs, reports and review diffs
+.superpowers/
+
+# macOS
+.DS_Store
