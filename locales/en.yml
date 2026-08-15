@@ -11,11 +11,11 @@ en:
       events_category_id: "Category shown in the events lane. 0 hides the lane."
       events_count: "How many events to show."
       library_category_ids: "Reference categories rendered as directory cards instead of topic lists."
-      academy_url: "Link target for the Academy item in the header. Leave empty to hide it."
-      demo_url: "Link target for the Demo Gestiona item in the header. Leave empty to hide it."
-      first_steps_url: "Link target for the first steps item in the header. Leave empty to hide it."
+      academy_url: "Link target for the Academy item in the band above the header. Leave empty to hide it."
+      demo_url: "Link target for the Demo Gestiona item in the band above the header. Leave empty to hide it."
+      first_steps_url: "Link target for the first steps item in the band above the header. Leave empty to hide it."
 
-  header:
+  topbar:
     links:
       aria_label: "Featured links"
       academy: "Academy"

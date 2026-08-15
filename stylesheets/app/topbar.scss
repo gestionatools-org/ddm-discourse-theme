@@ -1,0 +1,53 @@
+// The information band above the site header.
+//
+// Deliberately quieter than the header below it. That header is white and
+// carries the logotype; a saturated band on top of it would outweigh the mark
+// and invert the page's hierarchy. This is context, not primary navigation, so
+// it sits below the header visually as well as structurally.
+//
+// No 3px cyan edge. That gesture means "active, focused or leading" in the
+// identity system, not "topmost", and spending it here would devalue it.
+.topbar {
+  background: var(--ga-muted);
+  border-bottom: 1px solid var(--ga-border);
+  font-size: var(--font-down-2);
+
+  > .wrap {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    min-height: 2rem;
+    padding-block: var(--space-1);
+  }
+
+  @include viewport.until(lg) {
+    > .wrap {
+      justify-content: center;
+    }
+  }
+}
+
+// Destination links. Below lg they lose the space to the figures: three labels
+// do not fit a phone bar, which is the same arithmetic that pushed them out of
+// the header in the first place.
+.topbar-links {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+
+  @include viewport.until(lg) {
+    display: none;
+  }
+
+  &__link {
+    color: var(--ga-muted-fg);
+    white-space: nowrap;
+    transition: color var(--ga-duration-fast) var(--ga-ease);
+
+    &:hover,
+    &:focus-visible {
+      color: var(--tertiary);
+    }
+  }
+}

@@ -2,7 +2,7 @@ es:
   theme_metadata:
     description: "Tema de Discourse para la comunidad de es|public."
 
-  header:
+  topbar:
     links:
       aria_label: "Enlaces destacados"
       academy: "Academy"
