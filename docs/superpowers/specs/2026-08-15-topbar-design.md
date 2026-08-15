@@ -366,10 +366,17 @@ settings.
 - `spec/system/core_features_spec.rb` is expected to need no new
   `skip_examples`: the band adds no interaction and removes no control. CI
   decides; if an example does break, narrow it rather than deleting it.
-- **Not covered by any test: the admin-route gate.** Asserting it means
-  `visit("/admin")` in an acceptance test, which drags in the admin bundle and
-  its own fixtures for a one-line getter. It is checked by hand instead, in the
-  list below.
+- **The admin-route gate is covered by an acceptance test.** This spec
+  originally routed it to manual verification, on the grounds that
+  `visit("/admin")` drags in the admin bundle and its own fixtures for a
+  one-line getter. The maintainer overruled that on 2026-08-15: it is the only
+  behavioural branch that would otherwise ship unverified, and Task 2 builds on
+  `visible`, which composes it. The added unknown on the first-ever `frontend`
+  CI run was accepted explicitly.
+
+  The test configures a link URL before visiting `/admin`. Without one the band
+  would be absent there regardless of the gate — `hasLinks` would be false —
+  and the assertion would pass for the wrong reason.
 - None of the above looks at the result. Before the PR is merged the band must
   be checked by eye on PRE at
   `https://discourse.gestiona4dev.tech/?preview_theme_id=14`:
