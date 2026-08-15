@@ -60,12 +60,19 @@ javascripts/discourse/
 ├── api-initializers/
 │   └── above-site-header.gjs      renders Topbar into the outlet
 ├── components/
-│   ├── topbar.gjs                 container; route gate; layout
+│   ├── topbar.gjs                 container; route gate; render/collapse rules
 │   ├── topbar-links.gjs           destination links (moved from header-links.gjs)
-│   └── topbar-stats.gjs           the three figures; owns the async state
-└── lib/
-    └── site-stats.js              the fetch and its cache
+│   └── topbar-stats.gjs           the three figures
+├── lib/
+│   └── topbar-links.js            configuredLinks(), shared by both of the above
+└── services/
+    └── site-stats.js              the fetch, its cache and its state
 ```
+
+`lib/topbar-links.js` exists because two components need the same answer:
+`topbar-links.gjs` renders the links, and `topbar.gjs` has to know whether any
+exist to decide whether the band renders at all. One `configuredLinks()` used
+by both, rather than the same three settings read and trimmed in two places.
 
 One outlet per initializer file, named after the outlet — the theme's existing
 rule. One BEM block per component: `.topbar`, `.topbar-links`, `.topbar-stats`.
@@ -93,26 +100,44 @@ in `frontend/discourse/app/routes/about.js`. There is no client-side `About`
 model to go through; the old `models/about.js` no longer exists. Visibility is
 not gated: `Guardian#can_see_about_stats?` returns `true` unconditionally.
 
-`lib/site-stats.js` memoises the promise at module scope:
+`services/site-stats.js` memoises the request on the service instance and
+exposes three states:
 
 ```js
-import { ajax } from "discourse/lib/ajax";
+export default class SiteStats extends Service {
+  @tracked stats = null;   // the stats object once it arrives, else null
+  @tracked loaded = false; // true once the request has settled, either way
 
-let cached;
+  #request;
 
-export function loadSiteStats() {
-  cached ||= ajax("/about.json")
-    .then((result) => result?.about?.stats ?? null)
-    .catch(() => null);
+  load() {
+    this.#request ||= ajax("/about.json")
+      .then((result) => (this.stats = result?.about?.stats ?? null))
+      .catch(() => (this.stats = null))
+      .finally(() => (this.loaded = true));
 
-  return cached;
+    return this.#request;
+  }
 }
 ```
 
-One request per page load and none on route transitions. Caching the rejection
-too is deliberate: on a login-required site an anonymous or 403 response must
-not turn into a retry on every navigation. Figures go stale only within a single
-browsing session, which is irrelevant for 30-day windows.
+One request per application instance and none on route transitions. Caching the
+rejection too is deliberate: on a login-required site an anonymous or 403
+response must not turn into a retry on every navigation. Figures go stale only
+within a single browsing session, which is irrelevant for 30-day windows.
+
+**A service rather than a module-level `let cached`.** The memo has to live
+exactly as long as the application instance. A module-scope cache lives as long
+as the *module*, which in a QUnit run is the whole suite: the first test to
+resolve `/about.json` would pin its response for every test after it, and the
+failure cases — the ones actually worth testing — would be unreachable. Ember
+tears services down between acceptance tests, so the same caching behaviour
+comes for free and stays testable. Themes may declare services;
+`discourse-discover-theme`, `discourse-kanban-theme` and
+`discourse-category-banners` all do.
+
+`loaded` exists to separate "still loading" from "failed", which the collapse
+rules below depend on.
 
 ### Which three figures
 
@@ -148,29 +173,47 @@ by the template, not by i18n.
 
 ## Rendering and failure
 
-- **While loading:** nothing renders in the figures slot. No spinner. The band's
-  height comes from its own padding, so the figures fading in a few hundred
-  milliseconds later causes no layout shift — only the right-hand cluster
-  changes. `topbar-stats.gjs` therefore does *not* use `<AsyncContent>`, unlike
-  the homepage lanes: `AsyncContent` exists to give a `<:loading>` and an
-  `<:empty>` block somewhere to go, and here both of those states are "render
-  nothing". A tracked property set from the resolved promise is the whole
-  requirement.
-- **Stats unavailable** (network failure, 403, plugin-shaped surprise): the
-  figures slot renders nothing and the band still shows its links.
-- **No links configured:** the links slot renders nothing. This is the state on
-  merge — `academy_url`, `demo_url` and `first_steps_url` are all still empty
-  while the destinations are being decided, so the band ships showing figures
-  only. That is expected, not a fault.
-- **Neither links nor stats:** the band does not render at all. An empty grey
-  strip above the header is worse than no band.
-- **Links configured but stats unavailable, below `lg`:** also nothing. This
-  case needs its own handling because the links are hidden by CSS, not by the
-  component, so the JS-level "render nothing" test above does not catch it and
-  the band would collapse to an empty strip on mobile. `Topbar` therefore
-  carries a standalone `--no-stats` modifier class when the figures resolve to
-  nothing, and `topbar.scss` hides the whole band on that class below `lg`.
-  Standalone `--modifier`, not `topbar--no-stats`, per the theme's BEM rule.
+Two inputs drive everything: whether any link URL is configured, and which of
+the service's three states the figures are in.
+
+| Stats state | Test |
+|---|---|
+| `loading` | `!loaded` |
+| `ready` | `stats` is truthy |
+| `unavailable` | `loaded && !stats` |
+
+Rules:
+
+1. The figures slot renders only in `ready`. In `loading` and `unavailable` it
+   renders nothing — no spinner, no placeholder.
+2. `Topbar` renders nothing at all when there are no links **and** the state is
+   `unavailable`. An empty grey strip above the header is worse than no band.
+3. `Topbar` carries a standalone `--no-stats` modifier class in the
+   `unavailable` state, and `topbar.scss` hides the whole band on that class
+   below `lg`. Standalone `--modifier`, not `topbar--no-stats`, per the theme's
+   BEM rule.
+
+Rule 3 is not redundant with rule 2. Below `lg` the links are hidden by CSS, not
+by the component, so a band with links configured and stats unavailable passes
+rule 2 and would still collapse to an empty strip on mobile. Rule 3 is the case
+rule 2 cannot see.
+
+The `unavailable` test is `loaded && !stats`, never just `!stats` — that
+distinction is what keeps the happy path free of layout shift. During `loading`
+the band renders with its normal padding and reserves its height, then the
+figures appear inside it. If `--no-stats` also applied while loading, the band
+would be absent on mobile and then push the page down when the request landed.
+The only remaining shift is in the failure case, where the band collapses once,
+early, and rarely.
+
+`topbar-stats.gjs` does *not* use `<AsyncContent>`, unlike the homepage lanes.
+`AsyncContent` earns its place when `<:loading>` and `<:empty>` have something
+to render; here both are "render nothing", and a tracked property read off the
+service is the whole requirement.
+
+**No links configured** is the state on merge: `academy_url`, `demo_url` and
+`first_steps_url` are all still empty while the destinations are being decided,
+so the band ships showing figures only. That is expected, not a fault.
 
 ## Responsive behaviour
 
@@ -274,8 +317,10 @@ settings.
 | new | `javascripts/discourse/api-initializers/above-site-header.gjs` |
 | new | `javascripts/discourse/components/topbar.gjs` |
 | new | `javascripts/discourse/components/topbar-stats.gjs` |
-| new | `javascripts/discourse/lib/site-stats.js` |
+| new | `javascripts/discourse/lib/topbar-links.js` |
+| new | `javascripts/discourse/services/site-stats.js` |
 | new | `stylesheets/app/topbar.scss` |
+| new | `test/acceptance/topbar-test.js` |
 | moved | `components/header-links.gjs` → `components/topbar-links.gjs` |
 | deleted | `javascripts/discourse/api-initializers/before-header-panel.gjs` |
 | edited | `stylesheets/app/header.scss` — remove the `.header-links` block |
@@ -298,12 +343,39 @@ settings.
 
 ## Verification
 
-- `npx pnpm@10.28.0 lint` — stylelint, eslint, prettier and `ember-tsc`. The
-  only local gate, and exactly what CI runs.
+- `npx pnpm@10.28.0 lint` — stylelint, eslint, prettier, ember-template-lint and
+  `ember-tsc`. The only gate that runs locally, and exactly what CI's `linting`
+  job runs.
+- `test/acceptance/topbar-test.js` — QUnit acceptance tests, written against
+  the pattern in `.reference/discourse-versatile-banner/test/acceptance/` and
+  `.reference/discourse-right-sidebar-blocks/test/acceptance/`: `acceptance()`
+  from `discourse/tests/helpers/qunit-helpers`, `needs.pretender()` to stub
+  `/about.json`, theme settings assigned through the global `settings`.
+
+  **This switches on a CI job the repository has never run.** The shared
+  workflow's `check_for_tests` builds its matrix from
+  `Dir.glob("test/**/*.{js,gjs}").any?`, and `test/acceptance/` currently holds
+  nothing but `.gitkeep`, so the `frontend` job has never been part of any run
+  here. The first PR carrying these tests is also the first exercise of
+  `rake themes:qunit` against this theme; budget for the job itself needing a
+  fix, separately from whether the tests pass.
+
+  They cannot be run locally. `package.json` has no `test` script and the suite
+  needs a Discourse checkout with Postgres, Redis and an Ember build. The red
+  and green halves of the cycle both happen in CI, one push per turn.
 - `spec/system/core_features_spec.rb` is expected to need no new
   `skip_examples`: the band adds no interaction and removes no control. CI
   decides; if an example does break, narrow it rather than deleting it.
-- Neither of those looks at the result. The band must be checked by eye on PRE
-  at `https://discourse.gestiona4dev.tech/?preview_theme_id=14`, in both colour
-  schemes and at a viewport above and below 1024px, before the PR is merged.
+- **Not covered by any test: the admin-route gate.** Asserting it means
+  `visit("/admin")` in an acceptance test, which drags in the admin bundle and
+  its own fixtures for a one-line getter. It is checked by hand instead, in the
+  list below.
+- None of the above looks at the result. Before the PR is merged the band must
+  be checked by eye on PRE at
+  `https://discourse.gestiona4dev.tech/?preview_theme_id=14`:
+  1. Light scheme and dark scheme.
+  2. Viewport above and below 1024px.
+  3. `/admin` — the band must be absent.
+  4. Scroll down — the band leaves, the header stays.
+
   This is the same visual check the homepage has been owing since v0.1.0.
