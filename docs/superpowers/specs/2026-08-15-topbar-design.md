@@ -206,6 +206,15 @@ would be absent on mobile and then push the page down when the request landed.
 The only remaining shift is in the failure case, where the band collapses once,
 early, and rarely.
 
+**This is a trade, and rule 2 is not absolute.** Reserving the height means the
+band *is* briefly the empty strip rule 2 forbids: on every cold load, for the
+length of the `/about.json` round trip, and on desktop with no links configured
+that strip is the entire band. Rule 2 governs the settled state; the loading
+state deliberately violates it because a stable layout is worth more than a
+blank 32px for 200ms. Anyone reading rule 2 as absolute will "fix" this by
+gating on a bare `!stats` and reintroduce the shift — which is why the trade is
+written down here rather than left to be re-derived.
+
 `topbar-stats.gjs` does *not* use `<AsyncContent>`, unlike the homepage lanes.
 `AsyncContent` earns its place when `<:loading>` and `<:empty>` have something
 to render; here both are "render nothing", and a tracked property read off the
@@ -384,5 +393,15 @@ settings.
   2. Viewport above and below 1024px.
   3. `/admin` — the band must be absent.
   4. Scroll down — the band leaves, the header stays.
+  5. **A sidebar page at ≥ `lg`** — `/latest` with the sidebar open. The band's
+     left edge must still land on the header logo. That alignment rests on
+     core's `body.has-sidebar-page .wrap` rule widening our `.wrap` the same
+     way it widens the header's, which is the one claim in this design that no
+     test can see and that could not be verified from the checkout.
+  6. **Where the figures sit with no links configured** — the merge-day state.
+     They must hold the right edge, which is what the auto inline-start margin
+     on `.topbar-stats` exists for: `TopbarLinks` renders no element at all
+     when every URL is empty, so `justify-content: space-between` alone would
+     put the figures on the left.
 
   This is the same visual check the homepage has been owing since v0.1.0.
