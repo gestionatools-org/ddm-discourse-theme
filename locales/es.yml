@@ -2,12 +2,23 @@ es:
   theme_metadata:
     description: "Tema de Discourse para la comunidad de es|public."
 
-  header:
+  topbar:
     links:
       aria_label: "Enlaces destacados"
       academy: "Academy"
       demo: "Demo Gestiona"
       first_steps: "Primeros pasos"
+    stats:
+      aria_label: "Actividad de la comunidad"
+      members:
+        one: "miembro"
+        other: "miembros"
+      topics:
+        one: "tema este mes"
+        other: "temas este mes"
+      active:
+        one: "persona activa"
+        other: "personas activas"
 
   homepage:
     news:

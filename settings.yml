@@ -69,12 +69,12 @@ library_category_ids:
   list_type: category
   default: "73|85|14"
 
-# --- Header links -----------------------------------------------------------
-# Destination links shown in the site header, between the search field and the
-# user icons. Labels are NOT here: they live in locales/*.yml under
-# `header.links`, per the settings/strings split.
+# --- Topbar links -----------------------------------------------------------
+# Destination links shown in the band above the site header. Labels are NOT
+# here: they live in locales/*.yml under `topbar.links`, per the
+# settings/strings split.
 #
-# A link with an empty URL is not rendered, so the header stays clean until a
+# A link with an empty URL is not rendered, so the band stays clean until a
 # destination is decided. `type: string` rather than a URL type because
 # Discourse has none, and these may be absolute (an external Academy) or
 # relative (a category on this instance).

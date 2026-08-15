@@ -107,7 +107,10 @@ Themes **cannot** register new block outlets — only plugins can.
 ```
 javascripts/discourse/
 ├── api-initializers/     one file per outlet, named after it (homepage-blocks.gjs)
-└── blocks/               block-*.gjs, one component per file
+├── blocks/               block-*.gjs, one component per file
+├── components/           Glimmer components rendered into outlets
+├── lib/                  shared helpers with no framework dependencies
+└── services/             state whose lifetime is the application instance
 ```
 
 **One outlet per initializer file.** Never call `api.renderBlocks()` for two outlets in the same file.
