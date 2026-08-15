@@ -87,3 +87,19 @@ Only cat 4 and children 66, 78, 87 are public; everything else is `read_restrict
 **`[event]` fails silently when malformed.** It is a *block* bbcode, so the tag must open its own line; an emoji glued in front makes it cook as plain text. `EventValidator` returns early when zero events are extracted, without adding an error, so the post saves looking fine. Both events created during this session hit exactly this. Verify against the cooked HTML (`div.discourse-post-event`), never against a successful save.
 
 **Reference corpus is stale relative to the pinned lint config.** `@discourse/lint-configs` 3.2.0 requires the `discourse/ui-kit/*` imports and `trustHTML`; every theme in `.reference/` still uses the old `discourse/components/*`, `discourse/helpers/*` and `htmlSafe`. Copy patterns from the corpus, but let the linter arbitrate imports.
+
+## 2026-08-15 — Topbar above the site header
+
+**Goal.** A full-width band above the header carrying the destination links and live community figures, on the model of `community.zapier.com`.
+
+**Placement.** Core's `above-site-header` outlet, rendered in `application.gjs` outside `<GlimmerSiteHeader>`. Normal flow above a sticky header means the band scrolls away with no offset arithmetic. Same outlet `discourse-brand-header` uses.
+
+**Decisions.**
+- The three destination links moved out of the header, where they had been hidden below `lg` since v0.10.0 for lack of room. Below `lg` the band shows figures and drops the links — the maintainer's call, against the recommendation, so the band stays recognisable as the data band at every width. Consequence accepted: the links are reachable from nowhere on a phone, fixable from admin with sidebar links if it bites.
+- Members plus two 30-day windows rather than lifetime totals, which on a closed community read as an empty forum.
+- `I18n.toNumber` rather than core's `number()`, which abbreviates past 999 and would render a 1,240-member community as "1.2k".
+- The `/about.json` memo lives on a service, not at module scope. A module-level cache outlives every acceptance test and would pin the first response for the whole suite.
+
+**Test cycle.** `test/acceptance/topbar-test.js` is the repository's first frontend test, which switches on a CI job that has never run here: the shared workflow builds its matrix from `Dir.glob("test/**/*.{js,gjs}")`, and `test/acceptance/` held nothing but `.gitkeep`. The suite cannot run locally — no `test` script, and it needs a Discourse checkout with Postgres, Redis and an Ember build.
+
+**Admin-route gate.** Originally routed to manual verification, on the grounds that `visit("/admin")` drags in the admin bundle for a one-line getter. Overruled by the maintainer: it is the only behavioural branch that would otherwise ship unverified, and the figures task builds on `visible`, which composes it. The test configures a link URL first, or the band would be absent on `/admin` through `hasLinks` and the assertion would pass for the wrong reason.
