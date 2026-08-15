@@ -29,8 +29,20 @@ function stubAbout(server, helper) {
 
 function failAbout(server, helper) {
   server.get("/about.json", () =>
-    helper.response(403, {}, { errors: ["forbidden"] })
+    helper.response(403, { errors: ["forbidden"] })
   );
+}
+
+const PARTIAL_ABOUT = {
+  about: {
+    stats: {
+      users_count: 1240,
+    },
+  },
+};
+
+function stubPartialAbout(server, helper) {
+  server.get("/about.json", () => helper.response(PARTIAL_ABOUT));
 }
 
 acceptance("Topbar - links", function (needs) {
@@ -93,6 +105,14 @@ acceptance("Topbar - figures", function (needs) {
       .hasText("1,240", "not abbreviated to 1.2k");
   });
 
+  test("pairs each label with its own stat key", async function (assert) {
+    await visit("/latest");
+
+    // active_users_30_days, not topics_30_days or users_count — a mis-pairing
+    // in FIGURES would put the wrong count next to this label.
+    assert.dom(".topbar-stats__figure:last-child").hasText("120 people active");
+  });
+
   test("renders the band on figures alone, with no links configured", async function (assert) {
     await visit("/latest");
 
@@ -129,6 +149,23 @@ acceptance("Topbar - figures unavailable", function (needs) {
       .dom(".topbar")
       .hasClass("--no-stats", "so the SCSS can hide it below lg");
     assert.dom(".topbar-stats").doesNotExist();
+  });
+});
+
+acceptance("Topbar - figures with a missing stat", function (needs) {
+  needs.user();
+  needs.pretender(stubPartialAbout);
+  needs.hooks.beforeEach(clearLinkSettings);
+
+  test("drops a figure whose stat key is missing from the response", async function (assert) {
+    await visit("/latest");
+
+    assert
+      .dom(".topbar-stats__figure")
+      .exists(
+        { count: 1 },
+        "topics and active-users are missing, not rendered as empty or NaN"
+      );
   });
 });
 

@@ -72,6 +72,19 @@
   color: var(--ga-muted-fg);
   list-style: none;
 
+  // TopbarLinks renders no element at all when no link URL is configured —
+  // which is the state this ships in — so `.wrap`'s space-between can end up
+  // with a single flex child. An auto inline-start margin holds the figures
+  // against the right edge either way.
+  margin-inline-start: auto;
+
+  @include viewport.until(lg) {
+    // Below lg the figures are the only laid-out child of `.wrap` and it
+    // switches to justify-content: center. The auto margin above would eat
+    // the free space and push them right again, defeating that centring.
+    margin-inline-start: 0;
+  }
+
   &__figure {
     display: flex;
     align-items: baseline;

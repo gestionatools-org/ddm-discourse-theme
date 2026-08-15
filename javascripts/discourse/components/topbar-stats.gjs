@@ -44,8 +44,13 @@ export default class TopbarStats extends Component {
 
   <template>
     {{#if this.figures}}
+      {{! `role="list"` is required, not decorative: `list-style: none` in
+          topbar.scss strips the implicit list role in WebKit, and an
+          aria-label on a role-less generic element is ignored — without this
+          the group name is silently lost to Safari/VoiceOver. }}
       <ul
         class="topbar-stats"
+        role="list"
         aria-label={{i18n (themePrefix "topbar.stats.aria_label")}}
       >
         {{#each this.figures as |figure|}}

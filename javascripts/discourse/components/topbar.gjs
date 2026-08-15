@@ -27,6 +27,16 @@ export default class Topbar extends Component {
     return this.siteStats.loaded && !this.siteStats.stats;
   }
 
+  // Load-bearing: `siteStats.load()` is only ever called from TopbarStats's
+  // constructor, and TopbarStats only renders — so only constructs — once
+  // this getter is already true. It works today because the loading state
+  // (`loaded === false`) makes `statsUnavailable` false, which makes this
+  // true, which lets TopbarStats mount and the request start. Making this
+  // getter stricter (e.g. requiring `loaded`) would leave nothing to ever
+  // trigger the load, deadlocking the band into permanent invisibility.
+  // Do not fix that by calling `load()` here: Topbar is constructed on every
+  // route including /admin, and firing /about.json there is worse than the
+  // risk this comment is flagging.
   get visible() {
     return !this.onAdminRoute && (this.hasLinks || !this.statsUnavailable);
   }
