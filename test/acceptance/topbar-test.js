@@ -13,8 +13,29 @@ function clearLinkSettings() {
   settings.first_steps_url = "";
 }
 
+const ABOUT = {
+  about: {
+    stats: {
+      users_count: 1240,
+      topics_30_days: 48,
+      active_users_30_days: 120,
+    },
+  },
+};
+
+function stubAbout(server, helper) {
+  server.get("/about.json", () => helper.response(ABOUT));
+}
+
+function failAbout(server, helper) {
+  server.get("/about.json", () =>
+    helper.response(403, {}, { errors: ["forbidden"] })
+  );
+}
+
 acceptance("Topbar - links", function (needs) {
   needs.user();
+  needs.pretender(stubAbout);
 
   needs.hooks.beforeEach(function () {
     settings.academy_url = "https://academy.example.com";
@@ -53,17 +74,61 @@ acceptance("Topbar - links", function (needs) {
   });
 });
 
-acceptance("Topbar - nothing configured", function (needs) {
+acceptance("Topbar - figures", function (needs) {
   needs.user();
-
+  needs.pretender(stubAbout);
   needs.hooks.beforeEach(clearLinkSettings);
 
-  test("renders no band at all", async function (assert) {
+  test("renders the three figures", async function (assert) {
+    await visit("/latest");
+
+    assert.dom(".topbar-stats__figure").exists({ count: 3 });
+  });
+
+  test("formats the figure with a thousands separator", async function (assert) {
+    await visit("/latest");
+
+    assert
+      .dom(".topbar-stats__figure:first-child .topbar-stats__value")
+      .hasText("1,240", "not abbreviated to 1.2k");
+  });
+
+  test("renders the band on figures alone, with no links configured", async function (assert) {
+    await visit("/latest");
+
+    assert.dom(".topbar").exists();
+    assert.dom(".topbar").doesNotHaveClass("--no-stats");
+    assert.dom(".topbar-links").doesNotExist();
+  });
+});
+
+acceptance("Topbar - figures unavailable", function (needs) {
+  needs.user();
+  needs.pretender(failAbout);
+
+  needs.hooks.afterEach(clearLinkSettings);
+
+  test("renders no band at all when nothing else is configured", async function (assert) {
+    clearLinkSettings();
+
     await visit("/latest");
 
     assert
       .dom(".topbar")
       .doesNotExist("an empty strip above the header is worse than no band");
+  });
+
+  test("keeps the links and marks the band --no-stats", async function (assert) {
+    clearLinkSettings();
+    settings.academy_url = "https://academy.example.com";
+
+    await visit("/latest");
+
+    assert.dom(".topbar").exists("the links still justify the band");
+    assert
+      .dom(".topbar")
+      .hasClass("--no-stats", "so the SCSS can hide it below lg");
+    assert.dom(".topbar-stats").doesNotExist();
   });
 });
 

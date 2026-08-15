@@ -22,6 +22,15 @@
   }
 
   @include viewport.until(lg) {
+    // Below lg the band carries figures and nothing else, so a band whose
+    // figures never arrived has nothing left to show, and rendering it anyway
+    // would put an empty strip above the header. topbar.gjs applies this only
+    // once the request has settled with no data — never while it is still in
+    // flight, or the band would appear late and push the page down.
+    &.--no-stats {
+      display: none;
+    }
+
     > .wrap {
       justify-content: center;
     }
@@ -49,5 +58,29 @@
     &:focus-visible {
       color: var(--tertiary);
     }
+  }
+}
+
+// The figures are the only thing in the band allowed any weight: the numbers
+// take --primary, everything around them stays at the muted step.
+.topbar-stats {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  color: var(--ga-muted-fg);
+  list-style: none;
+
+  &__figure {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-1);
+    white-space: nowrap;
+  }
+
+  &__value {
+    color: var(--primary);
+    font-weight: 600;
   }
 }

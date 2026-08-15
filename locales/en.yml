@@ -21,6 +21,17 @@ en:
       academy: "Academy"
       demo: "Demo Gestiona"
       first_steps: "First steps"
+    stats:
+      aria_label: "Community activity"
+      members:
+        one: "member"
+        other: "members"
+      topics:
+        one: "topic this month"
+        other: "topics this month"
+      active:
+        one: "person active"
+        other: "people active"
 
   homepage:
     news:
