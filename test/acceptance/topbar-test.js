@@ -66,3 +66,23 @@ acceptance("Topbar - nothing configured", function (needs) {
       .doesNotExist("an empty strip above the header is worse than no band");
   });
 });
+
+acceptance("Topbar - admin routes", function (needs) {
+  needs.user({ admin: true });
+
+  needs.hooks.beforeEach(function () {
+    settings.academy_url = "https://academy.example.com";
+    settings.demo_url = "";
+    settings.first_steps_url = "";
+  });
+
+  needs.hooks.afterEach(clearLinkSettings);
+
+  test("renders no band on an admin route", async function (assert) {
+    await visit("/admin");
+
+    assert
+      .dom(".topbar")
+      .doesNotExist("the band is not part of the admin chrome");
+  });
+});
