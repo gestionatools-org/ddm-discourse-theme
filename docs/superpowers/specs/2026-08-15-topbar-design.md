@@ -1,9 +1,10 @@
 # Topbar — an information band above the site header
 
-Design date: 2026-08-15. Target version: `theme_version` 0.11.0.
+Design date: 2026-08-15. Shipped as `theme_version` 0.11.0.
+Revised 2026-08-16 for 0.12.0 — see *Which figures*.
 
 A full-width band rendered above the site header carrying two things: the
-theme's destination links, and three live figures about the community. The
+theme's destination links, and four live figures about the community. The
 reference the maintainer asked for is `community.zapier.com`, whose band shows
 Topics / Replies / Members.
 
@@ -62,7 +63,7 @@ javascripts/discourse/
 ├── components/
 │   ├── topbar.gjs                 container; route gate; render/collapse rules
 │   ├── topbar-links.gjs           destination links (moved from header-links.gjs)
-│   └── topbar-stats.gjs           the three figures
+│   └── topbar-stats.gjs           the four figures
 ├── lib/
 │   └── topbar-links.js            configuredLinks(), shared by both of the above
 └── services/
@@ -139,13 +140,17 @@ comes for free and stays testable. Themes may declare services;
 `loaded` exists to separate "still loading" from "failed", which the collapse
 rules below depend on.
 
-### Which three figures
+### Which figures
 
-| Slot | Key | Rationale |
-|---|---|---|
-| Members | `users_count` | The one size figure that grows with every CAAG intake |
-| Topics this month | `topics_30_days` | Pulse, not size |
-| People active | `active_users_30_days` | Pulse, not size |
+Four, since v0.12.0. Three shipped in v0.11.0 and the middle one did not
+survive contact with the real numbers.
+
+| Slot | Key | Below `lg` | Rationale |
+|---|---|---|---|
+| Members | `users_count` | kept | The one size figure that grows with every CAAG intake |
+| Messages this month | `posts_30_days` | hidden | Conversation volume — the thing this community actually does |
+| Likes this month | `likes_30_days` | hidden | Appreciation; says people read each other |
+| People active | `active_users_30_days` | kept | Reach |
 
 Lifetime totals were rejected. Zapier can show them because they are in the tens
 of thousands; Gestiona Avanza is a closed community around a certification
@@ -153,6 +158,37 @@ programme, and the totals visible in the category data (category 5: 1,055 posts;
 category 73's whole tree: 66 topics and zero replies) are three or four figures.
 A small lifetime total displayed prominently reads as an empty community. Recent
 activity reads as a live one.
+
+**Why `topics_30_days` was dropped.** On PROD it read **9**, next to 374 members
+and 114 people active — a 30.5% monthly active rate, which is strong, sitting
+beside a number that invites the reader to divide and conclude nobody writes.
+Partly an artefact: the window was 17 July to 16 August, the deadest stretch of
+the Spanish year, and category 4 alone averages ~15 topics a month across the
+year. But mostly the wrong measure. This community lives in replies, not in new
+threads — category 5 averages 1.7 and 4.5 replies per topic, category 78 reaches
+5.7, category 73's whole tree has never received one. Topics count initiative;
+posts count participation, and participation is what is actually happening here.
+
+The two are **not filtered alike**, and the difference is not cosmetic:
+
+```ruby
+def self.topics
+  topics = Topic.listable_topics      # excludes PMs and unlisted
+def self.posts
+  Post.where("created_at > ?", 30.days.ago).count   # no equivalent filter
+```
+
+`posts_30_days` therefore counts private messages and restricted categories.
+That is defensible on a login-required community where every category is "the
+community", but it is why the label is **messages** and never *replies* —
+"replies" would be a specific claim the number cannot support.
+
+Four figures need roughly 396px at `--font-down-2`; a 375px phone leaves about
+343px of line, and below `lg` the figures are the only thing the band still
+carries. So the two 30-day content figures carry a standalone `--secondary`
+modifier and stand down there, leaving size and reach. Which two stand down is
+decided in `topbar-stats.gjs`, not in the stylesheet — the SCSS only honours the
+class.
 
 Numbers are formatted with `I18n.toNumber(value, { precision: 0 })` from
 `discourse-i18n`, which applies the locale's thousands separator — `1.240` under

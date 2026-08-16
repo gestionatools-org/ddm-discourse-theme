@@ -26,9 +26,12 @@ en:
       members:
         one: "member"
         other: "members"
-      topics:
-        one: "topic this month"
-        other: "topics this month"
+      posts:
+        one: "message this month"
+        other: "messages this month"
+      likes:
+        one: "like this month"
+        other: "likes this month"
       active:
         one: "person active"
         other: "people active"

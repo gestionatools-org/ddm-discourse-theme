@@ -90,6 +90,16 @@
     align-items: baseline;
     gap: var(--space-1);
     white-space: nowrap;
+
+    // Four figures need roughly 396px at --font-down-2. A 375px phone leaves
+    // about 343px of line, and below lg the figures are the only thing left in
+    // the band, so they cannot borrow space from anywhere. Which two stand
+    // down is decided in topbar-stats.gjs, not here.
+    &.--secondary {
+      @include viewport.until(lg) {
+        display: none;
+      }
+    }
   }
 
   &__value {

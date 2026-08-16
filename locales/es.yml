@@ -13,9 +13,15 @@ es:
       members:
         one: "miembro"
         other: "miembros"
-      topics:
-        one: "tema este mes"
-        other: "temas este mes"
+      posts:
+        one: "mensaje este mes"
+        other: "mensajes este mes"
+      # "me gusta" as a noun is invariable in Spanish, so both plural forms are
+      # identical on purpose — "2 me gustas" is colloquial and Discourse's own
+      # Spanish locale does not use it.
+      likes:
+        one: "me gusta este mes"
+        other: "me gusta este mes"
       active:
         one: "persona activa"
         other: "personas activas"
