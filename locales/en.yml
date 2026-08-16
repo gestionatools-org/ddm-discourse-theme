@@ -63,6 +63,10 @@ en:
       title: "Events"
       link_text: "See the calendar"
       empty: "No events scheduled."
+      # Group headings. The lane is a record as much as an announcement, so
+      # both halves are labelled rather than merged into one undated run.
+      upcoming: "Coming up"
+      past: "Past events"
     library:
       title: "Library"
       subcategories:

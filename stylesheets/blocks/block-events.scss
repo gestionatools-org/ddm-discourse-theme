@@ -16,6 +16,28 @@
     @include lane-empty;
   }
 
+  // Two labelled groups: what is coming, then what has been held. A group
+  // renders only when it has rows, so a lane with nothing upcoming shows the
+  // archive alone rather than an empty heading.
+  &__group + &__group {
+    margin-top: var(--space-4);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--ga-border);
+  }
+
+  // Quieter than the lane title and set apart from it: this labels a run of
+  // rows, it does not open a new section. The letter-spacing matches the item
+  // dates, so the heading reads as part of the same date-forward column rather
+  // than as a second heading level competing with the lane's own.
+  &__group-title {
+    margin: 0 0 var(--space-2);
+    color: var(--ga-muted-fg);
+    font-size: var(--font-down-2);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
   &__list {
     @include lane-list;
   }

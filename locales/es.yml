@@ -53,6 +53,10 @@ es:
       title: "Eventos"
       link_text: "Ver agenda"
       empty: "No hay eventos programados."
+      # Group headings. The lane is a record as much as an announcement, so
+      # both halves are labelled rather than merged into one undated run.
+      upcoming: "Próximamente"
+      past: "Celebrados"
     library:
       title: "Biblioteca"
       subcategories:
