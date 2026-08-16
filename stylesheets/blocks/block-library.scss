@@ -70,4 +70,13 @@
     font-size: var(--font-down-2);
     font-variant-numeric: tabular-nums;
   }
+
+  // A card carries the section count only when it has subcategories, so the
+  // separator hangs off the second count rather than the first. Generated
+  // content keeps it out of the accessibility tree, where a stray "·" between
+  // two numbers reads as noise.
+  &__card-count + &__card-count::before {
+    content: "·";
+    margin-inline: var(--space-1);
+  }
 }

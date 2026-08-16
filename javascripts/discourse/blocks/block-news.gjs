@@ -6,7 +6,6 @@ import { bind } from "discourse/lib/decorators";
 import DAsyncContent from "discourse/ui-kit/d-async-content";
 import DButton from "discourse/ui-kit/d-button";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
-import dReplaceEmoji from "discourse/ui-kit/helpers/d-replace-emoji";
 import { i18n } from "discourse-i18n";
 import { loadCategoryTopics } from "../lib/category-topics";
 
@@ -65,7 +64,10 @@ export default class BlockNews extends Component {
               <li class="block-news__item">
                 <a class="block-news__item-link" href={{topic.url}}>
                   <h3 class="block-news__item-title">
-                    {{trustHTML (dReplaceEmoji topic.fancy_title)}}
+                    {{! `fancy_title` is already HTML. dReplaceEmoji escapes its input
+                        before substituting, so passing it through here double-encodes and
+                        renders "&rsquo;" as literal text. Core renders it raw too. }}
+                    {{trustHTML topic.fancy_title}}
                   </h3>
                   {{#if topic.excerpt}}
                     <p class="block-news__item-excerpt">
