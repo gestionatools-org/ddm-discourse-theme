@@ -74,9 +74,16 @@ export function categoryStats(category) {
  * @param {Object} store - the injected `store` service
  * @param {Number} categoryId - 0 or undefined disables the lane
  * @param {Number} count - maximum topics to return
+ * @param {Object} [options]
+ * @param {Boolean} [options.requireImage] - drop topics with no cover image
  * @returns {Promise<Array|null>}
  */
-export async function loadCategoryTopics(store, categoryId, count) {
+export async function loadCategoryTopics(
+  store,
+  categoryId,
+  count,
+  { requireImage = false } = {}
+) {
   if (!categoryId) {
     return null;
   }
@@ -86,9 +93,13 @@ export async function loadCategoryTopics(store, categoryId, count) {
   });
 
   const definitions = definitionTopicIds();
-  const topics = topicList?.topics?.filter(
-    (topic) => !definitions.has(topic.id)
-  );
+  let topics = topicList?.topics?.filter((topic) => !definitions.has(topic.id));
+
+  // Both filters run before the slice, so a lane still fills its configured
+  // length as long as the first page holds enough qualifying topics.
+  if (requireImage) {
+    topics = topics?.filter((topic) => topic.image_url);
+  }
 
   if (!topics?.length) {
     return null;
