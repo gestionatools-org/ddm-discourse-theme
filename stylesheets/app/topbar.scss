@@ -63,19 +63,21 @@
 
 // The figures are the only thing in the band allowed any weight: the numbers
 // take --primary, everything around them stays at the muted step.
+//
+// Two kinds of number live here and the layout is what separates them. The
+// lifetime total stands on its own; the three 30-day windows sit behind a
+// rule and a shared "Este mes:" lead-in. Nothing is emphasised further — the
+// divider does the work, and giving the total extra weight on top of it would
+// start competing with the logotype in the header below.
 .topbar-stats {
   display: flex;
   align-items: baseline;
   gap: var(--space-4);
-  margin: 0;
-  padding: 0;
   color: var(--ga-muted-fg);
-  list-style: none;
 
-  // TopbarLinks renders no element at all when no link URL is configured —
-  // which is the state this ships in — so `.wrap`'s space-between can end up
-  // with a single flex child. An auto inline-start margin holds the figures
-  // against the right edge either way.
+  // TopbarLinks renders no element at all when no link URL is configured, so
+  // `.wrap`'s space-between can end up with a single flex child. An auto
+  // inline-start margin holds the figures against the right edge either way.
   margin-inline-start: auto;
 
   @include viewport.until(lg) {
@@ -85,16 +87,37 @@
     margin-inline-start: 0;
   }
 
+  // The rule is a border rather than an element so it never reaches the
+  // accessibility tree, and it hangs off the group rather than the total:
+  // when core stops serializing every 30-day stat the whole group goes, and
+  // the divider goes with it instead of dangling after the total.
+  &__period {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-2);
+    padding-inline-start: var(--space-4);
+    border-inline-start: 1px solid var(--ga-border);
+  }
+
+  &__list {
+    display: flex;
+    align-items: baseline;
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
   &__figure {
     display: flex;
     align-items: baseline;
     gap: var(--space-1);
     white-space: nowrap;
 
-    // Four figures need roughly 396px at --font-down-2. A 375px phone leaves
-    // about 343px of line, and below lg the figures are the only thing left in
-    // the band, so they cannot borrow space from anywhere. Which two stand
-    // down is decided in topbar-stats.gjs, not here.
+    // Below lg the band carries nothing but these figures, so they cannot
+    // borrow space from anywhere. Which two stand down is decided in
+    // topbar-stats.gjs, not here — and the survivor leads the group there, so
+    // hiding these two leaves no gap after the lead-in.
     &.--secondary {
       @include viewport.until(lg) {
         display: none;
