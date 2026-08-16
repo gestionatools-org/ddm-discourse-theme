@@ -11,16 +11,18 @@ en:
       events_category_id: "Category shown in the events lane. 0 hides the lane."
       events_count: "How many events to show."
       library_category_ids: "Reference categories rendered as directory cards instead of topic lists."
-      academy_url: "Where the Academy item in the band above the header points. External destinations must include the scheme — https://example.com, not example.com, which the browser resolves as a path on this site. Start with / for a page on this forum. Empty hides the item."
-      demo_url: "Where the Demo Gestiona item in the band above the header points. External destinations must include the scheme — https://example.com, not example.com, which the browser resolves as a path on this site. Start with / for a page on this forum. Empty hides the item."
-      first_steps_url: "Where the first steps item in the band above the header points. External destinations must include the scheme — https://example.com, not example.com, which the browser resolves as a path on this site. Start with / for a page on this forum. Empty hides the item."
+      academy_url: "Where the Academy item in the site header points. External destinations must include the scheme — https://example.com, not example.com, which the browser resolves as a path on this site. Start with / for a page on this forum. Empty hides the item."
+      demo_url: "Where the Demo Gestiona item in the site header points. External destinations must include the scheme — https://example.com, not example.com, which the browser resolves as a path on this site. Start with / for a page on this forum. Empty hides the item."
+      first_steps_url: "Where the first steps item in the site header points. External destinations must include the scheme — https://example.com, not example.com, which the browser resolves as a path on this site. Start with / for a page on this forum. Empty hides the item."
 
-  topbar:
+  header:
     links:
       aria_label: "Featured links"
       academy: "Academy"
       demo: "Demo Gestiona"
       first_steps: "First steps"
+
+  topbar:
     stats:
       aria_label: "Community activity"
       # Stated once, in front of the three 30-day figures. Each of those used

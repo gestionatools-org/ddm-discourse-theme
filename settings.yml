@@ -69,15 +69,20 @@ library_category_ids:
   list_type: category
   default: "73|85|14"
 
-# --- Topbar links -----------------------------------------------------------
-# Destination links shown in the band above the site header. Labels are NOT
-# here: they live in locales/*.yml under `topbar.links`, per the
-# settings/strings split.
+# --- Header links -----------------------------------------------------------
+# Destination links shown in the site header, between the search field and the
+# user icons. Labels are NOT here: they live in locales/*.yml under
+# `header.links`, per the settings/strings split.
 #
-# A link with an empty URL is not rendered, so the band stays clean until a
+# A link with an empty URL is not rendered, so the header stays clean until a
 # destination is decided. `type: string` rather than a URL type because
 # Discourse has none, and these may be absolute (an external Academy) or
 # relative (a category on this instance).
+#
+# Below lg the whole nav is hidden: the header already carries a logo, a
+# search field and the user icons, and more labels squeeze the search to
+# nothing. Filling all three URLs tightens the wide layout too — two is what
+# the current design was checked against.
 #
 # That flexibility has a trap, and it has already been sprung once: the value
 # reaches the DOM as `href` after nothing but a trim, so an absolute

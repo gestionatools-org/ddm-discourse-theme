@@ -2,12 +2,14 @@ es:
   theme_metadata:
     description: "Tema de Discourse para la comunidad de es|public."
 
-  topbar:
+  header:
     links:
       aria_label: "Enlaces destacados"
       academy: "Academy"
       demo: "Demo Gestiona"
       first_steps: "Primeros pasos"
+
+  topbar:
     stats:
       aria_label: "Actividad de la comunidad"
       # Stated once, in front of the three 30-day figures. Each of those used
