@@ -10,21 +10,26 @@ es:
       first_steps: "Primeros pasos"
     stats:
       aria_label: "Actividad de la comunidad"
+      # Stated once, in front of the three 30-day figures. Each of those used
+      # to carry its own "este mes", which repeated the phrase and still left
+      # the active-users figure unqualified.
+      period_label: "Este mes:"
+      period_aria_label: "Actividad este mes"
       members:
         one: "miembro"
         other: "miembros"
+      active:
+        one: "usuario activo"
+        other: "usuarios activos"
       posts:
-        one: "mensaje este mes"
-        other: "mensajes este mes"
+        one: "mensaje"
+        other: "mensajes"
       # "me gusta" as a noun is invariable in Spanish, so both plural forms are
       # identical on purpose — "2 me gustas" is colloquial and Discourse's own
       # Spanish locale does not use it.
       likes:
-        one: "me gusta este mes"
-        other: "me gusta este mes"
-      active:
-        one: "persona activa"
-        other: "personas activas"
+        one: "me gusta"
+        other: "me gusta"
 
   homepage:
     news:

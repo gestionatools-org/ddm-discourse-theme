@@ -23,18 +23,23 @@ en:
       first_steps: "First steps"
     stats:
       aria_label: "Community activity"
+      # Stated once, in front of the three 30-day figures. Each of those used
+      # to carry its own "this month", which repeated the phrase and still
+      # left the active-users figure unqualified.
+      period_label: "This month:"
+      period_aria_label: "Activity this month"
       members:
         one: "member"
         other: "members"
-      posts:
-        one: "message this month"
-        other: "messages this month"
-      likes:
-        one: "like this month"
-        other: "likes this month"
       active:
-        one: "person active"
-        other: "people active"
+        one: "active user"
+        other: "active users"
+      posts:
+        one: "message"
+        other: "messages"
+      likes:
+        one: "like"
+        other: "likes"
 
   homepage:
     news:

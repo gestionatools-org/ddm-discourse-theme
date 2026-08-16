@@ -34,17 +34,20 @@ function failAbout(server, helper) {
   );
 }
 
-const PARTIAL_ABOUT = {
+// Only the lifetime total survives: the whole 30-day group has to disappear,
+// lead-in and divider included.
+const TOTAL_ONLY_ABOUT = { about: { stats: { users_count: 1240 } } };
+
+// The mirror image: no total, so the group has to stand on its own.
+const PERIOD_ONLY_ABOUT = {
   about: {
     stats: {
-      users_count: 1240,
+      posts_30_days: 3480,
+      likes_30_days: 890,
+      active_users_30_days: 120,
     },
   },
 };
-
-function stubPartialAbout(server, helper) {
-  server.get("/about.json", () => helper.response(PARTIAL_ABOUT));
-}
 
 acceptance("Topbar - links", function (needs) {
   needs.user();
@@ -92,49 +95,72 @@ acceptance("Topbar - figures", function (needs) {
   needs.pretender(stubAbout);
   needs.hooks.beforeEach(clearLinkSettings);
 
-  test("renders the four figures", async function (assert) {
+  test("separates the lifetime total from the 30-day group", async function (assert) {
     await visit("/latest");
 
     assert.dom(".topbar-stats__figure").exists({ count: 4 });
+    assert
+      .dom(".topbar-stats__figure.--total")
+      .exists({ count: 1 }, "exactly one figure is the lifetime total");
+    assert
+      .dom(".topbar-stats__period .topbar-stats__figure.--total")
+      .doesNotExist("the total sits outside the period group, not within it");
+    assert
+      .dom(".topbar-stats__period .topbar-stats__figure")
+      .exists({ count: 3 }, "the three 30-day windows are grouped together");
   });
 
-  test("marks only the two figures that stand down below lg", async function (assert) {
+  test("states the period once, in front of the group", async function (assert) {
     await visit("/latest");
 
-    // The media query itself is not observable here, but the class that drives
-    // it is, and getting the wrong two figures marked is the failure this
-    // guards: it would leave the phone showing volume and appreciation while
-    // hiding size and reach.
-    assert.dom(".topbar-stats__figure.--secondary").exists({ count: 2 });
+    assert.dom(".topbar-stats__period-label").exists({ count: 1 });
+    assert.dom(".topbar-stats__period-label").hasText("This month:");
     assert
-      .dom(".topbar-stats__figure:first-child")
-      .doesNotHaveClass("--secondary", "members survives on a phone");
-    assert
-      .dom(".topbar-stats__figure:last-child")
-      .doesNotHaveClass("--secondary", "active users survives on a phone");
+      .dom(".topbar-stats__figure.--total")
+      .hasText("1,240 members", "the total carries no period of its own");
   });
 
-  test("formats the figure with a thousands separator", async function (assert) {
+  test("formats the total with a thousands separator", async function (assert) {
     await visit("/latest");
 
     assert
-      .dom(".topbar-stats__figure:first-child .topbar-stats__value")
+      .dom(".topbar-stats__figure.--total .topbar-stats__value")
       .hasText("1,240", "not abbreviated to 1.2k");
   });
 
   test("pairs each label with its own stat key", async function (assert) {
     await visit("/latest");
 
-    // Each of the three 30-day windows carries a different number in the
-    // fixture, so a mis-pairing in FIGURES puts a visibly wrong count against
-    // the label rather than an indistinguishable one.
+    // Each of the three windows carries a different number in the fixture, so
+    // a mis-pairing in PERIOD puts a visibly wrong count against the label
+    // rather than an indistinguishable one.
+    const figures = [
+      ...document.querySelectorAll(
+        ".topbar-stats__period .topbar-stats__figure"
+      ),
+    ].map((el) => el.textContent.replace(/\s+/g, " ").trim());
+
+    assert.deepEqual(
+      figures,
+      ["120 active users", "3,480 messages", "890 likes"],
+      "active users leads the group, so it is the one that survives on a phone"
+    );
+  });
+
+  test("marks only the two figures that stand down below lg", async function (assert) {
+    await visit("/latest");
+
+    // The media query itself is not observable here, but the class that drives
+    // it is, and getting the wrong figures marked is the failure this guards:
+    // it would leave the phone showing volume and appreciation while hiding
+    // size and reach.
+    assert.dom(".topbar-stats__figure.--secondary").exists({ count: 2 });
     assert
-      .dom(".topbar-stats__figure:nth-child(2)")
-      .hasText("3,480 messages this month");
+      .dom(".topbar-stats__figure.--total")
+      .doesNotHaveClass("--secondary", "members survives on a phone");
     assert
-      .dom(".topbar-stats__figure:nth-child(3)")
-      .hasText("890 likes this month");
-    assert.dom(".topbar-stats__figure:last-child").hasText("120 people active");
+      .dom(".topbar-stats__period .topbar-stats__figure:first-child")
+      .doesNotHaveClass("--secondary", "active users survives on a phone");
   });
 
   test("renders the band on figures alone, with no links configured", async function (assert) {
@@ -176,20 +202,44 @@ acceptance("Topbar - figures unavailable", function (needs) {
   });
 });
 
-acceptance("Topbar - figures with a missing stat", function (needs) {
+acceptance("Topbar - only the lifetime total is served", function (needs) {
   needs.user();
-  needs.pretender(stubPartialAbout);
+  needs.pretender((server, helper) => {
+    server.get("/about.json", () => helper.response(TOTAL_ONLY_ABOUT));
+  });
   needs.hooks.beforeEach(clearLinkSettings);
 
-  test("drops a figure whose stat key is missing from the response", async function (assert) {
+  test("drops the group, its lead-in and its divider together", async function (assert) {
     await visit("/latest");
 
+    assert.dom(".topbar-stats__figure").exists({ count: 1 });
+    assert.dom(".topbar-stats__figure.--total").hasText("1,240 members");
     assert
-      .dom(".topbar-stats__figure")
-      .exists(
-        { count: 1 },
-        "posts, likes and active-users are missing, not rendered as empty or NaN"
+      .dom(".topbar-stats__period")
+      .doesNotExist(
+        "the divider hangs off the group, so it leaves with it rather than dangling after the total"
       );
+    assert
+      .dom(".topbar-stats__period-label")
+      .doesNotExist("no 'This month:' with nothing behind it");
+  });
+});
+
+acceptance("Topbar - only the 30-day group is served", function (needs) {
+  needs.user();
+  needs.pretender((server, helper) => {
+    server.get("/about.json", () => helper.response(PERIOD_ONLY_ABOUT));
+  });
+  needs.hooks.beforeEach(clearLinkSettings);
+
+  test("renders the group without a total in front of it", async function (assert) {
+    await visit("/latest");
+
+    assert.dom(".topbar-stats__figure.--total").doesNotExist();
+    assert.dom(".topbar-stats__period-label").exists();
+    assert
+      .dom(".topbar-stats__period .topbar-stats__figure")
+      .exists({ count: 3 });
   });
 });
 
