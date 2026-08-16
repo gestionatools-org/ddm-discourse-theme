@@ -40,15 +40,12 @@
     width: 100%;
     aspect-ratio: 4 / 3;
     object-fit: cover;
-    background: var(--ga-muted);
 
-    // Topics with no cover image still occupy a cell, so the grid stays even.
-    &.--placeholder {
-      display: grid;
-      place-items: center;
-      color: var(--ga-neutral-400);
-      font-size: var(--font-up-3);
-    }
+    // A tinted bed behind the image, not a fallback: it covers the gap while a
+    // lazy-loaded image decodes, and shows through anything with transparency.
+    // There is no placeholder state — the lane only ever receives topics that
+    // have a cover image, so an empty cell cannot occur.
+    background: var(--ga-muted);
   }
 
   &__card-title {

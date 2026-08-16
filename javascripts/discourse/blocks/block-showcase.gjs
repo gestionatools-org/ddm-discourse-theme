@@ -9,6 +9,20 @@ import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
 import { loadCategoryTopics } from "../lib/category-topics";
 
+/**
+ * Image grid of the work members submit for their certification.
+ *
+ * A cover image is a requirement, not a nicety: this lane exists to exhibit
+ * the work itself, and a card with no image exhibits nothing. Until v0.15.0
+ * imageless topics still took a cell, filled with a grey box and a picture
+ * glyph — on the live instance that was three of six cells, so half the grid
+ * read as broken.
+ *
+ * Filtering costs nothing here: category 78 holds 12 topics with a cover image
+ * against 6 cells. If that ever inverts, the lane simply shows fewer cards and
+ * falls back to its empty state at zero, which is the honest outcome for a
+ * gallery with nothing to hang.
+ */
 @block("theme:espublico:showcase", {
   description: "Image grid of member work",
   args: {
@@ -27,7 +41,8 @@ export default class BlockShowcase extends Component {
     return await loadCategoryTopics(
       this.store,
       this.args.categoryId,
-      this.args.count
+      this.args.count,
+      { requireImage: true }
     );
   }
 
@@ -63,23 +78,17 @@ export default class BlockShowcase extends Component {
             {{#each topics as |topic|}}
               <li class="block-showcase__card">
                 <a class="block-showcase__card-link" href={{topic.url}}>
-                  {{#if topic.image_url}}
-                    {{! Decorative: the adjacent title is the accessible name,
-                        so alt="" avoids a duplicate announcement. }}
-                    <img
-                      class="block-showcase__card-image"
-                      src={{topic.image_url}}
-                      alt=""
-                      loading="lazy"
-                    />
-                  {{else}}
-                    <span
-                      class="block-showcase__card-image --placeholder"
-                      aria-hidden="true"
-                    >
-                      {{dIcon "image"}}
-                    </span>
-                  {{/if}}
+                  {{! No fallback branch: fetchTopics only returns topics that
+                      have a cover image, so an imageless card cannot reach
+                      here. }}
+                  {{! Decorative: the adjacent title is the accessible name,
+                      so alt="" avoids a duplicate announcement. }}
+                  <img
+                    class="block-showcase__card-image"
+                    src={{topic.image_url}}
+                    alt=""
+                    loading="lazy"
+                  />
                   <span class="block-showcase__card-title">
                     {{! `fancy_title` is already HTML. dReplaceEmoji escapes its input
                         before substituting, so passing it through here double-encodes and
