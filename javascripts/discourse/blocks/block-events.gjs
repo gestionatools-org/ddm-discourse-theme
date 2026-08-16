@@ -37,8 +37,60 @@ function formatEventStart(value) {
   }).format(date);
 }
 
+// One row, used by both groups. The mixed date precision is deliberate and
+// carries meaning: a real event brings a day and a time, a write-up of one
+// brings only a month. That difference is what separates a date you can still
+// act on from a record of one that has passed.
+const EventItem = <template>
+  <li class="block-events__item">
+    <a class="block-events__item-link" href={{@topic.url}}>
+      {{! `event_starts_at` only reaches the topic list for topics carrying an
+          `[event]` block, and only while the calendar plugin is enabled. The
+          category holds both kinds, so the lane shows a real start time where
+          there is one and falls back to the topic's own date everywhere
+          else. }}
+      {{#if @topic.event_starts_at}}
+        <time
+          class="block-events__item-date --scheduled"
+          datetime={{@topic.event_starts_at}}
+        >
+          {{formatEventStart @topic.event_starts_at}}
+        </time>
+      {{else}}
+        <time class="block-events__item-date" datetime={{@topic.created_at}}>
+          {{dFormatDate @topic.created_at format="tiny"}}
+        </time>
+      {{/if}}
+      <span class="block-events__item-title">
+        {{! `fancy_title` is already HTML. dReplaceEmoji escapes its input
+            before substituting, so passing it through here double-encodes and
+            renders "&rsquo;" as literal text. Core renders it raw too. }}
+        {{trustHTML @topic.fancy_title}}
+      </span>
+    </a>
+  </li>
+</template>;
+
+/**
+ * The community's events, upcoming and past.
+ *
+ * The lane is a record as much as an announcement: write-ups of past meetups
+ * belong here alongside the next date. What must never happen is the next date
+ * being buried by them.
+ *
+ * That was the live behaviour until v0.16.0. Category 59 carries
+ * `sort_topics_by_event_start_date`, but the listing it serves is *exactly*
+ * `bumped_at` descending — verified against the instance — so the setting
+ * changes nothing here. The one upcoming event led the lane only because it
+ * happened to be the most recently bumped topic. Four write-ups later it would
+ * have dropped off a four-row lane entirely.
+ *
+ * So the split is done client-side and the groups are labelled. Upcoming
+ * events are sorted soonest-first, since the nearest date is the one a reader
+ * can still act on; everything else keeps recency order.
+ */
 @block("theme:espublico:events", {
-  description: "Compact, date-forward listing of the events category",
+  description: "Community events, upcoming first, then past",
   args: {
     title: { type: "string" },
     linkText: { type: "string" },
@@ -52,11 +104,43 @@ export default class BlockEvents extends Component {
 
   @bind
   async fetchTopics() {
-    return await loadCategoryTopics(
+    // Unsliced on purpose: the split has to see the whole page, or an upcoming
+    // event sitting below the cut would be discarded before it could be
+    // promoted — which is the bug this block exists to avoid.
+    const topics = await loadCategoryTopics(
       this.store,
       this.args.categoryId,
-      this.args.count
+      undefined
     );
+
+    if (!topics?.length) {
+      return null;
+    }
+
+    const now = Date.now();
+    const upcoming = topics
+      .filter(
+        (topic) =>
+          topic.event_starts_at &&
+          new Date(topic.event_starts_at).getTime() >= now
+      )
+      .sort(
+        (a, b) => new Date(a.event_starts_at) - new Date(b.event_starts_at)
+      );
+
+    const promoted = new Set(upcoming.map((topic) => topic.id));
+    const past = topics.filter((topic) => !promoted.has(topic.id));
+
+    // Upcoming events take the lane's budget first. If they ever fill it the
+    // past group disappears, which is the right way round: a reader cannot act
+    // on what already happened.
+    const limit = this.args.count;
+    const shownUpcoming = upcoming.slice(0, limit);
+
+    return {
+      upcoming: shownUpcoming,
+      past: past.slice(0, Math.max(0, limit - shownUpcoming.length)),
+    };
   }
 
   <template>
@@ -79,41 +163,32 @@ export default class BlockEvents extends Component {
             }}</p>
         </:empty>
 
-        <:content as |topics|>
-          <ul class="block-events__list">
-            {{#each topics as |topic|}}
-              <li class="block-events__item">
-                <a class="block-events__item-link" href={{topic.url}}>
-                  {{! `event_starts_at` only reaches the topic list for topics
-                      carrying an `[event]` block, and only while the calendar
-                      plugin is enabled. The category holds both kinds, so the
-                      lane shows a real start time where there is one and falls
-                      back to the topic's own date everywhere else. }}
-                  {{#if topic.event_starts_at}}
-                    <time
-                      class="block-events__item-date --scheduled"
-                      datetime={{topic.event_starts_at}}
-                    >
-                      {{formatEventStart topic.event_starts_at}}
-                    </time>
-                  {{else}}
-                    <time
-                      class="block-events__item-date"
-                      datetime={{topic.created_at}}
-                    >
-                      {{dFormatDate topic.created_at format="tiny"}}
-                    </time>
-                  {{/if}}
-                  <span class="block-events__item-title">
-                    {{! `fancy_title` is already HTML. dReplaceEmoji escapes its input
-                        before substituting, so passing it through here double-encodes and
-                        renders "&rsquo;" as literal text. Core renders it raw too. }}
-                    {{trustHTML topic.fancy_title}}
-                  </span>
-                </a>
-              </li>
-            {{/each}}
-          </ul>
+        <:content as |groups|>
+          {{#if groups.upcoming.length}}
+            <div class="block-events__group">
+              <h3 class="block-events__group-title">
+                {{i18n (themePrefix "homepage.events.upcoming")}}
+              </h3>
+              <ul class="block-events__list">
+                {{#each groups.upcoming as |topic|}}
+                  <EventItem @topic={{topic}} />
+                {{/each}}
+              </ul>
+            </div>
+          {{/if}}
+
+          {{#if groups.past.length}}
+            <div class="block-events__group">
+              <h3 class="block-events__group-title">
+                {{i18n (themePrefix "homepage.events.past")}}
+              </h3>
+              <ul class="block-events__list">
+                {{#each groups.past as |topic|}}
+                  <EventItem @topic={{topic}} />
+                {{/each}}
+              </ul>
+            </div>
+          {{/if}}
         </:content>
       </DAsyncContent>
 
