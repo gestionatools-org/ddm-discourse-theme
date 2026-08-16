@@ -6,7 +6,6 @@ import { bind } from "discourse/lib/decorators";
 import DAsyncContent from "discourse/ui-kit/d-async-content";
 import DButton from "discourse/ui-kit/d-button";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
-import dReplaceEmoji from "discourse/ui-kit/helpers/d-replace-emoji";
 import { i18n } from "discourse-i18n";
 import { loadCategoryTopics } from "../lib/category-topics";
 
@@ -65,7 +64,10 @@ export default class BlockForum extends Component {
               <li class="block-forum__item">
                 <a class="block-forum__item-link" href={{topic.url}}>
                   <span class="block-forum__item-title">
-                    {{trustHTML (dReplaceEmoji topic.fancy_title)}}
+                    {{! `fancy_title` is already HTML. dReplaceEmoji escapes its input
+                        before substituting, so passing it through here double-encodes and
+                        renders "&rsquo;" as literal text. Core renders it raw too. }}
+                    {{trustHTML topic.fancy_title}}
                   </span>
                 </a>
                 {{! Reply count is this lane's reason to exist: these threads

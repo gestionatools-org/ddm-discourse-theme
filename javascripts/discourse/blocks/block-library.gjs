@@ -5,7 +5,7 @@ import { block } from "discourse/blocks";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import dReplaceEmoji from "discourse/ui-kit/helpers/d-replace-emoji";
 import { i18n } from "discourse-i18n";
-import { resolveCategories } from "../lib/category-topics";
+import { categoryStats, resolveCategories } from "../lib/category-topics";
 
 /**
  * Directory cards for reference categories.
@@ -26,12 +26,18 @@ import { resolveCategories } from "../lib/category-topics";
   },
 })
 export default class BlockLibrary extends Component {
-  get categories() {
-    return resolveCategories(this.args.categoryIds);
+  // Both counts are summed over the subtree in categoryStats — see the comment
+  // there for why neither `topic_count` nor `subcategory_count` can be read
+  // straight off the category.
+  get cards() {
+    return resolveCategories(this.args.categoryIds).map((category) => ({
+      category,
+      ...categoryStats(category),
+    }));
   }
 
   <template>
-    {{#if this.categories.length}}
+    {{#if this.cards.length}}
       <section class="block-library">
         <header class="block-library__header">
           <h2 class="block-library__title">
@@ -41,34 +47,42 @@ export default class BlockLibrary extends Component {
         </header>
 
         <ul class="block-library__grid">
-          {{#each this.categories as |category|}}
+          {{#each this.cards as |card|}}
             <li class="block-library__card">
-              <a class="block-library__card-link" href={{category.url}}>
+              <a class="block-library__card-link" href={{card.category.url}}>
                 <span
                   class="block-library__card-swatch"
-                  style={{trustHTML (concat "background:#" category.color)}}
+                  style={{trustHTML
+                    (concat "background:#" card.category.color)
+                  }}
                   aria-hidden="true"
                 ></span>
                 <h3 class="block-library__card-title">
-                  {{trustHTML (dReplaceEmoji category.name)}}
+                  {{! `name` is plain text, so it is escaped on the way in —
+                      unlike a topic's `fancy_title`, which is already HTML and
+                      must not pass through this helper. }}
+                  {{trustHTML (dReplaceEmoji card.category.name)}}
                 </h3>
-                {{#if category.description_excerpt}}
+                {{#if card.category.description_excerpt}}
                   <p class="block-library__card-description">
-                    {{trustHTML category.description_excerpt}}
+                    {{trustHTML card.category.description_excerpt}}
                   </p>
                 {{/if}}
                 <p class="block-library__card-meta">
-                  {{#if category.subcategory_count}}
-                    {{i18n
-                      (themePrefix "homepage.library.subcategories")
-                      count=category.subcategory_count
-                    }}
-                  {{else}}
+                  {{#if card.sections}}
+                    <span class="block-library__card-count">
+                      {{i18n
+                        (themePrefix "homepage.library.subcategories")
+                        count=card.sections
+                      }}
+                    </span>
+                  {{/if}}
+                  <span class="block-library__card-count">
                     {{i18n
                       (themePrefix "homepage.library.documents")
-                      count=category.topic_count
+                      count=card.documents
                     }}
-                  {{/if}}
+                  </span>
                 </p>
               </a>
             </li>

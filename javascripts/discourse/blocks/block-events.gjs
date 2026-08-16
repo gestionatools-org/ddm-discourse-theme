@@ -7,7 +7,6 @@ import DAsyncContent from "discourse/ui-kit/d-async-content";
 import DButton from "discourse/ui-kit/d-button";
 import dFormatDate from "discourse/ui-kit/helpers/d-format-date";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
-import dReplaceEmoji from "discourse/ui-kit/helpers/d-replace-emoji";
 import { i18n } from "discourse-i18n";
 import { loadCategoryTopics } from "../lib/category-topics";
 
@@ -106,7 +105,10 @@ export default class BlockEvents extends Component {
                     </time>
                   {{/if}}
                   <span class="block-events__item-title">
-                    {{trustHTML (dReplaceEmoji topic.fancy_title)}}
+                    {{! `fancy_title` is already HTML. dReplaceEmoji escapes its input
+                        before substituting, so passing it through here double-encodes and
+                        renders "&rsquo;" as literal text. Core renders it raw too. }}
+                    {{trustHTML topic.fancy_title}}
                   </span>
                 </a>
               </li>
