@@ -13,3 +13,6 @@ CLAUDE.local.md
 
 # macOS
 .DS_Store
+
+# Playwright MCP scratch (screenshots can capture on-screen secrets)
+.playwright-mcp/
