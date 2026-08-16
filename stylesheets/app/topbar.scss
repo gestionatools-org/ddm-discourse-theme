@@ -12,51 +12,22 @@
   border-bottom: 1px solid var(--ga-border);
   font-size: var(--font-down-2);
 
+  // The figures are the band's only content — the destination links live in
+  // the site header — so the wrap has exactly one child. Aligning it with
+  // justify-content rather than an auto margin keeps that fact in one place:
+  // the band ends under the header icons on wide viewports and centres on
+  // narrow ones, and there is no second declaration to keep in step.
   > .wrap {
     display: flex;
     align-items: center;
-    justify-content: space-between;
-    gap: var(--space-4);
+    justify-content: flex-end;
     min-height: 2rem;
     padding-block: var(--space-1);
   }
 
   @include viewport.until(lg) {
-    // Below lg the band carries figures and nothing else, so a band whose
-    // figures never arrived has nothing left to show, and rendering it anyway
-    // would put an empty strip above the header. topbar.gjs applies this only
-    // once the request has settled with no data — never while it is still in
-    // flight, or the band would appear late and push the page down.
-    &.--no-stats {
-      display: none;
-    }
-
     > .wrap {
       justify-content: center;
-    }
-  }
-}
-
-// Destination links. Below lg they lose the space to the figures: three labels
-// do not fit a phone bar, which is the same arithmetic that pushed them out of
-// the header in the first place.
-.topbar-links {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-
-  @include viewport.until(lg) {
-    display: none;
-  }
-
-  &__link {
-    color: var(--ga-muted-fg);
-    white-space: nowrap;
-    transition: color var(--ga-duration-fast) var(--ga-ease);
-
-    &:hover,
-    &:focus-visible {
-      color: var(--tertiary);
     }
   }
 }
@@ -74,18 +45,6 @@
   align-items: baseline;
   gap: var(--space-4);
   color: var(--ga-muted-fg);
-
-  // TopbarLinks renders no element at all when no link URL is configured, so
-  // `.wrap`'s space-between can end up with a single flex child. An auto
-  // inline-start margin holds the figures against the right edge either way.
-  margin-inline-start: auto;
-
-  @include viewport.until(lg) {
-    // Below lg the figures are the only laid-out child of `.wrap` and it
-    // switches to justify-content: center. The auto margin above would eat
-    // the free space and push them right again, defeating that centring.
-    margin-inline-start: 0;
-  }
 
   // The rule is a border rather than an element so it never reaches the
   // accessibility tree, and it hangs off the group rather than the total:

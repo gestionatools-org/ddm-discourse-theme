@@ -49,47 +49,6 @@ const PERIOD_ONLY_ABOUT = {
   },
 };
 
-acceptance("Topbar - links", function (needs) {
-  needs.user();
-  needs.pretender(stubAbout);
-
-  needs.hooks.beforeEach(function () {
-    settings.academy_url = "https://academy.example.com";
-    settings.demo_url = "";
-    settings.first_steps_url = "/t/primeros-pasos/1";
-  });
-
-  needs.hooks.afterEach(clearLinkSettings);
-
-  test("renders one link per configured URL", async function (assert) {
-    await visit("/latest");
-
-    assert.dom(".topbar").exists("the band renders");
-    assert
-      .dom(".topbar-links__link")
-      .exists({ count: 2 }, "the blank demo_url contributes no link");
-  });
-
-  test("uses the configured URL as the href", async function (assert) {
-    await visit("/latest");
-
-    assert
-      .dom(".topbar-links__link")
-      .hasAttribute("href", "https://academy.example.com");
-  });
-
-  test("no longer renders the links inside the header", async function (assert) {
-    await visit("/latest");
-
-    assert
-      .dom(".d-header .topbar-links")
-      .doesNotExist("the links live above the header, not inside it");
-    assert
-      .dom(".header-links")
-      .doesNotExist("the old header-links block is gone entirely");
-  });
-});
-
 acceptance("Topbar - figures", function (needs) {
   needs.user();
   needs.pretender(stubAbout);
@@ -163,12 +122,13 @@ acceptance("Topbar - figures", function (needs) {
       .doesNotHaveClass("--secondary", "active users survives on a phone");
   });
 
-  test("renders the band on figures alone, with no links configured", async function (assert) {
+  test("carries the figures and nothing else", async function (assert) {
     await visit("/latest");
 
     assert.dom(".topbar").exists();
-    assert.dom(".topbar").doesNotHaveClass("--no-stats");
-    assert.dom(".topbar-links").doesNotExist();
+    assert
+      .dom(".topbar .header-links")
+      .doesNotExist("the destination links belong to the header, not the band");
   });
 });
 
@@ -178,7 +138,7 @@ acceptance("Topbar - figures unavailable", function (needs) {
 
   needs.hooks.afterEach(clearLinkSettings);
 
-  test("renders no band at all when nothing else is configured", async function (assert) {
+  test("renders no band at all", async function (assert) {
     clearLinkSettings();
 
     await visit("/latest");
@@ -188,17 +148,22 @@ acceptance("Topbar - figures unavailable", function (needs) {
       .doesNotExist("an empty strip above the header is worse than no band");
   });
 
-  test("keeps the links and marks the band --no-stats", async function (assert) {
+  test("renders no band even when header links are configured", async function (assert) {
     clearLinkSettings();
     settings.academy_url = "https://academy.example.com";
 
     await visit("/latest");
 
-    assert.dom(".topbar").exists("the links still justify the band");
+    // The band used to survive a failed /about.json whenever a link was set,
+    // marked --no-stats. Now that the links render in the header instead,
+    // nothing is left to justify the strip and the whole band goes.
+    assert.dom(".topbar").doesNotExist();
     assert
-      .dom(".topbar")
-      .hasClass("--no-stats", "so the SCSS can hide it below lg");
-    assert.dom(".topbar-stats").doesNotExist();
+      .dom(".header-links__link")
+      .exists(
+        { count: 1 },
+        "and the links are untouched by the failed request"
+      );
   });
 });
 
