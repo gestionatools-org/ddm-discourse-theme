@@ -78,6 +78,17 @@ library_category_ids:
 # destination is decided. `type: string` rather than a URL type because
 # Discourse has none, and these may be absolute (an external Academy) or
 # relative (a category on this instance).
+#
+# That flexibility has a trap, and it has already been sprung once: the value
+# reaches the DOM as `href` after nothing but a trim, so an absolute
+# destination typed without its scheme — `demo-a.example.com` rather than
+# `https://demo-a.example.com` — is not read as a host at all. The browser
+# resolves it against the current page and requests
+# `https://this-forum/demo-a.example.com`, which 404s. The setting descriptions
+# in locales/en.yml say so; there is no validation to lean on, because
+# `validations: { url: true }` exists only for properties inside a
+# `type: objects` schema, and converting these three would discard the values
+# admins have already stored.
 academy_url:
   type: string
   default: ""
