@@ -17,7 +17,8 @@ const ABOUT = {
   about: {
     stats: {
       users_count: 1240,
-      topics_30_days: 48,
+      posts_30_days: 3480,
+      likes_30_days: 890,
       active_users_30_days: 120,
     },
   },
@@ -91,10 +92,26 @@ acceptance("Topbar - figures", function (needs) {
   needs.pretender(stubAbout);
   needs.hooks.beforeEach(clearLinkSettings);
 
-  test("renders the three figures", async function (assert) {
+  test("renders the four figures", async function (assert) {
     await visit("/latest");
 
-    assert.dom(".topbar-stats__figure").exists({ count: 3 });
+    assert.dom(".topbar-stats__figure").exists({ count: 4 });
+  });
+
+  test("marks only the two figures that stand down below lg", async function (assert) {
+    await visit("/latest");
+
+    // The media query itself is not observable here, but the class that drives
+    // it is, and getting the wrong two figures marked is the failure this
+    // guards: it would leave the phone showing volume and appreciation while
+    // hiding size and reach.
+    assert.dom(".topbar-stats__figure.--secondary").exists({ count: 2 });
+    assert
+      .dom(".topbar-stats__figure:first-child")
+      .doesNotHaveClass("--secondary", "members survives on a phone");
+    assert
+      .dom(".topbar-stats__figure:last-child")
+      .doesNotHaveClass("--secondary", "active users survives on a phone");
   });
 
   test("formats the figure with a thousands separator", async function (assert) {
@@ -108,8 +125,15 @@ acceptance("Topbar - figures", function (needs) {
   test("pairs each label with its own stat key", async function (assert) {
     await visit("/latest");
 
-    // active_users_30_days, not topics_30_days or users_count — a mis-pairing
-    // in FIGURES would put the wrong count next to this label.
+    // Each of the three 30-day windows carries a different number in the
+    // fixture, so a mis-pairing in FIGURES puts a visibly wrong count against
+    // the label rather than an indistinguishable one.
+    assert
+      .dom(".topbar-stats__figure:nth-child(2)")
+      .hasText("3,480 messages this month");
+    assert
+      .dom(".topbar-stats__figure:nth-child(3)")
+      .hasText("890 likes this month");
     assert.dom(".topbar-stats__figure:last-child").hasText("120 people active");
   });
 
@@ -164,7 +188,7 @@ acceptance("Topbar - figures with a missing stat", function (needs) {
       .dom(".topbar-stats__figure")
       .exists(
         { count: 1 },
-        "topics and active-users are missing, not rendered as empty or NaN"
+        "posts, likes and active-users are missing, not rendered as empty or NaN"
       );
   });
 });
