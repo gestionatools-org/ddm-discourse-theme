@@ -2,6 +2,7 @@ import Component from "@glimmer/component";
 import { concat } from "@ember/helper";
 import { trustHTML } from "@ember/template";
 import { block } from "discourse/blocks";
+import { emojiUnescape } from "discourse/lib/text";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import dReplaceEmoji from "discourse/ui-kit/helpers/d-replace-emoji";
 import { i18n } from "discourse-i18n";
@@ -65,7 +66,9 @@ export default class BlockLibrary extends Component {
                 </h3>
                 {{#if card.category.description_excerpt}}
                   <p class="block-library__card-description">
-                    {{trustHTML card.category.description_excerpt}}
+                    {{trustHTML
+                      (emojiUnescape card.category.description_excerpt)
+                    }}
                   </p>
                 {{/if}}
                 <p class="block-library__card-meta">
