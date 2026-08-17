@@ -3,6 +3,7 @@ import { service } from "@ember/service";
 import { trustHTML } from "@ember/template";
 import { block } from "discourse/blocks";
 import { bind } from "discourse/lib/decorators";
+import { emojiUnescape } from "discourse/lib/text";
 import DAsyncContent from "discourse/ui-kit/d-async-content";
 import DButton from "discourse/ui-kit/d-button";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
@@ -71,7 +72,18 @@ export default class BlockNews extends Component {
                   </h3>
                   {{#if topic.excerpt}}
                     <p class="block-news__item-excerpt">
-                      {{trustHTML topic.excerpt}}
+                      {{! An excerpt is HTML-encoded text with the tags
+                          stripped, and Discourse's ExcerptParser turns the
+                          emoji images back into their `:shortcode:` — so
+                          without this, one news excerpt in four printed
+                          ":automobile:" as words.
+
+                          emojiUnescape, not the dReplaceEmoji used elsewhere:
+                          that one escapes its input first, which is right for
+                          plain text like a category name but would re-encode
+                          the entities this string already carries — the same
+                          double-encoding that made titles read "&rsquo;". }}
+                      {{trustHTML (emojiUnescape topic.excerpt)}}
                     </p>
                   {{/if}}
                 </a>
