@@ -5,7 +5,7 @@ import {
   definitionTopicIds,
   loadCategoryTopics,
   resolveCategories,
-} from "../../javascripts/discourse/lib/category-topics";
+} from "../../discourse/lib/category-topics";
 
 // These functions read the preloaded site category list, so they need an
 // application booted around them — `acceptance` is what seeds `needs.site`.

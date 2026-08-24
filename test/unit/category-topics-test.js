@@ -2,7 +2,7 @@ import { module, test } from "qunit";
 import {
   definitionTopicId,
   parseCategoryIds,
-} from "../../javascripts/discourse/lib/category-topics";
+} from "../../discourse/lib/category-topics";
 
 // The two functions here are pure — no `Category`, no store, no app — so they
 // are tested without booting one. Everything in `category-topics.js` that
