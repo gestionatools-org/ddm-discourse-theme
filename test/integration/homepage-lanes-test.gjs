@@ -33,9 +33,16 @@ import BlockShowcase from "../../discourse/blocks/block-showcase";
 // core reuses one outlet fifteen times in a single file — so all of these can
 // share it.
 
+// Ids sit in a 900000+ range on purpose. `loadCategoryTopics` drops any topic
+// whose id belongs to a category definition topic, and core's site fixture puts
+// those at 2, 11, 24, 25, 28, 389, 1026 and upwards — id 11 appears three
+// times. A fixture topic that collides is silently filtered out, the lane falls
+// through to its empty state, and the assertion then fails on a missing element
+// that looks like a rendering bug. That cost several CI runs on the excerpt
+// test below, which used id 11 and was never about emoji at all.
 function topic(attrs) {
   return {
-    id: 1,
+    id: 900001,
     fancy_title: "A topic",
     url: "/t/a-topic/1",
     reply_count: 0,
@@ -64,7 +71,10 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       // escaped the ampersand first, so the page printed the entity verbatim:
       // "La Seu d&rsquo;Urgell".
       stubStore(this.owner, [
-        topic({ id: 10, fancy_title: "La Seu d&rsquo;Urgell estrena sede" }),
+        topic({
+          id: 900010,
+          fancy_title: "La Seu d&rsquo;Urgell estrena sede",
+        }),
       ]);
 
       withPluginApi((api) =>
@@ -102,7 +112,10 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       siteSettings.emoji_set = "twitter";
 
       stubStore(this.owner, [
-        topic({ id: 11, excerpt: "Un aniversario :tada: para la comunidad" }),
+        topic({
+          id: 900011,
+          excerpt: "Un aniversario :tada: para la comunidad",
+        }),
       ]);
 
       withPluginApi((api) =>
@@ -118,31 +131,18 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
         <template><BlockOutlet @name="main-outlet-blocks" /></template>
       );
 
-      // The assertion message carries the rendered HTML because the TAP output
-      // reports it and the DOM is otherwise invisible from CI. Two failures
-      // look identical from a bare "element does not exist": emojiUnescape
-      // no-opping, and it substituting something this selector does not match.
-      const excerpt = document.querySelector(".block-news__item-excerpt");
-      const rendered = excerpt ? excerpt.innerHTML : "(no excerpt element)";
-
       assert
         .dom(".block-news__item-excerpt img.emoji")
-        .exists(
-          { count: 1 },
-          `the shortcode became an image — got: ${rendered}`
-        );
+        .exists({ count: 1 }, "the shortcode became an image");
       assert
         .dom(".block-news__item-excerpt")
-        .doesNotIncludeText(
-          ":tada:",
-          `no shortcode survives as text — got: ${rendered}`
-        );
+        .doesNotIncludeText(":tada:", "no shortcode survives as text");
     });
   });
 
   module("forum lane", function () {
     test("promotes the reply count, which is this lane's reason to exist", async function (assert) {
-      stubStore(this.owner, [topic({ id: 20, reply_count: 7 })]);
+      stubStore(this.owner, [topic({ id: 900020, reply_count: 7 })]);
 
       withPluginApi((api) =>
         api.renderBlocks("main-outlet-blocks", [
@@ -166,8 +166,8 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       // Half the live grid was grey boxes: a card with no image exhibits
       // nothing, and this lane exists to exhibit work.
       stubStore(this.owner, [
-        topic({ id: 30, image_url: null }),
-        topic({ id: 31, image_url: "/uploads/poster.png" }),
+        topic({ id: 900030, image_url: null }),
+        topic({ id: 900031, image_url: "/uploads/poster.png" }),
       ]);
 
       withPluginApi((api) =>
@@ -223,9 +223,13 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       // accident of being the most recently bumped topic. Served out of order
       // here on purpose.
       stubStore(this.owner, [
-        topic({ id: 40, fancy_title: "Congreso", event_starts_at: later }),
-        topic({ id: 41, fancy_title: "Jornada pasada", event_starts_at: gone }),
-        topic({ id: 42, fancy_title: "Webinar", event_starts_at: soon }),
+        topic({ id: 900040, fancy_title: "Congreso", event_starts_at: later }),
+        topic({
+          id: 900041,
+          fancy_title: "Jornada pasada",
+          event_starts_at: gone,
+        }),
+        topic({ id: 900042, fancy_title: "Webinar", event_starts_at: soon }),
       ]);
 
       await renderEvents();
@@ -255,8 +259,8 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       // every one of them as "now" — so a scheduled date is absolute and
       // carries its own modifier.
       stubStore(this.owner, [
-        topic({ id: 43, fancy_title: "Webinar", event_starts_at: soon }),
-        topic({ id: 44, fancy_title: "Sin evento" }),
+        topic({ id: 900043, fancy_title: "Webinar", event_starts_at: soon }),
+        topic({ id: 900044, fancy_title: "Sin evento" }),
       ]);
 
       await renderEvents();
@@ -267,7 +271,11 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
 
     test("shows the archive alone rather than an empty heading", async function (assert) {
       stubStore(this.owner, [
-        topic({ id: 45, fancy_title: "Solo pasado", event_starts_at: gone }),
+        topic({
+          id: 900045,
+          fancy_title: "Solo pasado",
+          event_starts_at: gone,
+        }),
       ]);
 
       await renderEvents();
