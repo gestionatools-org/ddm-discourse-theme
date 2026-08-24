@@ -137,7 +137,9 @@ Only cat 4 and children 66, 78, 87 are public; everything else is `read_restrict
 
 ## 2026-08-24 — Hygiene sweep
 
-Documentation and one weight, no behaviour.
+Shipped as `theme_version` 0.16.2. Documentation and one weight, no behaviour —
+the version moves so the installed theme can be told apart from 0.16.1, not
+because anything on screen changed.
 
 **`settings.yml` described a plugin state that changed twelve days earlier.** The events lane's comment said `calendar_enabled` is off and the lane is sorted by topic recency. The calendar was enabled on 2026-08-12 and the lane has read `event_starts_at` ever since — the setting's own comment contradicted the block it configures.
 
