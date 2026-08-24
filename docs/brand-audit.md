@@ -575,11 +575,35 @@ Roboto Slab vendored into `assets/`, not switched on via `heading_font`.
 
 Still open:
 
-3. Weight 500 — vendor the woff2 (correct), or accept 400/700 and break
-   `docs/06-patrones-gestion.md:78`. Three declarations depend on it today and
-   all three render at 400: `app/sidebar.scss`
-   (`--d-sidebar-active-font-weight`), `blocks/block-events.scss`, and the
-   topbar figures, which were held at 700 for exactly this reason.
+3. Weight 500 — **the premise of this decision no longer holds** (checked
+   2026-08-24). It was written as "vendor `Roboto-Medium.woff2` into
+   `assets/`", assuming a static Medium could be downloaded the way
+   `RobotoSlab-{Regular,Bold}.woff2` were. It cannot:
+
+   - `google/fonts` `ofl/roboto` now ships **only** the variable
+     `Roboto[wdth,wght].ttf`. There are no static instances.
+   - The Google Fonts CSS API serves Roboto **v51**, sliced into ~9
+     `unicode-range` subsets of that variable font — the 400 and 500 URLs are
+     literally the same file.
+   - `discourse-fonts` ships static `Roboto-Regular.woff2` (20,612 bytes) and
+     `Roboto-Bold.woff2`, snapshots of an older cut. Its README says its fonts
+     come from Google Fonts, so core's 400/700 are a point-in-time download
+     that can no longer be reproduced.
+
+   So the real options are now: instance the variable font at `wght=500`
+   (requires `fontTools`, i.e. a build step this theme deliberately does not
+   have); vendor a v51 subset and accept that the emphasis weight comes from a
+   different cut than the 400 and 700 around it; replace core's Roboto wholesale
+   with the variable font; or drop to 400/700 and mark the active item some
+   other way.
+
+   Whichever is chosen, it wants a visual check on PRE — which is blocked until
+   `discourse_theme watch` is re-authorised.
+
+   Three declarations depend on 500 today and all render at 400:
+   `app/sidebar.scss` (`--d-sidebar-active-font-weight`),
+   `blocks/block-events.scss`, and the topbar figures, which were held at 700
+   for exactly this reason.
 4. Type scale — remap Discourse's `--font-*` steps globally (verify the `em`
    compounding first), or declare `--ga-text-*` and confine them to
    theme-authored SCSS.

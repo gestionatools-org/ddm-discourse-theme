@@ -1,6 +1,19 @@
 es:
   theme_metadata:
     description: "Tema de Discourse para la comunidad de es|public."
+    settings:
+      news_category_id: "Categoría que se muestra en la franja de novedades. Incluye sus subcategorías. 0 oculta la franja."
+      news_count: "Cuántas novedades mostrar."
+      forum_category_id: "Categoría que se muestra en la franja del foro del Certificado. Incluye sus subcategorías. 0 oculta la franja."
+      forum_count: "Cuántos temas del foro mostrar."
+      showcase_category_id: "Categoría que se muestra como parrilla de imágenes. Los temas sin imagen de portada no aparecen. 0 oculta la franja."
+      showcase_count: "Cuántos trabajos mostrar."
+      events_category_id: "Categoría que se muestra en la franja de eventos. 0 oculta la franja."
+      events_count: "Cuántos eventos mostrar."
+      library_category_ids: "Categorías de recursos que se muestran como fichas de directorio en lugar de listas de temas."
+      academy_url: "Adónde apunta el enlace Academy de la cabecera. Los destinos externos deben llevar el esquema — https://ejemplo.com, no ejemplo.com, que el navegador resuelve como una ruta de este sitio. Empieza por / para una página de este foro. Vacío oculta el enlace."
+      demo_url: "Adónde apunta el enlace Demo Gestiona de la cabecera. Los destinos externos deben llevar el esquema — https://ejemplo.com, no ejemplo.com, que el navegador resuelve como una ruta de este sitio. Empieza por / para una página de este foro. Vacío oculta el enlace."
+      first_steps_url: "Adónde apunta el enlace de primeros pasos de la cabecera. Los destinos externos deben llevar el esquema — https://ejemplo.com, no ejemplo.com, que el navegador resuelve como una ruta de este sitio. Empieza por / para una página de este foro. Vacío oculta el enlace."
 
   header:
     links:
