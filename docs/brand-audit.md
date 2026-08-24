@@ -3,11 +3,19 @@
 Audit date: 2026-08-12. Every claim below is traceable to a file and line in one
 of the three repositories named under *Sources*.
 
-**Status at v0.5.0:** Phase 0 verified. Phase 1 (palette) landed in v0.3.0 and
-is confirmed live on PRE in both schemes. Phase 2 (the signature gestures)
-landed in v0.4.0 and v0.5.0. Findings 1, 2, 3, 4, 6 and 7 are resolved; **Finding
-5 — every core surface outside the homepage is still stock — is open**, and is
-now the whole of what remains.
+**Status at v0.16.1 (updated 2026-08-24):** Phase 0 verified. Phase 1 (palette)
+landed in v0.3.0 and is confirmed live on PRE in both schemes. Phase 2 (the
+signature gestures) landed in v0.4.0 and v0.5.0. Phase 3 is **partly done**:
+`header`, `nav`, `sidebar` and `topic-list` are styled, the topic view is not.
+
+Findings 1, 2, 3, 4, 6 and 7 are resolved. **Finding 5 is narrowed, not closed**
+— it read "every core surface outside the homepage is still stock", which is no
+longer true; what remains of it is the topic view alone.
+
+Two things this audit called for are still open and are not covered by any
+phase below: **weight 500 has no font file on the site** (Finding 2), so the
+three places that ask for it render at 400, and **the type scale is still
+Discourse's, not the system's** (Finding 2, open decision 4).
 
 The findings are kept as written so the reasoning survives. See *Proposed order
 of work* at the end for what is done and what is not.
@@ -18,7 +26,7 @@ of work* at the end for what is done and what is not.
 |---|---|---|
 | **System of record** | `~/Documents/proyectos-espublico/img-gestiona-avanza` | Closed and stable since 2026-08-04. 8 manual documents, one token file, `tokens/audit.py` with 65 checks. |
 | What the theme was actually built from | `~/Documents/proyectos-espublico/presentaciones/assets/css/corporate.css` | Derived presentation CSS, multi-brand, not audited. |
-| Subject | this repository | `theme_version` 0.2.0 |
+| Subject | this repository | `theme_version` 0.2.0 when audited, 0.16.1 today |
 
 `CLAUDE.local.md` names `presentaciones/` as the brand source of truth. That is
 the root cause of everything in this document: the identity system was never
@@ -275,6 +283,16 @@ specific about: full logotype, centred *above* the card, never inside its header
 (`docs/01-marca.md:53-59`). That is a site-setting job (logo upload), not a theme
 one — and it is already on the pending list in `CLAUDE.local.md`.
 
+**Update 2026-08-24 — narrowed to one surface.** `stylesheets/app/` now holds
+`header`, `nav`, `sidebar`, `topbar` and `topic-list` on top of the three
+original files, and the header additionally carries the marca, a real search
+field and the destination links. Of the four screens named above, three are
+styled. **The topic view is the one left** — there is no `topic.scss` — and it
+is the screen a member spends the most time on once they are past the listing.
+
+The login-screen point stands unchanged: still a logo-upload job, still pending
+admin-side.
+
 ---
 
 ## Finding 6 — What PRE is actually serving is not this theme
@@ -528,22 +546,40 @@ Still outstanding from this phase: **weight 500 has no font file**, so the
 sidebar's active row renders at 400 and leans on the filo and colour. Core ships
 no Roboto Medium; it would have to come from Google Fonts.
 
-**Phase 3 — the core surfaces.**
+**Phase 3 — the core surfaces. Partly done, v0.6.0–v0.16.1.**
 The `stylesheets/app/` files that `CLAUDE.md` already promises: header, sidebar,
 topic-list, topic. This is where the largest share of the "despersonalizado"
 impression actually lives, and it is plain SCSS over native layouts — the
 architecture already agreed in `CLAUDE.md`.
 
+| Surface | File | Status |
+|---|---|---|
+| Header | `app/header.scss` | done — marca, search field, destination links |
+| Nav pills | `app/nav.scss` | done |
+| Sidebar | `app/sidebar.scss` | done in Phase 2 (the dark rail) |
+| Topic list | `app/topic-list.scss` | done |
+| Information band | `app/topbar.scss` | added, not in the original plan |
+| **Topic view** | — | **not started** |
+
+The topic view is the whole of what is left of this phase, and of Finding 5 with
+it. Note the CI gap it inherits: `spec/system/core_features_spec.rb` skips
+`topics:read` and `topics:reply`, so neither the category listing nor the topic
+view is guarded by a system spec. Both need checking by hand.
+
 ## Decisions still open
 
-1. `header_background` — neutral header against the dark sidebar, or dark petrol
-   across both. The manual does not cover a top header.
-2. `love` — map to `--destructive`, or keep a documented exception.
+Resolved since the audit, kept for the record: **1** — neutral header against
+the dark sidebar (per Ricardo, 2026-08-12; `header_background` is `ffffff`
+light / `0f1e24` dark). **2** — `love` mapped to `--destructive`. **3b** —
+Roboto Slab vendored into `assets/`, not switched on via `heading_font`.
+
+Still open:
+
 3. Weight 500 — vendor the woff2 (correct), or accept 400/700 and break
-   `docs/06-patrones-gestion.md:78`.
-3b. Roboto Slab — vendor it into `assets/` and control where it lands, or set
-   the `heading_font` site setting to `RobotoSlab` and accept that it dresses
-   every heading on the site.
+   `docs/06-patrones-gestion.md:78`. Three declarations depend on it today and
+   all three render at 400: `app/sidebar.scss`
+   (`--d-sidebar-active-font-weight`), `blocks/block-events.scss`, and the
+   topbar figures, which were held at 700 for exactly this reason.
 4. Type scale — remap Discourse's `--font-*` steps globally (verify the `em`
    compounding first), or declare `--ga-text-*` and confine them to
    theme-authored SCSS.

@@ -84,8 +84,23 @@
     }
   }
 
+  // 700, not 600. The system loads three registers and no others — 400 text,
+  // 500 emphasis, 700 title (`docs/03-tipografia.md`) — and 600 was never one
+  // of them; Phase 1 of the brand audit removed the four that existed and this
+  // one came back with the band.
+  //
+  // The declaration changes but the pixels do not. Core serves Roboto 400 and
+  // 700 only, and CSS font matching resolves a requested 600 upward, so these
+  // figures have been rendering in the real Bold face all along. 700 states
+  // that.
+  //
+  // 500 is what this arguably means — the figures are emphasis inside a band
+  // that must not compete with the logotype below it. It is not used here
+  // because it has no file on the site: 500 would match downward to 400 and
+  // the figures would flatten into their labels. Revisit when
+  // `Roboto-Medium.woff2` is vendored; see `docs/brand-audit.md`, Finding 2.
   &__value {
     color: var(--primary);
-    font-weight: 600;
+    font-weight: 700;
   }
 }

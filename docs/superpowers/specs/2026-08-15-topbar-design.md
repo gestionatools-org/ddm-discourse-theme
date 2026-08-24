@@ -3,6 +3,14 @@
 Design date: 2026-08-15. Shipped as `theme_version` 0.11.0.
 Revised 2026-08-16 for 0.12.0 — see *Which figures*.
 
+> **Partly superseded 2026-08-16, noted 2026-08-24.** The destination links
+> moved back into the site header later the same day (`8b7ce12`), so the band
+> now carries the figures and nothing else. Everything this spec says about
+> links in the band, about `lib/topbar-links.js`, and about the `--no-stats`
+> modifier describes code that no longer exists — the module and the modifier
+> were both deleted with the move. The figures half of the spec is current.
+> Kept as written so the reasoning behind the original placement survives.
+
 A full-width band rendered above the site header carrying two things: the
 theme's destination links, and four live figures about the community. The
 reference the maintainer asked for is `community.zapier.com`, whose band shows
@@ -286,8 +294,18 @@ A quiet utility strip, not a saturated brand band:
 | Background | `var(--ga-muted)` | `#f1f5f7` light / `#1d2e35` dark |
 | Text and links | `var(--ga-muted-fg)` | `#58686e` / `#99a7ad` |
 | Link hover/focus | `var(--tertiary)` | petrol light / brand cyan dark |
-| Figures | `var(--primary)`, weight 600 | the only emphasis in the band |
+| Figures | `var(--primary)`, weight 700 | the only emphasis in the band |
 | Bottom rule | `1px solid var(--ga-border)` | — |
+
+**Amended 2026-08-24.** This table said weight 600 and the implementation
+followed it. The identity system loads 400, 500 and 700 and forbids everything
+else (`docs/03-tipografia.md`), so 600 should never have been specified — Phase 1
+of the brand audit had already stripped the four occurrences that existed
+elsewhere. Corrected to 700, which is also what the browser was painting: core
+serves Roboto 400 and 700 only, and CSS font matching resolves a requested 600
+upward. 500 is the closer reading of "emphasis", but it has no file on the site
+and would match *downward* to 400; revisit once `Roboto-Medium.woff2` is
+vendored.
 
 The header is white and carries the logotype. A petrol band above it would
 outweigh the logo and invert the page's hierarchy; the band is context, not
