@@ -1,0 +1,91 @@
+// The topic view — the last stock surface of a member's session.
+//
+// A session is login → sidebar → topic list → topic. The other three carry the
+// brand; this one did not, and it is where a member spends the most time once
+// they are past the listing. It is also unguarded by CI: `core_features_spec.rb`
+// skips `topics:read` and `topics:reply`, so nothing here is checked
+// automatically and changes need looking at on PRE.
+//
+// Deliberately small. Core owns the post stream's mechanics — the timeline, the
+// gap loader, the expand controls — and the theme's job is the brand layer over
+// them, not a fork. Everything below is either a core custom property or a
+// single declaration on a stable class.
+//
+// Two things are NOT set here on purpose:
+//
+// - `--content-border-color` already resolves to `--ga-border` from
+//   `app/topic-list.scss`, and that override reaches every content surface,
+//   post separators included. Repeating it here would be a second place to keep
+//   in step.
+// - `--d-content-background` is in the audit's token map (`--card` →
+//   `--d-content-background`) and is still unset. It is left alone because it
+//   is a *global* content variable: setting it would repaint categories, search
+//   and the topic list at the same time, which is a bigger blast radius than
+//   this file's name promises and cannot be checked in one look.
+:root {
+  // --- Quotes -------------------------------------------------------------
+  // Flat surface separated by a border, never a shadow — the same rule
+  // `app/elevation.scss` applies everywhere else.
+  //
+  // The left border is deliberately NOT the 3px cyan filo. That gesture means
+  // "active, focused or leading" (`docs/04-forma-y-espacio.md`), and a quote is
+  // none of the three. The system is explicit that an edge on everything
+  // signals nothing, so quotes take a neutral hairline and the edge stays where
+  // it earns its meaning: the active nav item and the section header.
+  --d-post-aside-background: var(--ga-muted);
+  --d-post-aside-border-left: 1px solid var(--ga-border);
+
+  // --- Post controls ------------------------------------------------------
+  // Like, reply, share, bookmark. Quiet by default, petrol on hover.
+  //
+  // `--tertiary` rather than a token of this theme's own: the action colour
+  // inverts between schemes (petrol on light, brand cyan on dark) and that
+  // inversion is declared once in `about.json`. Reaching for --tertiary keeps
+  // hover states correct in both without a second declaration.
+  --d-post-control-icon-color: var(--ga-muted-fg);
+  --d-post-control-icon-color--hover: var(--tertiary);
+  --d-post-control-text-color: var(--ga-muted-fg);
+  --d-post-control-text-color--hover: var(--tertiary);
+  --d-post-control-background--hover: var(--ga-muted);
+  --d-post-control-border-radius: var(--d-border-radius);
+
+  // The reply button is the primary action on this surface, so it keeps the
+  // action colour at rest rather than waiting for a hover to earn it.
+  --d-post-control-create-icon-color: var(--tertiary);
+  --d-post-control-create-text-color: var(--tertiary);
+
+  // --- Tags ---------------------------------------------------------------
+  // Corporate radius scale, muted surface. Weight stays at the body register:
+  // a tag is a label, not a title, and 700 here would compete with the topic
+  // title two lines above it.
+  --d-tag-background-color: var(--ga-muted);
+  --d-tag-border-radius: var(--d-border-radius);
+  --d-tag-font-weight: 400;
+}
+
+// The topic title is the page title of this surface, and page titles are the
+// one place the system spends Roboto Slab — "pierde su valor si se reparte"
+// (`AGENTS.md`). The hero title is the only other use in the theme, so the two
+// brand moments a member meets are the homepage and the top of a thread.
+//
+// Slab is vendored in `assets/` with weights 400 and 700 only; 700 is the
+// system's title register, so this asks for a face that exists rather than one
+// the browser would synthesise.
+#topic-title .fancy-title {
+  font-family: var(--ga-font-slab);
+  font-weight: 700;
+
+  // The system's 28px step. Core derives this from its ratio scale and lands
+  // near 25px, which is between two of the system's eight fixed sizes.
+  font-size: var(--font-up-3);
+}
+
+// The system's hardest typographic rule, already applied to the topic list:
+// without tabular figures the digits shift width as counts update. Here it is
+// the like and reply counts that move while a thread is being read.
+.topic-post {
+  .post-info .post-date,
+  .actions .button-count {
+    font-variant-numeric: tabular-nums;
+  }
+}
