@@ -2,10 +2,17 @@ import { visit } from "@ember/test-helpers";
 import { test } from "qunit";
 import { acceptance } from "discourse/tests/helpers/qunit-helpers";
 
-// The theme sets the `custom_homepage` modifier, so "/" is the theme's own
-// homepage and its lanes fetch category topics. These tests visit /latest
-// instead: the band is site-wide, and /latest exercises it without dragging
-// the homepage blocks and their requests into the assertion.
+// These tests visit /latest rather than "/": the band is site-wide, and
+// /latest exercises it without dragging anything else into the assertion.
+//
+// This comment used to say that "/" is the theme's own homepage because of the
+// `custom_homepage` modifier. That is true in production and false here — the
+// modifier is applied server-side and does not reach the JS test environment,
+// where "/" is core's discovery route and the `homepage-blocks` outlet never
+// renders. The claim was never verified, since these tests deliberately avoid
+// "/", and it cost a full CI cycle when the lane tests were first written
+// against it. The lanes are rendered through `<BlockOutlet>` instead; see
+// `test/integration/homepage-lanes-test.gjs`.
 
 function clearLinkSettings() {
   settings.academy_url = "";
