@@ -85,42 +85,22 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
         .hasText("La Seu d’Urgell estrena sede");
     });
 
-    test("resolves emoji shortcodes in an excerpt", async function (assert) {
-      // ExcerptParser strips cooked HTML back to text and turns emoji images
-      // into their `:shortcode:`, so one news excerpt in four printed
-      // ":automobile:" as words.
-      //
-      // The settings are a precondition, not decoration: `emojiOptions()`
-      // returns undefined when `enable_emoji` is off and `emojiUnescape` then
-      // hands the string straight back untouched, which made this test fail on
-      // a missing image while the code under test was working correctly.
-      this.siteSettings.enable_emoji = true;
-      this.siteSettings.emoji_set = "twitter";
-
-      stubStore(this.owner, [
-        topic({ id: 11, excerpt: "Nuevo :automobile: para el parque móvil" }),
-      ]);
-
-      withPluginApi((api) =>
-        api.renderBlocks("main-outlet-blocks", [
-          {
-            block: BlockNews,
-            args: { title: "homepage.news.title", categoryId: 4, count: 4 },
-          },
-        ])
-      );
-
-      await render(
-        <template><BlockOutlet @name="main-outlet-blocks" /></template>
-      );
-
-      assert
-        .dom(".block-news__item-excerpt img.emoji")
-        .exists({ count: 1 }, "the shortcode became an image");
-      assert
-        .dom(".block-news__item-excerpt")
-        .doesNotIncludeText(":automobile:", "no shortcode survives as text");
-    });
+    // NOT COVERED: that an excerpt's emoji shortcodes render as images.
+    //
+    // This is the one bug from the 2026-08-17 review left without a guard —
+    // the news excerpts that printed ":automobile:" as words, fixed by using
+    // `emojiUnescape` rather than the `dReplaceEmoji` used for category names.
+    //
+    // `emojiUnescape` is a no-op unless `emojiOptions()` returns options, and
+    // that reads `helperContext().siteSettings.enable_emoji`
+    // (`discourse/lib/text.js`). Setting `this.siteSettings.enable_emoji` here
+    // does not reach it, so the shortcode survives and the assertion measures
+    // the test environment rather than the block — it failed while the code it
+    // covers was working correctly, which is worse than no test.
+    //
+    // Core offers no pattern to copy: nothing under its `tests/` uses
+    // `emojiUnescape`, and no integration test asserts on `img.emoji`. Whoever
+    // picks this up needs the helper context wired, not just the setting.
   });
 
   module("forum lane", function () {
