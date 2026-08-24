@@ -89,6 +89,14 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       // ExcerptParser strips cooked HTML back to text and turns emoji images
       // into their `:shortcode:`, so one news excerpt in four printed
       // ":automobile:" as words.
+      //
+      // The settings are a precondition, not decoration: `emojiOptions()`
+      // returns undefined when `enable_emoji` is off and `emojiUnescape` then
+      // hands the string straight back untouched, which made this test fail on
+      // a missing image while the code under test was working correctly.
+      this.siteSettings.enable_emoji = true;
+      this.siteSettings.emoji_set = "twitter";
+
       stubStore(this.owner, [
         topic({ id: 11, excerpt: "Nuevo :automobile: para el parque móvil" }),
       ]);
