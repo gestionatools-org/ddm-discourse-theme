@@ -22,6 +22,16 @@ import BlockShowcase from "../../discourse/blocks/block-showcase";
 // `setupRenderingTest` provides a store service but no pretender, so the store
 // is replaced outright — the same fake used at the function boundary, and it
 // keeps these tests off the network entirely.
+//
+// The outlet is `main-outlet-blocks`, not the `homepage-blocks` these lanes
+// occupy in production. `setupRenderingTest` runs `autoLoadModules`, which
+// executes the theme's own `api-initializers/homepage-blocks.gjs`, so that
+// outlet already has a layout before any test body runs and a second
+// `renderBlocks` for it raises "already has a layout registered". The lanes
+// declare no `allowedOutlets`, so which outlet holds them changes nothing
+// about what they render. Outlet layouts are reset between rendering tests —
+// core reuses one outlet fifteen times in a single file — so all of these can
+// share it.
 
 function topic(attrs) {
   return {
@@ -58,7 +68,7 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       ]);
 
       withPluginApi((api) =>
-        api.renderBlocks("homepage-blocks", [
+        api.renderBlocks("main-outlet-blocks", [
           {
             block: BlockNews,
             args: { title: "homepage.news.title", categoryId: 4, count: 4 },
@@ -67,7 +77,7 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       );
 
       await render(
-        <template><BlockOutlet @name="homepage-blocks" /></template>
+        <template><BlockOutlet @name="main-outlet-blocks" /></template>
       );
 
       assert
@@ -84,7 +94,7 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       ]);
 
       withPluginApi((api) =>
-        api.renderBlocks("homepage-blocks", [
+        api.renderBlocks("main-outlet-blocks", [
           {
             block: BlockNews,
             args: { title: "homepage.news.title", categoryId: 4, count: 4 },
@@ -93,7 +103,7 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       );
 
       await render(
-        <template><BlockOutlet @name="homepage-blocks" /></template>
+        <template><BlockOutlet @name="main-outlet-blocks" /></template>
       );
 
       assert
@@ -110,7 +120,7 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       stubStore(this.owner, [topic({ id: 20, reply_count: 7 })]);
 
       withPluginApi((api) =>
-        api.renderBlocks("homepage-blocks", [
+        api.renderBlocks("main-outlet-blocks", [
           {
             block: BlockForum,
             args: { title: "homepage.forum.title", categoryId: 5, count: 6 },
@@ -119,7 +129,7 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       );
 
       await render(
-        <template><BlockOutlet @name="homepage-blocks" /></template>
+        <template><BlockOutlet @name="main-outlet-blocks" /></template>
       );
 
       assert.dom(".block-forum__item-replies").includesText("7");
@@ -136,7 +146,7 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       ]);
 
       withPluginApi((api) =>
-        api.renderBlocks("homepage-blocks", [
+        api.renderBlocks("main-outlet-blocks", [
           {
             block: BlockShowcase,
             args: {
@@ -149,7 +159,7 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       );
 
       await render(
-        <template><BlockOutlet @name="homepage-blocks" /></template>
+        <template><BlockOutlet @name="main-outlet-blocks" /></template>
       );
 
       assert.dom(".block-showcase__card").exists({ count: 1 });
@@ -169,7 +179,7 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
 
     function renderEvents() {
       withPluginApi((api) =>
-        api.renderBlocks("homepage-blocks", [
+        api.renderBlocks("main-outlet-blocks", [
           {
             block: BlockEvents,
             args: { title: "homepage.events.title", categoryId: 59, count: 4 },
@@ -178,7 +188,7 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       );
 
       return render(
-        <template><BlockOutlet @name="homepage-blocks" /></template>
+        <template><BlockOutlet @name="main-outlet-blocks" /></template>
       );
     }
 
