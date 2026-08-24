@@ -118,12 +118,25 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
         <template><BlockOutlet @name="main-outlet-blocks" /></template>
       );
 
+      // The assertion message carries the rendered HTML because the TAP output
+      // reports it and the DOM is otherwise invisible from CI. Two failures
+      // look identical from a bare "element does not exist": emojiUnescape
+      // no-opping, and it substituting something this selector does not match.
+      const excerpt = document.querySelector(".block-news__item-excerpt");
+      const rendered = excerpt ? excerpt.innerHTML : "(no excerpt element)";
+
       assert
         .dom(".block-news__item-excerpt img.emoji")
-        .exists({ count: 1 }, "the shortcode became an image");
+        .exists(
+          { count: 1 },
+          `the shortcode became an image — got: ${rendered}`
+        );
       assert
         .dom(".block-news__item-excerpt")
-        .doesNotIncludeText(":tada:", "no shortcode survives as text");
+        .doesNotIncludeText(
+          ":tada:",
+          `no shortcode survives as text — got: ${rendered}`
+        );
     });
   });
 
