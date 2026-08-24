@@ -103,3 +103,48 @@ Only cat 4 and children 66, 78, 87 are public; everything else is `read_restrict
 **Test cycle.** `test/acceptance/topbar-test.js` is the repository's first frontend test, which switches on a CI job that has never run here: the shared workflow builds its matrix from `Dir.glob("test/**/*.{js,gjs}")`, and `test/acceptance/` held nothing but `.gitkeep`. The suite cannot run locally — no `test` script, and it needs a Discourse checkout with Postgres, Redis and an Ember build.
 
 **Admin-route gate.** Originally routed to manual verification, on the grounds that `visit("/admin")` drags in the admin bundle for a one-line getter. Overruled by the maintainer: it is the only behavioural branch that would otherwise ship unverified, and the figures task builds on `visible`, which composes it. The test configures a link URL first, or the band would be absent on `/admin` through `hasLinks` and the assertion would pass for the wrong reason.
+
+## 2026-08-16 — The band settles, and main gets a gate
+
+**Which figures.** `topics_30_days` read 9 on PROD, next to 374 members and 114 people active. A 30.5 % monthly active rate with a 9 beside it invites the reader to divide and conclude nobody writes. Partly a window artefact, mostly the wrong measure: this community lives in replies, not new threads — category 5 averages 1.7 and 4.5 replies per topic, 78 reaches 5.7, 73's whole tree has never received one. Topics count initiative; posts count participation. Swapped for messages and likes. The label says "messages", never "replies": `topics` counted `Topic.listable_topics` while `posts` is a bare `Post.where(created_at > …)`, so it includes PMs and restricted categories.
+
+**One period lead-in.** The band mixed a lifetime total with three 30-day windows and only said so on two of them, which made active users read as an all-time figure sitting between two monthly ones — the opposite of what it measures. Now the total stands alone, a rule separates it, and "Este mes:" introduces the three windows. Active users leads the group so that when the two secondary figures stand down below `lg` the survivor renders as one contiguous run instead of stranding the lead-in.
+
+**The links went back to the header.** Reverts the placement half of `992f280`, two days after the maintainer's call to move them out. The band keeps the figures and loses everything else, which simplified it rather than shrinking it: `lib/topbar-links.js` disappeared (it existed so two files could share one answer; with one consumer left it was indirection, not DRY), and the `--no-stats` modifier and its CSS went with it.
+
+**Three homepage lanes were displaying wrong data, all green in CI.**
+- *Library counts reported zero for the two largest trees.* `topic_count` counts direct topics only and `subcategory_count` is `null` on the preloaded site categories — it is populated by the category-list serializer, which the homepage never calls. The lane whose whole purpose is to advertise the library announced it was empty. `categoryStats()` now sums the subtree client-side from `Category.list()`, no extra request.
+- *Titles double-encoded any fancy character* — "La Seu d'Urgell" rendered as "La Seu d&rsquo;Urgell". `fancy_title` arrives already cooked, and `dReplaceEmoji` escapes before substituting. Core renders `fancy_title` raw for exactly this reason; the four topic blocks now do too.
+- *The category definition topic led the showcase grid* — pinned, so it sorted first, and imageless, so it opened the grid as an empty grey card. `loadCategoryTopics` drops every definition topic, filtering before the slice so lanes keep their length.
+
+**Branch protection.** Recorded as a convention in `CLAUDE.md` and enforced nowhere, which is how PR #14 landed on main with four jobs still running. `main` now requires `linting`, `backend_tests`, `frontend_tests` and `system_tests`. Required reviews stay off (a sole maintainer cannot approve their own PR) and `enforce_admins` stays false as an escape hatch for the shared workflow this repo does not control. The trap worth remembering: `check_for_tests` builds the CI matrix from `Dir.glob`, so deleting the test files would stop a required context from ever reporting and would block every PR forever.
+
+**Settings documentation.** The three link settings take a URL straight to `href` after a trim, so an absolute destination typed without its scheme resolves against the current page — `demo-a.example.com` becomes a 404 on this host. It had already happened once on `demo_url`. Documentation only: `validations: { url: true }` exists only inside a `type: objects` schema, and converting the three would discard the values admins have stored.
+
+## 2026-08-17 — Homepage data, second pass
+
+**The showcase now requires a cover image.** The lane exists so members can exhibit certification work; a card with no image exhibits nothing, and those topics were still taking a cell filled with a grey box and a picture glyph — three of six on the live instance, so half the grid read as broken. `loadCategoryTopics` gained `requireImage`, applied before the slice. Measured on category 78: 30 topics in the first page, 29 after the definition topic, 12 with a cover image — six cells against twelve candidates.
+
+**Events split into upcoming and past.** Category 59 carries `sort_topics_by_event_start_date`, but the listing it serves is *exactly* `bumped_at` descending — verified by comparing the served order against a `bumped_at` sort. The one upcoming event led the lane only because it happened to be the most recently bumped topic; four write-ups later it would have dropped off a four-row lane entirely. The split is therefore client-side: "Próximamente" soonest-first, then "Celebrados" in recency order, each rendering nothing when empty. `fetchTopics` now loads the page unsliced, because slicing first would discard an upcoming event below the cut before it could be promoted — the exact bug the change exists to prevent.
+
+**Emoji in excerpts.** One news excerpt in four printed `:automobile:` as words: `ExcerptParser` strips cooked HTML to text and turns emoji images back into shortcodes. Fixed with `emojiUnescape`, not the `dReplaceEmoji` used for category names — that one escapes its input first, which is right for plain text but would re-encode an excerpt that is already HTML-encoded (30 of 30 sampled carry entities) and reproduce the `&rsquo;` bug fixed the day before.
+
+**Instance state.** PRE upgraded to 2026.8.0-latest.1. This theme became the **only** theme on the instance and therefore the default — Air Theme (id 2), the legacy `Gestiona avanza` (id 1) and the earlier id 14 install were deleted, so every push to `main` now lands on every PRE user immediately, and there is no fallback theme to switch to. That is what the green-CI-before-merge rule is protecting. The 2026-08-11 API key was revoked, which leaves `discourse_theme watch` needing a `--reset` before it can run again.
+
+**A stray `[event]` removed.** Topic 2592, a July newsletter, carried a mistyped 2026-11-06 reference to the November congress — which has its own event in topic 2600. Two symptoms worth recognising: `display_post_event_date_on_topic_title` decorated the newsletter with an "en 3 meses" future badge in its category listing, and `/discourse-post-event/events.json` reported two site-wide events when there was one. The site-wide feed is only as clean as the `[event]` blocks in ordinary posts.
+
+**What the six bugs have in common.** Every one of them passed CI green, because none of them broke anything — the lanes rendered fine and stated falsehoods. `javascripts/discourse/blocks/` has no test coverage at all; the acceptance tests cover the topbar and the header links only.
+
+## 2026-08-24 — Hygiene sweep
+
+Shipped as `theme_version` 0.16.2. Documentation and one weight, no behaviour —
+the version moves so the installed theme can be told apart from 0.16.1, not
+because anything on screen changed.
+
+**`settings.yml` described a plugin state that changed twelve days earlier.** The events lane's comment said `calendar_enabled` is off and the lane is sorted by topic recency. The calendar was enabled on 2026-08-12 and the lane has read `event_starts_at` ever since — the setting's own comment contradicted the block it configures.
+
+**Weight 600 was back.** Phase 1 of the brand audit stripped the four occurrences the theme had; the topbar reintroduced one on 2026-08-15, and `docs/superpowers/specs/2026-08-15-topbar-design.md` is where it came from — the spec's appearance table specified it. Corrected in both, or the next implementer reads the spec and puts it back.
+
+Set to 700 rather than the 500 the design arguably means. Core serves Roboto 400 and 700 only; CSS font matching resolves a requested 600 *upward*, so the figures have been painting in the real Bold face all along and 700 changes the declaration without changing a pixel. 500 would match *downward* to 400 and flatten the figures into their labels — it is the right value only after `Roboto-Medium.woff2` is vendored, which is open decision 3.
+
+**`docs/brand-audit.md` was still writing as of v0.5.0** with the subject pinned at `theme_version` 0.2.0, ten versions behind. Finding 5 ("every core surface outside the homepage is still stock") had stopped being true: header, nav, sidebar and topic-list are all styled now, and what remains of the finding is the topic view alone. Phase 3 gained a per-surface status table, and open decisions 1, 2 and 3b were folded into a resolved line — they were settled on 2026-08-12 and never struck off.

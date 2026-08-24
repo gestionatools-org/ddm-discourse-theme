@@ -47,8 +47,13 @@ showcase_count:
   max: 12
 
 # --- Lane 4: events ---------------------------------------------------------
-# A plain category listing, not a calendar: `calendar_enabled` is off on this
-# site, so no real event dates are serialized. Sorted by topic recency.
+# A category listing that carries real event dates where they exist.
+# `discourse-calendar` was enabled on this site on 2026-08-12, so
+# `event_starts_at` reaches `topic_list_item` for every topic whose first post
+# carries an `[event]` block — and only for those. The lane renders both kinds
+# from the one request: the event date where it is serialized, the topic date
+# otherwise, and it groups the result into upcoming and past.
+# See javascripts/discourse/blocks/block-events.gjs.
 events_category_id:
   type: integer
   default: 59
