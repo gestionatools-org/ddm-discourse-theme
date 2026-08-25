@@ -148,3 +148,31 @@ because anything on screen changed.
 Set to 700 rather than the 500 the design arguably means. Core serves Roboto 400 and 700 only; CSS font matching resolves a requested 600 *upward*, so the figures have been painting in the real Bold face all along and 700 changes the declaration without changing a pixel. 500 would match *downward* to 400 and flatten the figures into their labels — it is the right value only after `Roboto-Medium.woff2` is vendored, which is open decision 3.
 
 **`docs/brand-audit.md` was still writing as of v0.5.0** with the subject pinned at `theme_version` 0.2.0, ten versions behind. Finding 5 ("every core surface outside the homepage is still stock") had stopped being true: header, nav, sidebar and topic-list are all styled now, and what remains of the finding is the topic view alone. Phase 3 gained a per-surface status table, and open decisions 1, 2 and 3b were folded into a resolved line — they were settled on 2026-08-12 and never struck off.
+
+## 2026-08-24 — Test coverage, then the last stock surface
+
+**Two test layers, split by what each needs.** The homepage blocks had no coverage at all, and the six data bugs of 2026-08-16/17 had all passed CI green because none of them broke anything — they rendered fine and stated falsehoods.
+
+`test/unit/` and `test/acceptance/category-topics-test.js` (25 tests) cover the data pipeline at the function boundary. `loadCategoryTopics` takes the store as an argument rather than reaching for the service, so the whole fetch path is testable with a fake store and no network stub. The four Category-dependent functions need an application booted for `Category.list()`, so they use `acceptance` + `needs.site` — but no test there visits a route.
+
+`test/integration/homepage-lanes-test.gjs` (7 tests) covers what only the DOM reaches: the two encoding bugs, the events split, the showcase's image requirement.
+
+**Three harness facts, none guessable, all now written into the files.**
+
+1. **Theme modules import from `test/` without the `javascripts/` segment.** The bundle uses `javascripts/` as the source root, so `javascripts/discourse/lib/x` compiles to `<theme>/discourse/lib/x` while `test/` sits directly under the theme root. Relative, never absolute — a bare `discourse/lib/...` collides with core's namespace, and the theme id in the root (`theme-1` in CI, 15 on PRE) is not stable.
+2. **`visit("/")` does not render the theme's blocks in tests.** `custom_homepage` is applied server-side and does not reach the JS test environment; `/` is core's discovery route there. `topbar-test.js` carried a comment asserting the opposite, never verified because those tests visit `/latest` — corrected. Blocks render through `<BlockOutlet>` with `setupRenderingTest` + `withPluginApi(api.renderBlocks(...))`, core's own pattern. The vendored block skill's testing snippet is not sufficient: it shows `registerBlock` outside `withTestBlockRegistration` and never shows a render.
+3. **`setupRenderingTest` runs `autoLoadModules`**, which executes the theme's own initializer, so `homepage-blocks` already has a layout before any test body runs. The tests use `main-outlet-blocks` instead. Outlet layouts *do* reset between rendering tests — core reuses one outlet fifteen times in a file.
+
+**The lesson that cost the most.** Fixture topic ids must avoid core's category definition topics; the site fixture puts one at **11**, three times over. `loadCategoryTopics` drops those silently, the lane falls through to its empty state, and the assertion fails on a missing element that reads exactly like a rendering bug. One digit separated a passing test from five CI runs spent on emoji settings and helper contexts that were working correctly all along. Ids now sit at 900000+.
+
+Method note, recorded because it generalises: after the first "obvious" fix failed, the next move should have been to instrument the DOM and *look*, not to try the next plausible hypothesis. Doing that at the end produced the answer in one read. `CLAUDE.md` already says it — "si el primer fix falla, detente, re-analiza el flujo completo" — and it was not applied.
+
+**The topic view, v0.17.0.** The last stock surface of a member's session, and the close of Finding 5 and Phase 3. Deliberately small: core keeps the post stream's mechanics, the theme adds the brand layer. The topic title takes Roboto Slab at the system's 28px step — page titles are the one place the system spends Slab, so the two brand moments a member meets are the homepage and the top of a thread. Quotes go flat with a neutral hairline, *not* the cyan filo: that gesture means "active, focused or leading" and a quote is none of the three.
+
+Two variables left unset on purpose. `--content-border-color` already resolves to `--ga-border` from `topic-list.scss` and reaches post separators too; `--d-content-background` is global, so setting it would repaint categories, search and the list at the same time.
+
+**Confirmed on PRE by the maintainer the same day** — the only verification this surface can get, since `core_features_spec.rb` skips `topics:read` and `topics:reply` and `discourse_theme watch` is still unauthorised.
+
+**Weight 500 turned out not to be a vendoring job.** `google/fonts` now ships only the variable `Roboto[wdth,wght].ttf`; the CSS API serves Roboto v51 sliced into ~9 `unicode-range` subsets, where the 400 and 500 URLs are the same file. `discourse-fonts` ships static Regular and Bold from an older cut that can no longer be reproduced. Mixing them would put the mismatch on precisely the weight meant to signal emphasis. Open decision 3 in the audit now states the four real options; none is taken.
+
+**Versioning convention, made explicit:** features take the minor, fixes and chores the patch. Every release from 0.10.0 follows it except 0.16.3, which was a `feat:` given a patch — left as is, since it had already been pulled.

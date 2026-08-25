@@ -3,14 +3,14 @@
 Audit date: 2026-08-12. Every claim below is traceable to a file and line in one
 of the three repositories named under *Sources*.
 
-**Status at v0.16.1 (updated 2026-08-24):** Phase 0 verified. Phase 1 (palette)
+**Status at v0.17.0 (updated 2026-08-24):** Phase 0 verified. Phase 1 (palette)
 landed in v0.3.0 and is confirmed live on PRE in both schemes. Phase 2 (the
-signature gestures) landed in v0.4.0 and v0.5.0. Phase 3 is **partly done**:
-`header`, `nav`, `sidebar` and `topic-list` are styled, the topic view is not.
+signature gestures) landed in v0.4.0 and v0.5.0. **Phase 3 is done**: `header`,
+`nav`, `sidebar`, `topbar`, `topic-list` and `topic` are all styled, the last
+of them in v0.17.0 and checked on PRE by the maintainer the same day.
 
-Findings 1, 2, 3, 4, 6 and 7 are resolved. **Finding 5 is narrowed, not closed**
-— it read "every core surface outside the homepage is still stock", which is no
-longer true; what remains of it is the topic view alone.
+**All seven findings are resolved.** Finding 5 — "every core surface outside the
+homepage is still stock" — closed with the topic view.
 
 Two things this audit called for are still open and are not covered by any
 phase below: **weight 500 has no font file on the site** (Finding 2), so the
@@ -283,12 +283,13 @@ specific about: full logotype, centred *above* the card, never inside its header
 (`docs/01-marca.md:53-59`). That is a site-setting job (logo upload), not a theme
 one — and it is already on the pending list in `CLAUDE.local.md`.
 
-**Update 2026-08-24 — narrowed to one surface.** `stylesheets/app/` now holds
-`header`, `nav`, `sidebar`, `topbar` and `topic-list` on top of the three
-original files, and the header additionally carries the marca, a real search
-field and the destination links. Of the four screens named above, three are
-styled. **The topic view is the one left** — there is no `topic.scss` — and it
-is the screen a member spends the most time on once they are past the listing.
+**Resolved 2026-08-24, v0.17.0.** `stylesheets/app/` now holds `header`, `nav`,
+`sidebar`, `topbar`, `topic-list` and `topic` on top of the three original
+files, and the header additionally carries the marca, a real search field and
+the destination links. All four screens of a member's session are styled, and
+the maintainer confirmed the topic view on PRE the day it shipped — which is
+the only verification available for it, since `core_features_spec.rb` skips
+`topics:read` and `topics:reply`.
 
 The login-screen point stands unchanged: still a logo-upload job, still pending
 admin-side.
@@ -546,7 +547,7 @@ Still outstanding from this phase: **weight 500 has no font file**, so the
 sidebar's active row renders at 400 and leans on the filo and colour. Core ships
 no Roboto Medium; it would have to come from Google Fonts.
 
-**Phase 3 — the core surfaces. Partly done, v0.6.0–v0.16.1.**
+**Phase 3 — the core surfaces. Done, v0.6.0–v0.17.0.**
 The `stylesheets/app/` files that `CLAUDE.md` already promises: header, sidebar,
 topic-list, topic. This is where the largest share of the "despersonalizado"
 impression actually lives, and it is plain SCSS over native layouts — the
@@ -559,10 +560,11 @@ architecture already agreed in `CLAUDE.md`.
 | Sidebar | `app/sidebar.scss` | done in Phase 2 (the dark rail) |
 | Topic list | `app/topic-list.scss` | done |
 | Information band | `app/topbar.scss` | added, not in the original plan |
-| **Topic view** | — | **not started** |
+| Topic view | `app/topic.scss` | done in v0.17.0, confirmed on PRE |
 
-The topic view is the whole of what is left of this phase, and of Finding 5 with
-it. Note the CI gap it inherits: `spec/system/core_features_spec.rb` skips
+The phase is closed, and Finding 5 with it. The CI gap it inherits stays open
+and is now the standing risk on these two surfaces:
+`spec/system/core_features_spec.rb` skips
 `topics:read` and `topics:reply`, so neither the category listing nor the topic
 view is guarded by a system spec. Both need checking by hand.
 
