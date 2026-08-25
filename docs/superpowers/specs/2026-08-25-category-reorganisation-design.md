@@ -1,9 +1,10 @@
 # Category reorganisation — design
 
 **Date:** 2026-08-25
-**Status:** proposed, pending maintainer review
-**Scope:** the Gestiona Avanza taxonomy on PROD (`gestionaavanza.espublico.com`) and the
-theme settings and code that depend on it.
+**Status:** agreed with the maintainer on 2026-08-25. Execution pending, PRE first.
+**Scope:** the Gestiona Avanza taxonomy and the theme settings and code that depend on it.
+Every figure here was measured against PROD (`gestionaavanza.espublico.com`), which is the
+authoritative tree; **execution runs on PRE first** — see *Migration plan*.
 
 ## Why
 
@@ -268,17 +269,19 @@ remove `news_category_id`, update tests, bump `theme_version` (minor).
 **Phase 6 — pósters.** Review the 34 image-bearing topics in Primeros pasos, apply the
 poster-resource tag to the genuine ones, and point the showcase lane at that tag.
 
-**Which instance goes first is not settled.** `CLAUDE.local.md` records an order agreed on
-2026-08-25 that runs the reorganisation on PRE first and replicates onto PROD afterwards;
-this document was written against PROD and says PRE mirrors it. They contradict, and it
-matters because it decides where the first irreversible operation lands.
+**PRE goes first, then PROD.** Decided 2026-08-25. Every phase runs end to end on PRE and
+is checked there before the same sequence is repeated on PROD.
 
 The two taxonomies were verified identical on 2026-08-25 — 34 IDs matching exactly, the only
-difference being category 1 "Sin categoría", which exists on PRE and not on PROD — so either
-order is technically possible. The trade-off: PRE is a rehearsal whose lanes break loudly
-and harmlessly, but it is also the only instance with the theme installed, so its members
-see the breakage; PROD has real members and no theme, so a reorganisation there has no
-homepage consequence at all until the theme ships.
+difference being category 1 "Sin categoría", which exists on PRE and not on PROD — so PRE is
+a faithful rehearsal, which is what Phases 3 and 4 need: bulk tagging and topic moves are
+the operations that cannot be undone once the source category is deleted.
+
+The price is accepted. PRE is the only instance with the theme installed and has no fallback
+theme, so its homepage lanes break the moment their categories move, and anyone using PRE
+sees it. That is a rehearsal cost, not a defect: PROD carries the real members and has no
+theme installed yet, so the reorganisation there has no homepage consequence at all until
+the theme ships.
 
 ## Risks
 
