@@ -71,9 +71,9 @@ Findings that were not visible from the taxonomy alone and changed the plan:
   "Seminarios de septiembre", "Sesión de formación de las novedades v.10.0.3.325", two of
   them tagged `seminarios`. Dissolving 67 into 14 merges content that never differed.
 - **`newsletter` is not exclusive to category 65.** At least one Trucazos topic ("Truco del
-  mes newsletter 12") carries it, and will keep it after moving to Expertos. The tag marks
-  *the newsletter it came from*, not *is a newsletter* — worth knowing before any lane or
-  saved search is keyed on it.
+  mes newsletter 12") carries it, and keeps it in Aula de formación. The tag marks *the
+  newsletter it came from*, not *is a newsletter* — worth knowing before any lane or saved
+  search is keyed on it.
 
 ### A measurement trap worth recording
 
@@ -96,9 +96,9 @@ Only two categories keep children: 73 and 85. Everything else is flat.
 |---|---|---|
 | **Noticias** | 4 *(renamed)* | — *(65 and 66 become tags)* |
 | **Primeros pasos** | 78 *(renamed, promoted)* | — |
-| **Expertos** | 5 *(renamed)* | — *(34 promoted out, 62 becomes a tag)* |
+| **Expertos** | 5 *(renamed)* | — *(34 promoted out)* |
 | **Tengo una idea** | 18 *(promoted)* | — |
-| **Aula de formación** | 14 | — *(67 becomes a tag)* |
+| **Aula de formación** | 14 | — *(62 and 67 become tags)* |
 | **Eventos** | 59 *(renamed)* | — |
 | **Recursos compartidos** | 34 *(promoted)* | — |
 | **Recursos Certificación Analítica** | 73 | its 7 existing children |
@@ -127,8 +127,8 @@ Only two categories keep children: 73 and 85. Everything else is flat.
 | 56 | Tasas e impuestos | topics → 5, tags `administracion-avanzada` + `tasas`; delete |
 | 68 | PID | topics → 5, tags `administracion-avanzada` + `pid`; delete |
 | 69 | App Móvil | topics → 5, tags `administracion-avanzada` + `app-movil`; delete |
-| 14 | Aula de formación | unchanged; absorbs 67 and the 10 `expertos-espublico` topics → 84 topics |
-| 62 | Trucazos *(child of 14)* | topics → **5 Expertos**, tags `administracion-avanzada` + `trucazo`; delete |
+| 14 | Aula de formación | unchanged; absorbs 62, 67 and the 10 `expertos-espublico` topics → 99 topics |
+| 62 | Trucazos *(child of 14)* | topics → **14**, tags `trucazo` + `administracion-avanzada`; delete |
 | 67 | Webinars *(child of 14)* | topics → **14**, tag `webinars`; delete |
 | 59 | Eventos certificación | rename → **Eventos**; stays top level |
 | 73 + 7 children | Recursos Cert. Analítica | unchanged |
@@ -147,7 +147,7 @@ Three axes, replacing what subcategories were doing badly.
 |---|---|---|
 | **programa** | **required, max 1**, on Expertos | `administracion-avanzada` ← synonym `caag` · `developers` · `analiza` |
 | **dominio** | optional, multiple | `pid` · `tasas` ← synonym `gestión-tributaria` · `app-movil` ← synonym `app` · `expedientes` · `registro` · `padrón` · `firma` · `tramitación-reglada` · `tesauro` · `markdown` … |
-| **contexto** | per category | `alumno-certificado` ← synonym `posters` · *(new poster-resource tag)* · `campana-2024` / `campana-febrero-2025` / `campana-v9` · `cafe-con-certificados` · `newsletter` · `blog-gestiona` *(Noticias)* · `trucazo` *(Expertos)* · `webinars` ← synonyms `seminarios`, `webinar` *(Aula de formación)* · `expertos-espublico` · `mejoras` |
+| **contexto** | per category | `alumno-certificado` ← synonym `posters` · *(new poster-resource tag)* · `campana-2024` / `campana-febrero-2025` / `campana-v9` · `cafe-con-certificados` · `newsletter` · `blog-gestiona` *(Noticias)* · `trucazo` *(Aula de formación)* · `webinars` ← synonyms `seminarios`, `webinar` *(Aula de formación)* · `expertos-espublico` · `mejoras` |
 
 **Discourse tag synonyms migrate every existing use automatically**, so adopting
 `administracion-avanzada` keeps `caag`'s 40 taggings rather than discarding them.
@@ -249,7 +249,7 @@ topic:
 | 87 Café | 6 | `cafe-con-certificados` |
 | 65 Newsletter | 27 | `newsletter` — **already on 20 of 28**, 8 to append |
 | 66 Blog Gestiona | 9 | `blog-gestiona` |
-| 62 Trucazos | 16 | `administracion-avanzada` — `trucazo` **already on 13** |
+| 62 Trucazos | 15 | `administracion-avanzada` — `trucazo` **already on 13** |
 | 67 Webinars | 50 | none: `seminarios` (46) and `webinar` (10) migrate as synonyms of `webinars`; 2 untagged to fix by hand |
 
 **Phase 4 — move topics**, now that every topic carries the tag that says where it came
@@ -311,9 +311,9 @@ All resolved with the maintainer on 2026-08-25:
 8. **Recursos compartidos (34) is promoted to top level**, leaving Expertos with no
    children. At 5 topics it is the smallest visible top-level category after DocDevelopers,
    but it has the best engagement ratio in the plan at 4.0 replies/topic.
-9. **Trucazos (62) becomes a tag on Expertos**, not on Aula de formación: its topics are
-   Gestiona how-tos for the Administración Avanzada programme, so they carry
-   `administracion-avanzada` + `trucazo` and land where that programme's conversation is.
+9. **Trucazos (62) becomes a tag on Aula de formación**, staying in the category it already
+   hangs off. It keeps `administracion-avanzada` as a programme marker, but *optionally*:
+   `programa` is required only on Expertos, so nothing on these 15 topics is forced.
 10. **Webinars (67) becomes a tag on Aula de formación**, canonical `webinars`, with
    `seminarios` and `webinar` as synonyms so no tagging is lost.
 
