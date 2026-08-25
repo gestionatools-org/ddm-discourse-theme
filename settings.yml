@@ -6,6 +6,18 @@
 # `grupos-de-trabajo`, id 50 "Analiza" is `analitica-datos`. A slug rename would
 # silently empty a lane; an ID rename is not a thing.
 #
+# IDs also survive reparenting, so promoting a subcategory to top level is free.
+# A category reorganisation still breaks these settings three ways, and only the
+# first one announces itself:
+#
+#   deleted or merged  -> c/<id>/l/latest 404s and the lane shows an error
+#   emptied by a move  -> the lane renders its <:empty> state, silently
+#   repurposed         -> the lane renders the wrong topics, silently
+#
+# Re-check every ID below by hand after any category reorganisation. The two
+# silent modes are indistinguishable from a quiet category, so nothing in the
+# theme or in CI will report them.
+#
 # Discourse has no single-category setting type, so these are plain integers
 # (same as discourse-theme-skills' `sidebar_category_id`). 0 disables the lane.
 

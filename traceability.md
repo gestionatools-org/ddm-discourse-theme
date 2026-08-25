@@ -176,3 +176,37 @@ Two variables left unset on purpose. `--content-border-color` already resolves t
 **Weight 500 turned out not to be a vendoring job.** `google/fonts` now ships only the variable `Roboto[wdth,wght].ttf`; the CSS API serves Roboto v51 sliced into ~9 `unicode-range` subsets, where the 400 and 500 URLs are the same file. `discourse-fonts` ships static Regular and Bold from an older cut that can no longer be reproduced. Mixing them would put the mismatch on precisely the weight meant to signal emphasis. Open decision 3 in the audit now states the four real options; none is taken.
 
 **Versioning convention, made explicit:** features take the minor, fixes and chores the patch. Every release from 0.10.0 follows it except 0.16.3, which was a `feat:` given a patch — left as is, since it had already been pulled.
+
+## 2026-08-25 — PROD parity deferred behind the category reorganisation
+
+The standing "verify PROD category IDs" task was **not** done, by decision. A
+category reorganisation is the next block of work, so diffing IDs now would
+measure a map about to be redrawn. The maintainer confirms the two taxonomies
+match today by eye — enough to plan against, not enough to ship ID-keyed config
+on. The diff moves to where it belongs: the gate immediately before the theme
+installs on PROD.
+
+**What a reorg does and does not cost.** Discourse category IDs survive rename,
+slug change and reparenting, so the long-agreed promotion of category 78 to top
+level is free — it stays 78. Only create, delete + recreate and merge issue or
+retire IDs.
+
+**The exposure is PRE, not PROD.** All five homepage lanes are keyed by numeric
+ID, so a reorg that touches IDs breaks the live instance's own settings, and the
+theme is the only one installed there. Three failure modes, and only the first
+announces itself:
+
+| Change | Symptom |
+|---|---|
+| category deleted or merged | `c/<id>/l/latest` 404s, the lane shows an error |
+| topics moved out, ID kept | lane renders its `<:empty>` state, silently |
+| category repurposed | lane renders the wrong topics, silently |
+
+The two silent modes are indistinguishable from a genuinely quiet category, so
+neither the theme nor CI can report them. `settings.yml` now carries this table
+in its header, because that is the file someone opens when a lane goes blank.
+Retuning the lane settings after the reorg is unavoidable work, and PROD parity
+is a by-product of that pass rather than a separate task.
+
+Agreed order: reorganise PRE → retune the lane settings → check the five lanes
+render → replicate on PROD → parity diff + PROD settings.
