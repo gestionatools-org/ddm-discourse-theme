@@ -73,7 +73,7 @@ listing.**
 | **Noticias** | 4 *(renamed)* | Newsletter (65), Blog Gestiona (66) |
 | **Primeros pasos** | 78 *(renamed, promoted)* | — |
 | **Expertos** | 5 *(renamed)* | Recursos compartidos (34) |
-| **Ideation** | 18 *(renamed, promoted)* | — |
+| **Tengo una idea** | 18 *(promoted)* | — |
 | **Aula de formación** | 14 | Trucazos (62), Webinars (67) |
 | **Eventos** | 59 *(renamed)* | — |
 | **Recursos Certificación Analítica** | 73 | its 7 existing children |
@@ -91,7 +91,7 @@ listing.**
 | 87 | Café con certificados *(child of 4)* | topics → 59, tag `cafe-con-certificados`; delete |
 | 5 | El foro del Certificado | rename → **Expertos**; repair slug `grupos-de-trabajo` |
 | 34 | Recursos compartidos | unchanged |
-| 18 | Tengo una idea *(child of 5)* | rename → **Ideation**, promote to top level |
+| 18 | Tengo una idea *(child of 5)* | promote to top level — **name kept**, it is what members already know |
 | 58 | Campaña ideas febrero 2025 | topics → 18, tag `campana-febrero-2025`; delete |
 | 54 | Campaña Gestiona V9 | topics → 18, tag `campana-v9`; delete |
 | 57 | Campañas de ideas *(child of 53)* | topics → 18, tag `campana-2024`; delete |
@@ -153,25 +153,36 @@ a missed póster from a correctly-cleaned non-póster.
 |---|---|
 | `news_category_id` | **removed** — the lane becomes site-wide `latest` |
 | `forum_category_id` | unchanged (5) |
+| `ideas_category_id`, `ideas_count` | **added** — the new "Tengo una idea" lane |
 | `showcase_category_id` | unchanged (78), but the lane gains a tag filter |
 | `events_category_id` | unchanged (59) |
 | `library_category_ids` | unchanged (`73\|85\|14`) |
 
-One setting removed, none modified — because every category that anchors a lane is renamed
-or reparented, never recreated.
+One setting removed, two added, none modified — because every category that anchors a lane
+is renamed or reparented, never recreated.
 
 ### Code
 
 1. **`loadCategoryTopics` learns to filter by tag.** Required so the showcase lane can serve
    only the póster subset of Primeros pasos once that category also holds welcome content.
 2. **The news lane switches to `latest`.** `block-news.gjs` drops `categoryId`.
+3. **A sixth lane for "Tengo una idea."** No new component: `BlockForum` is fully
+   parameterised (`title`, `linkText`, `linkUrl`, `categoryId`, `count`) and its shape — a
+   topic list with reply counts promoted — is exactly right for a category at 3.6
+   replies/topic. A second instance goes into the `home-main` group after the forum lane,
+   with two new settings and four new locale strings. No new SCSS.
 
-Both changes need tests; the existing 47 stay green or are updated alongside.
+   Its icon is the one thing `BlockForum` hardcodes (`far-comments`). Either promote the
+   icon to an arg and add `lightbulb` to `svg_icons` in `about.json`, or accept both lanes
+   sharing an icon.
+
+All three need tests; the existing 47 stay green or are updated alongside.
 
 ### Homepage consequences
 
-- **The forum lane drops from 570 topics to ~297** when Ideation is promoted out of
-  Expertos. Still substantial. Whether the lane should also point at 18 is an open decision.
+- **The forum lane drops from 570 topics to ~297** when "Tengo una idea" is promoted out of
+  Expertos, and stays pointed at category 5 alone. It does *not* also point at 18: with 18
+  carrying its own lane, that would print the same 318 topics twice on one page.
 - **The news lane stops being 57% Pósters.** Today category 4's listing includes 78's 164
   topics, so most of what "Novedades" shows is arrival announcements. Promoting 78 fixes it.
 - **`latest` will repeat topics** that also appear in the Events and Primeros pasos lanes.
@@ -198,7 +209,7 @@ topic:
 | Source | Topics | Tags to append |
 |---|---:|---|
 | 5 Expertos | 252 | `administracion-avanzada` |
-| 18 Ideation | 318 | `administracion-avanzada` |
+| 18 Tengo una idea | 318 | `administracion-avanzada` |
 | 50 Analiza | 15 | `analiza` |
 | 56 Tasas | 20 | `administracion-avanzada`, `tasas` |
 | 68 PID | 4 | `administracion-avanzada`, `pid` |
@@ -237,13 +248,27 @@ on PRE and not on PROD.
 - **The reorganisation invalidates the taxonomy table in `CLAUDE.local.md`.** Re-capture it
   after Phase 4 rather than patching it.
 
-## Open decisions
+## Decisions taken
 
-1. **"Ideation" is the only English word in the taxonomy**, in a Spanish public-administration
-   community. *Ideas*, *Ideación* or *Propuestas* would sit better. Cosmetic; changes nothing else.
-2. **Should the forum lane also point at Ideation (18)?** It loses 318 topics otherwise.
-3. **Should Ideation get its own homepage lane?** It becomes the largest category at 440 topics.
-4. **Category 73 keeps 7 subcategories for 66 topics** — of 1, 2, 3, 4, 10, 23 and 23 topics
-   each, with zero replies between them. Collapsing them is independent of everything above
-   and can be done later.
-5. **75 DocDevelopers is a top-level category with 2 topics.**
+All resolved with the maintainer on 2026-08-25:
+
+1. **Category 18 keeps the name "Tengo una idea."** It is what members already know, and it
+   spares a rename. A working title of "Ideation" was dropped — it would have been the only
+   English word in the taxonomy of a Spanish public-administration community.
+2. **It gets its own homepage lane**, becoming the largest category at 440 topics.
+3. **The forum lane therefore stays on category 5 alone**, so nothing is printed twice.
+4. **Category 73 keeps its seven subcategories.** Collapsing them was offered at 7→3 and 7→2
+   and declined. See the residual note below.
+5. **75 DocDevelopers stays top-level** at 2 topics: the Developers programme is still being
+   built, and the category is there to receive it.
+6. **"Ponencias II encuentro de expertos" goes to Eventos**; the ten `expertos-espublico`
+   topics go to Aula de formación.
+
+### Residual, recorded so it is a decision and not an oversight
+
+**Category 73 holds 66 topics across seven subcategories** of 4, 23, 23, 1, 2, 3 and 10
+topics, with zero replies between them in their whole history. Its content is three kinds:
+a cookbook (79 + 80, 27 topics), training material (81 + 88 + 84, 36 topics) and member
+contributions (82 + 83, 3 topics). Three of the seven hold one, two and three topics.
+Collapsing it is independent of everything in this document and can be revisited at any
+time without touching a lane, a setting or a line of code.
