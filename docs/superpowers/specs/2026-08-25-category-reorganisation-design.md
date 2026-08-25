@@ -88,21 +88,20 @@ listing.**
 
 ## Target taxonomy
 
-**34 categories → 19 active. 10 visible top-level → 10.** No new category IDs.
+**34 categories → 17 active. 10 visible top-level → 9.** No new category IDs.
 
-Only two categories keep children: 73 and 85. Everything else is flat.
+Only category 73 keeps children. Everything else is flat.
 
 | Top level | ID | Children |
 |---|---|---|
 | **Noticias** | 4 *(renamed)* | — *(65 and 66 become tags)* |
 | **Primeros pasos** | 78 *(renamed, promoted)* | — |
-| **Expertos** | 5 *(renamed)* | — *(34 promoted out)* |
+| **Expertos** | 5 *(renamed)* | — *(34 dissolved into 85)* |
 | **Tengo una idea** | 18 *(promoted)* | — |
 | **Aula de formación** | 14 | — *(62 and 67 become tags)* |
 | **Eventos** | 59 *(renamed)* | — |
-| **Recursos compartidos** | 34 *(promoted)* | — |
 | **Recursos Certificación Analítica** | 73 | its 7 existing children |
-| **Recursos y proyectos compartidos** | 85 | Hackathon (86) |
+| **Recursos y proyectos compartidos** | 85 *(absorbs 34 and 86)* | — |
 | **DocDevelopers** | 75 | — |
 | *(staff)* Administradores | 3 | — |
 
@@ -116,7 +115,7 @@ Only two categories keep children: 73 and 85. Everything else is flat.
 | 78 | …· Pósters *(child of 4)* | rename → **Primeros pasos**, promote to top level |
 | 87 | Café con certificados *(child of 4)* | topics → 59, tag `cafe-con-certificados`; delete |
 | 5 | El foro del Certificado | rename → **Expertos**; set slug to match (today `el-foro-del-certificado`) |
-| 34 | Recursos compartidos *(child of 5)* | promote to top level |
+| 34 | Recursos compartidos *(child of 5)* | topics → **85**; delete |
 | 18 | Tengo una idea *(child of 5)* | promote to top level — **name kept**, it is what members already know |
 | 58 | Campaña ideas febrero 2025 | topics → 18, tag `campana-febrero-2025`; delete |
 | 54 | Campaña Gestiona V9 | topics → 18, tag `campana-v9`; delete |
@@ -132,12 +131,13 @@ Only two categories keep children: 73 and 85. Everything else is flat.
 | 67 | Webinars *(child of 14)* | topics → **14**, tag `webinars`; delete |
 | 59 | Eventos certificación | rename → **Eventos**; stays top level |
 | 73 + 7 children | Recursos Cert. Analítica | unchanged |
-| 85, 86 | Recursos y proyectos compartidos | unchanged |
+| 85 | Recursos y proyectos compartidos | **absorbs 34 and 86** → 13 topics, no children |
+| 86 | Proyectos 360 · Hackathon *(child of 85)* | topics → **85**, tag `hackathon-eivissa`; delete |
 | 75 | DocDevelopers | unchanged |
 | 71 | Un nuevo horizonte… | move its "Café con certificados" topic to **59** first, then archive: close, keep readable, remove from navigation |
 | 3 | Administradores | **keep** (core `/tos`, `/privacy`, `/faq` live here); move the 10 `expertos-espublico` topics to **14 Aula de formación** and "Ponencias II encuentro" to **59 Eventos**; delete the 2 test topics |
 
-Deleted: 62, 65, 66, 67, 87, 58, 54, 57, 53, 50, 49, 56, 68, 69. Archived: 71.
+Deleted: 34, 62, 65, 66, 67, 86, 87, 58, 54, 57, 53, 50, 49, 56, 68, 69. Archived: 71.
 
 ## Tag model
 
@@ -147,7 +147,7 @@ Three axes, replacing what subcategories were doing badly.
 |---|---|---|
 | **programa** | **required, max 1**, on Expertos | `administracion-avanzada` ← synonym `caag` · `developers` · `analiza` |
 | **dominio** | optional, multiple | `pid` · `tasas` ← synonym `gestión-tributaria` · `app-movil` ← synonym `app` · `expedientes` · `registro` · `padrón` · `firma` · `tramitación-reglada` · `tesauro` · `markdown` … |
-| **contexto** | per category | `alumno-certificado` ← synonym `posters` · *(new poster-resource tag)* · `campana-2024` / `campana-febrero-2025` / `campana-v9` · `cafe-con-certificados` · `newsletter` · `blog-gestiona` *(Noticias)* · `trucazo` *(Aula de formación)* · `webinars` ← synonyms `seminarios`, `webinar` *(Aula de formación)* · `expertos-espublico` · `mejoras` |
+| **contexto** | per category | `alumno-certificado` ← synonym `posters` · *(new poster-resource tag)* · `campana-2024` / `campana-febrero-2025` / `campana-v9` · `cafe-con-certificados` · `newsletter` · `blog-gestiona` *(Noticias)* · `trucazo` *(Aula de formación)* · `webinars` ← synonyms `seminarios`, `webinar` *(Aula de formación)* · `hackathon-eivissa` *(Recursos y proyectos compartidos)* · `expertos-espublico` · `mejoras` |
 
 **Discourse tag synonyms migrate every existing use automatically**, so adopting
 `administracion-avanzada` keeps `caag`'s 40 taggings rather than discarding them.
@@ -251,9 +251,11 @@ topic:
 | 66 Blog Gestiona | 9 | `blog-gestiona` |
 | 62 Trucazos | 15 | `administracion-avanzada` — `trucazo` **already on 13** |
 | 67 Webinars | 50 | none: `seminarios` (46) and `webinar` (10) migrate as synonyms of `webinars`; 2 untagged to fix by hand |
+| 86 Hackathon | 8 | `hackathon-eivissa` — **none of the 8 carries any tag today** |
+| 34 Recursos compartidos | 5 | none: all five are already tagged by subject |
 
 **Phase 4 — move topics**, now that every topic carries the tag that says where it came
-from. Then delete the emptied categories: 62, 65, 66, 67, 87, 58, 54, 57, 53, 50, 49, 56, 68, 69.
+from. Then delete the emptied categories: 34, 62, 65, 66, 67, 86, 87, 58, 54, 57, 53, 50, 49, 56, 68, 69.
 
 Three moves out of category 3 need no tagging first, because their tags are already in place:
 the 10 `expertos-espublico` topics go to **14 Aula de formación**, "Ponencias II encuentro"
@@ -308,14 +310,19 @@ All resolved with the maintainer on 2026-08-25:
    Noticias — **a deliberate widening, accepted by the maintainer on 2026-08-25.** It is
    the only permission change in the plan; every other dissolution moves restricted topics
    into restricted categories, and 87 moves *from* unrestricted *to* restricted.
-8. **Recursos compartidos (34) is promoted to top level**, leaving Expertos with no
-   children. At 5 topics it is the smallest visible top-level category after DocDevelopers,
-   but it has the best engagement ratio in the plan at 4.0 replies/topic.
+8. **Recursos compartidos (34) dissolves into 85**, leaving Expertos with no children. A
+   promotion to top level was decided first and reversed: it would have put *Recursos
+   compartidos* beside *Recursos y proyectos compartidos*, two top-level names differing by
+   two words.
 9. **Trucazos (62) becomes a tag on Aula de formación**, staying in the category it already
    hangs off. It keeps `administracion-avanzada` as a programme marker, but *optionally*:
    `programa` is required only on Expertos, so nothing on these 15 topics is forced.
 10. **Webinars (67) becomes a tag on Aula de formación**, canonical `webinars`, with
    `seminarios` and `webinar` as synonyms so no tagging is lost.
+11. **Hackathon (86) dissolves into 85 too**, tagged `hackathon-eivissa`. 85 stops being an
+   empty wrapper and becomes a real category of 13 topics with no children: five
+   member-contributed how-tos from 34 and eight Hackathon deliverables. All three
+   categories are read-restricted, so nothing changes about who sees what.
 
 ### Residual, recorded so it is a decision and not an oversight
 
@@ -326,15 +333,7 @@ contributions (82 + 83, 3 topics). Three of the seven hold one, two and three to
 Collapsing it is independent of everything in this document and can be revisited at any
 time without touching a lane, a setting or a line of code.
 
-**Three top-level categories will start with "Recursos."** Promoting 34 puts *Recursos
-compartidos* (5 topics) beside *Recursos y proyectos compartidos* (85) and *Recursos
-Certificación Analítica de datos* (73). The first two differ by two words and hold
-different things — 34 is member-contributed how-tos with replies, 85 is Hackathon
-deliverables with none. Renaming at least one of them is a free operation and is not
-scheduled here because the names were not part of the decision.
-
-**Category 85 is an empty wrapper.** It owns nothing; its eight Hackathon topics all live
-in child 86. The plan keeps both because the maintainer decided on 2026-08-25 that 73 and
-85 each stay a top-level category rather than folding into a "Biblioteca" umbrella. Worth
-recording that the alternative — move the eight topics up into 85 and delete 86 — costs one
-operation and removes a level, and that 53 is being deleted for exactly this shape.
+Two residuals recorded earlier are **resolved** by decisions 8 and 11: the three top-level
+names starting with "Recursos" (34 no longer becomes one) and category 85 owning no topics
+(it now owns 13). What remains is that 85 mixes two kinds of content — how-tos that draw
+replies and Hackathon deliverables that draw none — separated only by `hackathon-eivissa`.
