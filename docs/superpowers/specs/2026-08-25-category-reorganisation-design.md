@@ -52,6 +52,15 @@ Findings that were not visible from the taxonomy alone and changed the plan:
   (40 uses) already fills that role and matches the `CAAG01`–`CAAG33` groups.
 - **Category 3 holds Discourse's own `/tos`, `/privacy` and `/faq` topics.** Deleting or
   over-restricting it breaks the site's legal pages. It stays.
+- **The Café con certificados series is split across two categories.** Six instalments
+  (1er–6º, January–June 2026) sit in 87, and a seventh topic of the same name sits in 71.
+  Archiving 71 as-is would deliver an incomplete series to Eventos.
+- **PROD's slugs are not the legacy ones recorded for PRE.** Category 4 is `te-contamos`
+  and 5 is `el-foro-del-certificado`, not the `comunidad-expertos` / `grupos-de-trabajo`
+  captured on PRE on 2026-08-11. The slug work is therefore *caused by* the renames rather
+  than pre-existing: after renaming to Noticias and Expertos, correct slugs go stale.
+- **Category 85 owns no topics.** All eight live in its child 86; 85 is a wrapper with a
+  definition topic. Structurally it is category 53, which this plan deletes.
 
 ### A measurement trap worth recording
 
@@ -66,11 +75,11 @@ listing.**
 
 ## Target taxonomy
 
-**34 categories → 23 active. 10 visible top-level → 9.** No new category IDs.
+**34 categories → 21 active. 10 visible top-level → 9.** No new category IDs.
 
 | Top level | ID | Children |
 |---|---|---|
-| **Noticias** | 4 *(renamed)* | Newsletter (65), Blog Gestiona (66) |
+| **Noticias** | 4 *(renamed)* | — *(65 and 66 become tags)* |
 | **Primeros pasos** | 78 *(renamed, promoted)* | — |
 | **Expertos** | 5 *(renamed)* | Recursos compartidos (34) |
 | **Tengo una idea** | 18 *(promoted)* | — |
@@ -85,11 +94,12 @@ listing.**
 
 | ID | Today | Action |
 |---|---|---|
-| 4 | Te contamos… | rename → **Noticias**; repair slug `comunidad-expertos` |
-| 65, 66 | Newsletter, Blog Gestiona | unchanged |
+| 4 | Te contamos… | rename → **Noticias**; set slug to match (today `te-contamos`) |
+| 65 | Newsletter *(child of 4)* | topics → 4, tag `newsletter`; delete — **widens read access**, accepted |
+| 66 | Blog Gestiona *(child of 4)* | topics → 4, tag `blog-gestiona`; delete |
 | 78 | …· Pósters *(child of 4)* | rename → **Primeros pasos**, promote to top level |
 | 87 | Café con certificados *(child of 4)* | topics → 59, tag `cafe-con-certificados`; delete |
-| 5 | El foro del Certificado | rename → **Expertos**; repair slug `grupos-de-trabajo` |
+| 5 | El foro del Certificado | rename → **Expertos**; set slug to match (today `el-foro-del-certificado`) |
 | 34 | Recursos compartidos | unchanged |
 | 18 | Tengo una idea *(child of 5)* | promote to top level — **name kept**, it is what members already know |
 | 58 | Campaña ideas febrero 2025 | topics → 18, tag `campana-febrero-2025`; delete |
@@ -106,10 +116,10 @@ listing.**
 | 73 + 7 children | Recursos Cert. Analítica | unchanged |
 | 85, 86 | Recursos y proyectos compartidos | unchanged |
 | 75 | DocDevelopers | unchanged |
-| 71 | Un nuevo horizonte… | archive: close, keep readable, remove from navigation |
+| 71 | Un nuevo horizonte… | move its "Café con certificados" topic to **59** first, then archive: close, keep readable, remove from navigation |
 | 3 | Administradores | **keep** (core `/tos`, `/privacy`, `/faq` live here); move the 10 `expertos-espublico` topics to **14 Aula de formación** and "Ponencias II encuentro" to **59 Eventos**; delete the 2 test topics |
 
-Deleted: 87, 58, 54, 57, 53, 50, 49, 56, 68, 69. Archived: 71.
+Deleted: 65, 66, 87, 58, 54, 57, 53, 50, 49, 56, 68, 69. Archived: 71.
 
 ## Tag model
 
@@ -119,7 +129,7 @@ Three axes, replacing what subcategories were doing badly.
 |---|---|---|
 | **programa** | **required, max 1**, on Expertos | `administracion-avanzada` ← synonym `caag` · `developers` · `analiza` |
 | **dominio** | optional, multiple | `pid` · `tasas` ← synonym `gestión-tributaria` · `app-movil` ← synonym `app` · `expedientes` · `registro` · `padrón` · `firma` · `tramitación-reglada` · `tesauro` · `markdown` … |
-| **contexto** | per category | `alumno-certificado` ← synonym `posters` · *(new poster-resource tag)* · `campana-2024` / `campana-febrero-2025` / `campana-v9` · `cafe-con-certificados` · `expertos-espublico` *(Aula de formación)* · `mejoras` |
+| **contexto** | per category | `alumno-certificado` ← synonym `posters` · *(new poster-resource tag)* · `campana-2024` / `campana-febrero-2025` / `campana-v9` · `cafe-con-certificados` · `newsletter` · `blog-gestiona` *(Noticias)* · `expertos-espublico` *(Aula de formación)* · `mejoras` |
 
 **Discourse tag synonyms migrate every existing use automatically**, so adopting
 `administracion-avanzada` keeps `caag`'s 40 taggings rather than discarding them.
@@ -160,6 +170,9 @@ a missed póster from a correctly-cleaned non-póster.
 
 One setting removed, two added, none modified — because every category that anchors a lane
 is renamed or reparented, never recreated.
+
+Dissolving 65 and 66 costs the theme nothing: no setting, initializer or block references
+either ID, and the news lane stops being category-keyed in the same pass.
 
 ### Code
 
@@ -216,9 +229,11 @@ topic:
 | 69 App Móvil | 1 | `administracion-avanzada`, `app-movil` |
 | 57 / 58 / 54 | 20 / 102 / 1 | `campana-2024` / `campana-febrero-2025` / `campana-v9` |
 | 87 Café | 6 | `cafe-con-certificados` |
+| 65 Newsletter | 27 | `newsletter` |
+| 66 Blog Gestiona | 9 | `blog-gestiona` |
 
 **Phase 4 — move topics**, now that every topic carries the tag that says where it came
-from. Then delete the emptied categories: 87, 58, 54, 57, 53, 50, 49, 56, 68, 69.
+from. Then delete the emptied categories: 65, 66, 87, 58, 54, 57, 53, 50, 49, 56, 68, 69.
 
 Three moves out of category 3 need no tagging first, because their tags are already in place:
 the 10 `expertos-espublico` topics go to **14 Aula de formación**, "Ponencias II encuentro"
@@ -242,6 +257,10 @@ on PRE and not on PROD.
   its topics are tagged and moved.
 - **Category 3 must not be deleted or over-restricted.** `/tos`, `/privacy` and `/faq` read
   from topics inside it.
+- **Widening read access on the 27 newsletters is not cheaply undone.** Once 65 is deleted
+  its ID is gone; restoring the restriction would mean creating a new category and moving
+  the topics back, which is the create-and-move that this whole plan avoids. Confirm the
+  newsletters hold nothing group-confidential before Phase 4 runs.
 - **Category listings and the topic view are unguarded by CI** (`skip_examples` takes
   `topics:read` and `topics:reply`). The maintainer's eyes on PRE remain the only check on
   the surfaces this touches.
@@ -263,6 +282,12 @@ All resolved with the maintainer on 2026-08-25:
    built, and the category is there to receive it.
 6. **"Ponencias II encuentro de expertos" goes to Eventos**; the ten `expertos-espublico`
    topics go to Aula de formación.
+7. **Newsletter (65) and Blog Gestiona (66) become tags of Noticias**, leaving category 4
+   with no children. 66 is already unrestricted, so it moves without consequence. 65 is
+   read-restricted and 4 is not, so its 27 topics become readable by everyone who can read
+   Noticias — **a deliberate widening, accepted by the maintainer on 2026-08-25.** It is
+   the only permission change in the plan; every other dissolution moves restricted topics
+   into restricted categories, and 87 moves *from* unrestricted *to* restricted.
 
 ### Residual, recorded so it is a decision and not an oversight
 
@@ -272,3 +297,9 @@ a cookbook (79 + 80, 27 topics), training material (81 + 88 + 84, 36 topics) and
 contributions (82 + 83, 3 topics). Three of the seven hold one, two and three topics.
 Collapsing it is independent of everything in this document and can be revisited at any
 time without touching a lane, a setting or a line of code.
+
+**Category 85 is an empty wrapper.** It owns nothing; its eight Hackathon topics all live
+in child 86. The plan keeps both because the maintainer decided on 2026-08-25 that 73 and
+85 each stay a top-level category rather than folding into a "Biblioteca" umbrella. Worth
+recording that the alternative — move the eight topics up into 85 and delete 86 — costs one
+operation and removes a level, and that 53 is being deleted for exactly this shape.
