@@ -268,9 +268,17 @@ remove `news_category_id`, update tests, bump `theme_version` (minor).
 **Phase 6 — pósters.** Review the 34 image-bearing topics in Primeros pasos, apply the
 poster-resource tag to the genuine ones, and point the showcase lane at that tag.
 
-**PRE mirrors PROD afterwards.** The two taxonomies were verified identical on 2026-08-25 —
-34 IDs matching exactly, the only difference being category 1 "Sin categoría", which exists
-on PRE and not on PROD.
+**Which instance goes first is not settled.** `CLAUDE.local.md` records an order agreed on
+2026-08-25 that runs the reorganisation on PRE first and replicates onto PROD afterwards;
+this document was written against PROD and says PRE mirrors it. They contradict, and it
+matters because it decides where the first irreversible operation lands.
+
+The two taxonomies were verified identical on 2026-08-25 — 34 IDs matching exactly, the only
+difference being category 1 "Sin categoría", which exists on PRE and not on PROD — so either
+order is technically possible. The trade-off: PRE is a rehearsal whose lanes break loudly
+and harmlessly, but it is also the only instance with the theme installed, so its members
+see the breakage; PROD has real members and no theme, so a reorganisation there has no
+homepage consequence at all until the theme ships.
 
 ## Risks
 
@@ -331,7 +339,9 @@ topics, with zero replies between them in their whole history. Its content is th
 a cookbook (79 + 80, 27 topics), training material (81 + 88 + 84, 36 topics) and member
 contributions (82 + 83, 3 topics). Three of the seven hold one, two and three topics.
 Collapsing it is independent of everything in this document and can be revisited at any
-time without touching a lane, a setting or a line of code.
+time without touching a lane, a setting or a line of code. **Re-offered on 2026-08-25 once
+every other branch had been flattened, and declined again**, so 73 is a settled decision
+and the deliberate exception to a flat tree — not an oversight.
 
 Two residuals recorded earlier are **resolved** by decisions 8 and 11: the three top-level
 names starting with "Recursos" (34 no longer becomes one) and category 85 owning no topics
