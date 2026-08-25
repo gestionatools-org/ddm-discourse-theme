@@ -5,6 +5,12 @@ node_modules
 # Local-only Claude context and credentials
 CLAUDE.local.md
 
+# Environment files. THIS REPOSITORY IS PUBLIC and Discourse pulls it directly,
+# so anything committed here is published twice over. Never track a .env.
+.env
+.env.*
+!.env.example
+
 # Upstream theme corpus cloned for reference (see CLAUDE.md)
 .reference/
 
