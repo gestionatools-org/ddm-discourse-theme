@@ -4,7 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-A **full Discourse theme** (`"component": false` in `about.json`) for an es|public Discourse **Cloud** instance. It is a *remote theme*: the Discourse instance pulls it from `git@github.com:gestionatools-org/ddm-discourse-theme.git`, so `main` is effectively production. There is no build step — Discourse compiles the SCSS/JS itself at install time.
+A **full Discourse theme** (`"component": false` in `about.json`) for an es|public Discourse **Cloud** instance. It is a *remote theme*: the Discourse instance pulls it from `git@github.com:gestionatools-org/ddm-discourse-theme.git`. There is no build step — Discourse compiles the SCSS/JS itself at install time.
+
+**An instance does not necessarily track `main`.** Verified 2026-08-26: PRE tracks `d-compat/2026.8` and had been stuck on `0.17.0` for a day without anyone noticing. Before concluding that anything shipped is live on an instance, check which branch that instance actually follows — the theme admin page names it. See *Compatibility branches freeze* under **CI**.
 
 Scaffolded from `discourse/discourse-theme-skeleton`, so upstream conventions apply verbatim.
 
@@ -66,6 +68,21 @@ Valid keys: `login`, `likes`, `profile`, `topics`, `topics:read`, `topics:reply`
 ### CI
 
 `.github/workflows/discourse-theme.yml` calls Discourse's shared reusable workflow (lint + system specs against core). `d-compat-branch.yml` runs nightly and cuts compatibility branches automatically — do not hand-edit those branches.
+
+### Compatibility branches freeze, and an instance can get stuck on one
+
+`d-compat-branch.yml` **creates** a `d-compat/<core-version>` branch; it does not advance one that already exists. Measured 2026-08-26: the nightly run at 01:08 UTC left `d-compat/2026.8` at `760df74` even though #30 had merged to `main` at 21:15 the evening before. The branch is a frozen snapshot — that is its purpose — so once an instance follows it, **that instance stops receiving theme work permanently**, and its admin keeps reporting "up-to-date" because with respect to that branch it is.
+
+This is invisible from the repo. `main` going green and merging says nothing about what any instance is running. The symptom is a feature that is demonstrably on `main` and demonstrably absent from the site, with no error anywhere: a whole homepage lane failed to appear this way, and the missing icon it was hunted through was a red herring — neither the lane nor its `svg_icons` entry existed in the compiled theme.
+
+Diagnose by reading the branch tip rather than trusting the admin:
+
+```bash
+git log origin/d-compat/2026.8 --oneline -1
+git log origin/d-compat/2026.8..origin/main --oneline   # what the instance is missing
+```
+
+The fix is to point the instance at `main`, not to move the branch.
 
 ## Architecture
 

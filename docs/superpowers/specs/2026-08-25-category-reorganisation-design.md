@@ -62,7 +62,7 @@ Findings that were not visible from the taxonomy alone and changed the plan:
 - **PROD's slugs are not the legacy ones recorded for PRE.** Category 4 is `te-contamos`
   and 5 is `el-foro-del-certificado`, not the `comunidad-expertos` / `grupos-de-trabajo`
   captured on PRE on 2026-08-11. The slug work is therefore *caused by* the renames rather
-  than pre-existing: after renaming to Noticias and Expertos, correct slugs go stale.
+  than pre-existing: after renaming to Noticias and Usuarios certificados, correct slugs go stale.
 - **Category 85 owns no topics.** All eight live in its child 86; 85 is a wrapper with a
   definition topic. Structurally it is category 53, which this plan deletes.
 - **Three of the four dissolutions decided second already carry their tag.** `trucazo` is
@@ -113,7 +113,7 @@ Only category 73 keeps children. Everything else is flat.
 |---|---|---|
 | **Noticias** | 4 *(renamed)* | — *(65 and 66 become tags)* |
 | **Primeros pasos** | 78 *(renamed, promoted)* | — |
-| **Expertos** | 5 *(renamed)* | — *(34 dissolved into 85)* |
+| **Usuarios certificados** | 5 *(renamed)* | — *(34 dissolved into 85)* |
 | **Tengo una idea** | 18 *(promoted)* | — |
 | **Aula de formación** | 14 | — *(62 and 67 become tags)* |
 | **Eventos** | 59 *(renamed)* | — |
@@ -122,10 +122,15 @@ Only category 73 keeps children. Everything else is flat.
 | **Comparte** | 85 *(renamed, absorbs 34 and 86)* | — |
 | *(staff)* Administradores | 3 | — |
 
-After the renames the word "certificación" appears in **no** category name — it leaves 5,
-59, 73 and 78, and 87 dissolves into a tag. That is right rather than lossy: the whole site
-is the certification programme, so the word discriminated nothing wherever it appeared. It
-survives only where it identifies a person, in the tag `alumno-certificado`.
+After the renames the noun "certificación" appears in **no** category name — it leaves 59,
+73 and 78, and 87 dissolves into a tag. That is right rather than lossy: the whole site *is*
+the certification programme, so the noun discriminated nothing wherever it appeared.
+
+What survives is the adjective, and only where it names people: category 5 becomes
+**Usuarios certificados**, alongside the tag `alumno-certificado`. That is the same test
+passing, not an exception to it — "certificados" there identifies who is speaking, which is
+information, while "Certificación" in a category name only restated the context every
+category already sits in.
 
 ### Every category, and what happens to it
 
@@ -136,7 +141,7 @@ survives only where it identifies a person, in the tag `alumno-certificado`.
 | 66 | Blog Gestiona *(child of 4)* | topics → 4, tag `blog-gestiona`; delete |
 | 78 | …· Pósters *(child of 4)* | rename → **Primeros pasos**, promote to top level; new slug |
 | 87 | Café con certificados *(child of 4)* | topics → 59, tag `cafe-con-certificados`; delete |
-| 5 | El foro del Certificado | rename → **Expertos**; new slug (see *Slugs*) |
+| 5 | El foro del Certificado | rename → **Usuarios certificados**; new slug (see *Slugs*) |
 | 34 | Recursos compartidos *(child of 5)* | topics → **85**; delete |
 | 18 | Tengo una idea *(child of 5)* | promote to top level — **name kept**, it is what members already know |
 | 58 | Campaña ideas febrero 2025 | topics → 18, tag `campana-febrero-2025`; delete |
@@ -169,7 +174,7 @@ and 85 were renamed and before 78's slug was checked against its new name.
 | ID | Name after rename | Slug today (PROD) | Slug target |
 |---|---|---|---|
 | 4 | Noticias | `te-contamos` ⚠️ | `noticias` |
-| 5 | Expertos | `el-foro-del-certificado` ⚠️ | `expertos` |
+| 5 | Usuarios certificados | `el-foro-del-certificado` ⚠️ | `usuarios-certificados` |
 | 78 | Primeros pasos | `nuevos-usuarios-certificados` | `primeros-pasos` |
 | 73 | Recursos Analítica | `documentacion-analiza` | `recursos-analitica` |
 | 75 | Recursos Developers | `doc-developers` | `recursos-developers` |
@@ -201,7 +206,7 @@ Three axes, replacing what subcategories were doing badly.
 
 | Group | Constraint | Tags |
 |---|---|---|
-| **programa** | **required, max 1**, on Expertos | `administracion-avanzada` ← synonym `caag` · `developers` · `analiza` |
+| **programa** | **required, max 1**, on Usuarios certificados | `administracion-avanzada` ← synonym `caag` · `developers` · `analiza` |
 | **dominio** | optional, multiple | `pid` · `tasas` ← synonym `gestión-tributaria` · `app-movil` ← synonym `app` · `expedientes` · `registro` · `padrón` · `firma` · `tramitación-reglada` · `tesauro` · `markdown` … |
 | **contexto** | per category | `alumno-certificado` ← synonym `posters` · *(new poster-resource tag)* · `campana-2024` / `campana-febrero-2025` / `campana-v9` · `cafe-con-certificados` · `newsletter` · `blog-gestiona` *(Noticias)* · `trucazo` *(Aula de formación)* · `webinars` ← synonyms `seminarios`, `webinar` *(Aula de formación)* · `hackathon-eivissa` *(Comparte)* · `expertos-espublico` · `mejoras` |
 
@@ -279,7 +284,7 @@ the symbol, so a missing entry renders an empty box with every test green.
 ### Homepage consequences
 
 - **The forum lane drops from 570 topics to 293** when "Tengo una idea" is promoted out of
-  Expertos, and stays pointed at category 5 alone. It does *not* also point at 18: with 18
+  Usuarios certificados, and stays pointed at category 5 alone. It does *not* also point at 18: with 18
   carrying its own lane, that would print the same 318 topics twice on one page.
   *(The estimate here read ~297 until 2026-08-26; the measured figure is 252 + 15 + 1 + 20 +
   4 + 1 = 293, the absorbed categories' definition topics having been counted by mistake.)*
@@ -301,7 +306,7 @@ still render.
 
 **Phase 2 — tag vocabulary.** Create the `programa` and `dominio` tag groups. Declare the
 synonyms (`caag`, `posters`, `gestión-tributaria`, `app`). Set `programa` required with
-max 1 on Expertos. No topics move.
+max 1 on Usuarios certificados. No topics move.
 
 **Phase 3 — bulk tagging, per source category, before anything is deleted.** Using the topic
 list's *select all → append tags*, so each category is a few operations rather than one per
@@ -309,7 +314,7 @@ topic:
 
 | Source | Topics | Tags to append |
 |---|---:|---|
-| 5 Expertos | 252 | `administracion-avanzada` |
+| 5 Usuarios certificados | 252 | `administracion-avanzada` |
 | 18 Tengo una idea | 318 | `administracion-avanzada` |
 | 50 Analiza | 15 | `analiza` |
 | 56 Tasas | 20 | `administracion-avanzada`, `tasas` |
@@ -365,6 +370,19 @@ sees it. That is a rehearsal cost, not a defect: PROD carries the real members a
 theme installed yet, so the reorganisation there has no homepage consequence at all until
 the theme ships.
 
+> **PRE is not running what `main` holds.** Found 2026-08-26: PRE follows
+> `d-compat/2026.8`, a compatibility branch frozen at `760df74` (#29), so it is on
+> `theme_version` **0.17.0** and shows **five lanes, not six** — Phase 5's work has never
+> been live there. Its news lane is still keyed on category 4, the state #31 replaced.
+>
+> Two consequences for this plan. **Anything verified on PRE before that branch is corrected
+> was verified against 0.17.0**, whatever `main` says. And the news lane there *is* still
+> category-keyed, so the protection described under *Settings* — that a reorganisation
+> cannot empty it — does not yet apply to PRE.
+>
+> The fix is to point PRE at `main`; see *Compatibility branches freeze* in `CLAUDE.md`. It
+> is a prerequisite for the lane checks in Phases 1 and 3, not for the category work itself.
+
 ## Risks
 
 - **Phases 3 and 4 are not reversible by an undo.** Bulk tagging is cheap to correct; moving
@@ -413,13 +431,13 @@ All resolved with the maintainer on 2026-08-25:
    Noticias — **a deliberate widening, accepted by the maintainer on 2026-08-25.** It is
    the only permission change in the plan; every other dissolution moves restricted topics
    into restricted categories, and 87 moves *from* unrestricted *to* restricted.
-8. **Recursos compartidos (34) dissolves into 85**, leaving Expertos with no children. A
+8. **Recursos compartidos (34) dissolves into 85**, leaving Usuarios certificados with no children. A
    promotion to top level was decided first and reversed: it would have put *Recursos
    compartidos* beside *Recursos y proyectos compartidos*, two top-level names differing by
    two words.
 9. **Trucazos (62) becomes a tag on Aula de formación**, staying in the category it already
    hangs off. It keeps `administracion-avanzada` as a programme marker, but *optionally*:
-   `programa` is required only on Expertos, so nothing on these 15 topics is forced.
+   `programa` is required only on Usuarios certificados, so nothing on these 15 topics is forced.
 10. **Webinars (67) becomes a tag on Aula de formación**, canonical `webinars`, with
    `seminarios` and `webinar` as synonyms so no tagging is lost.
 11. **Hackathon (86) dissolves into 85 too**, tagged `hackathon-eivissa`. 85 stops being an
@@ -444,6 +462,14 @@ Taken on 2026-08-26, while turning the plan into an execution list:
    idea" and "Comparte" are the only imperative or first-person names in the taxonomy, and
    they are precisely the surfaces whose purpose is contribution rather than reading. Not
    designed for; observed afterwards and kept.
+15. **Category 5 is "Usuarios certificados", not "Expertos."** Decided while executing
+   Phase 1, superseding the name this document carried from 2026-08-25. It names the members
+   rather than a judgement about them, and it matches how the community already refers to
+   them. Two things to know rather than to fix: a group called `UsuariosCertificados`
+   already exists, so the category shares its name without sharing its scope — 5 is the
+   general forum, not that group's private space; and the homepage lane title still reads
+   "El foro del Certificado" in `locales/*.yml`, which is one of the six placeholder strings
+   awaiting the maintainer's copy.
 
 **Left open:** *Comparte* (85, top level) echoes *Comparte tu conocimiento: Analiza* (83, a
 child of 73). The `: Analiza` suffix and the tree position disambiguate, so this is not
@@ -491,3 +517,5 @@ PR #30, and is folded into the sections above rather than appended:
 | 6 | Forum lane lands at **293** topics, not ~297 | *Homepage consequences* |
 | 7 | Category 85 has **20 replies over 13 topics**, breaking the library lane's premise | *Risks* |
 | 8 | Phase 5 **shipped**; Phase 6 still owns the showcase tag filter and the `lightbulb` check | *Impact on the theme*, *Migration plan* |
+| 9 | Category 5 is **Usuarios certificados**, not *Expertos*; slug `usuarios-certificados` | throughout, *Slugs*, decision 15 |
+| 10 | **PRE runs 0.17.0 from a frozen compat branch** — five lanes, not six | *Migration plan*, `CLAUDE.md` |
