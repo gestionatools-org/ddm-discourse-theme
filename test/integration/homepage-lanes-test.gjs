@@ -210,6 +210,34 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       assert.dom(".block-forum__title .d-icon-lightbulb").exists();
     });
 
+    test("says it has no ideas, not that it has no conversations", async function (assert) {
+      // The empty string was the second thing BlockForum hardcoded. Sharing it
+      // is nearly invisible — a category at 318 topics does not render its
+      // empty state — but a lane that announces the wrong absence is the kind
+      // of thing nobody notices and nobody can explain later.
+      stubStore(this.owner, []);
+
+      withPluginApi((api) =>
+        api.renderBlocks("main-outlet-blocks", [
+          {
+            block: BlockForum,
+            args: {
+              title: "homepage.ideas.title",
+              emptyText: "homepage.ideas.empty",
+              categoryId: 18,
+              count: 6,
+            },
+          },
+        ])
+      );
+
+      await render(
+        <template><BlockOutlet @name="main-outlet-blocks" /></template>
+      );
+
+      assert.dom(".block-forum__empty").hasText("No ideas yet.");
+    });
+
     test("keeps the forum's own icon when none is given", async function (assert) {
       stubStore(this.owner, [topic({ id: 900014 })]);
 

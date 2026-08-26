@@ -22,6 +22,8 @@ import { loadCategoryTopics } from "../lib/category-topics";
     // `d-icon-<name>` class whether or not the sprite carries the symbol, so a
     // missing entry renders an empty box and every test still passes.
     icon: { type: "string", default: "far-comments" },
+    // Declared, not yet honoured: the template still hardcodes the forum's own.
+    emptyText: { type: "string", default: "homepage.forum.empty" },
     categoryId: { type: "number", required: true },
     count: { type: "number", default: 6 },
   },

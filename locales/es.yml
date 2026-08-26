@@ -60,6 +60,7 @@ es:
     ideas:
       title: "Tengo una idea"
       link_text: "Comparte tu idea"
+      empty: "Todavía no hay ideas."
     showcase:
       title: "Lo que hacen los certificados"
       link_text: "Ver todo"
