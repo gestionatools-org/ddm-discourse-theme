@@ -58,6 +58,7 @@ export default apiInitializer((api) => {
             linkText: "homepage.ideas.link_text",
             linkUrl: `/c/${settings.ideas_category_id}`,
             icon: "lightbulb",
+            emptyText: "homepage.ideas.empty",
             categoryId: settings.ideas_category_id,
             count: settings.ideas_count,
           },
