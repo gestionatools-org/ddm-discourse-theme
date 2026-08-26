@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A **full Discourse theme** (`"component": false` in `about.json`) for an es|public Discourse **Cloud** instance. It is a *remote theme*: the Discourse instance pulls it from `git@github.com:gestionatools-org/ddm-discourse-theme.git`. There is no build step — Discourse compiles the SCSS/JS itself at install time.
 
-**An instance does not necessarily track `main`.** Verified 2026-08-26: PRE tracks `d-compat/2026.8` and had been stuck on `0.17.0` for a day without anyone noticing. Before concluding that anything shipped is live on an instance, check which branch that instance actually follows — the theme admin page names it. See *Compatibility branches freeze* under **CI**.
+**Which branch an instance tracks can change overnight, without anyone touching anything.** On 2026-08-26 the first `d-compat/2026.8` branch was cut at 01:08 UTC and PRE moved onto it by itself, freezing at `0.17.0` while six PRs landed on `main`. Before concluding that anything merged is live on an instance, check which branch it actually follows — the theme admin page names it — and read that branch's tip. See *Compatibility branches freeze* under **CI**.
 
 Scaffolded from `discourse/discourse-theme-skeleton`, so upstream conventions apply verbatim.
 
@@ -71,7 +71,11 @@ Valid keys: `login`, `likes`, `profile`, `topics`, `topics:read`, `topics:reply`
 
 ### Compatibility branches freeze, and an instance can get stuck on one
 
-`d-compat-branch.yml` **creates** a `d-compat/<core-version>` branch; it does not advance one that already exists. Measured 2026-08-26: the nightly run at 01:08 UTC left `d-compat/2026.8` at `760df74` even though #30 had merged to `main` at 21:15 the evening before. The branch is a frozen snapshot — that is its purpose — so once an instance follows it, **that instance stops receiving theme work permanently**, and its admin keeps reporting "up-to-date" because with respect to that branch it is.
+`d-compat-branch.yml` **creates** a `d-compat/<core-version>` branch and never advances it. The shared workflow's own source is explicit — `Branch #{branch} already exists on origin. Skipping.` — so every later run is a no-op and the branch is a frozen snapshot. That is its purpose.
+
+**The trap is the day it first appears.** Until core rolls a version there is no compat branch, every instance follows `main`, and everything merged reaches them. Then one nightly run cuts the branch, the instance switches to it on its next update check, and from that moment it receives nothing — while its admin keeps reporting "up-to-date", because with respect to that branch it is. Nothing in the repo announces this. The belief "`main` is what the instances run" is true right up until it silently is not.
+
+Measured here on 2026-08-26. The 01:08 UTC run logged `New branch name: d-compat/2026.8` and `Cutting d-compat/2026.8 from 760df745 (2026-08-25T10:52:10Z)` — the first compat branch this repo has ever had. Note the base: `main` was already a commit further along (#30 merged 21:15 the evening before), so **the branch was born behind and stayed there**. PRE picked it up that morning and missed six PRs in nine hours.
 
 This is invisible from the repo. `main` going green and merging says nothing about what any instance is running. The symptom is a feature that is demonstrably on `main` and demonstrably absent from the site, with no error anywhere: a whole homepage lane failed to appear this way, and the missing icon it was hunted through was a red herring — neither the lane nor its `svg_icons` entry existed in the compiled theme.
 
@@ -82,7 +86,11 @@ git log origin/d-compat/2026.8 --oneline -1
 git log origin/d-compat/2026.8..origin/main --oneline   # what the instance is missing
 ```
 
-The fix is to point the instance at `main`, not to move the branch.
+Two fixes, and one non-fix:
+
+- **Point the instance at `main`.** Immediate. If the admin will not change the branch in place, the remote has to be reinstalled — record the instance's theme settings first, since reinstalling can drop them.
+- **Bring the instance's core up to date.** Structural: the branch only captures an instance whose core is a version behind. A development target that lags production cannot do its job.
+- **Do not delete the branch.** It is recreated by the next nightly run — the condition is "already exists", not "ever existed" — so deleting buys one day and loses the audit trail. This is why the rule above says never to hand-edit these branches.
 
 ## Architecture
 
