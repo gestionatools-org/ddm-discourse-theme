@@ -315,3 +315,138 @@ and the topic view on the list of surfaces only the maintainer's eyes cover.
 **Not done, deliberately:** the showcase lane is not wired to a tag. The capability
 ships and is tested; pointing the lane at the póster tag is phase 6, once that tag
 exists.
+
+## 2026-08-26 — Phases 1 to 3 execute, and a missing icon turns out to be a frozen instance
+
+Thirteen PRs, #30 to #42. The taxonomy work moved from design to execution on PRE:
+renames and slugs, the tag vocabulary, and 800 topics tagged. Phase 4 — moving topics
+and deleting categories — is where it stops, deliberately, because it is the first
+step that cannot be undone.
+
+### The bulb that was never there
+
+The day's longest thread began as "the lightbulb icon does not render" and ended
+somewhere else entirely. `svg_icons` was declared correctly, the arg was wired
+correctly, the tests were green. The lane itself was absent — and so was the setting
+behind it, and the entry in `svg_icons`.
+
+**PRE was not running `main`.** A `d-compat/2026.8` branch had been cut automatically
+at 01:08 UTC that morning, the first this repo ever had, and Discourse moved the
+instance onto it by itself: `branch: None`, `remote_compat_ref: d-compat/2026.8`,
+`commits_behind: 0`, `theme_version 0.17.0`. Perfectly up to date with a branch nobody
+chose, while six PRs sat unreachable on `main`.
+
+Three corrections came out of chasing it, each replacing something asserted too
+early:
+
+- The nightly run did not *decline to advance* the branch, it **created** it. The
+  evidence for "it never advances" is the shared workflow's own source
+  (`Branch #{branch} already exists on origin. Skipping.`), not the observation that
+  first suggested it.
+- The branch is cut for the **current** core version, not the previous one. Discourse's
+  latest tag was `v2026.8.0` and PRE ran `2026.8.0-latest.1`, so there was no core
+  upgrade to escape through — a fix that had been written into `CLAUDE.md` and had to
+  come back out.
+- Deleting the branch alone would not have held, because the next run recreates it.
+  The workflow had to go with it.
+
+`d-compat-branch.yml` is deleted. What this theme gives up is implicit protection for
+an instance on older core; the explicit tool for that is `.discourse-compatibility`,
+still in the repo and still empty by choice.
+
+The lesson worth keeping is not "check which branch the instance follows". It is that
+**the day a compat branch first appears, there was nothing to check the day before**.
+`main` is what the instances run, right up until it silently is not.
+
+### What measuring changed about the plan
+
+Three things the design had asserted without evidence, checked with a Global-scope key
+that was created for the purpose and revoked the same day.
+
+**Permissions are neutral.** All fifteen dissolutions move topics between categories
+with the same effective audience. `read_restricted` here does not mean what it looks
+like: category 65 was limited to `Certificación`, which has **375 members against 373
+registered users**. The group is the community. So the plan's headline irreversible
+risk — widening read access on the 27 newsletters, "not cheaply undone" — was never a
+widening at all. This also turns the case for tags over subcategories from a
+reasonable assumption into a measurement: there is no confidentiality boundary between
+the programmes for a subcategory to express.
+
+**PRE and PROD are not the same data.** Category IDs match exactly, 34 against 34.
+Tag counts and topic counts do not, in both directions: `caag` 40 against 15,
+`analiza` 62 against 69, and category 5 holding **196 topics on PRE against 252 on
+PROD**. Every other count matches, so it is one category out of step rather than a
+stale copy. Phase 3 needed its own worksheet.
+
+**The instance was configured as if tags were marginal**, and the reorganisation makes
+them the primary structure. `max_tags_per_topic` was **3** — topics already carry 2–3,
+so a bulk append would have exceeded the cap on roughly a hundred topics, failing
+partway rather than cleanly. `max_tag_length` was 20, which truncated
+`administracion-avanzada` on entry and briefly renamed it. Raised to 7 and 30.
+`max_tag_search_results` is still 3, and is the likeliest reason the vocabulary had
+grown to 226 tags: three suggestions while typing is how you fail to find the tag that
+exists and invent another.
+
+### Traps that only appear when you execute
+
+**Bulk selection follows subcategories.** Category 5 still has three children, so
+*select all* there reaches 307 topics rather than 199 — `administracion-avanzada`
+would have landed on 102 February-campaign topics, five from Recursos compartidos and
+one V9 topic. `?no_subcategories=true` is the fix. Category 5 was the only source with
+children.
+
+**The bulk dialog cannot mint a tag.** It only offers tags that already exist, and
+there is no standalone "create tag" button anywhere in the admin. A tag is born by
+being applied to a topic or typed into a tag group. This cost a false start on
+`campana-2024`, which the dialog accepted and silently did not apply.
+
+**`topic_count` excludes unlisted topics as well as the definition topic**, and
+category 3 holds nine unlisted `expertos-espublico` talks that *select all* will not
+see in phase 4. It is the only category affected; the other seventeen return exactly
+`topic_count` + 1.
+
+**Three tag variants were invisible to a plan written from canonical names** —
+`app-móvil`, `seminario`, `póster` — and the maintainer found all three by reading the
+live vocabulary rather than the document. A normalised sweep then turned up 11
+families of near-duplicates. `búsquedas-avanzadas` is the shape of it: three spellings,
+16 uses between them, and the correctly formed one has a single use.
+
+### The constraint earning its place on day one
+
+Category 5 finished phase 3 at **196 of 198** tagged, which is correct. The two
+holdouts already carried `developers`, and `max 1 per topic` refused them a second
+programme tag. In a bulk operation over 198 topics the partition held itself — 196, 2,
+no overlaps — with nobody reading a row. That is the whole argument for the tag group,
+demonstrated the first time it was used, and it answers the question that had been
+asked that morning about what the group was for.
+
+### Naming, and one decision reversed
+
+Category 5 went through three names in a day: *Expertos* from the design, *Usuarios
+certificados* during phase 1, and back to **Foro del certificado**. The one that
+survived is the only one of the three that names the place rather than the people in
+it, and the category is the general forum rather than a roster. The homepage lane
+title was aligned with it, retiring one of the six placeholder strings.
+
+The tag group was renamed too, from `Certificaciones` to **`programa-certificacion`**.
+There is a *user* group called `Certificación` with 375 members; the two things in this
+project that had nothing to do with each other were one letter apart. Three different
+things here answer to "group" — user groups, tag groups and categories — and the
+ambiguity cost real confusion twice in one day.
+
+**`posters` is kept and cleaned rather than retired.** The design retired it into
+`alumno-certificado` and minted a fresh tag for genuine pósters, arguing that stripping
+leaves no way to tell a missed póster from a correctly-cleaned non-póster. The
+maintainer's objection was that pósters and arrival announcements are becoming two
+different kinds of post and deserve two tags — which the design wanted too, it only
+declined to reuse the name. The auditability argument does not survive a *full* sweep:
+removing the tag from all 158 topics in one operation and reapplying it deliberately to
+the ~17 genuine ones gives the same guarantee while keeping a word the community has
+used 158 times.
+
+**Subcategories are settled as a standing rule**, and it outlives this reorganisation:
+conversational surfaces stay flat, documentation categories may keep children. The test
+is measurable rather than aesthetic — category 73's seven children hold 66 topics and
+have never received a single reply, so there is no conversation to fragment. That
+retires the residual about 73: it is not an exception to a flat tree, it is the rule
+applied to a documentation category.
