@@ -210,3 +210,108 @@ is a by-product of that pass rather than a separate task.
 
 Agreed order: reorganise PRE → retune the lane settings → check the five lanes
 render → replicate on PROD → parity diff + PROD settings.
+
+## 2026-08-25 — The category reorganisation, designed
+
+Full design in `docs/superpowers/specs/2026-08-25-category-reorganisation-design.md`
+(#30). **34 categories → 17 active, 10 visible top-level → 9, no new IDs.** Sixteen
+categories dissolve into tags or into their parent, 71 is archived, and only 73
+keeps children — kept as the deliberate exception after collapsing it was offered
+twice and declined twice.
+
+The axis moves from subcategory to tag. Three findings justify it: the three
+programmes may see each other, so per-category permissions buy nothing against 59
+groups; a tag crosses categories, which a póster topic needs because it is both an
+arrival announcement and a library resource; and a tag survives a reorganisation
+where a category-keyed lane empties in silence.
+
+**Most of the dissolved categories already carry their tag** — `trucazo` on 13 of
+62's 16 topics, `seminarios` on 46 of 67's 50, `newsletter` on 20 of 65's 28. They
+were duplicating a classification the topics already had, which is the clearest
+argument in the design that they are tags wearing category clothing.
+
+**One permission widens and it does not undo cheaply.** 65 Newsletter is
+read-restricted, 4 is not, so dissolving it makes 27 topics readable by everyone
+who can read Noticias. Accepted by the maintainer. Deleting 65 retires its ID, so
+restoring the restriction would need a new category and a second move — the exact
+create-and-move the rest of the plan avoids.
+
+**A measurement trap, recorded because it produced four wrong readings.** A
+category's `latest` listing includes its subcategories' topics and pins the
+definition topic first, so reading activity from the first row reports the
+definition topic's age: 78 read as 4 months idle when it was 5 days, 62 as 17
+months dead when it was 19 days alive. Take `topic_count` from `categories.json`,
+never from a listing.
+
+PRE goes first and PROD follows, decided after the two documents disagreed about
+it. PRE is a faithful rehearsal — the taxonomies match ID for ID — and rehearsal
+is what phases 3 and 4 need, since bulk tagging and topic moves cannot be undone
+once the source category is deleted.
+
+## 2026-08-26 — Phase 5: the homepage catches up with the new taxonomy
+
+Theme code only (#31, #32). Five lanes become six; **57 tests, all green**;
+`theme_version` 0.17.0 → 0.18.1.
+
+| Change | Why |
+|---|---|
+| news lane → site-wide `latest` | keyed on category 4 it was 57% arrival announcements, because 4's listing carried 78's 164 topics |
+| a sixth lane for "Tengo una idea" | 318 topics at 3.6 replies, the largest category on the site, and it had no heading of its own |
+| `loadCategoryTopics` takes a `tag` | the showcase lane needs the póster subset of 78 once that category also holds welcome content |
+
+`news_category_id` is deleted; `ideas_category_id` and `ideas_count` are added.
+Nothing else moves, because every category anchoring a lane is renamed or
+reparented rather than recreated.
+
+**The news lane is now the one a reorganisation cannot empty**, since it no longer
+names a category.
+
+**The tag filter goes to the server, unlike `requireImage`.** That one filters the
+page already fetched, which is right for it and wrong here: the póster subset is a
+growing minority of 164 topics, so a page filter would show a handful of cards and
+call the rest absent. The endpoint was verified against the live API before the
+test was written — `c/62/l/latest.json?tags[]=markdown` returns 6 of 16. An
+empty-string guard keeps an unset setting from becoming `tags: [""]`, which matches
+nothing and would empty a lane silently.
+
+**"Tengo una idea" is a second `BlockForum`, not a new component.** It was already
+parameterised and its shape is what a category at 3.6 replies/topic wants. The icon
+and the empty string were the two things its template hardcoded; both became args.
+The forum lane deliberately does *not* also point at 18 — with a lane each, that
+would print the same 318 topics twice on one page.
+
+`loadLatestTopics` is a separate function rather than a mode of `loadCategoryTopics`,
+because a falsy category id there means *the lane is switched off* and must not
+touch the network. It drops definition topics too, and that matters more: a category
+lane only ever met its own subtree's, while `latest` meets every one on the site
+whenever a category is created or edited.
+
+### Two Blocks API behaviours, measured here and absent from the vendored skill
+
+Both were found the expensive way, each costing a CI run, and both are now in code
+comments where they will be met again:
+
+- **An undeclared arg aborts the entire QUnit run** with an uncaught `BlockError`,
+  taking down tests that have nothing to do with blocks — 25 of 56 never ran.
+  Declare a new arg inert first, then honour it.
+- **Rollup hard-fails the whole theme bundle** on an import of a missing export and
+  reports a compile error rather than a test failure; all 56 tests died as one
+  global error. Export an empty stub before writing the implementation.
+
+### CI is the test runner, including for the red step
+
+There is no Discourse checkout on this machine, so QUnit only runs in
+`frontend_tests` on a PR — roughly four minutes per red-green cycle, which is the
+reason to batch a red push rather than go test by test. The full cycle for #31 ran
+four times: compile error, global abort, a clean red of exactly 7, then green.
+
+### Unguarded, and worth knowing
+
+`lightbulb` was added to `svg_icons`, and **no test can guard it**: `dIcon` writes
+the `d-icon-<name>` class whether or not the SVG sprite carries the symbol, so a
+missing entry renders an empty box with the suite green. It joins category listings
+and the topic view on the list of surfaces only the maintainer's eyes cover.
+
+**Not done, deliberately:** the showcase lane is not wired to a tag. The capability
+ships and is tested; pointing the lane at the póster tag is phase 6, once that tag
+exists.
