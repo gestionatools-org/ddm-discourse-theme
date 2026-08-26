@@ -15,10 +15,12 @@ import { loadCategoryTopics } from "../lib/category-topics";
     title: { type: "string" },
     linkText: { type: "string" },
     linkUrl: { type: "string" },
-    // Declared, not yet honoured: the template still hardcodes far-comments.
-    // Blocks reject an undeclared arg with an uncaught error that aborts the
-    // whole QUnit run, so the arg has to exist before its test can fail on an
-    // assertion rather than take the other 55 tests down with it.
+    // The lane is instantiated twice — the forum and "Tengo una idea" — and the
+    // icon is the only thing that told them apart. Any icon outside core's
+    // default Font Awesome subset also needs an entry in about.json's
+    // `svg_icons`, which nothing here can check: dIcon writes the
+    // `d-icon-<name>` class whether or not the sprite carries the symbol, so a
+    // missing entry renders an empty box and every test still passes.
     icon: { type: "string", default: "far-comments" },
     categoryId: { type: "number", required: true },
     count: { type: "number", default: 6 },
@@ -40,7 +42,7 @@ export default class BlockForum extends Component {
     <section class="block-forum">
       <header class="block-forum__header">
         <h2 class="block-forum__title">
-          {{dIcon "far-comments"}}
+          {{dIcon @icon}}
           {{i18n (themePrefix @title)}}
         </h2>
         {{#if @linkUrl}}

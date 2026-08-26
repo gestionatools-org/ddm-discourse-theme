@@ -2,10 +2,11 @@ en:
   theme_metadata:
     description: "Custom Discourse theme for the es|public community."
     settings:
-      news_category_id: "Category shown in the news lane. Its subcategories are included. 0 hides the lane."
       news_count: "How many news topics to show."
       forum_category_id: "Category shown in the certification forum lane. Its subcategories are included. 0 hides the lane."
       forum_count: "How many forum topics to show."
+      ideas_category_id: "Category shown in the ideas lane. Its subcategories are included. 0 hides the lane."
+      ideas_count: "How many ideas to show."
       showcase_category_id: "Category shown as an image grid. Topics without a cover image degrade to a text card. 0 hides the lane."
       showcase_count: "How many showcase entries to show."
       events_category_id: "Category shown in the events lane. 0 hides the lane."
@@ -55,6 +56,9 @@ en:
       replies:
         one: "%{count} reply"
         other: "%{count} replies"
+    ideas:
+      title: "Ideas from the community"
+      link_text: "Share an idea"
     showcase:
       title: "What our members are making"
       link_text: "See everything"

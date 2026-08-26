@@ -7,8 +7,9 @@ import BlockNews from "../blocks/block-news";
 import BlockShowcase from "../blocks/block-showcase";
 import { parseCategoryIds } from "../lib/category-topics";
 
-// The homepage is composed of five lanes. Every lane is keyed by category ID
-// because this instance's slugs are legacy and no longer match their category.
+// The homepage is composed of six lanes. Every lane but the first is keyed by
+// category ID because this instance's slugs are legacy and no longer match
+// their category; the news lane is site-wide and has no category to lose.
 //
 // Each lane's shape follows how its category is actually used, measured rather
 // than assumed: conversational categories get topic lists with reply counts,
@@ -30,8 +31,7 @@ export default apiInitializer((api) => {
           args: {
             title: "homepage.news.title",
             linkText: "homepage.news.link_text",
-            linkUrl: `/c/${settings.news_category_id}`,
-            categoryId: settings.news_category_id,
+            linkUrl: "/latest",
             count: settings.news_count,
           },
         },
@@ -44,6 +44,22 @@ export default apiInitializer((api) => {
             linkUrl: `/c/${settings.forum_category_id}`,
             categoryId: settings.forum_category_id,
             count: settings.forum_count,
+          },
+        },
+        {
+          // The same block again, not a new one: BlockForum is fully
+          // parameterised and its shape — a topic list with the reply count
+          // promoted — is what a category at 3.6 replies/topic wants. Only the
+          // icon had to be lifted out of the template to tell the two apart.
+          block: BlockForum,
+          id: "home-ideas",
+          args: {
+            title: "homepage.ideas.title",
+            linkText: "homepage.ideas.link_text",
+            linkUrl: `/c/${settings.ideas_category_id}`,
+            icon: "lightbulb",
+            categoryId: settings.ideas_category_id,
+            count: settings.ideas_count,
           },
         },
       ],

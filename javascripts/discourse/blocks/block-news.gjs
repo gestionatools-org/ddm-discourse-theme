@@ -8,18 +8,18 @@ import DAsyncContent from "discourse/ui-kit/d-async-content";
 import DButton from "discourse/ui-kit/d-button";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
-import { loadCategoryTopics } from "../lib/category-topics";
+import { loadLatestTopics } from "../lib/category-topics";
 
+// Site-wide, with no category to point at. Keyed on category 4 this lane was
+// 57% arrival announcements, because 4's listing carried category 78's 164
+// topics; and a category-keyed "what's new" is exactly the lane a taxonomy
+// change empties without saying so.
 @block("theme:espublico:news", {
-  description: "Latest announcements, shown with excerpts",
+  description: "The latest topics from across the site, shown with excerpts",
   args: {
     title: { type: "string" },
     linkText: { type: "string" },
     linkUrl: { type: "string" },
-    // Not required any more, so the lane can be registered with no category at
-    // all. Still consumed below: making it optional is what lets the site-wide
-    // test run, not what makes it pass.
-    categoryId: { type: "number" },
     count: { type: "number", default: 4 },
   },
 })
@@ -28,11 +28,7 @@ export default class BlockNews extends Component {
 
   @bind
   async fetchTopics() {
-    return await loadCategoryTopics(
-      this.store,
-      this.args.categoryId,
-      this.args.count
-    );
+    return await loadLatestTopics(this.store, this.args.count);
   }
 
   <template>

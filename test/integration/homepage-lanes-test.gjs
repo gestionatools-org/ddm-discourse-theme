@@ -99,7 +99,7 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
         api.renderBlocks("main-outlet-blocks", [
           {
             block: BlockNews,
-            args: { title: "homepage.news.title", categoryId: 4, count: 4 },
+            args: { title: "homepage.news.title", count: 4 },
           },
         ])
       );
@@ -140,7 +140,7 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
         api.renderBlocks("main-outlet-blocks", [
           {
             block: BlockNews,
-            args: { title: "homepage.news.title", categoryId: 4, count: 4 },
+            args: { title: "homepage.news.title", count: 4 },
           },
         ])
       );
