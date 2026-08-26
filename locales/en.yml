@@ -50,7 +50,7 @@ en:
       link_text: "See all"
       empty: "Nothing new yet."
     forum:
-      title: "The certification forum"
+      title: "Certification forum"
       link_text: "Go to the forum"
       empty: "No conversations yet."
       replies:

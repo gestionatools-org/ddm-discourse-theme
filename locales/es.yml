@@ -51,7 +51,7 @@ es:
       link_text: "Ver todas"
       empty: "Todavía no hay novedades."
     forum:
-      title: "El foro del Certificado"
+      title: "Foro del certificado"
       link_text: "Entrar al foro"
       empty: "Todavía no hay conversaciones."
       replies:
