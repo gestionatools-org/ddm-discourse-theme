@@ -22,11 +22,10 @@
 # (same as discourse-theme-skills' `sidebar_category_id`). 0 disables the lane.
 
 # --- Lane 1: news -----------------------------------------------------------
-# Announcements parent. Subcategory topics are included in the listing.
-news_category_id:
-  type: integer
-  default: 4
-
+# Site-wide `latest`, with no category setting at all. It used to be keyed on
+# category 4, which made it 57% arrival announcements because 4's listing
+# carried category 78's 164 topics. Being category-free also makes it the one
+# lane a taxonomy change cannot empty.
 news_count:
   type: integer
   default: 4
@@ -45,7 +44,25 @@ forum_count:
   min: 1
   max: 15
 
-# --- Lane 3: showcase -------------------------------------------------------
+# --- Lane 3: ideas ----------------------------------------------------------
+# The same block as lane 2, pointed at a different category. Category 18 is the
+# largest on the site (318 topics, 3.6 replies/topic) and was buried as a
+# subcategory of 5, so the forum lane printed it and it had no heading of its
+# own. The reorganisation promotes it to top level; this lane gives it a voice.
+#
+# The forum lane deliberately does NOT also point here: with a lane each, one
+# category pointing at both would print the same 318 topics twice on one page.
+ideas_category_id:
+  type: integer
+  default: 18
+
+ideas_count:
+  type: integer
+  default: 6
+  min: 1
+  max: 15
+
+# --- Lane 4: showcase -------------------------------------------------------
 # Rendered as an image grid, so point this at a category whose topics carry a
 # cover image. Topics without one degrade to a text card.
 showcase_category_id:
@@ -58,7 +75,7 @@ showcase_count:
   min: 2
   max: 12
 
-# --- Lane 4: events ---------------------------------------------------------
+# --- Lane 5: events ---------------------------------------------------------
 # A category listing that carries real event dates where they exist.
 # `discourse-calendar` was enabled on this site on 2026-08-12, so
 # `event_starts_at` reaches `topic_list_item` for every topic whose first post
@@ -76,7 +93,7 @@ events_count:
   min: 1
   max: 10
 
-# --- Lane 5: library --------------------------------------------------------
+# --- Lane 6: library --------------------------------------------------------
 # Reference categories rendered as directory cards rather than topic lists.
 # Their topics have essentially zero replies (id 73's whole tree: 66 topics,
 # 0 replies ever), so "latest topic" carries no signal and a list would be a

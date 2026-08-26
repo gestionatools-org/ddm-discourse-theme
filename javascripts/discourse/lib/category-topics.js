@@ -76,21 +76,32 @@ export function categoryStats(category) {
  * @param {Number} count - maximum topics to return
  * @param {Object} [options]
  * @param {Boolean} [options.requireImage] - drop topics with no cover image
+ * @param {String} [options.tag] - restrict to topics carrying this tag
  * @returns {Promise<Array|null>}
  */
 export async function loadCategoryTopics(
   store,
   categoryId,
   count,
-  { requireImage = false } = {}
+  { requireImage = false, tag = "" } = {}
 ) {
   if (!categoryId) {
     return null;
   }
 
-  const topicList = await store.findFiltered("topicList", {
-    filter: `c/${categoryId}/l/latest`,
-  });
+  const options = { filter: `c/${categoryId}/l/latest` };
+
+  // Server-side, unlike requireImage below: the tag has to select across the
+  // whole category, not across the one page that was fetched. Verified against
+  // the live API — c/62/l/latest.json?tags[]=markdown returns 6 of 16.
+  //
+  // The empty-string guard is what keeps an unset setting from becoming
+  // `tags: [""]`, which matches nothing and would empty the lane in silence.
+  if (tag) {
+    options.params = { tags: [tag] };
+  }
+
+  const topicList = await store.findFiltered("topicList", options);
 
   const definitions = definitionTopicIds();
   let topics = topicList?.topics?.filter((topic) => !definitions.has(topic.id));
@@ -100,6 +111,38 @@ export async function loadCategoryTopics(
   if (requireImage) {
     topics = topics?.filter((topic) => topic.image_url);
   }
+
+  if (!topics?.length) {
+    return null;
+  }
+
+  return topics.slice(0, count);
+}
+
+/**
+ * Load the most recent topics on the site, from every category the reader can
+ * see.
+ *
+ * Separate from `loadCategoryTopics` rather than a mode of it, because a
+ * falsy category id there means *the lane is switched off* and must return
+ * null without touching the network.
+ *
+ * Definition topics are dropped here too, and it matters more than it did for a
+ * category lane: that one only ever met the definition topic of its own
+ * subtree, while `latest` meets every one on the site, surfacing them as
+ * ordinary recent topics each time a category is created or edited.
+ *
+ * @param {Object} store - the injected `store` service
+ * @param {Number} count - maximum topics to return
+ * @returns {Promise<Array|null>}
+ */
+export async function loadLatestTopics(store, count) {
+  const topicList = await store.findFiltered("topicList", { filter: "latest" });
+
+  const definitions = definitionTopicIds();
+  const topics = topicList?.topics?.filter(
+    (topic) => !definitions.has(topic.id)
+  );
 
   if (!topics?.length) {
     return null;

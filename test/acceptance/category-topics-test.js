@@ -4,6 +4,7 @@ import {
   categoryStats,
   definitionTopicIds,
   loadCategoryTopics,
+  loadLatestTopics,
   resolveCategories,
 } from "../../discourse/lib/category-topics";
 
@@ -274,6 +275,94 @@ acceptance(
         await loadCategoryTopics(store, 78, 6, { requireImage: true }),
         null,
         "the honest outcome for a gallery with nothing to hang"
+      );
+    });
+
+    test("asks the server to filter by tag rather than trimming the page after", async function (assert) {
+      // Filtering the fetched page client-side would only ever see the first
+      // 30 topics. The póster subset of category 78 is a minority of 164 and
+      // growing from the recent end, so a page filter would show a handful of
+      // cards and call the rest absent. Verified against the live API:
+      // c/62/l/latest.json?tags[]=markdown returns 6 of 16.
+      const store = fakeStore([topic({ id: 10 })]);
+
+      await loadCategoryTopics(store, 78, 6, { tag: "poster" });
+
+      assert.deepEqual(store.calls[0], {
+        type: "topicList",
+        options: { filter: "c/78/l/latest", params: { tags: ["poster"] } },
+      });
+    });
+
+    test("sends no tags param when the tag setting is unset", async function (assert) {
+      // A guard, not a behaviour change: `tags: [""]` matches nothing, so a
+      // naive `if (tag !== undefined)` would empty the lane the moment the
+      // setting is added — silently, which is the failure mode settings.yml
+      // warns about at the top.
+      const store = fakeStore([topic({ id: 10 })]);
+
+      await loadCategoryTopics(store, 78, 6, { tag: "" });
+
+      assert.deepEqual(store.calls[0].options, { filter: "c/78/l/latest" });
+    });
+  }
+);
+
+acceptance(
+  "Espublico Theme | category-topics | loadLatestTopics",
+  function (needs) {
+    needs.site({ categories: CATEGORIES });
+
+    test("asks for the site-wide latest listing, with no category to point at", async function (assert) {
+      const store = fakeStore([topic({ id: 10 })]);
+
+      await loadLatestTopics(store, 4);
+
+      assert.deepEqual(store.calls[0], {
+        type: "topicList",
+        options: { filter: "latest" },
+      });
+    });
+
+    test("drops the definition topics a site-wide list surfaces from every category", async function (assert) {
+      // The category-keyed lane only ever met one of these. `latest` meets all
+      // of them, and they arrive as ordinary recent topics whenever a category
+      // is created or edited.
+      const store = fakeStore([
+        topic({ id: 2246 }),
+        topic({ id: 2201 }),
+        topic({ id: 10, fancy_title: "A real topic" }),
+      ]);
+
+      const topics = await loadLatestTopics(store, 4);
+
+      assert.deepEqual(
+        topics.map((t) => t.id),
+        [10]
+      );
+    });
+
+    test("keeps the lane at its configured length", async function (assert) {
+      const store = fakeStore([
+        topic({ id: 10 }),
+        topic({ id: 11 }),
+        topic({ id: 12 }),
+      ]);
+
+      const topics = await loadLatestTopics(store, 2);
+
+      assert.deepEqual(
+        topics.map((t) => t.id),
+        [10, 11]
+      );
+    });
+
+    test("returns null rather than an empty array when nothing qualifies", async function (assert) {
+      assert.strictEqual(await loadLatestTopics(fakeStore([]), 4), null);
+      assert.strictEqual(
+        await loadLatestTopics(fakeStore([topic({ id: 2246 })]), 4),
+        null,
+        "nothing left after the definition topics go"
       );
     });
   }
