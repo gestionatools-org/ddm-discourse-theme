@@ -252,6 +252,64 @@ between them, and the correctly formed one has a single use. **Canonical is chos
 name worth reading, not by the count** — the same call made for `tasas` (5, absorbing 10) and
 `webinars` (1, absorbing 62).
 
+### Permissions are neutral, and `read_restricted` is largely decorative
+
+Measured category by category on 2026-08-26, on PRE, with an admin key. **All fifteen
+dissolutions in this plan move topics between categories with the same effective audience.**
+Nobody gains or loses access to anything.
+
+| Source → destination | Delta |
+|---|---|
+| 65 → 4 · 66 → 4 | none — both open |
+| 34 → 85 · 86 → 85 · 62 → 14 · 67 → 14 | none — both restricted |
+| 58 / 54 / 57 → 18 · 50 / 49 / 56 / 68 / 69 → 5 | none — both restricted |
+| 87 → 59 | nominally closes; see below |
+
+The reason is that "restricted" here does not mean what it looks like. Category 65 was
+limited to `Certificación`, `esPublico` and `moderadores`; **`Certificación` has 375 members
+and the site has 373 registered users.** The group *is* the community. The same holds for the
+one apparent narrowing: 87's six Café topics move into 59 Eventos, which is restricted — to
+`Certificación` among others, so the same people again.
+
+The site is `login_required` (anonymous `/categories.json` returns 403), so "open" never
+meant the public internet either. It means any member with a session.
+
+**This confirms a premise the plan asserted without measuring.** The argument for tags over
+subcategories opened with "permissions are per-category and the three programmes may see each
+other… with no confidentiality boundary between them, subcategories would buy nothing". That
+was a reasonable assumption in August. It is now a measurement.
+
+What survives is narrow: a **future** member not added to `Certificación` would not see
+anything restricted to it. That is membership administration, not taxonomy.
+
+**Standing decision, 2026-08-26:** the reorganisation runs **without permission work**.
+Group-based restrictions may be configured later, deliberately, on a taxonomy that is already
+flat and tagged — not woven into the reorganisation.
+
+### Standing decision: subcategories only in documentation categories
+
+Agreed 2026-08-26, and it outlives this reorganisation.
+
+**Conversational surfaces are flat.** Noticias, Primeros pasos, Usuarios certificados, Tengo
+una idea, Aula de formación, Eventos, Comparte — none of them takes children, now or later.
+Whatever a subcategory would have expressed there is a tag: `Certificaciones` for the
+programme axis, `dominio` for subject, `contexto` for provenance.
+
+**Documentation categories may keep them.** Recursos Analítica (73) and Recursos Developers
+(75) are repositories, and subcategories there are a table of contents rather than a
+structure competing with tags.
+
+The distinction is measurable rather than aesthetic: **73's seven children hold 66 topics and
+have never received a single reply.** There is no conversation for a subcategory to fragment,
+and no permission boundary for it to imply — see *Permissions are neutral*. Where topics do
+draw replies, splitting them across children buries the two largest surfaces on the site,
+which is fault 1 in *Why*.
+
+This retires the residual below. **73 is not an exception to a flat tree; it is the rule
+applied to a documentation category.** And 75, which has 2 topics today and exists to receive
+the Developers programme, may take children on the same grounds when it has material to
+organise.
+
 ### Why tags rather than subcategories
 
 The maintainer's decision, and the data supports it three ways:
@@ -486,10 +544,14 @@ the theme ships.
   its topics are tagged and moved.
 - **Category 3 must not be deleted or over-restricted.** `/tos`, `/privacy` and `/faq` read
   from topics inside it.
-- **Widening read access on the 27 newsletters is not cheaply undone.** Once 65 is deleted
-  its ID is gone; restoring the restriction would mean creating a new category and moving
-  the topics back, which is the create-and-move that this whole plan avoids. Confirm the
-  newsletters hold nothing group-confidential before Phase 4 runs.
+- ~~**Widening read access on the 27 newsletters is not cheaply undone.**~~ **Void as of
+  2026-08-26**, for two independent reasons. The maintainer removed category 65's restriction
+  directly, so it is now open like its destination — the move changes nothing. And even
+  before that, the widening was nominal: 65 was restricted to `Certificación`, which has
+  **375 members against 373 registered users**. See *Permissions are neutral* below.
+  Reviewing the newsletters is still worth doing, but as routine content review rather than
+  as an irreversible exposure decision — and the window for re-restricting them closes when
+  Phase 4 deletes the category, not before.
 - **Category listings and the topic view are unguarded by CI** (`skip_examples` takes
   `topics:read` and `topics:reply`). The maintainer's eyes on PRE remain the only check on
   the surfaces this touches.
@@ -522,11 +584,10 @@ All resolved with the maintainer on 2026-08-25:
 6. **"Ponencias II encuentro de expertos" goes to Eventos**; the ten `expertos-espublico`
    topics go to Aula de formación.
 7. **Newsletter (65) and Blog Gestiona (66) become tags of Noticias**, leaving category 4
-   with no children. 66 is already unrestricted, so it moves without consequence. 65 is
-   read-restricted and 4 is not, so its 27 topics become readable by everyone who can read
-   Noticias — **a deliberate widening, accepted by the maintainer on 2026-08-25.** It is
-   the only permission change in the plan; every other dissolution moves restricted topics
-   into restricted categories, and 87 moves *from* unrestricted *to* restricted.
+   with no children. Recorded on 2026-08-25 as the plan's one deliberate widening of read
+   access. **Measured on 2026-08-26 and it was never a widening** — see *Permissions are
+   neutral*. The maintainer then removed 65's restriction outright, so by the time Phase 4
+   runs the two categories match.
 8. **Recursos compartidos (34) dissolves into 85**, leaving Usuarios certificados with no children. A
    promotion to top level was decided first and reversed: it would have put *Recursos
    compartidos* beside *Recursos y proyectos compartidos*, two top-level names differing by
@@ -580,8 +641,11 @@ a cookbook (79 + 80, 27 topics), training material (81 + 88 + 84, 36 topics) and
 contributions (82 + 83, 3 topics). Three of the seven hold one, two and three topics.
 Collapsing it is independent of everything in this document and can be revisited at any
 time without touching a lane, a setting or a line of code. **Re-offered on 2026-08-25 once
-every other branch had been flattened, and declined again**, so 73 is a settled decision
-and the deliberate exception to a flat tree — not an oversight.
+every other branch had been flattened, and declined again.**
+
+**Resolved 2026-08-26.** 73 stops being an exception: subcategories are the agreed shape for
+documentation categories, and 73 is one. See *Standing decision: subcategories only in
+documentation categories*. Collapsing it is no longer pending — it is declined on principle.
 
 Two residuals recorded earlier are **resolved** by decisions 8 and 11: the three top-level
 names starting with "Recursos" (34 no longer becomes one) and category 85 owning no topics
@@ -620,3 +684,6 @@ PR #30, and is folded into the sections above rather than appended:
 | 13 | Four **instance settings** blocked or distorted the tag model; `max_tags_per_topic` was a hard blocker on Phase 3 | *Instance settings* |
 | 14 | **11 families of near-duplicate tags**; three of them were invisible to a plan written from canonical names | *Vocabulary hygiene* |
 | 15 | PRE and PROD are **not tag-identical**, so Phase 3's counts must be re-measured per instance | *Phase 3* |
+| 16 | **All 15 dissolutions are permission-neutral**; `Certificación` has 375 members against 373 users | *Permissions are neutral* |
+| 17 | The newsletter-widening risk is **void**, and was never real | *Risks*, decision 7 |
+| 18 | **Subcategories only in documentation categories** — a standing rule; 73 stops being an exception | *Standing decision*, *Residual* |
