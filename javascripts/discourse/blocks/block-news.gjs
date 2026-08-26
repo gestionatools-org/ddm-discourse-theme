@@ -16,7 +16,10 @@ import { loadCategoryTopics } from "../lib/category-topics";
     title: { type: "string" },
     linkText: { type: "string" },
     linkUrl: { type: "string" },
-    categoryId: { type: "number", required: true },
+    // Not required any more, so the lane can be registered with no category at
+    // all. Still consumed below: making it optional is what lets the site-wide
+    // test run, not what makes it pass.
+    categoryId: { type: "number" },
     count: { type: "number", default: 4 },
   },
 })

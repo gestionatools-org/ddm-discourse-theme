@@ -15,6 +15,11 @@ import { loadCategoryTopics } from "../lib/category-topics";
     title: { type: "string" },
     linkText: { type: "string" },
     linkUrl: { type: "string" },
+    // Declared, not yet honoured: the template still hardcodes far-comments.
+    // Blocks reject an undeclared arg with an uncaught error that aborts the
+    // whole QUnit run, so the arg has to exist before its test can fail on an
+    // assertion rather than take the other 55 tests down with it.
+    icon: { type: "string", default: "far-comments" },
     categoryId: { type: "number", required: true },
     count: { type: "number", default: 6 },
   },
