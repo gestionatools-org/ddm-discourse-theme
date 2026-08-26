@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A **full Discourse theme** (`"component": false` in `about.json`) for an es|public Discourse **Cloud** instance. It is a *remote theme*: the Discourse instance pulls it from `git@github.com:gestionatools-org/ddm-discourse-theme.git`. There is no build step — Discourse compiles the SCSS/JS itself at install time.
 
-**Which branch an instance tracks can change overnight, without anyone touching anything.** On 2026-08-26 the first `d-compat/2026.8` branch was cut at 01:08 UTC and PRE moved onto it by itself, freezing at `0.17.0` while six PRs landed on `main`. Before concluding that anything merged is live on an instance, check which branch it actually follows — the theme admin page names it — and read that branch's tip. See *Compatibility branches freeze* under **CI**.
+**An instance can stop following `main` without anyone touching anything.** On 2026-08-26 a `d-compat/2026.8` branch was cut automatically at 01:08 UTC and PRE moved onto it by itself, freezing at `0.17.0` while six PRs landed on `main`. The workflow that cut it has been deleted — see *Why this repo no longer cuts compatibility branches* under **CI** — but the lesson outlives it: before concluding that anything merged is live on an instance, read that instance's `remote_theme` record rather than trusting its admin page.
 
 Scaffolded from `discourse/discourse-theme-skeleton`, so upstream conventions apply verbatim.
 
@@ -67,30 +67,57 @@ Valid keys: `login`, `likes`, `profile`, `topics`, `topics:read`, `topics:reply`
 
 ### CI
 
-`.github/workflows/discourse-theme.yml` calls Discourse's shared reusable workflow (lint + system specs against core). `d-compat-branch.yml` runs nightly and cuts compatibility branches automatically — do not hand-edit those branches.
+`.github/workflows/discourse-theme.yml` calls Discourse's shared reusable workflow (lint + system specs against core). It is the only workflow left: `d-compat-branch.yml` was **deleted on 2026-08-26** for the reason below.
 
-### Compatibility branches freeze, and an instance can get stuck on one
+### Why this repo no longer cuts compatibility branches
 
-`d-compat-branch.yml` **creates** a `d-compat/<core-version>` branch and never advances it. The shared workflow's own source is explicit — `Branch #{branch} already exists on origin. Skipping.` — so every later run is a no-op and the branch is a frozen snapshot. That is its purpose.
+`d-compat-branch.yml` was deleted on 2026-08-26 after it froze PRE for nine hours. The whole
+episode is worth keeping, because the failure is silent and the reasoning is not obvious.
 
-**The trap is the day it first appears.** Until core rolls a version there is no compat branch, every instance follows `main`, and everything merged reaches them. Then one nightly run cuts the branch, the instance switches to it on its next update check, and from that moment it receives nothing — while its admin keeps reporting "up-to-date", because with respect to that branch it is. Nothing in the repo announces this. The belief "`main` is what the instances run" is true right up until it silently is not.
+**What the workflow did.** It cut `d-compat/<core-version>` from a fixed base and never
+advanced it — the shared workflow's own source says `Branch #{branch} already exists on
+origin. Skipping.`, so every later run is a no-op. The 01:08 UTC run on 2026-08-26 logged
+`Cutting d-compat/2026.8 from 760df745 (2026-08-25T10:52:10Z)`, the first compat branch this
+repo ever had, and `main` was already a commit past that base. **The branch was born behind
+and stayed there.**
 
-Measured here on 2026-08-26. The 01:08 UTC run logged `New branch name: d-compat/2026.8` and `Cutting d-compat/2026.8 from 760df745 (2026-08-25T10:52:10Z)` — the first compat branch this repo has ever had. Note the base: `main` was already a commit further along (#30 merged 21:15 the evening before), so **the branch was born behind and stayed there**. PRE picked it up that morning and missed six PRs in nine hours.
+**How an instance gets captured.** The theme has no branch pinned — `branch: None` on the
+`remote_theme` record. Discourse looks for a `d-compat/<its own core version>` branch on the
+remote and prefers it over the default branch, recording the result in `remote_compat_ref`.
+PRE reported `remote_compat_ref: d-compat/2026.8`, `commits_behind: 0`, `theme_version
+0.17.0` — perfectly up to date with a branch nobody chose.
 
-This is invisible from the repo. `main` going green and merging says nothing about what any instance is running. The symptom is a feature that is demonstrably on `main` and demonstrably absent from the site, with no error anywhere: a whole homepage lane failed to appear this way, and the missing icon it was hunted through was a red herring — neither the lane nor its `svg_icons` entry existed in the compiled theme.
+**The version it matches is the *current* one, not an older one.** Discourse's latest tag was
+`v2026.8.0` and PRE ran `2026.8.0-latest.1`. So there is no core upgrade that escapes the
+branch: it captures every instance, including one that is fully current. An earlier draft of
+this note claimed the opposite and it was wrong.
 
-Diagnose by reading the branch tip rather than trusting the admin:
+**Why deletion rather than management.** This theme serves instances that track latest core,
+and `minimum_discourse_version` in `about.json` already states what it needs. A compat branch
+therefore protects nothing here and costs the one thing that matters on a development target:
+seeing merged work. Deleting the branch alone would not have held — the nightly run recreates
+it, since the condition is "already exists", not "ever existed" — so the workflow had to go
+with it.
+
+**What is given up.** If an instance ever has to sit on an older core, the mechanism for that
+is `.discourse-compatibility`, which maps core versions to theme commits and is currently
+empty (comments only). That is the deliberate, explicit tool; the branch was the implicit one
+that fired on its own.
+
+**The symptom, so it is recognisable.** A feature demonstrably on `main` and demonstrably
+absent from the site, with no error anywhere. A whole homepage lane failed to appear this way,
+and the missing icon it was hunted through was a red herring — neither the lane nor its
+`svg_icons` entry existed in the compiled theme. Before concluding anything about what an
+instance runs, read its `remote_theme` record:
 
 ```bash
-git log origin/d-compat/2026.8 --oneline -1
-git log origin/d-compat/2026.8..origin/main --oneline   # what the instance is missing
+curl -s -H "Api-Key: $KEY" -H "Api-Username: $USER" "$URL/admin/themes/<id>.json" |
+  python3 -c "import json,sys; rt=json.load(sys.stdin)['theme']['remote_theme']; \
+    print({k: rt[k] for k in ['branch','remote_compat_ref','local_version','commits_behind']})"
 ```
 
-Two fixes, and one non-fix:
-
-- **Point the instance at `main`.** Immediate. If the admin will not change the branch in place, the remote has to be reinstalled — record the instance's theme settings first, since reinstalling can drop them.
-- **Bring the instance's core up to date.** Structural: the branch only captures an instance whose core is a version behind. A development target that lags production cannot do its job.
-- **Do not delete the branch.** It is recreated by the next nightly run — the condition is "already exists", not "ever existed" — so deleting buys one day and loses the audit trail. This is why the rule above says never to hand-edit these branches.
+`remote_compat_ref` being non-null means the instance is not following `main`, whatever the
+admin page says.
 
 ## Architecture
 
