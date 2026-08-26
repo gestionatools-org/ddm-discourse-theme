@@ -59,6 +59,7 @@ en:
     ideas:
       title: "Ideas from the community"
       link_text: "Share an idea"
+      empty: "No ideas yet."
     showcase:
       title: "What our members are making"
       link_text: "See everything"

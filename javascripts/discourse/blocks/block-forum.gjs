@@ -22,6 +22,11 @@ import { loadCategoryTopics } from "../lib/category-topics";
     // `d-icon-<name>` class whether or not the sprite carries the symbol, so a
     // missing entry renders an empty box and every test still passes.
     icon: { type: "string", default: "far-comments" },
+    // The second thing this template hardcoded, after the icon. A lane that
+    // announces the wrong absence — "no conversations" under a heading that
+    // asks for ideas — is the kind of thing nobody notices and nobody can
+    // explain later. The default keeps the forum lane's own call site silent.
+    emptyText: { type: "string", default: "homepage.forum.empty" },
     categoryId: { type: "number", required: true },
     count: { type: "number", default: 6 },
   },
@@ -60,9 +65,7 @@ export default class BlockForum extends Component {
         </:loading>
 
         <:empty>
-          <p class="block-forum__empty">{{i18n
-              (themePrefix "homepage.forum.empty")
-            }}</p>
+          <p class="block-forum__empty">{{i18n (themePrefix @emptyText)}}</p>
         </:empty>
 
         <:content as |topics|>
