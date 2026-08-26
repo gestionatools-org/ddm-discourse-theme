@@ -1,10 +1,10 @@
 # Category reorganisation — design
 
 **Date:** 2026-08-25
-**Amended:** 2026-08-26 — three further renames, six slugs instead of two, and four
-measurements taken while preparing execution. See *Amendments* at the foot of this document.
-**Status:** agreed with the maintainer on 2026-08-25. Phase 5 shipped (PRs #31, #32);
-Phases 1–4 and 6 pending, PRE first.
+**Amended:** 2026-08-26 — renames, slugs, and everything learned while executing Phases 1
+and 2. See *Amendments* at the foot of this document.
+**Status:** agreed 2026-08-25. **Phases 1, 2 and 5 done on PRE**; Phases 3, 4 and 6 pending.
+PROD has had nothing applied to it yet.
 **Scope:** the Gestiona Avanza taxonomy and the theme settings and code that depend on it.
 Every figure here was measured against PROD (`gestionaavanza.espublico.com`), which is the
 authoritative tree; **execution runs on PRE first** — see *Migration plan*.
@@ -206,12 +206,51 @@ Three axes, replacing what subcategories were doing badly.
 
 | Group | Constraint | Tags |
 |---|---|---|
-| **programa** | **required, max 1**, on Usuarios certificados | `administracion-avanzada` ← synonym `caag` · `developers` · `analiza` |
-| **dominio** | optional, multiple | `pid` · `tasas` ← synonym `gestión-tributaria` · `app-movil` ← synonym `app` · `expedientes` · `registro` · `padrón` · `firma` · `tramitación-reglada` · `tesauro` · `markdown` … |
-| **contexto** | per category | `alumno-certificado` ← synonym `posters` · *(new poster-resource tag)* · `campana-2024` / `campana-febrero-2025` / `campana-v9` · `cafe-con-certificados` · `newsletter` · `blog-gestiona` *(Noticias)* · `trucazo` *(Aula de formación)* · `webinars` ← synonyms `seminarios`, `webinar` *(Aula de formación)* · `hackathon-eivissa` *(Comparte)* · `expertos-espublico` · `mejoras` |
+| **Certificaciones** | **max 1 per topic**; required on Usuarios certificados *(deferred — see Phase 2)* | `administracion-avanzada` ← synonym `caag` · `developers` · `analiza` |
+| **dominio** *(not created — optional)* | optional, multiple | `pid` · `tasas` ← synonym `gestión-tributaria` · `app-movil` ← synonyms `app`, `app-móvil` · `expedientes` · `registro` · `padrón` · `firma` · `tramitación-reglada` · `tesauro` ← synonym `tesauros` · `markdown` … |
+| **contexto** | per category | `alumno-certificado` · **`posters`** ← synonym `póster` *(kept independent — see below)* · `campana-2024` / `campana-febrero-2025` / `campana-v9` · `cafe-con-certificados` · `newsletter` · `blog-gestiona` *(Noticias)* · `trucazo` *(Aula de formación)* · `webinars` ← synonyms `seminarios`, `webinar`, `seminario` *(Aula de formación)* · `hackathon-eivissa` *(Comparte)* · `expertos-espublico` · `mejoras` |
 
 **Discourse tag synonyms migrate every existing use automatically**, so adopting
 `administracion-avanzada` keeps `caag`'s 40 taggings rather than discarding them.
+
+### Instance settings the tag model needs
+
+Discovered on 2026-08-26, mid-Phase 2. **PRE was configured as if tags were a marginal
+feature**, and the reorganisation makes them the primary structure. One of the settings was
+a hard blocker on Phase 3.
+
+| Setting | Was | Now | Why it mattered |
+|---|---|---|---|
+| `max_tags_per_topic` | **3** | 7 | **Blocked Phase 3.** Topics already carry 2–3 tags, so appending one more exceeded the cap on 28 of 157 topics scanned in category 5, 60 of 319 in category 18, and 4 of 16 in Trucazos — roughly a hundred topics a bulk *select all → append* could not have touched, failing partway rather than cleanly |
+| `max_tag_length` | **20** | 30 | Truncated `administracion-avanzada` (23 chars) to `administracion-avanz` on entry, which is why the tag was briefly named `admin-avanzada`. `cafe-con-certificados` (21) would have been truncated in Phase 3 |
+| `max_tags_in_filter_list` | **3** | 30 | A three-item filter list against a 218-tag vocabulary |
+| `max_tag_search_results` | **3** | *(still 3)* | Only three suggestions while typing. With 218 tags this actively manufactures duplicates: someone typing "trami" is not shown `tramitación-reglada` and invents a new tag instead |
+
+The last one is unchanged and is the likeliest single cause of the duplicate families below.
+
+### Vocabulary hygiene
+
+A normalised sweep of all 220 tags on 2026-08-26 — accents stripped, hyphens removed, crude
+singular/plural folding — found **11 families of near-duplicates**. Four were merged during
+Phase 2 (`app-móvil`, `seminario`, `póster`, `tesauros`). The rest are recorded rather than
+fixed, because none of them touches a category being dissolved:
+
+| Canonical | Variants still live | Uses adrift |
+|---|---|---|
+| `certificados` (50) | `certificado` (4) | 4 |
+| `evento` (30) | `eventos` (1) | 1 |
+| `búsquedas-avanzadas` (1) | `búsquedasavanzadas` (8) · `busquedasavanzadas` (7) | 15 |
+| `trámites-externos` (5) | `tramitesexternos` (9) | 9 |
+| `integraciones` (7) | `ìntegración` (1) — grave accent, a typo | 1 |
+| `páginas-informativas` (3) | `paginasinformativas` (3) | 3 |
+| `curso` (5) | `cursos` (1) | 1 |
+| `temas-y-categorias` (2) | `temasycategorías` (1) | 1 |
+| `contrato-menor` (1) | `contratomenor` (1) | 1 |
+
+`búsquedas-avanzadas` is the shape of the problem: three spellings of one idea, 16 uses
+between them, and the correctly formed one has a single use. **Canonical is chosen by the
+name worth reading, not by the count** — the same call made for `tasas` (5, absorbing 10) and
+`webinars` (1, absorbing 62).
 
 ### Why tags rather than subcategories
 
@@ -226,13 +265,29 @@ The maintainer's decision, and the data supports it three ways:
 3. **A tag survives reorganisation.** A lane keyed on a category empties silently when
    topics move; a lane keyed on a tag does not, because the topic carries the tag with it.
 
-### The poster-resource tag
+### The poster tag — `posters` is kept and cleaned, not retired
 
-`posters` is unusable as a classifier and is retired into `alumno-certificado`. A fresh tag
-is minted for genuine pósters and applied to the ~17 portrait-image topics. Minting fresh
-rather than stripping `posters` from ~130 topics is deliberate: **everything carrying the
-new tag is there by decision, and the result is auditable.** Stripping leaves no way to tell
-a missed póster from a correctly-cleaned non-póster.
+**Reversed on 2026-08-26**, during Phase 2. The original decision retired `posters` into
+`alumno-certificado` and minted a fresh tag for genuine pósters, on the grounds that
+stripping leaves no way to tell a missed póster from a correctly-cleaned non-póster.
+
+The maintainer's objection: pósters and arrival announcements are becoming two different
+kinds of post, so they deserve two tags — and `posters` is the right word for one of them.
+That is what the original plan wanted too; it only declined to reuse the name.
+
+The auditability argument does not survive a **full** sweep. Stripping *incrementally* is
+what leaves ambiguity. Removing the tag from all 158 topics in one operation and then
+applying it deliberately to the ~17 genuine pósters produces exactly the same guarantee as a
+fresh tag — everything carrying it is there by decision — while keeping a word the community
+has used 158 times.
+
+So `posters` stays independent and Phase 6 cleans it. It absorbed `póster` (2 uses) in
+Phase 2 and stands at **158**.
+
+**One prerequisite, measured 2026-08-26 and easy to miss:** of the 156 topics that carried
+`posters` before that merge, **153 also carry `alumno-certificado` and 3 do not**. Sweeping
+`posters` without adding `alumno-certificado` to those 3 first leaves them with no
+classification at all.
 
 ## Impact on the theme
 
@@ -277,7 +332,7 @@ All three need tests; the existing 47 stay green or are updated alongside.
 **As built:** all three landed, the icon was promoted to an arg and `lightbulb` added to
 `svg_icons`, and `BlockForum` also gained `emptyText` so each lane says something different
 when empty (#32). Tests went 47 → 57. **The tag filter is implemented but not wired to the
-showcase lane** — that is Phase 6, and it waits on the poster-resource tag existing. Nothing
+showcase lane** — that is Phase 6, and it waits on `posters` being cleaned. Nothing
 verifies the `lightbulb` glyph: `dIcon` writes the class whether or not the sprite carries
 the symbol, so a missing entry renders an empty box with every test green.
 
@@ -304,13 +359,51 @@ the six slugs that follow them, and the two promotions (78 and 18 to top level).
 all of it, so no setting changes, no code changes and no lane can break. Verify the six lanes
 still render.
 
-**Phase 2 — tag vocabulary.** Create the `programa` and `dominio` tag groups. Declare the
-synonyms (`caag`, `posters`, `gestión-tributaria`, `app`). Set `programa` required with
-max 1 on Usuarios certificados. No topics move.
+**Phase 2 — tag vocabulary. ✅ Done 2026-08-26.** As executed, which differs from the plan
+in four ways worth keeping.
+
+The tag group is **`Certificaciones`**, holding `administracion-avanzada` (15),
+`analiza` (69) and `developers` (15), max 1 per topic, permissions unrestricted, no parent
+tag. **`dominio` was not created** — it carries no constraint, so it buys grouping in the tag
+picker and nothing else; the decision was to skip it rather than maintain it.
+
+**`programa` required on Usuarios certificados is deliberately deferred to after Phase 3.**
+Its 252 topics carry no programme tag yet, so requiring one now blocks anyone editing an
+existing topic until they add it, for the whole window between the two phases. After the bulk
+tagging the rule is satisfied from the first moment.
+
+Five synonym merges, taking the vocabulary from 226 tags to 218:
+
+| Canonical | Absorbed | Result |
+|---|---|---|
+| `administracion-avanzada` | `caag` | 15 |
+| `tasas` | `gestión-tributaria` | 13 *(2 topics carried both)* |
+| `app-movil` | `app`, **`app-móvil`** | 5 |
+| `webinars` | `seminarios`, `webinar`, **`seminario`** | 54 |
+| `posters` | **`póster`** | 158 |
+| `tesauro` | **`tesauros`** | 81 *(1 overlap)* |
+
+**Three of those the plan did not know about** — `app-móvil`, `seminario`, `póster` — because
+it named canonical forms and the live vocabulary carries accent and singular/plural variants
+of them. A sweep of all 220 tags found **11 such families**; four were merged here, and the
+rest are recorded under *Vocabulary hygiene* below.
+
+Merges are unions, not sums: overlapping topics count once. That is why `tasas` lands on 13
+rather than 15, and it is the signal that the merge worked rather than that anything was
+lost.
 
 **Phase 3 — bulk tagging, per source category, before anything is deleted.** Using the topic
 list's *select all → append tags*, so each category is a few operations rather than one per
 topic:
+
+> **The counts below are PROD's, and PRE does not match them.** Measured 2026-08-26:
+> `caag` 40 on PROD against 15 on PRE, `developers` 24 against 15, `analiza` 62 against 69,
+> `alumno-certificado` 163 against 171. The divergences run in both directions, so PRE is not
+> simply an older copy. **Category IDs are identical on both** — verified the same day, 34
+> against 34 — but tag data is not, so re-measure per instance before trusting a number here.
+>
+> Check `max_tags_per_topic` before starting: it was 3 on PRE and had to be raised to 7. See
+> *Instance settings*.
 
 | Source | Topics | Tags to append |
 |---|---:|---|
@@ -325,7 +418,7 @@ topic:
 | 65 Newsletter | 27 | `newsletter` — **already on 20 of 28**, 8 to append |
 | 66 Blog Gestiona | 9 | `blog-gestiona` |
 | 62 Trucazos | 15 | `administracion-avanzada` — `trucazo` **already on 13** |
-| 67 Webinars | 50 | none: `seminarios` (46) and `webinar` (10) migrate as synonyms of `webinars`; 2 untagged to fix by hand |
+| 67 Webinars | 50 | none: `seminarios`, `webinar` and `seminario` already migrated into `webinars` in Phase 2 (54 uses); 2 untagged to fix by hand |
 | 86 Hackathon | 8 | `hackathon-eivissa` — **none of the 8 carries any tag today** |
 | 34 Recursos compartidos | 5 | none: all five are already tagged by subject |
 
@@ -353,8 +446,11 @@ no category ID surviving anything, and Phases 1 and 2 cannot break it. Tag filte
 `loadCategoryTopics`, news lane to `latest`, `news_category_id` removed, `ideas_*` added,
 57 tests, `theme_version` 0.18.1.
 
-**Phase 6 — pósters.** Review the 34 image-bearing topics in Primeros pasos, apply the
-poster-resource tag to the genuine ones, and point the showcase lane at that tag.
+**Phase 6 — pósters.** Now a cleanup of `posters` rather than the minting of a new tag —
+see *The poster tag* above. In order: add `alumno-certificado` to the **3** topics that carry
+`posters` without it; sweep `posters` off all 158 topics in one operation; review the 34
+image-bearing topics in Primeros pasos and apply `posters` to the ~17 genuine ones; then
+point the showcase lane at that tag with the filter shipped in #31.
 
 **PRE goes first, then PROD.** Decided 2026-08-25. Every phase runs end to end on PRE and
 is checked there before the same sequence is repeated on PROD.
@@ -439,7 +535,7 @@ All resolved with the maintainer on 2026-08-25:
    hangs off. It keeps `administracion-avanzada` as a programme marker, but *optionally*:
    `programa` is required only on Usuarios certificados, so nothing on these 15 topics is forced.
 10. **Webinars (67) becomes a tag on Aula de formación**, canonical `webinars`, with
-   `seminarios` and `webinar` as synonyms so no tagging is lost.
+   `seminarios`, `webinar` and `seminario` as synonyms so no tagging is lost.
 11. **Hackathon (86) dissolves into 85 too**, tagged `hackathon-eivissa`. 85 stops being an
    empty wrapper and becomes a real category of 13 topics with no children: five
    member-contributed how-tos from 34 and eight Hackathon deliverables. All three
@@ -519,3 +615,8 @@ PR #30, and is folded into the sections above rather than appended:
 | 8 | Phase 5 **shipped**; Phase 6 still owns the showcase tag filter and the `lightbulb` check | *Impact on the theme*, *Migration plan* |
 | 9 | Category 5 is **Usuarios certificados**, not *Expertos*; slug `usuarios-certificados` | throughout, *Slugs*, decision 15 |
 | 10 | **PRE runs 0.17.0 from a frozen compat branch** — five lanes, not six | *Migration plan*, `CLAUDE.md` |
+| 11 | Phase 1 **done and verified**; Phase 2 **done** as `Certificaciones`, `dominio` skipped | *Migration plan* |
+| 12 | **`posters` is kept and cleaned**, not retired into `alumno-certificado` — reverses the 2026-08-25 decision | *The poster tag*, *Phase 6* |
+| 13 | Four **instance settings** blocked or distorted the tag model; `max_tags_per_topic` was a hard blocker on Phase 3 | *Instance settings* |
+| 14 | **11 families of near-duplicate tags**; three of them were invisible to a plan written from canonical names | *Vocabulary hygiene* |
+| 15 | PRE and PROD are **not tag-identical**, so Phase 3's counts must be re-measured per instance | *Phase 3* |
