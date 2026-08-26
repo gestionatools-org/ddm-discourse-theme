@@ -62,6 +62,24 @@ function stubStore(owner, topics) {
   );
 }
 
+// Same stub, but it keeps what it was asked for. Used where the assertion is
+// about which listing a lane requests rather than what it renders.
+function recordingStore(owner, topics) {
+  const calls = [];
+  owner.unregister("service:store");
+  owner.register(
+    "service:store",
+    {
+      findFiltered: async (type, options) => {
+        calls.push({ type, options });
+        return { topics };
+      },
+    },
+    { instantiate: false }
+  );
+  return calls;
+}
+
 module("Espublico Theme | Integration | homepage lanes", function (hooks) {
   setupRenderingTest(hooks);
 
@@ -137,6 +155,82 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       assert
         .dom(".block-news__item-excerpt")
         .doesNotIncludeText(":tada:", "no shortcode survives as text");
+    });
+
+    test("reads the site-wide latest list, with no category to point at", async function (assert) {
+      // The lane stopped being category-keyed: pointing it at category 4 made
+      // it 57% arrival announcements, because 4's listing included category
+      // 78's 164 topics. Site-wide `latest` is the honest source for "what's
+      // new" and it cannot be emptied by a category reorganisation.
+      const calls = recordingStore(this.owner, [topic({ id: 900012 })]);
+
+      withPluginApi((api) =>
+        api.renderBlocks("main-outlet-blocks", [
+          {
+            block: BlockNews,
+            args: { title: "homepage.news.title", count: 4 },
+          },
+        ])
+      );
+
+      await render(
+        <template><BlockOutlet @name="main-outlet-blocks" /></template>
+      );
+
+      assert.deepEqual(calls[0].options, { filter: "latest" });
+    });
+  });
+
+  module("ideas lane", function () {
+    test("takes its icon as an arg, so a second forum lane is not stamped with the first one's", async function (assert) {
+      // "Tengo una idea" reuses BlockForum wholesale — same shape, same reply
+      // count promotion, 3.6 replies/topic. The icon was the one thing the
+      // component hardcoded, and two lanes under one icon read as one lane
+      // split in half.
+      stubStore(this.owner, [topic({ id: 900013 })]);
+
+      withPluginApi((api) =>
+        api.renderBlocks("main-outlet-blocks", [
+          {
+            block: BlockForum,
+            args: {
+              title: "homepage.ideas.title",
+              icon: "lightbulb",
+              categoryId: 18,
+              count: 6,
+            },
+          },
+        ])
+      );
+
+      await render(
+        <template><BlockOutlet @name="main-outlet-blocks" /></template>
+      );
+
+      assert.dom(".block-forum__title .d-icon-lightbulb").exists();
+    });
+
+    test("keeps the forum's own icon when none is given", async function (assert) {
+      stubStore(this.owner, [topic({ id: 900014 })]);
+
+      withPluginApi((api) =>
+        api.renderBlocks("main-outlet-blocks", [
+          {
+            block: BlockForum,
+            args: {
+              title: "homepage.forum.title",
+              categoryId: 5,
+              count: 6,
+            },
+          },
+        ])
+      );
+
+      await render(
+        <template><BlockOutlet @name="main-outlet-blocks" /></template>
+      );
+
+      assert.dom(".block-forum__title .d-icon-far-comments").exists();
     });
   });
 
