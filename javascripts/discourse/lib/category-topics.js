@@ -109,6 +109,17 @@ export async function loadCategoryTopics(
 }
 
 /**
+ * Declared but not implemented. Exists so the tests that specify it can run and
+ * fail on their assertions: Rollup hard-fails the whole theme bundle on an
+ * import of a missing export, which takes every test down with it — including
+ * the 47 that were already passing — and reports a compile error rather than a
+ * test failure.
+ */
+export function loadLatestTopics() {
+  return undefined;
+}
+
+/**
  * Parse a `type: list` theme setting into category IDs.
  *
  * Discourse hands list settings to JavaScript as a pipe-separated **string**,
