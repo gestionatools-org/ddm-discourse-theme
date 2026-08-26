@@ -3,8 +3,8 @@
 **Date:** 2026-08-25
 **Amended:** 2026-08-26 — renames, slugs, and everything learned while executing Phases 1
 and 2. See *Amendments* at the foot of this document.
-**Status:** agreed 2026-08-25. **Phases 1, 2 and 5 done on PRE**; Phases 3, 4 and 6 pending.
-PROD has had nothing applied to it yet.
+**Status:** agreed 2026-08-25. **Phases 1, 2, 3 and 5 done on PRE**; Phases 4 and 6 pending.
+Phase 4 is the first that cannot be undone. PROD has had nothing applied to it yet.
 **Scope:** the Gestiona Avanza taxonomy and the theme settings and code that depend on it.
 Every figure here was measured against PROD (`gestionaavanza.espublico.com`), which is the
 authoritative tree; **execution runs on PRE first** — see *Migration plan*.
@@ -208,7 +208,7 @@ Three axes, replacing what subcategories were doing badly.
 
 | Group | Constraint | Tags |
 |---|---|---|
-| **Certificaciones** | **max 1 per topic**; required on Foro del certificado *(deferred — see Phase 2)* | `administracion-avanzada` ← synonym `caag` · `developers` · `analiza` |
+| **`programa-certificacion`** | **max 1 per topic**; required on Foro del certificado *(deferred — see Phase 2)* | `administracion-avanzada` ← synonym `caag` · `developers` · `analiza` |
 | **dominio** *(not created — optional)* | optional, multiple | `pid` · `tasas` ← synonym `gestión-tributaria` · `app-movil` ← synonyms `app`, `app-móvil` · `expedientes` · `registro` · `padrón` · `firma` · `tramitación-reglada` · `tesauro` ← synonym `tesauros` · `markdown` … |
 | **contexto** | per category | `alumno-certificado` · **`posters`** ← synonym `póster` *(kept independent — see below)* · `campana-2024` / `campana-febrero-2025` / `campana-v9` · `cafe-con-certificados` · `newsletter` · `blog-gestiona` *(Noticias)* · `trucazo` *(Aula de formación)* · `webinars` ← synonyms `seminarios`, `webinar`, `seminario` *(Aula de formación)* · `hackathon-eivissa` *(Comparte)* · `expertos-espublico` · `mejoras` |
 
@@ -294,7 +294,7 @@ Agreed 2026-08-26, and it outlives this reorganisation.
 
 **Conversational surfaces are flat.** Noticias, Primeros pasos, Foro del certificado, Tengo
 una idea, Aula de formación, Eventos, Comparte — none of them takes children, now or later.
-Whatever a subcategory would have expressed there is a tag: `Certificaciones` for the
+Whatever a subcategory would have expressed there is a tag: `programa-certificacion` for the
 programme axis, `dominio` for subject, `contexto` for provenance.
 
 **Documentation categories may keep them.** Recursos Analítica (73) and Recursos Developers
@@ -422,10 +422,18 @@ still render.
 **Phase 2 — tag vocabulary. ✅ Done 2026-08-26.** As executed, which differs from the plan
 in four ways worth keeping.
 
-The tag group is **`Certificaciones`**, holding `administracion-avanzada` (15),
+The tag group is **`programa-certificacion`**, holding `administracion-avanzada` (15),
 `analiza` (69) and `developers` (15), max 1 per topic, permissions unrestricted, no parent
 tag. **`dominio` was not created** — it carries no constraint, so it buys grouping in the tag
 picker and nothing else; the decision was to skip it rather than maintain it.
+
+> **The group was first called `Certificaciones` and renamed on 2026-08-26.** There is a
+> *user* group called `Certificación` with 375 members, and a *tag* group called
+> `Certificaciones` one letter away from it. Three different things in this project answer to
+> "group" — user groups (59), tag groups (1) and categories (34) — and the two that shared a
+> name were the two that had nothing to do with each other. `programa-certificacion` restores
+> the axis name this document used from the start. Renaming a tag group touches no tag and no
+> topic.
 
 **`programa` required on Foro del certificado is deliberately deferred to after Phase 3.**
 Its 252 topics carry no programme tag yet, so requiring one now blocks anyone editing an
@@ -544,6 +552,77 @@ Every lane survives and every one grows or holds. The library cards for 85 and 1
 children in Phase 4, and `BlockLibrary` handles that on its own: the subcategory count is
 inside `{{#if card.sections}}`, so those cards simply drop the line rather than printing
 "0 sections". Only 73 keeps showing its seven.
+
+### Phase 3 as executed — ✅ done 2026-08-26
+
+**800 topics across 17 categories, zero `max 1 per topic` conflicts.**
+
+| ID | Category | Topics | Coverage |
+|---|---|---:|---|
+| 54 | Campaña Gestiona V9 | 1 | `campana-v9` 1/1 |
+| 69 | App Móvil | 1 | `administracion-avanzada` · `app-movil` 1/1 |
+| 49 | Proyectos piloto | 1 | `administracion-avanzada` 1/1 |
+| 68 | PID | 4 | `administracion-avanzada` · `pid` 4/4 |
+| 34 | Recursos compartidos | 5 | — none required |
+| 87 | Café con certificados | 6 | `cafe-con-certificados` 6/6 |
+| 86 | Hackathon | 8 | `hackathon-eivissa` 8/8 |
+| 66 | Blog Gestiona | 9 | `blog-gestiona` 9/9 |
+| 62 | Trucazos | 15 | `administracion-avanzada` · `trucazo` 15/15 |
+| 50 | Analiza | 15 | `analiza` 15/15 |
+| 56 | Tasas e impuestos | 20 | `administracion-avanzada` · `tasas` 20/20 |
+| 57 | Campañas de ideas | 20 | `campana-2024` 20/20 |
+| 65 | Newsletter | 27 | `newsletter` 27/27 |
+| 67 | Webinars | 50 | `webinars` 50/50 |
+| 58 | Campaña ideas febrero 2025 | 102 | `campana-febrero-2025` 102/102 |
+| 5 | Foro del certificado | 198 | `administracion-avanzada` **196/198** — correct, see below |
+| 18 | Tengo una idea | 318 | `administracion-avanzada` 318/318 |
+
+#### The two topics that did not take the tag
+
+Category 5 reads 196 of 198, and that is the model working rather than a gap. The two are
+`Nuevo Alumno Certificado: GFD 01` and `GFD 03`, and they already carry **`developers`**.
+`max 1 per topic` refused them a second programme tag.
+
+**In a bulk operation over 198 topics, the partition held itself** — 196 · 2 · 0 overlaps —
+with nobody reading a single row. This is the constraint that Phase 2's group exists for, and
+it earned its place on the first day it was used.
+
+*(Both also carry `alumno-certificado` and `posters`, which is the signature of Primeros
+pasos. They are arrival announcements filed in the general forum. Content curation, outside
+this plan.)*
+
+#### The trap that would have mis-tagged 108 topics
+
+**A category's topic list includes its subcategories', and bulk selection follows the list.**
+Category 5 still has three children — 58, 34 and 54 — so *select all* there reaches 307
+topics, not 199:
+
+```
+listing of 5, unfiltered        : 307 topics → 5:199  58:102  34:5  54:1
+listing of 5, no_subcategories  : 199 topics → 5:199
+```
+
+Without the filter, `administracion-avanzada` would have landed on the 102 February-campaign
+topics, the 5 from Recursos compartidos and the one V9 topic. Use
+`?no_subcategories=true`, or the equivalent control on the category page. **Category 5 was
+the only source with children** — the other fifteen are safe to select wholesale.
+
+#### Two things the original table got wrong
+
+- **Category 49 was missing from it.** One topic, moving to category 5 in Phase 4, which
+  would have arrived as the only topic in the forum with no programme tag.
+- **Category 57 is easy to skip**, and did get skipped on the first pass. It hangs off
+  53 Moderadores, a staff category — and the naming there is crossed: category **3** is named
+  *Administradores* with slug `moderadores`, while category **53** is named *Moderadores*
+  with slug `vota-tu-gestiona`. The URL that reads like the moderators' category is the other
+  one. Both name and slug point away from where 57 actually lives.
+
+#### A tag cannot be minted from the bulk dialog
+
+It only offers tags that already exist. New tags have to be created first — by applying one
+to a single topic by hand, or by typing it into a tag group. There is no standalone "create
+tag" button anywhere in Discourse's admin. This cost a false start on `campana-2024`, which
+the bulk dialog accepted and silently did not apply.
 
 **Phase 4 — move topics**, now that every topic carries the tag that says where it came
 from. Then delete the emptied categories: 34, 62, 65, 66, 67, 86, 87, 58, 54, 57, 53, 50, 49, 56, 68, 69.
@@ -751,7 +830,7 @@ PR #30, and is folded into the sections above rather than appended:
 | 8 | Phase 5 **shipped**; Phase 6 still owns the showcase tag filter and the `lightbulb` check | *Impact on the theme*, *Migration plan* |
 | 9 | Category 5 is **Foro del certificado**, not *Expertos*; slug `foro-del-certificado` | throughout, *Slugs*, decision 15 |
 | 10 | **PRE runs 0.17.0 from a frozen compat branch** — five lanes, not six | *Migration plan*, `CLAUDE.md` |
-| 11 | Phase 1 **done and verified**; Phase 2 **done** as `Certificaciones`, `dominio` skipped | *Migration plan* |
+| 11 | Phase 1 **done and verified**; Phase 2 **done**, `dominio` skipped | *Migration plan* |
 | 12 | **`posters` is kept and cleaned**, not retired into `alumno-certificado` — reverses the 2026-08-25 decision | *The poster tag*, *Phase 6* |
 | 13 | Four **instance settings** blocked or distorted the tag model; `max_tags_per_topic` was a hard blocker on Phase 3 | *Instance settings* |
 | 14 | **11 families of near-duplicate tags**; three of them were invisible to a plan written from canonical names | *Vocabulary hygiene* |
@@ -762,3 +841,6 @@ PR #30, and is folded into the sections above rather than appended:
 | 19 | Category 5 is **Foro del certificado** — three names in one day, back to its own | decision 15 |
 | 20 | Phase 3 has a **measured PRE worksheet**; category 5 holds 196 topics there, not 252 | *Phase 3* |
 | 21 | **No lane setting points at a category Phase 4 deletes**; all six survive | *Lane safety* |
+| 22 | **Phase 3 done** — 800 topics, 17 categories, zero max-1 conflicts | *Phase 3 as executed* |
+| 23 | The tag group is **`programa-certificacion`**, renamed off a collision with the `Certificación` user group | *Phase 2* |
+| 24 | Bulk selection follows subcategories: category 5 would have mis-tagged **108 topics** | *Phase 3 as executed* |
