@@ -86,13 +86,19 @@ showcase_count:
 # is what tells them apart; the image requirement then decides what the grid can
 # actually hang.
 #
+# `poster-evf` is the certification's *evaluación final* poster specifically,
+# renamed from the flat `posters` on 2026-08-27 so that posters tied to an event
+# can carry their own tag — `poster-congreso-2025` for the III Encuentro — rather
+# than being conflated with the ones the programme evaluates. That is why the
+# name is narrow: this lane exhibits member work from the certification, and a
+# congress compilation is a different thing that would otherwise land in it.
+#
 # Empty disables the filter and the lane falls back to the whole category. An
-# unknown tag empties the lane silently, which is why this is a plain string
-# with a default that matches the tag in use rather than a free-text field with
-# no intended value.
+# unknown tag empties the lane silently — which is exactly what a tag rename
+# does, so this default has to be changed in the same pass as the rename.
 showcase_tag:
   type: string
-  default: "posters"
+  default: "poster-evf"
 
 # --- Lane 5: events ---------------------------------------------------------
 # A category listing that carries real event dates where they exist.
