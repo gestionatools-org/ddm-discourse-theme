@@ -909,9 +909,17 @@ gone is the topic-level thumbnail the listing serializes, which is exactly what
 `requireImage` filters on. So the cost is three poster-bearing topics — `/t/2611`, `/t/2574`
 and `/t/2550` — sitting outside the grid pool that would otherwise be 25 rather than 22.
 
-A rebake of the first post is what regenerates it, and that needs admin. **This will repeat
-on PROD**, where the same pass moves the same kind of topic, so budget for it there rather
-than discovering it again.
+**A rebake does not bring it back.** Tried on all three the same afternoon: the pool stayed
+at 22 and `thumbnails` stayed null. What separates the nine that lost a thumbnail from the 49
+that kept one is visible in the cooked HTML — **the survivors' first image resolves to an
+`optimized/` derivative on the CDN, the casualties' to the raw S3 original**. So the topics
+that lost it are exactly those whose listing thumbnail was being served straight from the
+upload, with no derivative to fall back on once the write invalidated it, and rebaking
+generates no derivative either.
+
+**On PROD this bites narrower than it first looked**: only topics whose first image never got
+an optimized derivative. It is still worth knowing before the same pass runs there, because
+the loss is silent and a lane that filters on `image_url` is where it shows up.
 
 #### Two keys, not one
 
@@ -919,6 +927,20 @@ A granular key scoped to `topics: update` **cannot read**: `GET /t/<id>.json` an
 The first run of the executor therefore failed all 115 topics at the read, before attempting
 a single write — visible only because every line said `READ FAILED` rather than `ok`. Reads
 go through the read-only key and writes through the write key; the executor holds both.
+
+#### The tag is `poster-evf`, not `posters`
+
+Renamed the same afternoon, once the sweep had shown what the tag actually marks: **the
+certification's *evaluación final* poster**. The flat `posters` could not stay, because it
+would have to cover two different things — the work the programme evaluates, and the posters
+an event exhibits. With the narrow name each gets its own: `poster-evf` for the 60
+announcements in 78, and **`poster-congreso-2025`** for `/t/1959`, the III Encuentro
+compilation.
+
+`showcase_tag` was moved to the new name in the same pass. **A tag rename empties a
+tag-filtered lane in silence** — the request simply matches nothing — so the setting and the
+rename have to travel together. That is the one coupling this design introduced between the
+taxonomy and the theme, and it is worth stating plainly since nothing reports it.
 
 #### What the posters turned out to be
 

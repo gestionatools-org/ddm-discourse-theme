@@ -560,8 +560,13 @@ failures.** `posters` went from **158 uses to 61**; category 78 from 149 topics 
 received a write lost it — six of them tag-only edits — while the 49 that needed no change
 kept theirs. That contrast isolates the cause: the write, not the move. The post is intact;
 only the topic-level thumbnail is gone, and that is exactly what `requireImage` filters on,
-so three poster-bearing topics fell out of a grid pool that is 22 instead of 25. A rebake of
-the first post restores it, and that needs admin.
+so three poster-bearing topics fell out of a grid pool that is 22 instead of 25.
+
+**A rebake does not bring it back** — tried on all three, pool unchanged. The discriminator is
+in the cooked HTML: the topics that kept a thumbnail have a first image resolving to an
+`optimized/` derivative on the CDN, the ones that lost it resolve to the raw S3 original. They
+were being served the upload itself, and once the write invalidated that there is no
+derivative to fall back on. Narrower than it looked for PROD, and still silent.
 
 **Two keys, not one.** A granular key scoped to `topics: update` cannot read: `GET
 /t/<id>.json` answers 403. The first executor run failed all 115 topics at the read stage
@@ -576,7 +581,14 @@ self-presented poster (Estrella Fadrique, who has no announcement anywhere) and 
 deliverables, which turn out to carry no posters at all — seven of the eight have neither
 image nor attachment.
 
-**Theme.** `showcase_tag` (default `posters`) narrows the grid on top of the category, sent
+**Theme.** `showcase_tag` (default `poster-evf`) narrows the grid on top of the category, sent
 to the server as a `tags` param. Two integration tests: the tag reaches the request, and an
 empty setting means *no filter* rather than `tags: [""]`, which would empty the lane in
 silence. `theme_version` 0.19.0, merged in #45 with all five checks green.
+
+**The tag was renamed the same afternoon.** `posters` → **`poster-evf`**, once the sweep had
+shown what it marks: the certification's *evaluación final* poster, which is not the same
+thing as a poster an event exhibits. The III Encuentro compilation `/t/1959` takes
+`poster-congreso-2025` instead. `showcase_tag` moved with it — **a tag rename empties a
+tag-filtered lane in silence**, because the request just stops matching, so the setting and
+the rename have to ship together. `theme_version` 0.19.1.
