@@ -450,3 +450,79 @@ is measurable rather than aesthetic — category 73's seven children hold 66 top
 have never received a single reply, so there is no conversation to fragment. That
 retires the residual about 73: it is not an exception to a flat tree, it is the rule
 applied to a documentation category.
+
+## 2026-08-27 — Phase 4: the tree comes down, and nothing is lost
+
+**34 categories → 17.** The irreversible phase ran end to end on PRE and, in the event,
+**deleted no topic at all**: the two candidates for the bin were archived instead. 284
+topics moved in 16 operations, 17 categories deleted, six deliberate departures from the
+plan.
+
+The method that made it safe was cheap and worth reusing. **Every move was verified by
+topic ID, not by count.** The source category's listing was captured before the move and
+each topic located in the destination afterwards, so "nothing was lost" is a measurement
+rather than an inference from arithmetic that happens to balance. It also caught the two
+faults below, which no per-category count could have surfaced.
+
+### The trap the plan did not have
+
+Every source category's listing carries its own definition topic, and **only 4 of the 15
+were pinned** — the rest sort by activity, mixed into real content. A *select all → change
+category* takes it along.
+
+That is not cosmetic, and the reason is in the theme. `definitionTopicIds()` builds its
+exclusion set from `Category.list()` via each category's `topic_url`; **delete the source
+category and the entry disappears, so the orphan stops being filtered** and surfaces in the
+lanes as an ordinary recent topic — most visibly in the site-wide news lane. An
+`Acerca de la categoría Newsletter` would have appeared in Noticias, and only after the
+deletion that made it irreversible.
+
+Reading each definition topic's id off the API and handing it over per category was cheaper
+than hunting a title in a 103-row list. All 15 stayed put.
+
+### Two Phase 3 errors that only a full sweep would find
+
+Walking all 441 topics of category 18 after the moves turned up two faults in the bulk
+tagging. `campana-2024` had been applied to category 58's 102 topics as well as category
+57's 20 — 122 uses conflating two campaigns, and the tag is the *only* thing that survives
+those categories being deleted. And the 20 topics arriving from 57 carried no
+`administracion-avanzada`, because Phase 3 swept category 18 while they were still outside
+it.
+
+Both fixed in two operations, and **the order made them exact**: strip `campana-2024` from
+everything carrying `campana-febrero-2025` and precisely the 20 remain, so the second
+filter returning 20 is itself the proof that the first worked.
+
+The generalisable lesson: *bulk-tag a destination after its inbound moves, not before.*
+
+With the categories gone the tag became the classification, so the three were renamed to
+`ideas-2024` / `ideas-2025` / `ideas-v9`, sitting alongside plain `ideas` (319 live ones).
+
+### What the plan got right, and the one thing it missed
+
+The headline risk never materialised. Five lanes are keyed by numeric category ID and the
+fear was that a reorganisation would leave one pointing at a dead ID, rendering empty and
+silently. **No theme setting was retuned and no theme code changed**, because the deletion
+set and the lane set are disjoint — exactly as the *Lane safety* check had predicted the day
+before.
+
+What it missed was an access question. The permissions analysis measured the 15 dissolution
+pairs and found every one neutral, but **category 3 → 14 was never in that table**. Both are
+`read_restricted` to different audiences: 3 is staff, 14 is member groups. Moving nine
+unlisted staff topics there would have widened who could reach them by direct link. The
+maintainer's call — archive them in place, they are disused — made the question moot, and
+cost the library card ten documents it was projected to gain.
+
+### Two facts corrected
+
+**Category listings answer 301, not an empty body.** The 2026-08-26 note claiming
+`/c/<id>/l/latest.json` returns nothing was `curl` without `-L` reporting a redirect it had
+not been told to follow. With `-L` the ID-only form works for top-level categories *and*
+subcategories — which is the shape to use, because the slug form needs the full parent path
+for a child and is itself another 301.
+
+**The homepage is a two-column grid, not a stack of six lanes.** Above 60rem of container
+width `home-main` (news, forum, ideas) and `home-side` (events) sit side by side, with
+showcase and library full-width beneath. Reading the main column top to bottom yields five
+lanes and looks like events has vanished. It has not; it is to the right. Worth knowing
+before diagnosing the next missing lane — the last one turned out to be a frozen instance.

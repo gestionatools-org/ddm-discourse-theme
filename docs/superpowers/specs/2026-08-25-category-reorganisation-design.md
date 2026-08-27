@@ -2,9 +2,11 @@
 
 **Date:** 2026-08-25
 **Amended:** 2026-08-26 — renames, slugs, and everything learned while executing Phases 1
-and 2. See *Amendments* at the foot of this document.
-**Status:** agreed 2026-08-25. **Phases 1, 2, 3 and 5 done on PRE**; Phases 4 and 6 pending.
-Phase 4 is the first that cannot be undone. PROD has had nothing applied to it yet.
+and 2. **2026-08-27 — Phase 4 executed.** See *Amendments* at the foot of this document.
+**Status:** agreed 2026-08-25. **Phases 1 to 5 done on PRE**; only Phase 6 pending.
+Phase 4 ran on 2026-08-27 and took the tree from 34 categories to **17**. It was the phase
+that could not be undone, and in the event it **deleted no topic at all** — every candidate
+for the bin ended up archived instead. PROD has had nothing applied to it yet.
 **Scope:** the Gestiona Avanza taxonomy and the theme settings and code that depend on it.
 Every figure here was measured against PROD (`gestionaavanza.espublico.com`), which is the
 authoritative tree; **execution runs on PRE first** — see *Migration plan*.
@@ -95,10 +97,14 @@ Three more, found on 2026-08-26 while preparing execution:
 - **`topic_count` excludes unlisted topics as well as the definition topic.** Category 3
   reports 8 and its listing returns 18: 18 − 9 unlisted − 1 definition = 8. The two measures
   answer different questions, and the gap is exactly where content hides.
-- **For listings, the endpoint that works is the slug form.** `/c/<id>/l/latest.json`
-  returns an empty body; `/c/<slug>/<id>/l/latest.json` returns 200. That is the opposite of
-  `show.json`, where `/c/<id>/show.json` works and the slug form errors. Both facts are now
-  in `CLAUDE.local.md`; neither is guessable.
+- **Listings redirect; `show.json` does not.** `/c/<id>/l/latest.json` answers **301**, not
+  an empty body as this document first recorded — the empty body was `curl` without `-L`
+  reporting a redirect it had not been told to follow. With `-L` the ID-only form works for
+  top-level categories *and* subcategories, which is the shape to use: the slug form needs
+  the **full parent path** for a child (`/c/noticias/cafe-con-certificados/87/l/latest.json`),
+  and `/c/cafe-con-certificados/87/l/latest.json` is itself just another 301. `show.json`
+  stays ID-only and genuinely errors on the slug form. Corrected 2026-08-27 after the
+  original reading cost a failed measurement pass.
 - **A category's own topics must be filtered by `category_id`** even in its own listing,
   because the listing carries children's topics too. Every count in the *Slugs* and
   *Amendments* sections is filtered that way.
@@ -539,14 +545,19 @@ deleted by Phase 4 : 34 49 50 53 54 56 57 58 62 65 66 67 68 69 86 87
 referenced by lanes: 5 14 18 59 73 78 85
 ```
 
-| Lane | Points at | Topics now → after Phase 4 |
-|---|---|---|
-| news | *(none)* | immune by design — site-wide `latest` since #31 |
-| forum | 5 | 196 → **237** (+41) |
-| ideas | 18 | 318 → **441** (+123) |
-| showcase | 78 | 149 → 149 |
-| events | 59 | 40 → **46** (+6) |
-| library | 73 · 85 · 14 | 66 · 8 → **13** · 89 → **99** |
+| Lane | Points at | Projected | **Actual, 2026-08-27** |
+|---|---|---|---|
+| news | *(none)* | immune by design — site-wide `latest` since #31 | unchanged |
+| forum | 5 | 196 → 237 | **239** — category 71 was dissolved here too |
+| ideas | 18 | 318 → 441 | **441** ✓ |
+| showcase | 78 | 149 → 149 | **149** ✓ |
+| events | 59 | 40 → 46 | **47** — the 7th Café was rescued from 71 |
+| library | 73 · 85 · 14 | 66 · 13 · 99 | **66 · 13 · 89** — see below |
+
+The three divergences are decisions taken during execution, not measurement error, and each
+is recorded under *Phase 4 as executed*. The library figure is the one that moved against
+the plan: category 3's `expertos-espublico` topics were archived in place rather than moved
+to 14, so 14 holds 89 and not 99.
 
 Every lane survives and every one grows or holds. The library cards for 85 and 14 lose their
 children in Phase 4, and `BlockLibrary` handles that on its own: the subcategory count is
@@ -624,8 +635,10 @@ to a single topic by hand, or by typing it into a tag group. There is no standal
 tag" button anywhere in Discourse's admin. This cost a false start on `campana-2024`, which
 the bulk dialog accepted and silently did not apply.
 
-**Phase 4 — move topics**, now that every topic carries the tag that says where it came
-from. Then delete the emptied categories: 34, 62, 65, 66, 67, 86, 87, 58, 54, 57, 53, 50, 49, 56, 68, 69.
+**Phase 4 — move topics. ✅ Done 2026-08-27** — see *Phase 4 as executed* below for what
+actually happened, including six deliberate departures from the plan that follows. Moves come
+first, now that every topic carries the tag that says where it came from. Then delete the
+emptied categories: 34, 62, 65, 66, 67, 86, 87, 58, 54, 57, 53, 50, 49, 56, 68, 69.
 
 Three moves out of category 3 need no tagging first, because their tags are already in place:
 the 10 `expertos-espublico` topics go to **14 Aula de formación**, "Ponencias II encuentro"
@@ -668,7 +681,9 @@ sees it. That is a rehearsal cost, not a defect: PROD carries the real members a
 theme installed yet, so the reorganisation there has no homepage consequence at all until
 the theme ships.
 
-> **PRE is not running what `main` holds.** Found 2026-08-26: PRE follows
+> **RESOLVED 2026-08-26 (#37). Kept because the failure is silent and worth recognising.**
+>
+> **PRE was not running what `main` held.** Found 2026-08-26: PRE followed
 > `d-compat/2026.8`, a compatibility branch frozen at `760df74` (#29), so it is on
 > `theme_version` **0.17.0** and shows **five lanes, not six** — Phase 5's work has never
 > been live there. Its news lane is still keyed on category 4, the state #31 replaced.
@@ -678,8 +693,118 @@ the theme ships.
 > category-keyed, so the protection described under *Settings* — that a reorganisation
 > cannot empty it — does not yet apply to PRE.
 >
-> The fix is to point PRE at `main`; see *Compatibility branches freeze* in `CLAUDE.md`. It
-> is a prerequisite for the lane checks in Phases 1 and 3, not for the category work itself.
+> Fixed by deleting `d-compat-branch.yml` and the branch it had cut; see *Why this repo no
+> longer cuts compatibility branches* in `CLAUDE.md`. PRE has followed `main` since, and the
+> six lanes were confirmed rendering there again at the close of Phase 4.
+
+### Phase 4 as executed — ✅ done 2026-08-27
+
+**34 categories → 17. 284 topics moved in 16 operations. Zero topics deleted.**
+
+Run as three blocks, verified over the API between each one. Every move was checked by
+**topic ID**, not by count: the source's listing was captured before the move and each
+topic located in the destination afterwards. That is what makes "nothing was lost" a
+measurement rather than an inference.
+
+| | |
+|---|---|
+| Categories | 34 → **17** (10 top-level, 9 of them member-visible) |
+| With children | **only 73**, as designed |
+| Topics moved | **284** in block A, plus 4 by hand |
+| Categories deleted | **17** — the 16 planned, plus 71 |
+| Topics deleted | **0** |
+
+Final census: 18 (441) · 5 (239) · 4 (174) · 78 (149) · 14 (89) · 59 (47) · 85 (13) ·
+3 (7) · 75 (2) · 73 (0, with its seven children).
+
+#### The trap the plan did not have: definition topics
+
+Every source category's listing carries its own **"Acerca de la categoría …"** topic, and
+**only 4 of the 15 were pinned** — the rest sort by activity, mixed in with real content. A
+*select all → change category* therefore takes it along, and the result is an orphaned
+definition topic sitting in the destination.
+
+That is not cosmetic. `definitionTopicIds()` in `lib/category-topics.js` builds its exclusion
+set from `Category.list()` via each category's `topic_url`. **Once the source category is
+deleted its entry disappears from that list, so the orphan is no longer filtered** and
+surfaces in the lanes as an ordinary recent topic — most visibly in the site-wide news lane.
+
+The fix is free if you know: untick that one row before each move. Its topic id was read off
+the API and handed over per category, which is cheaper than hunting a title in a 103-row
+list. **All 15 stayed put**, and each deleted category took its own definition topic with it.
+
+One related detail worth keeping: a definition topic's title does **not** follow a category
+rename in general — but on this instance only category 85's had drifted
+(*"Recursos y proyectos compartidos"* under a category called *Comparte*). Category 4's is
+correctly *"Acerca de la categoría Noticias"*. Nothing in the theme reads those titles, since
+`definitionTopicId()` keys on `topic_url`; it is cosmetic debt for Phase 6.
+
+#### Two Phase 3 errors that only a full sweep would find
+
+Walking all 441 topics of category 18 after the moves turned up two faults left by the bulk
+tagging, both fixed the same day and both invisible from any per-category count:
+
+1. **`campana-2024` had been applied to category 58's 102 topics as well as category 57's
+   20.** It stood at 122 uses, conflating two campaigns — and the tag is the *only* thing
+   that survives the deletion of those categories, so the conflation would have been
+   permanent.
+2. **The 20 topics from category 57 arrived without `administracion-avanzada`.** Phase 3
+   tagged category 18 while those topics were still in 57, so the sweep never reached them.
+   They were the only 20 of 441 without the programme tag.
+
+Both were fixed in two operations, and **the order made them exact**: removing
+`campana-2024` from everything carrying `campana-febrero-2025` leaves precisely the 20, so
+the second filter returning 20 is itself the proof that the first operation worked.
+
+The lesson generalises: *bulk-tag a destination category after its inbound moves, not
+before*, or run the sweep again afterwards.
+
+#### The campaign tags were renamed
+
+With the categories gone, the tag is the classification, so it was worth naming properly:
+
+| Was | Is | Topics |
+|---|---|---|
+| `campana-2024` | **`ideas-2024`** | 20 |
+| `campana-febrero-2025` | **`ideas-2025`** | 102 |
+| `campana-v9` | **`ideas-v9`** | 1 |
+
+That leaves a readable family alongside plain `ideas` (319, the live ones). Renaming a tag
+preserves every assignment — verified topic by topic. `ideas-2025` drops the "febrero";
+harmless while the campaigns stay closed.
+
+#### Six departures from the plan, all deliberate
+
+| | Planned | Done | Why |
+|---|---|---|---|
+| Category 71 | archive | **dissolved into 5, deleted** | it had served its purpose; leaves no zombie in the tree |
+| Category 3's 10 `expertos-espublico` topics | move to 14 | **archived in place** | disused, and it avoided the one access question the plan never answered |
+| `/t/843` "Ponencias II encuentro" | move to 59 | **archived in place** | same call |
+| `/t/515` test topic | delete | **archived** | costs nothing to keep |
+| 7th Café con certificados | *(not in the plan)* | **rescued from 71 → 59** | the series was split; archiving 71 would have buried the opening instalment |
+| Campaign tags | keep `campana-*` | **renamed `ideas-*`** | see above |
+
+The access question is worth stating, because the plan's permissions analysis missed it.
+That analysis measured the 15 dissolution pairs and found every one neutral — but **category
+3 → 14 was never in that table.** Both are `read_restricted`, to different audiences: 3 is
+staff, 14 is member groups. Moving nine unlisted staff topics there would have widened who
+could reach them by direct link. Archiving in place made the question moot, and the granular
+API key cannot read category permissions to have settled it either way.
+
+#### What Phase 4 did not need
+
+**No theme setting was retuned, and no theme code changed.** The plan's headline risk was
+five lanes keyed by numeric category ID pointing at categories that a reorganisation might
+delete, rendering empty and silently. It never materialised, for the reason *Lane safety*
+predicted: the deletion set and the lane set are disjoint. All six lanes were confirmed
+rendering on PRE afterwards.
+
+Worth recording for the next reader of this document: **the homepage is a two-column grid,
+not a stack of six lanes.** Above 60rem of container width `home-main` (news, forum, ideas)
+and `home-side` (events) sit side by side, with showcase and library full-width beneath —
+`stylesheets/layouts/homepage.scss:22`. Reading the main column top to bottom yields five
+lanes and looks like events is missing. It is not; it is to the right.
+
 
 ## Risks
 
@@ -844,3 +969,18 @@ PR #30, and is folded into the sections above rather than appended:
 | 22 | **Phase 3 done** — 800 topics, 17 categories, zero max-1 conflicts | *Phase 3 as executed* |
 | 23 | The tag group is **`programa-certificacion`**, renamed off a collision with the `Certificación` user group | *Phase 2* |
 | 24 | Bulk selection follows subcategories: category 5 would have mis-tagged **108 topics** | *Phase 3 as executed* |
+
+**2026-08-27.** From executing Phase 4:
+
+| # | Change | Where |
+|---|---|---|
+| 25 | **Phase 4 done** — 34 categories → 17, 284 topics moved, **zero topics deleted** | *Phase 4 as executed* |
+| 26 | Listings answer **301**, not an empty body; `curl -L` and the ID-only form work for children too | *A measurement trap* |
+| 27 | **Definition topics ride along in a bulk move** and orphan into the destination, where the theme stops filtering them once the source is deleted | *Phase 4 as executed* |
+| 28 | Category 3's 10 `expertos-espublico` topics **archived in place**, not moved — 14 holds 89, not 99 | *Lane safety*, *Phase 4 as executed* |
+| 29 | Category 71 **dissolved into 5 and deleted**, not archived — 5 lands at **239** | *Phase 4 as executed* |
+| 30 | The **7th Café** was rescued from 71 into 59, completing a split series — 59 lands at **47** | *Phase 4 as executed* |
+| 31 | Phase 3 had over-applied `campana-2024` to **102 topics** and left **20** without the programme tag; both fixed | *Phase 4 as executed* |
+| 32 | Campaign tags renamed **`ideas-2024` / `ideas-2025` / `ideas-v9`** | *Phase 4 as executed* |
+| 33 | The permissions analysis never covered **3 → 14**; archiving in place made it moot | *Phase 4 as executed* |
+| 34 | The homepage is a **two-column grid**; events sits beside the first three lanes, not below | *Phase 4 as executed* |
