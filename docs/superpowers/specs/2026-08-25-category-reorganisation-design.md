@@ -3,9 +3,8 @@
 **Date:** 2026-08-25
 **Amended:** 2026-08-26 — renames, slugs, and everything learned while executing Phases 1
 and 2. **2026-08-27 — Phase 4 executed.** See *Amendments* at the foot of this document.
-**Status:** agreed 2026-08-25. **Phases 1 to 5 done on PRE.** Phase 6 is measured and its
-operation list is written — see *Phase 6 — the measured worksheet* — and waits on a key that
-can write.
+**Status:** agreed 2026-08-25. **All six phases done on PRE**, Phase 6 on 2026-08-27:
+115 topics written, 0 failures, `posters` from 158 uses down to 61.
 Phase 4 ran on 2026-08-27 and took the tree from 34 categories to **17**. It was the phase
 that could not be undone, and in the event it **deleted no topic at all** — every candidate
 for the bin ended up archived instead. PROD has had nothing applied to it yet.
@@ -881,6 +880,62 @@ UI — where the 51 keepers have to be picked out of a 149-row list by eye, with
 match against — or a temporary key scoped to `topics: update`, which lets the same list be
 applied **by topic ID** and verified by re-reading every one afterwards.
 
+### Phase 6 as executed — ✅ done 2026-08-27
+
+The second route was taken. **115 topics written, 0 failures**, each one read fresh
+immediately before its write and re-read afterwards.
+
+| | before | after |
+|---|---|---|
+| `posters` uses | 158 | **61** |
+| Category 78 | 149 | **160** |
+| Category 4 | 176 | 167 |
+| Category 5 | 242 | 240 |
+| Showcase grid pool (tag + cover image) | — | **22** |
+
+The 61 are the 51 poster-bearing announcements of 78, the nine that moved in, and `/t/1959`,
+the Encuentro compilation that carries eight posters as images.
+
+#### The write cleared every thumbnail it touched
+
+**Measured, and not predicted by anything in this plan.** A topic updated through
+`PUT /t/-/<id>.json` loses `image_url` in every topic listing. All nine topics that had a
+thumbnail *and* received a write lost it — six of them tag-only edits, three of them moves —
+while the 49 that already carried `posters` and were therefore never written kept theirs.
+That contrast is what isolates the cause: **the write, not the move.**
+
+The post itself is untouched: the image and the PDF are still in the cooked HTML. What is
+gone is the topic-level thumbnail the listing serializes, which is exactly what
+`requireImage` filters on. So the cost is three poster-bearing topics — `/t/2611`, `/t/2574`
+and `/t/2550` — sitting outside the grid pool that would otherwise be 25 rather than 22.
+
+A rebake of the first post is what regenerates it, and that needs admin. **This will repeat
+on PROD**, where the same pass moves the same kind of topic, so budget for it there rather
+than discovering it again.
+
+#### Two keys, not one
+
+A granular key scoped to `topics: update` **cannot read**: `GET /t/<id>.json` answers 403.
+The first run of the executor therefore failed all 115 topics at the read, before attempting
+a single write — visible only because every line said `READ FAILED` rather than `ok`. Reads
+go through the read-only key and writes through the write key; the executor holds both.
+
+#### What the posters turned out to be
+
+Asked directly, and worth recording because it decides what the lane is showing: **the 51 are
+certification deliverables**, not shared resources. Four independent signals agree — 50 of the
+51 titles name a cohort; nobody announces themselves (11 accounts wrote all 51, zero
+self-references); attachment names say *"Evaluación final certificación promoción XVIII"*,
+*"EVF-…-ANALIZA"*, *"Poster Developers"*; and seven of the eight posters exhibited at the III
+Encuentro match a certification announcement word for word by project title.
+
+The exceptions are real but small. **Estrella Fadrique** presented at the Encuentro on her own
+initiative and has no announcement anywhere on the site — her poster exists only inside
+`/t/1959`. And the **Hackathon** deliverables in 85 are write-ups: seven of the eight carry
+neither an image nor an attachment, and only `/t/2362`, the worked example, holds a poster
+(`poster_final_ejemplo_hackathon`, 353×500). Whatever posters that event produced are not on
+the forum.
+
 
 ## Risks
 
@@ -1066,3 +1121,7 @@ PR #30, and is folded into the sections above rather than appended:
 | 38 | The **`alumno-certificado` prerequisite is void**: five topics, not three, and none ends up unclassified | *Phase 6 worksheet*, *The poster tag* |
 | 39 | **Eleven arrival announcements sit outside 78**, nine of them carrying a poster | *Phase 6 worksheet* |
 | 40 | The showcase lane gains **`showcase_tag`**, defaulting to `posters` | *Impact on the theme*, *Code* |
+| 41 | **Phase 6 done** — 115 topics written, `posters` 158 → 61, grid pool 22 | *Phase 6 as executed* |
+| 42 | **A topic write clears its list thumbnail**; nine lost one, three of them poster-bearing | *Phase 6 as executed* |
+| 43 | A `topics: update` key **cannot read** — reads and writes need separate keys | *Phase 6 as executed* |
+| 44 | The posters are **certification deliverables**; the Hackathon's are not on the forum at all | *Phase 6 as executed* |
