@@ -22,6 +22,14 @@ import { loadCategoryTopics } from "../lib/category-topics";
  * against 6 cells. If that ever inverts, the lane simply shows fewer cards and
  * falls back to its empty state at zero, which is the honest outcome for a
  * gallery with nothing to hang.
+ *
+ * `tag` narrows the category before the image test, and the two are not
+ * redundant. The category is not a gallery: every topic in it is an arrival
+ * announcement, and the poster it announces is embedded as an image in some
+ * and attached as a PDF in others. The tag says *this topic carries a poster*;
+ * the image test says *and the grid can show it*. Dropping the tag would hang
+ * whatever picture an announcement happens to carry — a photo, a screenshot of
+ * a dashboard — under a heading about member work.
  */
 @block("theme:espublico:showcase", {
   description: "Image grid of member work",
@@ -31,6 +39,7 @@ import { loadCategoryTopics } from "../lib/category-topics";
     linkUrl: { type: "string" },
     categoryId: { type: "number", required: true },
     count: { type: "number", default: 6 },
+    tag: { type: "string" },
   },
 })
 export default class BlockShowcase extends Component {
@@ -42,7 +51,7 @@ export default class BlockShowcase extends Component {
       this.store,
       this.args.categoryId,
       this.args.count,
-      { requireImage: true }
+      { requireImage: true, tag: this.args.tag }
     );
   }
 

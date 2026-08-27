@@ -91,6 +91,7 @@ export default apiInitializer((api) => {
         linkUrl: `/c/${settings.showcase_category_id}`,
         categoryId: settings.showcase_category_id,
         count: settings.showcase_count,
+        tag: settings.showcase_tag,
       },
     },
     {
