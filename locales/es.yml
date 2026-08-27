@@ -7,6 +7,7 @@ es:
       forum_count: "Cuántos temas del foro mostrar."
       showcase_category_id: "Categoría que se muestra como parrilla de imágenes. Los temas sin imagen de portada no aparecen. 0 oculta la franja."
       showcase_count: "Cuántos trabajos mostrar."
+      showcase_tag: "Limita la parrilla a los temas que llevan esta etiqueta, además de la categoría de arriba. Vacío muestra la categoría entera. Una etiqueta que no existe deja la franja vacía."
       events_category_id: "Categoría que se muestra en la franja de eventos. 0 oculta la franja."
       events_count: "Cuántos eventos mostrar."
       library_category_ids: "Categorías de recursos que se muestran como fichas de directorio en lugar de listas de temas."

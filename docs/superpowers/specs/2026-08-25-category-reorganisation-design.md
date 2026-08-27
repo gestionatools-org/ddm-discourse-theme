@@ -3,7 +3,9 @@
 **Date:** 2026-08-25
 **Amended:** 2026-08-26 — renames, slugs, and everything learned while executing Phases 1
 and 2. **2026-08-27 — Phase 4 executed.** See *Amendments* at the foot of this document.
-**Status:** agreed 2026-08-25. **Phases 1 to 5 done on PRE**; only Phase 6 pending.
+**Status:** agreed 2026-08-25. **Phases 1 to 5 done on PRE.** Phase 6 is measured and its
+operation list is written — see *Phase 6 — the measured worksheet* — and waits on a key that
+can write.
 Phase 4 ran on 2026-08-27 and took the tree from 34 categories to **17**. It was the phase
 that could not be undone, and in the event it **deleted no topic at all** — every candidate
 for the bin ended up archived instead. PROD has had nothing applied to it yet.
@@ -397,8 +399,9 @@ All three need tests; the existing 47 stay green or are updated alongside.
 
 **As built:** all three landed, the icon was promoted to an arg and `lightbulb` added to
 `svg_icons`, and `BlockForum` also gained `emptyText` so each lane says something different
-when empty (#32). Tests went 47 → 57. **The tag filter is implemented but not wired to the
-showcase lane** — that is Phase 6, and it waits on `posters` being cleaned. Nothing
+when empty (#32). Tests went 47 → 57. **The tag filter reached the lane in Phase 6**, as a
+`showcase_tag` setting defaulting to `posters` — see the worksheet for why the tag and the
+image requirement are not redundant. Nothing
 verifies the `lightbulb` glyph: `dIcon` writes the class whether or not the sprite carries
 the symbol, so a missing entry renders an empty box with every test green.
 
@@ -805,6 +808,79 @@ and `home-side` (events) sit side by side, with showcase and library full-width 
 `stylesheets/layouts/homepage.scss:22`. Reading the main column top to bottom yields five
 lanes and looks like events is missing. It is not; it is to the right.
 
+### Phase 6 — the measured worksheet, 2026-08-27
+
+Measured before touching anything: all **1,249 topics** of the 17 categories over the API,
+then the **full post stream** of every topic in 78 and of every stray found outside it. Three
+of the plan's assumptions did not survive the measurement.
+
+**1. Category 78 holds no poster topics.** All 149 of its topics are arrival announcements —
+*"Nuevo compañero certificado · Nombre · CAAG NN"*. The poster is not a topic; it is an
+artifact **inside** the announcement. So `posters` cannot mean "this is a poster". It means
+**this announcement carries the member's poster**, which is what the sweep applies.
+
+**2. The poster comes in two formats, and only one of them can reach the grid.**
+
+| Evidence in the first post | Topics |
+|---|---|
+| Poster embedded as a portrait image (`alt` = the project: `VADOS`, `El Contrato Menor`) | **17** |
+| Poster attached as a PDF (`Poster_AranNartCuny.pdf`, `PÓSTER PROCEDIMIENTO AYUDA ESTUDIO…`) | **36** |
+| Both | 2 |
+| **Carries a poster** | **51** |
+| Carries neither | **98** |
+
+The showcase grid requires `image_url`, so the **34 PDF-only topics can never appear in it**,
+tagged or not. The tag is still worth applying to them: it is a property of the topic, not of
+the lane, and the lane's own filter is what decides what it can hang. Recorded here because
+"tagged but invisible" would otherwise read as a bug later.
+
+**3. The prerequisite in *The poster tag* is void.** It said three topics carry `posters`
+without `alumno-certificado` and must be given it before the sweep, or they end up with no
+classification. Measured today it is **five**, and none of them ends up bare — every one
+keeps other tags. Three are Eventos topics about the *poster contest* at the Encuentro,
+where `alumno-certificado` would be simply false. The step is dropped rather than executed.
+
+**What the sweep would have destroyed, had it been run from the first post alone: nothing.**
+The full-thread scan exists to answer one question — whether any poster hides in a reply,
+where the first-post scan would not see it and the sweep would strip the tag off a topic that
+deserves it. **51 topics carry a poster in the first post; 0 carry one only in a reply.**
+
+**Eleven arrival announcements sit outside 78** — nine in Noticias (4) and two in Foro del
+certificado (5), not the two already on file. Nine carry a poster. They move to 78.
+
+#### The operation list — 115 topics
+
+| Operation | Topics |
+|---|---|
+| Remove `posters` (no poster in the topic) | **103** |
+| Add `posters` (poster present, tag missing) | **6** |
+| Add `alumno-certificado` (arrival announcement left untagged) | 5 |
+| Move to 78 | 11 |
+
+`posters` lands at **61 uses**: 51 in 78, plus the nine strays that move in, plus `/t/1959`
+*"Los pósteres del III Encuentro"*, which carries eight posters as images and is the one
+topic outside 78 that genuinely holds any.
+
+Four topics lose the tag outside 78 and are worth naming, because each is a different way it
+was mis-applied: `/t/2571` is a support question, `/t/2248` is a forum improvement,
+`/t/1924` and `/t/1931` announce the poster *contest* without carrying a poster.
+
+#### What this leaves the showcase lane
+
+**22 topics in 78 carry both the tag and a cover image**, plus `/t/2550` and `/t/2611` once
+they move in — **24 cards for a 6-cell grid**. Six of the 24 lead with a photo or a dashboard
+screenshot rather than the poster itself, since the poster is their PDF; the grid hangs the
+image the topic has.
+
+#### Executing it needs a key that can write
+
+The granular PRE key in `.env.local` is read-only: `PUT /t/-/<id>.json` answers
+**403 `invalid_access`**. It reads every listing, every topic and every tag this worksheet was
+built from, and cannot change one of them. Applying the list therefore needs either the admin
+UI — where the 51 keepers have to be picked out of a 149-row list by eye, with only titles to
+match against — or a temporary key scoped to `topics: update`, which lets the same list be
+applied **by topic ID** and verified by re-reading every one afterwards.
+
 
 ## Risks
 
@@ -984,3 +1060,9 @@ PR #30, and is folded into the sections above rather than appended:
 | 32 | Campaign tags renamed **`ideas-2024` / `ideas-2025` / `ideas-v9`** | *Phase 4 as executed* |
 | 33 | The permissions analysis never covered **3 → 14**; archiving in place made it moot | *Phase 4 as executed* |
 | 34 | The homepage is a **two-column grid**; events sits beside the first three lanes, not below | *Phase 4 as executed* |
+| 35 | **Category 78 holds no poster topics** — all 149 are arrival announcements, and the poster is an artifact inside them | *Phase 6 worksheet*, *The poster tag* |
+| 36 | The poster is an **image in 17 topics and a PDF in 36**; the PDF-only ones can never reach the grid | *Phase 6 worksheet* |
+| 37 | **No poster hides in a reply** — 51 in first posts, 0 in replies, which is what makes the sweep safe | *Phase 6 worksheet* |
+| 38 | The **`alumno-certificado` prerequisite is void**: five topics, not three, and none ends up unclassified | *Phase 6 worksheet*, *The poster tag* |
+| 39 | **Eleven arrival announcements sit outside 78**, nine of them carrying a poster | *Phase 6 worksheet* |
+| 40 | The showcase lane gains **`showcase_tag`**, defaulting to `posters` | *Impact on the theme*, *Code* |

@@ -314,6 +314,71 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
         .dom(".block-showcase__card-image")
         .hasAttribute("src", "/uploads/poster.png");
     });
+
+    test("asks the server for the tagged subset of the category", async function (assert) {
+      // The image test alone is not enough. Every topic in the showcase
+      // category is an arrival announcement, and roughly a third of them carry
+      // the poster the lane exists to exhibit; the rest carry a photo, a
+      // screenshot, or nothing. Only the tag separates them, and it has to
+      // reach the server: the poster-bearing topics are spread across the whole
+      // category, not across the page a single request returns.
+      const calls = recordingStore(this.owner, [
+        topic({ id: 900032, image_url: "/uploads/poster.png" }),
+      ]);
+
+      withPluginApi((api) =>
+        api.renderBlocks("main-outlet-blocks", [
+          {
+            block: BlockShowcase,
+            args: {
+              title: "homepage.showcase.title",
+              categoryId: 78,
+              count: 6,
+              tag: "posters",
+            },
+          },
+        ])
+      );
+
+      await render(
+        <template><BlockOutlet @name="main-outlet-blocks" /></template>
+      );
+
+      assert.deepEqual(calls[0].options, {
+        filter: "c/78/l/latest",
+        params: { tags: ["posters"] },
+      });
+    });
+
+    test("requests the whole category when no tag is configured", async function (assert) {
+      // The setting is a free-text string, so "unset" is the empty string. It
+      // has to mean *no filter* rather than `tags: [""]`, which matches nothing
+      // and would empty the grid without an error anywhere.
+      const calls = recordingStore(this.owner, [
+        topic({ id: 900033, image_url: "/uploads/poster.png" }),
+      ]);
+
+      withPluginApi((api) =>
+        api.renderBlocks("main-outlet-blocks", [
+          {
+            block: BlockShowcase,
+            args: {
+              title: "homepage.showcase.title",
+              categoryId: 78,
+              count: 6,
+              tag: "",
+            },
+          },
+        ])
+      );
+
+      await render(
+        <template><BlockOutlet @name="main-outlet-blocks" /></template>
+      );
+
+      assert.deepEqual(calls[0].options, { filter: "c/78/l/latest" });
+      assert.dom(".block-showcase__card").exists({ count: 1 });
+    });
   });
 
   module("events lane", function () {

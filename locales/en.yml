@@ -9,6 +9,7 @@ en:
       ideas_count: "How many ideas to show."
       showcase_category_id: "Category shown as an image grid. Topics without a cover image degrade to a text card. 0 hides the lane."
       showcase_count: "How many showcase entries to show."
+      showcase_tag: "Restricts the showcase grid to topics carrying this tag, on top of the category above. Empty shows the whole category. A tag that does not exist empties the lane."
       events_category_id: "Category shown in the events lane. 0 hides the lane."
       events_count: "How many events to show."
       library_category_ids: "Reference categories rendered as directory cards instead of topic lists."
