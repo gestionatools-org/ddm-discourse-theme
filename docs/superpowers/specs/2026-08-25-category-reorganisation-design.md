@@ -921,10 +921,21 @@ topics whose image had no optimized derivative; that was an artifact of reading 
 casualties now show optimized derivatives and still have no thumbnail.**
 
 What is measured, and enough to work from: **a write costs a topic its place in any lane that
-filters on `image_url`, and nothing tried has given it back.** That makes it a real price on
-any bulk tagging pass — five of the 22 topics in the showcase pool would drop out if they
-were tagged — and it is the reason to ask what a tag buys before applying it to topics the
-grid is already showing.
+filters on `image_url`, and nothing tried has given it back.**
+
+**Both write routes do it.** The admin bulk dialog goes through `PUT /topics/bulk.json` with
+`append_tags`, a different endpoint from the whole-topic `PUT /t/-/<id>.json`, and the hope
+was that it only touched tags. Tested on one topic that was in the grid pool, with the
+thumbnail measured either side: **the tag landed and the thumbnail went.** So there is no
+cheap route, and the cost is a property of tagging a topic, not of the tool used.
+
+The price was then paid deliberately. Tagging the seven III Encuentro announcements with
+`poster-congreso-2025` took the showcase pool from **22 to 17** — five of the seven were in
+it. Seventeen cards for six cells is still a rotation, and the tag was judged worth it.
+
+**Unresolved: whether it comes back on its own.** Nothing recovered within the session, and a
+rebake does not do it, but no one has looked a day later. Worth checking before the PROD pass
+plans around it.
 
 #### Two keys, not one
 
@@ -941,6 +952,12 @@ would have to cover two different things — the work the programme evaluates, a
 an event exhibits. With the narrow name each gets its own: `poster-evf` for the 60
 announcements in 78, and **`poster-congreso-2025`** for `/t/1959`, the III Encuentro
 compilation.
+
+`poster-congreso-2025` ended up on eight topics: `/t/1959` and the seven announcements whose
+poster was exhibited. `/t/1959` gave up `poster-evf` in the same edit, which leaves that tag
+at **60 uses, all of them inside category 78** — the shape the lane wants, since the lane
+reads nothing else. The eighth poster at that congress belongs to someone with no announcement
+anywhere on the site, so it exists only inside the compilation.
 
 `showcase_tag` was moved to the new name in the same pass. **A tag rename empties a
 tag-filtered lane in silence** — the request simply matches nothing — so the setting and the
