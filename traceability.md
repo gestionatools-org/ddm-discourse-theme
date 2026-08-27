@@ -526,3 +526,57 @@ width `home-main` (news, forum, ideas) and `home-side` (events) sit side by side
 showcase and library full-width beneath. Reading the main column top to bottom yields five
 lanes and looks like events has vanished. It has not; it is to the right. Worth knowing
 before diagnosing the next missing lane — the last one turned out to be a frozen instance.
+
+## 2026-08-27 — Phase 6: the poster tag becomes true, and a write costs nine thumbnails
+
+**Goal.** Close the category reorganisation: clean the `posters` tag so it means something,
+wire the showcase lane to it, and pull the stray arrival announcements into the category
+that owns them.
+
+**Measured before touching anything.** All 1,249 topics of the 17 categories over the API,
+then the **full post stream** of every topic in category 78. Three of the plan's assumptions
+did not survive it:
+
+- **78 holds no poster topics.** All 149 are arrival announcements; the poster is an artifact
+  *inside* them. So `posters` cannot mean "this is a poster" — it means *this announcement
+  carries one*.
+- **The poster comes in two formats.** Embedded as a portrait image in 17 topics, attached as
+  a PDF in 36, absent in 98. The grid needs `image_url`, so **the 34 PDF-only ones can never
+  appear in it**, tagged or not.
+- **The `alumno-certificado` prerequisite was void.** Five topics, not three, and none would
+  have been left unclassified; three were Eventos topics about the poster *contest*, where
+  the tag would have been false.
+
+**The check that made the sweep safe.** The first-post scan cannot see a poster posted in a
+reply, and stripping the tag off such a topic would be a silent, unrecoverable loss of
+signal. The full-thread scan answered it: **51 posters in first posts, 0 only in replies.**
+
+**Executed.** 115 topics — 103 tag removals, 6 additions, 5 `alumno-certificado` fixes,
+11 moves into 78 — each read fresh immediately before its write and re-read after. **0
+failures.** `posters` went from **158 uses to 61**; category 78 from 149 topics to 160.
+
+**The finding that will repeat on PROD.** A topic updated through `PUT /t/-/<id>.json`
+**loses its `image_url` in every topic listing.** All nine topics that had a thumbnail and
+received a write lost it — six of them tag-only edits — while the 49 that needed no change
+kept theirs. That contrast isolates the cause: the write, not the move. The post is intact;
+only the topic-level thumbnail is gone, and that is exactly what `requireImage` filters on,
+so three poster-bearing topics fell out of a grid pool that is 22 instead of 25. A rebake of
+the first post restores it, and that needs admin.
+
+**Two keys, not one.** A granular key scoped to `topics: update` cannot read: `GET
+/t/<id>.json` answers 403. The first executor run failed all 115 topics at the read stage
+before attempting a single write — no damage, but the run looked complete until the log was
+counted rather than skimmed.
+
+**What the posters are.** Certification deliverables, on four independent signals: 50 of 51
+titles name a cohort; nobody announces themselves; the attachments say *"Evaluación final
+certificación"*; and seven of the eight posters exhibited at the III Encuentro match a
+certification announcement word for word by project title. The exceptions are one
+self-presented poster (Estrella Fadrique, who has no announcement anywhere) and the Hackathon
+deliverables, which turn out to carry no posters at all — seven of the eight have neither
+image nor attachment.
+
+**Theme.** `showcase_tag` (default `posters`) narrows the grid on top of the category, sent
+to the server as a `tags` param. Two integration tests: the tag reaches the request, and an
+empty setting means *no filter* rather than `tags: [""]`, which would empty the lane in
+silence. `theme_version` 0.19.0, merged in #45 with all five checks green.
