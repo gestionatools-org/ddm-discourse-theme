@@ -624,3 +624,15 @@ card.
 
 Still unresolved is whether a lost thumbnail returns after a day; nothing recovered within the
 session.
+
+**The lane went empty, and the instance was the reason.** Renaming the tag on PRE broke the
+showcase lane even though the theme fix had merged 40 minutes earlier: **a remote theme does
+not pull on merge.** PRE was still on #45, filtering by `posters`, and its theme record said
+`commits_behind: 0` — true of its last check, which ran at 10:46, before the fix merged at
+11:20. Zero results, no error, an empty lane, and a record claiming everything was current.
+
+Fixed twice over: the setting written directly onto the instance
+(`PUT /admin/themes/15/setting.json`), which fixes it in seconds, and then a forced pull
+(`PUT /admin/themes/15.json` with `theme[remote_update]`) to bring the instance to main.
+`POST /admin/themes/<id>/update.json` is a 404. Read `updated_at` next to `commits_behind`,
+because the reassuring number is the one that lies.
