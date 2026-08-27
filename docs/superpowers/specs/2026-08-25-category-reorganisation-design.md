@@ -953,22 +953,29 @@ an event exhibits. With the narrow name each gets its own: `poster-evf` for the 
 announcements in 78, and **`poster-congreso-2025`** for `/t/1959`, the III Encuentro
 compilation.
 
-`poster-congreso-2025` ended up on eight topics: `/t/1959` and the seven announcements whose
-poster was exhibited. The eighth poster at that congress belongs to someone with no
-announcement anywhere on the site, so it exists only inside the compilation.
+`poster-congreso-2025` ends up on **one topic**: `/t/1959`, the compilation. `poster-evf`
+stands at **60**, all inside category 78.
 
-**The two tags are exclusive.** All eight gave up `poster-evf`, which leaves it at **53 uses,
-all inside category 78**. A poster is tagged by the venue it was presented at, not by every
-venue it could be claimed for — so the seven congress posters are congress posters, full stop,
-even though their project titles match the certification's own evaluation. Stripping them cost
-nothing further: every one had already lost its thumbnail to the write that tagged it, so the
-grid pool stayed at 17.
+It took a round trip to get there, and the round trip is the part worth keeping. Seven
+announcements were tagged `poster-congreso-2025` and stripped of `poster-evf` first, on the
+strength of a title match: the eight posters exhibited at the III Encuentro carry the exhibitor's
+name and project, and seven matched an announcement in 78 word for word. **The match was real
+and the conclusion drawn from it was wrong.** It proved that *the poster* was exhibited at the
+congress; it said nothing about what *the topic* is. The topic is an arrival announcement whose
+poster is the certification's evaluation deliverable, and the tag describes the topic. All seven
+were reverted.
+
+**A tag edit is logically reversible and physically is not.** Reverting the tags did not revert
+what the writes cost: five of the seven were in the showcase grid, every write clears a topic's
+thumbnail, and **the pool went 22 → 17 and stayed there** after an operation that was undone in
+full. That is the practical consequence of the thumbnail finding above, and it changes how a
+tagging pass should be run: the scope has to be settled *before* the first write, because
+"we can always untag it" buys back the tag and not the card.
 
 **The lane reads one tag, not a set.** `showcase_tag` is a single string and
-`loadCategoryTopics` passes one value, so the grid shows `poster-evf` and nothing else. With
-the exclusivity above that is a real exclusion, not a formality: a congress poster cannot
-appear in the showcase. It costs nothing today because none of the seven has a thumbnail left,
-and it is the kind of thing the homepage redesign should decide rather than a tag pass.
+`loadCategoryTopics` passes one value, so the grid shows `poster-evf` and nothing else. Moot
+while the only other poster tag sits on a topic outside category 78, but it is what the
+homepage redesign would have to change if event posters were ever meant to appear there.
 
 `showcase_tag` was moved to the new name in the same pass. **A tag rename empties a
 tag-filtered lane in silence** — the request simply matches nothing — so the setting and the

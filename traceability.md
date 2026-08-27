@@ -606,14 +606,21 @@ not to the tool.
 
 So the price was paid on purpose: `poster-congreso-2025` on the eight III Encuentro topics
 took the showcase pool from **22 to 17**, five of the seven announcements having been in it.
-**The two tags ended up exclusive**: all eight gave up `poster-evf`, which leaves it at 53
-uses, all inside category 78. A poster is tagged by the venue it was presented at, not by
-every venue it could be claimed for. Stripping the seven cost nothing further — each had
-already lost its thumbnail to the write that tagged it — so the pool stayed at 17.
+**`poster-congreso-2025` ends on one topic**, `/t/1959`, and `poster-evf` on 60, all inside
+category 78. Getting there took a round trip worth keeping.
 
-One consequence to carry into the homepage redesign: `showcase_tag` is a single string, so the
-grid shows `poster-evf` and only that. A congress poster cannot appear in it. Free today, since
-none of the seven has a thumbnail left.
+Seven announcements were tagged as congress posters first, on a title match: the eight posters
+exhibited at the III Encuentro name their exhibitor and project, and seven matched an
+announcement word for word. The match was real; the conclusion was wrong. It proved that *the
+poster* was exhibited, not that *the topic* is a congress topic — the topic is an arrival
+announcement whose poster is the evaluation deliverable, and the tag describes the topic. All
+seven were reverted.
+
+**What did not revert is the cost.** Five of the seven were in the showcase grid, every write
+clears a thumbnail, and the pool went 22 → 17 and stayed there after an operation undone in
+full. A tag edit is logically reversible and physically is not, so the scope of a tagging pass
+has to be settled before the first write: "we can always untag it" buys back the tag, not the
+card.
 
 Still unresolved is whether a lost thumbnail returns after a day; nothing recovered within the
 session.
