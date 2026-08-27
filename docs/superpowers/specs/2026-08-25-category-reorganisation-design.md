@@ -954,10 +954,21 @@ announcements in 78, and **`poster-congreso-2025`** for `/t/1959`, the III Encue
 compilation.
 
 `poster-congreso-2025` ended up on eight topics: `/t/1959` and the seven announcements whose
-poster was exhibited. `/t/1959` gave up `poster-evf` in the same edit, which leaves that tag
-at **60 uses, all of them inside category 78** — the shape the lane wants, since the lane
-reads nothing else. The eighth poster at that congress belongs to someone with no announcement
-anywhere on the site, so it exists only inside the compilation.
+poster was exhibited. The eighth poster at that congress belongs to someone with no
+announcement anywhere on the site, so it exists only inside the compilation.
+
+**The two tags are exclusive.** All eight gave up `poster-evf`, which leaves it at **53 uses,
+all inside category 78**. A poster is tagged by the venue it was presented at, not by every
+venue it could be claimed for — so the seven congress posters are congress posters, full stop,
+even though their project titles match the certification's own evaluation. Stripping them cost
+nothing further: every one had already lost its thumbnail to the write that tagged it, so the
+grid pool stayed at 17.
+
+**The lane reads one tag, not a set.** `showcase_tag` is a single string and
+`loadCategoryTopics` passes one value, so the grid shows `poster-evf` and nothing else. With
+the exclusivity above that is a real exclusion, not a formality: a congress poster cannot
+appear in the showcase. It costs nothing today because none of the seven has a thumbnail left,
+and it is the kind of thing the homepage redesign should decide rather than a tag pass.
 
 `showcase_tag` was moved to the new name in the same pass. **A tag rename empties a
 tag-filtered lane in silence** — the request simply matches nothing — so the setting and the

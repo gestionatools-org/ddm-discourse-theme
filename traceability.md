@@ -606,6 +606,14 @@ not to the tool.
 
 So the price was paid on purpose: `poster-congreso-2025` on the eight III Encuentro topics
 took the showcase pool from **22 to 17**, five of the seven announcements having been in it.
-`/t/1959` gave up `poster-evf` in the same pass, leaving that tag at 60 uses, all inside
-category 78. Still unresolved is whether a lost thumbnail returns after a day; nothing
-recovered within the session.
+**The two tags ended up exclusive**: all eight gave up `poster-evf`, which leaves it at 53
+uses, all inside category 78. A poster is tagged by the venue it was presented at, not by
+every venue it could be claimed for. Stripping the seven cost nothing further — each had
+already lost its thumbnail to the write that tagged it — so the pool stayed at 17.
+
+One consequence to carry into the homepage redesign: `showcase_tag` is a single string, so the
+grid shows `poster-evf` and only that. A congress poster cannot appear in it. Free today, since
+none of the seven has a thumbnail left.
+
+Still unresolved is whether a lost thumbnail returns after a day; nothing recovered within the
+session.
