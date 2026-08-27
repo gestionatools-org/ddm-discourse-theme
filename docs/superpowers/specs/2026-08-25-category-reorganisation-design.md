@@ -931,7 +931,14 @@ cheap route, and the cost is a property of tagging a topic, not of the tool used
 
 The price was then paid deliberately. Tagging the seven III Encuentro announcements with
 `poster-congreso-2025` took the showcase pool from **22 to 17** — five of the seven were in
-it. Seventeen cards for six cells is still a rotation, and the tag was judged worth it.
+it.
+
+**And "pool" flatters the lane.** `loadCategoryTopics` fetches **one page** — the 30 most
+recently active topics of the category-and-tag listing — and applies the image test to that
+page. Of the 17 topics that satisfy all three filters, only **10 fall inside that page**; the
+other seven sit further down the listing and cannot reach the grid until activity brings them
+forward. So the real margin over six cells is four, not eleven. Every "pool" figure in this
+document is the count that passes the filters, not the count the lane can actually see.
 
 **Unresolved: whether it comes back on its own.** Nothing recovered within the session, and a
 rebake does not do it, but no one has looked a day later. Worth checking before the PROD pass

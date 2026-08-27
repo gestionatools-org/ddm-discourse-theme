@@ -606,6 +606,9 @@ not to the tool.
 
 So the price was paid on purpose: `poster-congreso-2025` on the eight III Encuentro topics
 took the showcase pool from **22 to 17**, five of the seven announcements having been in it.
+And "pool" flatters the lane: it fetches one page, the 30 most recently active topics of the
+filtered listing, so only **10 of the 17** are reachable at all. The margin over six cells is
+four.
 **`poster-congreso-2025` ends on one topic**, `/t/1959`, and `poster-evf` on 60, all inside
 category 78. Getting there took a round trip worth keeping.
 
