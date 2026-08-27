@@ -562,11 +562,16 @@ kept theirs. That contrast isolates the cause: the write, not the move. The post
 only the topic-level thumbnail is gone, and that is exactly what `requireImage` filters on,
 so three poster-bearing topics fell out of a grid pool that is 22 instead of 25.
 
-**A rebake does not bring it back** — tried on all three, pool unchanged. The discriminator is
-in the cooked HTML: the topics that kept a thumbnail have a first image resolving to an
-`optimized/` derivative on the CDN, the ones that lost it resolve to the raw S3 original. They
-were being served the upload itself, and once the write invalidated that there is no
-derivative to fall back on. Narrower than it looked for PROD, and still silent.
+**A rebake does not bring it back** — tried on all three, pool unchanged. It is not inert: the
+post is re-cooked and its HTML now points at an `optimized/` derivative where it pointed at
+the raw S3 upload. The topic-level thumbnail stays gone.
+
+**Two explanations of why have already been wrong** — that a rebake would fix it, and that the
+casualties were topics whose image lacked an optimized derivative. The second came from
+reading one topic before its rebake and comparing it against one that had never been written;
+all nine casualties now show optimized derivatives and still have no thumbnail. What is
+measured is the price, not the mechanism: **a write costs a topic its place in any lane that
+filters on `image_url`**, and nothing tried gives it back.
 
 **Two keys, not one.** A granular key scoped to `topics: update` cannot read: `GET
 /t/<id>.json` answers 403. The first executor run failed all 115 topics at the read stage

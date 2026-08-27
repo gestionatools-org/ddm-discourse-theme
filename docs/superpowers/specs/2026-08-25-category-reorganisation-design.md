@@ -910,16 +910,21 @@ gone is the topic-level thumbnail the listing serializes, which is exactly what
 and `/t/2550` — sitting outside the grid pool that would otherwise be 25 rather than 22.
 
 **A rebake does not bring it back.** Tried on all three the same afternoon: the pool stayed
-at 22 and `thumbnails` stayed null. What separates the nine that lost a thumbnail from the 49
-that kept one is visible in the cooked HTML — **the survivors' first image resolves to an
-`optimized/` derivative on the CDN, the casualties' to the raw S3 original**. So the topics
-that lost it are exactly those whose listing thumbnail was being served straight from the
-upload, with no derivative to fall back on once the write invalidated it, and rebaking
-generates no derivative either.
+at 22 and `thumbnails` stayed null. The rebake is not inert — it re-cooks the post, and the
+cooked HTML afterwards points at an `optimized/` derivative on the CDN where it had pointed
+at the raw S3 upload — but the topic-level thumbnail stays gone.
 
-**On PROD this bites narrower than it first looked**: only topics whose first image never got
-an optimized derivative. It is still worth knowing before the same pass runs there, because
-the loss is silent and a lane that filters on `image_url` is where it shows up.
+**The mechanism is not established, and two guesses at it have already been wrong.** The
+first said a rebake would restore it; it does not. The second said the casualties were the
+topics whose image had no optimized derivative; that was an artifact of reading `/t/2611`
+*before* its rebake and comparing it against a topic that had never been written. **All nine
+casualties now show optimized derivatives and still have no thumbnail.**
+
+What is measured, and enough to work from: **a write costs a topic its place in any lane that
+filters on `image_url`, and nothing tried has given it back.** That makes it a real price on
+any bulk tagging pass — five of the 22 topics in the showcase pool would drop out if they
+were tagged — and it is the reason to ask what a tag buys before applying it to topics the
+grid is already showing.
 
 #### Two keys, not one
 
