@@ -597,3 +597,15 @@ thing as a poster an event exhibits. The III Encuentro compilation `/t/1959` tak
 `poster-congreso-2025` instead. `showcase_tag` moved with it — **a tag rename empties a
 tag-filtered lane in silence**, because the request just stops matching, so the setting and
 the rename have to ship together. `theme_version` 0.19.1.
+
+**Both write routes clear the thumbnail.** The admin bulk dialog uses `PUT /topics/bulk.json`
+with `append_tags`, a different endpoint from the whole-topic update, and the hope was that it
+only touched tags. Tested on one pool topic with the thumbnail measured either side: the tag
+landed and the thumbnail went. There is no cheap route — the cost belongs to tagging a topic,
+not to the tool.
+
+So the price was paid on purpose: `poster-congreso-2025` on the eight III Encuentro topics
+took the showcase pool from **22 to 17**, five of the seven announcements having been in it.
+`/t/1959` gave up `poster-evf` in the same pass, leaving that tag at 60 uses, all inside
+category 78. Still unresolved is whether a lost thumbnail returns after a day; nothing
+recovered within the session.
