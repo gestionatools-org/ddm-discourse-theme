@@ -82,6 +82,32 @@ body.has-sidebar-page .sidebar-wrapper {
 #main-outlet {
   --d-max-width: var(--ga-measure);
   max-width: var(--ga-measure);
+
+  // `width: 100%` is load-bearing, and its absence was a bug for as long as
+  // this rule has existed.
+  //
+  // `#main-outlet` is a grid *item* — core makes the wrapper `display: grid`
+  // unconditionally — and on a grid item `margin-inline: auto` overrides the
+  // default `stretch`, so the item is sized to fit-content and then centred in
+  // its area. The measure below is then a cap on a shrink-to-fit box rather
+  // than the width of the column.
+  //
+  // On a listing that is invisible: the topic list is a table whose intrinsic
+  // width fills whatever it is given, so fit-content lands on the column width
+  // anyway. The homepage has no such element, and the blocks resolved to
+  // **624px inside a 1240px column** — measured on PRE 2026-08-28 at 1920,
+  // leaving 376px of dead space between the sidebar and the content, which is
+  // exactly how it was reported.
+  //
+  // An explicit width gives the item a percentage to resolve against its grid
+  // area first; `max-width` then caps it and the auto margins still centre
+  // what is left. Verified in all three states at 1920 — homepage 624 → 1240,
+  // `/latest` unchanged at 1240, sidebar collapsed unchanged at 1240 — so this
+  // is a no-op everywhere it was already right.
+  //
+  // The auto margins stay: with no sidebar, core's column spans the whole
+  // window and they are what centres the measure inside it.
+  width: 100%;
   margin-inline: auto;
 }
 
