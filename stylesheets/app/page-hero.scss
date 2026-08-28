@@ -45,8 +45,11 @@
   // already spaces every lane, including this one. The discovery mount has
   // nothing else supplying it, so it opts in explicitly rather than the base
   // rule carrying a margin the homepage would then double up on.
+  //
+  // Trailing only: the band meets the header, so it has no leading margin to
+  // give. See the `#main-outlet` rule below for the other half of that gap.
   &.--standalone {
-    margin-block: var(--space-5);
+    margin-block: 0 var(--space-5);
   }
 
   &__inner {
@@ -125,4 +128,29 @@
       font-size: var(--font-0);
     }
   }
+}
+
+// Where the band leads the page, it meets the header with no gap at all.
+//
+// It used to start 36px lower, and the gap was two things stacked: 16px of
+// `#main-outlet`'s own padding (`--main-outlet-padding-top`, core's
+// `--space-4`) plus 20px of the band's leading margin. Measured on PRE
+// 2026-08-28 with a session open — header bottom 93, band top 129 — on the
+// homepage and on `/latest` alike, since the band is a direct child of
+// `#main-outlet` on a listing and three levels down on the homepage.
+//
+// The reference runs the band flush: community.hubspot.com's hero starts at
+// y=80, exactly where its header ends, with `#main-outlet` padded to 0.
+//
+// Overriding the custom property rather than redeclaring core's `padding`
+// shorthand, which is the theme's standing policy — and it sidesteps the
+// cascade question entirely, since a declaration on the element beats the one
+// it inherits without any specificity contest.
+//
+// `:has()` keeps this to the pages that actually lead with the band. The two
+// arms are the two shapes it arrives in: a direct child on every discovery
+// listing, and wrapped in the blocks layout on the homepage. Topics, user
+// pages and admin match neither and keep core's spacing.
+#main-outlet:has(> .page-hero, > .homepage-blocks) {
+  --main-outlet-padding-top: 0;
 }

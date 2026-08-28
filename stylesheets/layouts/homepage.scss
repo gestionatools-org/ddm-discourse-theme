@@ -15,7 +15,10 @@
       "home-showcase"
       "home-library";
     gap: var(--space-5);
-    margin-block: var(--space-5);
+
+    // Trailing only. The first lane is the heading band, which meets the
+    // header — see the `#main-outlet` rule in app/page-hero.scss.
+    margin-block: 0 var(--space-5);
   }
 
   @container homepage-blocks (width > 60rem) {
