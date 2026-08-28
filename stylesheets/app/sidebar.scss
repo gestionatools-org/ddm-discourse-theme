@@ -91,6 +91,12 @@
 // to be told.
 .sidebar-wrapper {
   background: var(--ga-card);
+
+  // The rail casts to its right, the header casts down, and both draw from the
+  // one tint in `elevation.scss`. Without it the rail and the reading area are
+  // 1.037:1 apart and only the hairline separates them, which says where the
+  // join is but not which side is on top.
+  box-shadow: 2px 0 12px var(--ga-shadow-chrome);
 }
 
 // The filo. Applied to the link rather than the row so it aligns with the text

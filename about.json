@@ -4,7 +4,7 @@
   "authors": "es|public",
   "about_url": "https://github.com/gestionatools-org/ddm-discourse-theme",
   "license_url": "https://github.com/gestionatools-org/ddm-discourse-theme/blob/main/LICENSE",
-  "theme_version": "0.23.0",
+  "theme_version": "0.24.0",
   "minimum_discourse_version": "2026.7.0",
   "maximum_discourse_version": null,
   "assets": {
@@ -27,7 +27,7 @@
   "color_schemes": {
     "Gestiona Avanza": {
       "primary": "112127",
-      "secondary": "f1f5f7",
+      "secondary": "f9fbfd",
       "tertiary": "006d87",
       "quaternary": "00b4d3",
       "header_background": "ffffff",

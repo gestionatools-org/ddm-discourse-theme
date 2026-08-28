@@ -1,12 +1,26 @@
 // Corporate elevation.
 //
-// The system's rule is "bordes antes que sombras": flat surfaces — cards, table
-// rows, the sidebar, the header — are separated by a border, never by a shadow.
-// A management interface with shadows everywhere reads restless; with borders it
-// reads ordered. So there is deliberately no card-shadow token here: the lane
-// cards carry `--ga-border` and nothing else.
+// The system's rule is "bordes antes que sombras", and it still holds where it
+// was aimed: **content** surfaces — cards, table rows, list items — are
+// separated by a border, never by a shadow. A management interface with shadows
+// on every card reads restless; with borders it reads ordered. So there is
+// deliberately no card-shadow token here: the lane cards carry `--ga-border`
+// and nothing else.
 //
-// Shadow is reserved for real overlays: dropdown, popover, dialog, toast.
+// The rule used to name the header and the sidebar among those flat surfaces,
+// and that is no longer true. **Chrome is lifted off the reading plane by a
+// shadow.** The reason is not decoration: the header, the rail and the page are
+// all within 1.037:1 of each other, so nothing separates them by tone, and a
+// hairline alone does not say which side is on top. This is the arrangement
+// forum.asana.com runs, measured rather than guessed.
+//
+// It is also less of a departure than it looks. Core already draws the header's
+// hairline *as a shadow* — `--shadow-header: 0 0 0 1px var(--content-border-color)`
+// — so what follows extends an existing shadow rather than introducing the
+// first one.
+//
+// Shadow is otherwise still reserved for real overlays: dropdown, popover,
+// dialog, toast.
 //
 // The tint flips between schemes, and that is not an oversight. On light the
 // shadow is tinted petrol, never pure black, so it stays on the same hue axis as
@@ -18,6 +32,26 @@
     light-dark(rgb(0 48 64 / 12%), rgb(0 0 0 / 55%));
   --ga-shadow-popover: 0 2px 10px
     light-dark(rgb(0 48 64 / 10%), rgb(0 0 0 / 45%));
+
+  // The chrome shadow is declared as a COLOUR, not as a finished shadow, so the
+  // header can cast downwards and the rail rightwards from one value. A shadow
+  // token with its offsets baked in cannot be rotated, and two tokens that must
+  // be kept in step is how they stop being in step.
+  //
+  // 8% where the overlays use 10–12%: chrome is always on screen, and a shadow
+  // you see all day has to be quieter than one that appears for a moment. The
+  // tint follows the same rule as the rest of this file — petrol on light,
+  // pure black on dark, because rgb(0 48 64) is *lighter* than #071318 and
+  // would draw a halo rather than a shadow.
+  --ga-shadow-chrome: light-dark(rgb(0 48 64 / 8%), rgb(0 0 0 / 40%));
+
+  // Core's own header edge, kept and extended. The 1px ring is not decoration:
+  // it also draws the line between the topbar and the header, so dropping it to
+  // "just add a shadow" would delete a line that is doing work. Reading
+  // --content-border-color rather than --ga-border keeps core's own link intact
+  // (topic-list.scss points that variable at --ga-border already).
+  --shadow-header:
+    0 0 0 1px var(--content-border-color), 0 2px 12px var(--ga-shadow-chrome);
 
   // Core's overlay shadows, mapped onto the two the system defines.
   // --shadow-card dresses floating cards (user card, group card), which are
