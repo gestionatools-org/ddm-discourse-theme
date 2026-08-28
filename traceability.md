@@ -765,34 +765,58 @@ route context (category wins over tag; a bare listing falls back to generic home
 one presentational component, `components/page-hero.gjs`, renders whatever the resolver
 returns. That single component is mounted twice — as a Block (`block-hero.gjs`) for the
 custom homepage, which never runs the discovery route, and through the
-`discovery-list-container-top` plugin outlet (`discovery-hero.gjs`) for every listing. This
+`discovery-list-controls-above` plugin outlet (`discovery-hero.gjs`) for every listing. This
 keeps the agreed split intact: Blocks confined to the homepage, outlets and SCSS everywhere
 else.
 
-**Why `discovery-list-container-top`.** This was the design's one declared unknown, and it
-was resolved from evidence rather than in a browser: Discourse's own theme-developer
-tutorial documents that outlet used with `@outletArgs.category`; it is discovery-scoped, so
-topic pages are excluded structurally rather than by filtering route names; and
-`discourse-featured-tiles` in the reference corpus renders a full tile grid into it, which
-answers whether it spans the content column.
+**Why `discovery-list-controls-above`, and why it was `discovery-list-container-top` first.**
+The outlet was the design's one declared unknown. It was first resolved to
+`discovery-list-container-top` from indirect evidence — Discourse's theme-developer tutorial
+documents that outlet used with `@outletArgs.category`, and `discourse-featured-tiles` renders
+a tile grid into it. Both facts are true and the conclusion was still wrong: read against
+`frontend/discourse/app/components/discovery/layout.gjs`, that outlet sits at line 124 **inside
+`#list-area`**, below the nav tabs and below core's own New Topic button — so the band landed
+mid-page with its own button duplicating an affordance a few pixels above it, and the spec asks
+for a band at the *top*. `discovery-list-controls-above` (layout.gjs:56-64) sits above the whole
+navigation block and carries `category`, `tag` and `toggleTagInfo`. It had been rejected earlier
+for having "no evidence of carrying `category`" — which was absence of evidence read as evidence
+of absence. It also drops a nesting bug for free: the old outlet declares
+`@connectorTagName="span"`, so `<section>`/`<h1>`/`<p>` were nesting inside a `<span>`.
 
-**A plan defect caught by hand-tracing, not by a test.** The spec's permission guard was
-`category.permission === 1`. A category object with no `permission` field makes that
-`undefined === 1` → `false`, which would have hidden the compose button **site-wide,
-silently** — every category, not just the read-restricted ones. The guard now checks absence
-first: no category, or `permission` absent (`undefined`/`null`), defers to the global
-`can_create_topic` check; only a category with `permission` present and not equal to `1`
-hides the button. Whether Discourse always serializes `permission` on a category object is
-still unverified — `/categories.json` answers with the API key's own (admin) permissions, so
-the field can't be read as a non-admin over the API. This is the same failure class recorded
-elsewhere in this log: a field silently absent, and a lane (or here, a button) going empty
-with nothing erroring.
+**The permission guard was got wrong, then right, and the wrong version is the lesson.**
+The spec's guard was `category.permission === 1`. Hand-tracing the tests showed a fixture with
+no `permission` field failing on `undefined === 1`, and that was read as a site-wide silent
+failure: absence was taken to mean "the serializer didn't tell us", so the guard was changed to
+defer to the global `can_create_topic` check whenever `permission` was missing. **That inverted
+Discourse's own semantics and made the whole category check a no-op** — it returned true for
+precisely the categories that must return false, and a test was written pinning the defect as
+intended behaviour.
+
+Core settles it, and settled it the whole time: `app/models/site.rb` writes
+`category[:permission] = permission_types[:full] if allowed_topic_create&.include?(...)` with
+**no `else`**, so the key is absent exactly when the user may not post there; and
+`frontend/discourse/app/models/category.js` defines
+`get canCreateTopic() { return this.permission === PermissionType.FULL; }`. The guard now
+imports `PermissionType` from `discourse/models/permission-type` and compares strictly, with the
+reasoning written into the file because the line has now been got wrong twice.
+
+**The process lesson is the durable part: Discourse core's source is one `gh api` call away, and
+"context7 has no documentation on it" is not the same as unanswerable.** Two decisions on this
+branch were deferred to a manual check on PRE on exactly that reasoning, and both were wrong.
+Note the frontend now lives under `frontend/discourse/app/` — the old
+`app/assets/javascripts/` path 404s, which is probably what defeated earlier attempts to read it.
+
+What genuinely cannot be read over the API stays true: `/categories.json` answers with the key's
+own (admin) permissions, so **what a non-admin sees still has to be checked in a browser** — see
+the outstanding checks below.
 
 **Three checks remain outstanding, and none is covered by a test.** They need a browser
 against the live instance, and this session did not open one:
 
-1. Exactly one `.page-hero` renders on the homepage — the Block and the outlet must not
-   both fire.
+1. ~~Exactly one `.page-hero` renders on the homepage.~~ **Closed by reading core, not by a
+   browser:** `frontend/discourse/app/templates/discovery/custom.gjs` renders only
+   `<BlockOutlet @name="homepage-blocks">` and the `custom-homepage` outlet — it never renders
+   `Discovery::Layout`, so no discovery outlet can fire at `/`. The two mounts cannot collide.
 2. The button is genuinely absent in a read-only category, checked with a **non-admin**
    account — the API keys can't make this check, they answer with admin permissions. Category
    3 (*Administradores*) and one of the *Recursos Analítica* tree are the candidates.
