@@ -1,24 +1,37 @@
 // The heading band at the top of the homepage and every listing.
 //
-// Edge to edge of the content column, not of the window. Full-bleed would mean
-// fighting the measure cap `layout.scss` already negotiates, and the reference
-// (community.hubspot.com) bleeds its chrome, not its page heading.
+// A full-bleed band on a quiet surface, not a cartridge: it runs from the
+// sidebar's trailing edge to the window edge, one step of tone above the page
+// so it separates without announcing itself.
 //
-// If full-bleed is ever wanted here, test the rule by inserting it into the
-// theme's own compiled sheet. A <style> appended to <head> from the console is
-// not a faithful preview of a theme rule — that mistake produced a confident,
-// wrong conclusion about this instance's cascade that reached a commit message.
+// The band's *box* is unchanged — it still sits inside `#main-outlet`, capped
+// at the measure. Only its paint bleeds, and that is what keeps the title on
+// the same reading axis as the topic list beneath it. Widening the element
+// instead would have meant re-aligning the text back inwards by hand.
 .page-hero {
-  // The gradient runs dark-to-brand so the title sits on the deeper end. In the
-  // dark scheme both stops drop a step: on that background petrol-700 is a
-  // surface, not a lift.
-  background: linear-gradient(
-    135deg,
-    light-dark(var(--ga-petrol-800), var(--ga-petrol-950)),
-    light-dark(var(--ga-petrol-700), var(--ga-petrol-900))
-  );
-  border-radius: var(--ga-radius-xl);
-  padding: var(--space-6) var(--space-5);
+  // The bleed. A spread shadow paints outward in every direction; the clip-path
+  // trims it back to this box's own block edges so only the horizontal bleed
+  // survives — without it the band would wash a screen's worth of tone above
+  // and below itself.
+  //
+  // Chosen over the usual `margin-inline: calc(50% - 50vw)` for two reasons the
+  // grid in `layout.scss` makes concrete. That idiom assumes the content column
+  // is centred in the window, and here it stops being centred below 1848px.
+  // And `100vw` counts the scrollbar, so it overflows by the scrollbar's width
+  // wherever one takes space. A shadow answers to neither: it is painted
+  // relative to this box, so it is exact at every width, and a shadow creates
+  // no scrollable overflow at all — measured, by removing the clip and watching
+  // `scrollWidth` stay put.
+  //
+  // 100vmax rather than 100vw so the span still covers the window when the
+  // viewport is taller than it is wide.
+  background: var(--ga-muted);
+  box-shadow: 0 0 0 100vmax var(--ga-muted);
+  clip-path: inset(0 -100vmax);
+
+  // No inline padding: the box is already the content column, so the text lines
+  // up with the topic list below rather than sitting inset from it.
+  padding-block: var(--space-6);
 
   // The homepage lane needs no outer margin — `homepage.scss`'s grid `gap`
   // already spaces every lane, including this one. The discovery mount has
@@ -47,8 +60,10 @@
   &__title {
     margin: 0;
 
-    // 5.94:1 on petrol-700 — the deepest stop the gradient reaches under it.
-    color: var(--ga-neutral-0);
+    // 13.36:1 on the light band, 12.34:1 on the dark one. The band is a page
+    // surface now, so the type is the page's own ink rather than the reversed
+    // white the petrol cartridge needed.
+    color: var(--primary);
 
     // Roboto Slab, the system's typographic signature. The theme vendors it
     // and decides where it lands precisely so it stays on page titles and
@@ -59,11 +74,10 @@
   }
 
   &__subtitle {
-    // 5.00:1 on petrol-700. A step down from the title in tone, not in size,
-    // so the two read as one voice.
+    // 4.69:1 light, 5.68:1 dark — over the 4.5:1 floor for body text in both.
     max-width: 46rem;
     margin: 0;
-    color: var(--ga-petrol-100);
+    color: var(--ga-muted-fg);
     font-size: var(--font-up-1);
     line-height: var(--line-height-medium);
 
@@ -76,37 +90,22 @@
     overflow: hidden;
   }
 
-  &__button.btn-primary {
-    // Brand cyan is a fill here, never text on a light surface — the constraint
-    // recorded in colors.scss. Ink on it measures 6.81:1.
+  // The button keeps core's own `.btn-primary`, which is `--tertiary`: petrol
+  // on light, brand cyan on dark. That is the inversion `colors.scss` describes
+  // — "la marca no se diluye en oscuro: se enciende" — and it arrives for free.
+  //
+  // The cyan fill and the white border it needed are gone with the petrol
+  // cartridge. Both existed to survive a dark background: the fill scored
+  // 2.39:1 against it and failed WCAG 1.4.11, and the border was the cheapest
+  // remedy. On this surface core's own colour measures 4.80:1 light and 5.67:1
+  // dark against the band, so the whole workaround is deleted rather than
+  // carried forward.
+  &__button {
     margin-block-start: var(--space-2);
-    background: var(--ga-mark);
-    color: var(--ga-petrol-950);
-
-    // WCAG 1.4.11 non-text contrast: the fill itself does not clear 3:1 against
-    // every point of the gradient it sits on. --ga-mark (#00b4d3) against the
-    // gradient's lighter stop in the light scheme, --ga-petrol-700 (#006d87),
-    // is 2.39:1 — the 135deg gradient runs toward that stop at bottom-right,
-    // exactly where this centred button sits. The dark-scheme stops (and
-    // --ga-petrol-800) already clear 3:1; only this one combination fails.
-    // Rather than touch the gradient — which would change the title and
-    // subtitle contrast figures pinned above, computed against exactly these
-    // two stops — the button gets a border that clears 3:1 on its own,
-    // light scheme only, using the SC's own carve-out for a sufficiently
-    // contrasting border. White against petrol-700 is already used for the
-    // title at 5.94:1, well past the 3:1 floor; the dark scheme keeps it
-    // transparent since its fill already passes without one.
-    border: 2px solid light-dark(var(--ga-neutral-0), transparent);
-
-    &:hover,
-    &:focus-visible {
-      background: var(--ga-cyan-400);
-      color: var(--ga-petrol-950);
-    }
   }
 
   @include viewport.until(sm) {
-    padding: var(--space-5) var(--space-4);
+    padding-block: var(--space-5);
 
     &__title {
       font-size: var(--font-up-2);

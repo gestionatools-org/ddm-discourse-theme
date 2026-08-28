@@ -97,6 +97,19 @@
   // 1.037:1 apart and only the hairline separates them, which says where the
   // join is but not which side is on top.
   box-shadow: 2px 0 12px var(--ga-shadow-chrome);
+
+  // Lifted so the rail paints over the page hero's bleed, which is what gives
+  // that band its left edge: the band spreads its background past the content
+  // column in both directions and the rail covers the half that would otherwise
+  // run underneath it. Without this the wrapper loses — it is earlier in the
+  // DOM than `#main-outlet`, so the band would paint on top of it.
+  //
+  // The rail already carries an opaque background, so raising it changes
+  // nothing about how it looks on its own. It does let the shadow above fall
+  // across the reading area rather than being overpainted by it, which is what
+  // that shadow was written to do.
+  position: relative;
+  z-index: 1;
 }
 
 // The filo. Applied to the link rather than the row so it aligns with the text
