@@ -91,7 +91,7 @@
   // The 3px edge, the signature of the system. Its colour is decided by the
   // surface underneath, not by the element: this value is calibrated to 3.09:1
   // against the light background, which is why it drops one ramp step there.
-  // Inside the dark sidebar that constraint does not apply and the edge uses
-  // the brand cyan at full strength instead.
+  // On the dark scheme's own background that constraint does not apply and the
+  // edge uses the brand cyan at full strength instead.
   --ga-edge: light-dark(var(--ga-cyan-600), var(--ga-cyan-500));
 }
