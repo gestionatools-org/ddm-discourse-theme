@@ -19,7 +19,7 @@
 // why: core's `nav-active` mixin paints both the label and the underline from
 // the single variable --d-nav-color--active. Setting that variable to the edge
 // cyan would drag the label with it, and the edge cyan as text on the light
-// surface is 4.04:1 — under the 4.5:1 floor for text, which is precisely the
+// surface is 4.27:1 — under the 4.5:1 floor for text, which is precisely the
 // constraint the whole palette is built around. It clears the 3:1 the bar needs
 // and nothing more; that split is the point. So the label keeps the petrol and
 // only the bar takes the cyan.
