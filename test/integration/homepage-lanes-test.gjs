@@ -90,9 +90,22 @@ function recordingStore(owner, topics) {
 // The real store is looked up *before* the stub replaces it, and the reference
 // stays valid afterwards. `store.createRecord("topic", …)` is core's own idiom,
 // from `tests/integration/components/topic-list-test.gjs`.
+//
+// `url` has to come off the attrs first. On the model it is
+// `@computed("id", "slug")` (`models/topic.js`), so handing it over as an
+// attribute raises "Cannot override the computed property `url`" — which is
+// what took these three tests down once the `.get` error was fixed. The model
+// derives the same path from the id, and `fancy_title` stays because it *is* a
+// plain attribute: the computed one is `fancyTitle`, which reads it.
+function topicModel(store, attrs) {
+  const settable = { ...attrs };
+  delete settable.url;
+  return store.createRecord("topic", settable);
+}
+
 function stubStoreWithModels(owner, attrsList) {
   const store = owner.lookup("service:store");
-  const topics = attrsList.map((attrs) => store.createRecord("topic", attrs));
+  const topics = attrsList.map((attrs) => topicModel(store, attrs));
   owner.unregister("service:store");
   owner.register(
     "service:store",
@@ -106,7 +119,7 @@ function stubStoreWithModels(owner, attrsList) {
 function recordingStoreWithModels(owner, attrsList) {
   const calls = [];
   const store = owner.lookup("service:store");
-  const topics = attrsList.map((attrs) => store.createRecord("topic", attrs));
+  const topics = attrsList.map((attrs) => topicModel(store, attrs));
   owner.unregister("service:store");
   owner.register(
     "service:store",
@@ -177,9 +190,12 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
         <template><BlockOutlet @name="main-outlet-blocks" /></template>
       );
 
+      // `includesText`, not `hasText`: core's TopicLink adds an `sr-only` span
+      // inside the anchor for the unread case, and this assertion is about the
+      // entity being decoded rather than about the anchor's exact contents.
       assert
         .dom(".block-latest .topic-list-item a.title")
-        .hasText("La Seu d\u2019Urgell estrena sede");
+        .includesText("La Seu d\u2019Urgell estrena sede");
     });
 
     test("reads the site-wide latest list, with no category to point at", async function (assert) {
@@ -223,6 +239,17 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       settings.demo_url = "/demo";
       settings.first_steps_url = "";
 
+      // `setupRenderingTest` signs nobody in, so the card's `can_create_topic`
+      // guard hides the composer button by default. Stubbed rather than worked
+      // around: the guard is the behaviour worth asserting, and the instance is
+      // login_required, so a real viewer always has a user.
+      this.owner.unregister("service:current-user");
+      this.owner.register(
+        "service:current-user",
+        { can_create_topic: true },
+        { instantiate: false }
+      );
+
       withPluginApi((api) =>
         api.renderBlocks("main-outlet-blocks", [
           {
@@ -244,7 +271,7 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       assert.dom(".block-shortcuts__link").exists({ count: 2 });
       assert
         .dom(".block-shortcuts__new-topic")
-        .exists("the composer affordance is always there");
+        .exists("the composer affordance, for a member who may post");
     });
 
     test("the compact forum lane drops the section heading link", async function (assert) {
