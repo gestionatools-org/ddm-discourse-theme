@@ -31,9 +31,17 @@
   &__inner {
     display: flex;
     flex-direction: column;
-    align-items: center;
+
+    // Left-aligned, not centred. The band shares the content column with the
+    // topic list below it, and a centred heading breaks the reading edge every
+    // listing establishes down its left side.
+    //
+    // Logical values rather than `left`/`flex-start` so the whole band mirrors
+    // with the document direction, the way `margin-inline-start` does in
+    // `topbar.scss`.
+    align-items: start;
     gap: var(--space-3);
-    text-align: center;
+    text-align: start;
   }
 
   &__title {
