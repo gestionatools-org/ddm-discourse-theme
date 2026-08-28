@@ -752,3 +752,58 @@ Ricardo then cleared the uploads in admin and confirmed both schemes by eye. Re-
 neutralises them there, so the cleanup is about the record, not the render.
 
 `theme_version` 0.20.1 (#57).
+
+## 2026-08-28 — Page hero band: title, subtitle and a compose button above every listing
+
+**What shipped.** A hero band — title, subtitle, and a "Hacer una pregunta" button that
+opens the composer — at the top of the custom homepage and above every discovery listing:
+categories, tags, `/latest`, `/top`, `/unread`. Topic pages and full-page search are
+deliberately out of scope.
+
+**Architecture.** One pure resolver, `lib/hero-content.js`, decides what the band says from
+route context (category wins over tag; a bare listing falls back to generic homepage copy);
+one presentational component, `components/page-hero.gjs`, renders whatever the resolver
+returns. That single component is mounted twice — as a Block (`block-hero.gjs`) for the
+custom homepage, which never runs the discovery route, and through the
+`discovery-list-container-top` plugin outlet (`discovery-hero.gjs`) for every listing. This
+keeps the agreed split intact: Blocks confined to the homepage, outlets and SCSS everywhere
+else.
+
+**Why `discovery-list-container-top`.** This was the design's one declared unknown, and it
+was resolved from evidence rather than in a browser: Discourse's own theme-developer
+tutorial documents that outlet used with `@outletArgs.category`; it is discovery-scoped, so
+topic pages are excluded structurally rather than by filtering route names; and
+`discourse-featured-tiles` in the reference corpus renders a full tile grid into it, which
+answers whether it spans the content column.
+
+**A plan defect caught by hand-tracing, not by a test.** The spec's permission guard was
+`category.permission === 1`. A category object with no `permission` field makes that
+`undefined === 1` → `false`, which would have hidden the compose button **site-wide,
+silently** — every category, not just the read-restricted ones. The guard now checks absence
+first: no category, or `permission` absent (`undefined`/`null`), defers to the global
+`can_create_topic` check; only a category with `permission` present and not equal to `1`
+hides the button. Whether Discourse always serializes `permission` on a category object is
+still unverified — `/categories.json` answers with the API key's own (admin) permissions, so
+the field can't be read as a non-admin over the API. This is the same failure class recorded
+elsewhere in this log: a field silently absent, and a lane (or here, a button) going empty
+with nothing erroring.
+
+**Three checks remain outstanding, and none is covered by a test.** They need a browser
+against the live instance, and this session did not open one:
+
+1. Exactly one `.page-hero` renders on the homepage — the Block and the outlet must not
+   both fire.
+2. The button is genuinely absent in a read-only category, checked with a **non-admin**
+   account — the API keys can't make this check, they answer with admin permissions. Category
+   3 (*Administradores*) and one of the *Recursos Analítica* tree are the candidates.
+3. Legibility at 390px: title, subtitle and button, no horizontal overflow, subtitle clamped
+   at two lines. Category 85 *Comparte* (414 characters of description) is the worst case.
+
+**An admin task for the maintainer.** Four categories have no description and so render
+title-only until one is written: 4 *Noticias*, 5 *Foro del Certificado*, 14 *Aula de
+formación*, 59 *Eventos*. Category 3 is staff-only and 75 already has a short description.
+Title-only is correct behaviour, not a bug — the band never invents filler — and writing the
+text also improves the native categories page.
+
+`theme_version` 0.25.0. Committed on `feat/page-hero-band`; not pushed, no PR opened, no
+instance touched — releasing this is a separate, explicit decision for the maintainer.
