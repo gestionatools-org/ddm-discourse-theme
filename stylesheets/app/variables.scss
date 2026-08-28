@@ -2,12 +2,17 @@
 // Full list of overridable properties:
 //   .claude/skills/discourse-theme-authoring/css-variables.md
 :root {
-  // Corporate radius scale: 8 / 14 / 20
+  // Corporate radius scale: 8 / 14 / 20. The first two steps override core
+  // tokens (--d-border-radius, --d-border-radius-large); the third has no
+  // core counterpart to override — core defines no "xlarge" tier
+  // (.claude/skills/discourse-theme-authoring/css-variables.md:114 lists only
+  // the two above) — so it is theme-owned and named with this repo's own
+  // prefix instead of borrowing core's, alongside --ga-measure/--ga-edge.
   --d-border-radius: 8px;
   --d-border-radius-large: 14px;
-  --d-border-radius-xlarge: 20px;
   --d-button-border-radius: 8px;
   --d-input-border-radius: 8px;
+  --ga-radius-xl: 20px;
 
   // The measure — how wide a column of content is allowed to get. The decks run
   // a 1280px stage; keep the forum measure close to it so embedded slide

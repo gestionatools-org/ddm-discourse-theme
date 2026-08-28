@@ -17,9 +17,16 @@
     light-dark(var(--ga-petrol-800), var(--ga-petrol-950)),
     light-dark(var(--ga-petrol-700), var(--ga-petrol-900))
   );
-  border-radius: var(--d-border-radius-xlarge);
-  margin-block: var(--space-5);
+  border-radius: var(--ga-radius-xl);
   padding: var(--space-6) var(--space-5);
+
+  // The homepage lane needs no outer margin — `homepage.scss`'s grid `gap`
+  // already spaces every lane, including this one. The discovery mount has
+  // nothing else supplying it, so it opts in explicitly rather than the base
+  // rule carrying a margin the homepage would then double up on.
+  &.--standalone {
+    margin-block: var(--space-5);
+  }
 
   &__inner {
     display: flex;
@@ -67,6 +74,21 @@
     margin-block-start: var(--space-2);
     background: var(--ga-mark);
     color: var(--ga-petrol-950);
+
+    // WCAG 1.4.11 non-text contrast: the fill itself does not clear 3:1 against
+    // every point of the gradient it sits on. --ga-mark (#00b4d3) against the
+    // gradient's lighter stop in the light scheme, --ga-petrol-700 (#006d87),
+    // is 2.39:1 — the 135deg gradient runs toward that stop at bottom-right,
+    // exactly where this centred button sits. The dark-scheme stops (and
+    // --ga-petrol-800) already clear 3:1; only this one combination fails.
+    // Rather than touch the gradient — which would change the title and
+    // subtitle contrast figures pinned above, computed against exactly these
+    // two stops — the button gets a border that clears 3:1 on its own,
+    // light scheme only, using the SC's own carve-out for a sufficiently
+    // contrasting border. White against petrol-700 is already used for the
+    // title at 5.94:1, well past the 3:1 floor; the dark scheme keeps it
+    // transparent since its fill already passes without one.
+    border: 2px solid light-dark(var(--ga-neutral-0), transparent);
 
     &:hover,
     &:focus-visible {
