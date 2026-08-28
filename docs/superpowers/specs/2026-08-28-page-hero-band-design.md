@@ -111,10 +111,16 @@ English translations go in `en.yml` alongside them, as every string in this them
 definition post; the former is plain text. Using the plain field keeps foreign markup out of
 the band.
 
-A known consequence: that field can carry `:emoji:` shortcodes. This is the same problem
-already solved in `block-news.gjs`, where excerpts printed `:automobile:` as words — the fix
-there was `emojiUnescape`, **not** `dReplaceEmoji`, which escapes its input first and
-double-encodes entities. Reuse that treatment rather than rediscovering it.
+A known consequence: that field can carry `:emoji:` shortcodes, the problem that made
+`block-news` print `:automobile:` as words.
+
+**The right helper here is `dReplaceEmoji`, not the `emojiUnescape` that fixed the news
+lane** — corrected 2026-08-28, while writing the implementation plan. The two are not
+interchangeable and the discriminator is what the field already contains. An `excerpt` is
+HTML-encoded text, so escaping it again double-encodes and prints `&rsquo;` verbatim, which
+is why the news lane needs `emojiUnescape`. `description_text` is **plain** text, so it must
+be escaped before substitution — exactly what `dReplaceEmoji` does. `block-library.gjs:65`
+already applies it to `category.name` for the same reason.
 
 **No description means no subtitle.** The band never invents filler and never repeats the
 name as its own subtitle.
