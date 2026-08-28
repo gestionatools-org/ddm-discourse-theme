@@ -4,11 +4,12 @@
 // it is the only place on the page that carries the logo, which is what the
 // manual asks for — "Isotipo: en la barra de navegación y como favicon".
 //
-// Variable overrides only. The header search field that v0.8.0 turned on is
-// left with core's own styling: it is a stock component, it already keys off
-// the colour scheme, and this theme has no way to preview the header while
-// authoring — guessing at its internals is how you end up painting a box across
-// the whole bar. Revisit with a screenshot in hand if it needs shaping.
+// Variable overrides only — including the search field, which since v0.26.0
+// takes the page hero's surface. That note used to say the field was left with
+// core's own styling because the theme had no way to preview the header while
+// authoring, and to revisit it with a screenshot in hand. The screenshot exists
+// now: the field is shaped below, and still by variable rather than by
+// redeclaring core's rule.
 :root {
   // Core's default logo height puts our logotype below its own minimum size.
   // The official file is 720×260, an aspect ratio of 2.77, and the manual sets
@@ -76,4 +77,25 @@
       color: var(--tertiary);
     }
   }
+}
+
+// The search field takes the page hero's surface.
+//
+// The reference does exactly this — community.hubspot.com paints its heading
+// band and its header search the same #f8f5ee, measured on their category page
+// — and it is what makes the two read as one system rather than as a band that
+// happens to sit under a white bar.
+//
+// Redefining the custom property on the header's subtree rather than
+// redeclaring core's rule. Core paints the field from `--d-input-bg-color`
+// (`.search-menu .search-input`), and a custom property redefined on a
+// descendant wins for that subtree outright — no specificity contest to have an
+// opinion about, and no dependence on the theme sheet's load order. It is the
+// same technique `layout.scss` uses to widen `--d-max-width` over the chrome.
+//
+// Scoped to the header on purpose: the token dresses every input core renders,
+// so setting it at `:root` would repaint the composer and every form on the
+// site to match a decision about one field.
+.d-header {
+  --d-input-bg-color: var(--ga-muted);
 }
