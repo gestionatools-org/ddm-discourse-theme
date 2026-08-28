@@ -29,6 +29,9 @@ import { loadCategoryTopics } from "../lib/category-topics";
     emptyText: { type: "string", default: "homepage.forum.empty" },
     categoryId: { type: "number", required: true },
     count: { type: "number", default: 6 },
+    // Declared inert ahead of the panel that uses it — an undeclared arg
+    // aborts the whole QUnit run. Honoured in the template below.
+    compact: { type: "boolean", default: false },
   },
 })
 export default class BlockForum extends Component {
