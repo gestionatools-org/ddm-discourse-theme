@@ -43,6 +43,20 @@ export default class PageHero extends Component {
   // everywhere — so which categories land on the false branch is verified on
   // PRE with a non-admin account rather than asserted here.
   //
+  // `1` is Discourse's `full` permission constant, compared exactly rather than
+  // with a truthiness check: loosening it would show the button in read-only
+  // categories the current user can see but not post in.
+  //
+  // An absent (`undefined`/`null`) `permission` field defers to the global
+  // check above instead of hiding the button. Treating an absent field as
+  // "not full" would hide the button site-wide, silently, the moment any
+  // category object doesn't carry the field — the exact failure class this
+  // repo has been bitten by before (a lane rendering nothing for want of a
+  // field, with no error). The reverse mistake — one extra button in a
+  // genuinely read-only category — is visible, bounded, and rare: a
+  // `read_restricted` category isn't shown at all to a user who can't post in
+  // it, and the composer rejects the topic server-side regardless.
+  //
   // `currentUser` is null for an anonymous visitor. The instance is
   // login_required so that is the login page alone, but it is also the one page
   // where an exception would be on show.
@@ -52,7 +66,15 @@ export default class PageHero extends Component {
     }
 
     const { category } = this.args.content;
-    return category ? category.permission === 1 : true;
+    if (
+      !category ||
+      category.permission === undefined ||
+      category.permission === null
+    ) {
+      return true;
+    }
+
+    return category.permission === 1;
   }
 
   @action

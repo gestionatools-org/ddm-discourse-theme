@@ -67,7 +67,7 @@ module("Espublico Theme | Integration | page hero", function (hooks) {
   test("clicking the button opens the composer on the category in scope", async function (assert) {
     const calls = stubComposer(this.owner);
     stubCurrentUser(this.owner, { can_create_topic: true });
-    const category = { id: 5, name: "Foro del Certificado" };
+    const category = { id: 5, name: "Foro del Certificado", permission: 1 };
     const content = {
       title: "Foro del Certificado",
       titleKey: null,
@@ -104,6 +104,27 @@ module("Espublico Theme | Integration | page hero", function (hooks) {
       null,
       "user picks it in the composer"
     );
+  });
+
+  // Pins the deferral rather than a Discourse guarantee: whether a serialized
+  // category always carries a `permission` field is unverified — check on PRE.
+  // Absent the field entirely, the button must still render rather than
+  // disappear silently.
+  test("shows the button when the category carries no permission field", async function (assert) {
+    stubComposer(this.owner);
+    stubCurrentUser(this.owner, { can_create_topic: true });
+    const content = {
+      title: "Foro del Certificado",
+      titleKey: null,
+      titleArgs: null,
+      subtitle: null,
+      subtitleKey: null,
+      category: { id: 5, name: "Foro del Certificado" },
+    };
+
+    await render(<template><PageHero @content={{content}} /></template>);
+
+    assert.dom(".page-hero__button").exists();
   });
 
   // The check the API keys cannot measure — /categories.json answers with the
