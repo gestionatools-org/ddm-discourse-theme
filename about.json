@@ -4,7 +4,7 @@
   "authors": "es|public",
   "about_url": "https://github.com/gestionatools-org/ddm-discourse-theme",
   "license_url": "https://github.com/gestionatools-org/ddm-discourse-theme/blob/main/LICENSE",
-  "theme_version": "0.21.0",
+  "theme_version": "0.22.0",
   "minimum_discourse_version": "2026.7.0",
   "maximum_discourse_version": null,
   "assets": {
@@ -27,7 +27,7 @@
   "color_schemes": {
     "Gestiona Avanza": {
       "primary": "112127",
-      "secondary": "f9fbfd",
+      "secondary": "f1f5f7",
       "tertiary": "006d87",
       "quaternary": "00b4d3",
       "header_background": "ffffff",
@@ -36,7 +36,7 @@
       "danger": "cb2526",
       "success": "1f7c4b",
       "love": "cb2526",
-      "hover": "f1f5f7",
+      "hover": "e2e8eb",
       "selected": "effbff"
     },
     "Gestiona Avanza Oscuro": {
