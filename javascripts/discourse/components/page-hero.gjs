@@ -24,6 +24,24 @@ export default class PageHero extends Component {
     return title ?? i18n(themePrefix(titleKey), titleArgs ?? {});
   }
 
+  // Core already renders its own `<h1 id="topic-list-heading" class="sr-only">`
+  // on every discovery page (`accessible-discovery-heading.gjs`) — a second,
+  // visible `<h1>` with different text would be a duplicate top-level heading.
+  // Accessibility is a legal requirement here (RD 1112/2018), so the mount
+  // decides the level rather than the component defaulting it away: the
+  // homepage renders no core `h1` and stays at the default.
+  get isH1() {
+    return (this.args.headingLevel ?? "h1") === "h1";
+  }
+
+  // The homepage lane needs none of this — `homepage.scss` already supplies
+  // the spacing between lanes via grid `gap`. The discovery mount has nothing
+  // else providing it, so it opts in with a standalone modifier rather than
+  // the base rule carrying a margin every caller must then fight.
+  get sectionClass() {
+    return this.args.standalone ? "page-hero --standalone" : "page-hero";
+  }
+
   get subtitle() {
     const { subtitle, subtitleKey } = this.args.content;
 
@@ -82,7 +100,7 @@ export default class PageHero extends Component {
   }
 
   <template>
-    <section class="page-hero">
+    <section class={{this.sectionClass}}>
       <div class="page-hero__inner">
         {{! `dReplaceEmoji`, not the `emojiUnescape` used on news excerpts. The
             discriminator is what the field already holds: an excerpt is
@@ -90,9 +108,15 @@ export default class PageHero extends Component {
             a category name and its description_text are plain text and must be
             escaped before the emoji images are substituted in. `block-library`
             applies the same helper to a category name for the same reason. }}
-        <h1 class="page-hero__title">{{trustHTML
-            (dReplaceEmoji this.title)
-          }}</h1>
+        {{#if this.isH1}}
+          <h1 class="page-hero__title">{{trustHTML
+              (dReplaceEmoji this.title)
+            }}</h1>
+        {{else}}
+          <h2 class="page-hero__title">{{trustHTML
+              (dReplaceEmoji this.title)
+            }}</h2>
+        {{/if}}
 
         {{#if this.subtitle}}
           <p class="page-hero__subtitle">{{trustHTML

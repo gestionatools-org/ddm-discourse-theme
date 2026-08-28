@@ -25,5 +25,11 @@ export default class DiscoveryHero extends Component {
     });
   }
 
-  <template><PageHero @content={{this.content}} /></template>
+  <template>
+    <PageHero
+      @content={{this.content}}
+      @headingLevel="h2"
+      @standalone={{true}}
+    />
+  </template>
 }
