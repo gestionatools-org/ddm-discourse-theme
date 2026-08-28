@@ -703,3 +703,52 @@ independent of a load order the theme does not control.
 
 `theme_version` 0.20.0 (#54), docs correction #55. PRE pulled and verified against the
 compiled theme, not against injected CSS.
+
+## 2026-08-28 — The category background photos come off, and the theme was never the culprit
+
+**Goal.** Ricardo asked for a clean background on every topic in every category — no custom
+background images. The first job was finding out where they came from, because the theme
+does not paint one.
+
+**It is admin data, not theme code.** The only `url()` background in this repo is the
+isotype at 4 % behind an empty homepage lane (`app/mixins.scss:64`). The photos are
+`uploaded_background`, set per category in admin. Core injects them at runtime from
+`frontend/discourse/app/components/d-styles.gjs` as
+`body.category-<fullSlug> { background-image: url(...) }` into a `<style id="d-styles">`,
+and core's base serves the body background `fixed` and `cover`
+(`common/base/discourse.scss:228`).
+
+**They reach the topic view, not just the listing.** The `category` / `category-<fullSlug>`
+classes come from `add-category-tag-classes.gjs`, which is rendered by discovery's
+navigation **and** by `frontend/discourse/app/templates/topic.gjs:72`. With `#main-outlet`
+transparent — `--d-content-background` is deliberately unset, see `app/topic.scss:20-24` —
+the photo sat behind the posts themselves, not only in the margins. #54 had just widened
+those margins to ~308px a side at 1920, which is why it had become conspicuous.
+
+**Census, measured over the API before touching anything.** PRE **6 of 17** (4, 5, 14, 18,
+59, 78); PROD **18 of 34**, one of them (87) carrying an `uploaded_background_dark` as well.
+The six on PRE are the categories behind five of the six homepage lanes, so this was the
+main path through the site rather than an edge case. On PRE the background and the logo
+happened to be the *same upload id* on all six — separate fields, so clearing one leaves the
+other, and the theme depends on neither: the library lane paints its swatch from
+`category.color`.
+
+**One rule rather than 24 admin edits.** `html body.category { background-image: none; }` in
+`app/layout.scss`, (0,1,2) against core's (0,1,1) — it outranks rather than ties, which is
+the policy #55 established after the console-injection episode and means nothing here rests
+on a load order the theme does not control. A media query adds no specificity, so the dark
+variant is covered by the same rule. Deleting the uploads instead would have been 6 edits on
+PRE and 18 on PROD, reversible by any admin, and no protection against the next category
+that acquires one.
+
+**`commits_behind: 0` lied again, exactly as documented.** After #57 merged at 08:15:03 the
+theme record still read `local_version 6a15af5` with `commits_behind: 0` — two commits
+stale — because `updated_at` was 07:51. Forced `remote_update`, then verified the compiled
+sheet PRE actually serves rather than the commit: `common_theme_15_463309ff….css` contains
+`html body.category{background-image:none}`.
+
+Ricardo then cleared the uploads in admin and confirmed both schemes by eye. Re-measured:
+**PRE 0 of 17**. PROD still carries all 18 and will until its own pass — the rule already
+neutralises them there, so the cleanup is about the record, not the render.
+
+`theme_version` 0.20.1 (#57).
