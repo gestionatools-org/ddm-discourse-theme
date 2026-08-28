@@ -639,3 +639,67 @@ Fixed twice over: the setting written directly onto the instance
 (`PUT /admin/themes/15.json` with `theme[remote_update]`) to bring the instance to main.
 `POST /admin/themes/<id>/update.json` is a 404. Read `updated_at` next to `commits_behind`,
 because the reassuring number is the one that lies.
+
+## 2026-08-28 — The interface reaches the window edges, and the probe answered the wrong question
+
+Ricardo asked for a full-width interface "como en esta otra comunidad",
+`community.hubspot.com`. Measuring the reference first turned the task around.
+
+**HubSpot is Discourse, and its content column is narrower than ours** — 1200px against
+our 1240. Nothing about the request was really about content width. What reads as full
+width there is the *chrome*: `.d-header .wrap` at `max-width: none` and the sidebar flush
+to the window edge. Ours sat in a 1512px island (`--d-max-width` + `--d-sidebar-width`,
+core's `calc()` on `body.has-sidebar-page .wrap`) with 204px of dead margin either side at
+1920. Asked which he wanted, Ricardo picked the faithful copy — chrome to the edges,
+content keeping its measure — and then asked for the three-column grid as well.
+
+**The reference's grid needs no breakpoints.** Measuring it at three widths gave
+1920 → `328/1200/328`, 1600 → `272/1200/64`, 1280 → `272/944/0`, which is
+`minmax(var(--d-sidebar-width), 1fr) minmax(0, <measure>) 1fr`: the left gutter is never
+allowed below the sidebar's own width, so the right gutter gives way first and the content
+column narrows only after it has reached zero. It also leaves `grid-template-areas` alone —
+core names two areas and the third column stays unnamed — so nothing takes ownership of
+core's `below-content` row or its `sidebar-animate` transition.
+
+**The cap is released by inheritance, not by overriding `max-width`.** `--d-max-width` is
+widened to `100vw` over the chrome's subtree and restored to the measure on `#main-outlet`.
+A custom property redefined on a descendant wins for that subtree outright — it is a
+different element from the `:root` that declares it, so specificity never gets an opinion.
+`100vw` rather than `none` because core builds the sidebar case as
+`calc(var(--d-sidebar-width) + var(--d-max-width))`, and `none` inside a `calc()`
+invalidates the declaration. The measure moved to its own token, `--ga-measure`, because
+consumers that are not the content column keep needing a real length: the composer's
+hide-preview offset, large badge cards, and `.more-topics__container`, which divides it and
+held at 1079px throughout.
+
+Verified live on PRE at 1920 / 1600 / 1280 / 390 on a listing, the homepage and a topic:
+`308/1240/308`, sidebar at `left: 0`, content centred with 340px either side, six homepage
+lanes and two columns intact, no horizontal overflow anywhere, and a post's reading measure
+unchanged at **714px** at every width. Centring survives a sidebar toggle only from 1848px
+up — measure, both gaps and two sidebar widths; below that the content sits beside the
+sidebar rather than centred, which is the trade the reference makes too.
+
+### The probe answered a different question than the one asked
+
+Every cascade check behind #54 was run by appending a `<style>` to `<head>` from the
+console. Measured that way, an equal-specificity override loses to core: `.wrap
+{ max-width: none }` does not win, and neither does `body.has-sidebar-page
+#main-outlet-wrapper`, which ties core's own rule at (1,1,1). That went into the design, the
+comments and the commit message as a property of the instance.
+
+It is not one. Inserting the same tie into the theme's **compiled stylesheet** with
+`CSSStyleSheet.insertRule` shows it winning: `body.has-sidebar-page .wrap
+{ max-width: 555px }` takes effect over core at the same (0,2,1). The theme sheet is
+unlayered and is the last `<link>` on the page, which is exactly what should happen. What
+loses is the injected `<style>` — later in document order still, with no `@layer` anywhere
+on the page. **That mechanism is unexplained and stays unexplained**; what it cost is the
+point.
+
+So console injection is fine for prototyping geometry — the whole three-column grid was
+designed that way and the compiled result matched it to the pixel — and unsafe for anything
+whose outcome turns on the cascade. Corrected in #55, with the rule recorded in `CLAUDE.md`.
+The extra `.wrap` on the selector stays: it was never required, but it makes the rule
+independent of a load order the theme does not control.
+
+`theme_version` 0.20.0 (#54), docs correction #55. PRE pulled and verified against the
+compiled theme, not against injected CSS.
