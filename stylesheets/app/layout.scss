@@ -66,8 +66,9 @@ body.has-sidebar-page #main-outlet-wrapper.wrap {
 }
 
 // The sidebar holds its own width instead of stretching to fill the gutter. Its
-// panel is painted (see sidebar.scss), so a stretched one would read as a
-// mistake that grows and shrinks with the window.
+// trailing border is what marks the edge of the rail (see sidebar.scss), so a
+// stretched one would drag that border out into the gutter and leave it moving
+// with the window.
 body.has-sidebar-page .sidebar-wrapper {
   justify-self: start;
   width: var(--d-sidebar-width);

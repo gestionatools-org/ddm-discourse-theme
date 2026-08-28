@@ -1,40 +1,51 @@
-// The sidebar is petrol dark in BOTH schemes.
+// The sidebar sits on the page's own surface.
 //
-// This is the system's one deliberate inversion, and it exists to turn an
-// accessibility constraint into identity. The brand cyan scores 2.48:1 on white
-// — it cannot carry text or state on a light surface. On #032029 it reaches
-// 6.82:1. Giving the cyan a permanently dark surface is what lets it do its
-// job: mark the current position at full brand strength, in either scheme.
+// It used to be petrol dark in both schemes — a deliberate inversion that gave
+// the brand cyan a surface it could carry text on, since #00b4d3 scores 2.48:1
+// on white and 6.82:1 on #032029. That bought the cyan a job at the cost of a
+// dark slab down the side of an otherwise light interface, and the slab is what
+// went. What replaces it costs no accessibility: the action colour already
+// inverts per scheme in `about.json`, so `--tertiary` is petrol on light
+// (5.72:1 against the page) and brand cyan on dark (7.59:1). The state is
+// marked at full strength either way, without a surface of its own.
 //
-// The result is a constant silhouette — deep rail, light working area, cyan
-// edge marking where you are — recognisable at a glance, with the content area
-// left neutral.
+// Separation is now the border's job, not the fill's — which is the system's
+// own rule for flat surfaces, see `elevation.scss`.
 //
 // Every variable below was read out of core's own
 // `common/base/sidebar{,-section,-section-link}.scss`, not from the abbreviated
 // list in the authoring skill, which omits about half of them.
 :root {
-  --d-sidebar-background: light-dark(var(--ga-petrol-950), #030d11);
-  --d-sidebar-border-color: light-dark(#153843, #223036);
-  --d-sidebar-section-border-color: light-dark(#153843, #223036);
+  // The rail is the same plane as the content beside it. Only the border says
+  // where one ends and the other begins.
+  --d-sidebar-background: var(--secondary);
+  --d-sidebar-border-color: var(--ga-border);
+  --d-sidebar-section-border-color: var(--ga-border);
 
-  // Body text on the rail. #d6e0e4 on #032029 is 12.4:1.
-  --d-sidebar-link-color: #d6e0e4;
-  --d-sidebar-link-icon-color: #d6e0e4;
+  // Link text sits one step below the page's ink: 8.37:1 on light, 13.05:1 on
+  // dark. Full --primary would make a menu shout as loud as a post.
+  --d-sidebar-link-color: light-dark(
+    var(--ga-neutral-700),
+    var(--ga-neutral-300)
+  );
 
-  // Section headers sit one step quieter than the links they group.
-  --d-sidebar-header-color: #9db3bb;
-  --d-sidebar-header-icon-color: #9db3bb;
+  // Icons and section headers share the muted tone — 5.59:1 / 7.61:1, still
+  // body-text legible, clearly quieter than the links they accompany. Headers
+  // separate from icons by size and case, so they need no second tone.
+  --d-sidebar-link-icon-color: var(--ga-muted-fg);
+  --d-sidebar-header-color: var(--ga-muted-fg);
+  --d-sidebar-header-icon-color: var(--ga-muted-fg);
 
-  // Inside the rail the edge and the active text are the same cyan. Using
-  // --ga-edge here instead would put two different cyans side by side, and only
-  // in the light scheme — the gesture reads as one piece or it does not read.
-  --d-sidebar-active-color: var(--ga-cyan-500);
-  --d-sidebar-active-icon-color: var(--ga-cyan-500);
-  --d-sidebar-active-suffix-color: var(--ga-cyan-500);
+  // The one interactive colour, inverted per scheme by `about.json`. Reaching
+  // for --tertiary rather than a token of this file's own is what keeps the
+  // sidebar's active state the same colour as every other action in the theme.
+  --d-sidebar-active-color: var(--tertiary);
+  --d-sidebar-active-icon-color: var(--tertiary);
+  --d-sidebar-active-suffix-color: var(--tertiary);
 
-  // The filo carries the active state, so the row keeps the rail's own surface
-  // rather than gaining a block of fill behind it.
+  // The filo carries the active state, so the row keeps the page surface rather
+  // than gaining a block of fill behind it. This is the line that does the most
+  // work for "clean": with a pill here the rail reads as a stack of buttons.
   --d-sidebar-active-background: transparent;
 
   // 500 is the system's emphasis weight. The active item must be marked by
@@ -44,27 +55,28 @@
   // vendored the browser resolves this to 400; the filo and the colour carry it
   // in the meantime.
   --d-sidebar-active-font-weight: 500;
-  --d-sidebar-highlight-background: #0f3c49;
-  --d-sidebar-highlight-color: #fff;
-  --d-sidebar-highlight-hover-background: #0f3c49;
-  --d-sidebar-highlight-suffix-color: var(--ga-cyan-200);
-  --d-sidebar-suffix-color: #9db3bb;
-  --d-sidebar-link-badge-color: #9db3bb;
-}
 
-// Core paints the rail's own background from --d-sidebar-background, but the
-// wrapper around it inherits the page surface, which would show as a light
-// gutter beside the dark rail in the light scheme.
-.sidebar-wrapper {
-  background: var(--d-sidebar-background);
+  // Hover is the page's own muted step, so pointing at a row lifts it without
+  // introducing a colour. Core's "highlight" pair is the keyboard/hover state.
+  --d-sidebar-highlight-background: var(--ga-muted);
+  --d-sidebar-highlight-hover-background: var(--ga-muted);
+  --d-sidebar-highlight-color: var(--primary);
+  --d-sidebar-highlight-suffix-color: var(--ga-muted-fg);
+
+  // Counts and badges are metadata, never the reason to look at a row.
+  --d-sidebar-suffix-color: var(--ga-muted-fg);
+  --d-sidebar-link-badge-color: var(--ga-muted-fg);
 }
 
 // The filo. Applied to the link rather than the row so it aligns with the text
 // box, and drawn as an inset shadow rather than a border so it never shifts the
-// row's contents. Core marks the current item with three different classes
-// depending on how it was matched; all three mean "you are here".
+// row's contents. --ga-edge rather than a cyan of its own: the edge's colour is
+// decided by the surface underneath it, and on a light surface that is the same
+// token `nav.scss` already paints its pill with. Core marks the current item
+// with three different classes depending on how it was matched; all three mean
+// "you are here".
 .sidebar-section-link.active,
 .sidebar-section-link--active,
 .sidebar-section-link.exact-url-match {
-  box-shadow: inset var(--ga-edge-width) 0 0 0 var(--ga-cyan-500);
+  box-shadow: inset var(--ga-edge-width) 0 0 0 var(--ga-edge);
 }
