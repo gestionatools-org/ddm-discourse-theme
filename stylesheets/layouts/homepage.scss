@@ -9,6 +9,7 @@
     display: grid;
     grid-template-columns: 1fr;
     grid-template-areas:
+      "home-hero"
       "home-main"
       "home-side"
       "home-showcase"
@@ -21,6 +22,7 @@
     &__layout {
       grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
       grid-template-areas:
+        "home-hero home-hero"
         "home-main home-side"
         "home-showcase home-showcase"
         "home-library home-library";
@@ -32,6 +34,10 @@
     // Grid children default to min-content width; without this a long topic
     // title would widen the column instead of wrapping.
     min-width: 0;
+
+    &--home-hero {
+      grid-area: home-hero;
+    }
 
     &--home-main {
       grid-area: home-main;
