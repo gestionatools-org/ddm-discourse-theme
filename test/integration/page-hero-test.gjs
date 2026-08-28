@@ -173,6 +173,28 @@ module("Espublico Theme | Integration | page hero", function (hooks) {
     assert.dom(".page-hero__button").doesNotExist("but not the action");
   });
 
+  // The `titleKey` + `titleArgs` branch was unexercised by any test before
+  // this — the exact gap that let a mangled tag headline ship
+  // (`Topics tagged <discourse/models/tag:ember1234>`). Exercises the real
+  // locale key and interpolation together, the same path a tag listing goes
+  // through in production.
+  test("interpolates a tag name into the locale string", async function (assert) {
+    stubComposer(this.owner);
+    stubCurrentUser(this.owner, { can_create_topic: true });
+    const content = {
+      title: null,
+      titleKey: "hero.tag.title",
+      titleArgs: { tag: "poster-evf" },
+      subtitle: null,
+      subtitleKey: null,
+      category: null,
+    };
+
+    await render(<template><PageHero @content={{content}} /></template>);
+
+    assert.dom(".page-hero__title").hasText("Topics tagged poster-evf");
+  });
+
   test("renders without a button and without throwing for an anonymous visitor", async function (assert) {
     stubComposer(this.owner);
     stubCurrentUser(this.owner, null);

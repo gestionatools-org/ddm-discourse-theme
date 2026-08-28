@@ -14,7 +14,14 @@ export default class DiscoveryHero extends Component {
   get content() {
     return heroContentFor({
       category: this.args.category,
-      tag: this.args.tag,
+      // Normalised at this boundary, not inside the resolver: core hands the
+      // outlet a `Tag` model (`frontend/discourse/app/routes/tag/show.js`
+      // builds it with `this.store.createRecord("tag", {...})`, and
+      // `discovery/layout.gjs` passes it straight through as `tag=@model.tag`),
+      // but `heroContentFor` interpolates `tag` into a locale string as a
+      // plain string and has its own unit tests asserting that contract.
+      // Reducing to `.name` here keeps the resolver's contract untouched.
+      tag: this.args.tag?.name ?? this.args.tag,
     });
   }
 
