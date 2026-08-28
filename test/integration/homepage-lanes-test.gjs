@@ -81,6 +81,46 @@ function recordingStore(owner, topics) {
   return calls;
 }
 
+// Core's topic list needs real Topic **models**, not the plain objects the
+// other lanes are happy with: `topic-list/item` calls `topic?.get(...)`, so a
+// POJO raises "topic?.get is not a function" as an uncaught global error and
+// fails the run without naming a test. In production the models arrive for
+// free — `store.findFiltered` returns them — so this is a fixture concern only.
+//
+// The real store is looked up *before* the stub replaces it, and the reference
+// stays valid afterwards. `store.createRecord("topic", …)` is core's own idiom,
+// from `tests/integration/components/topic-list-test.gjs`.
+function stubStoreWithModels(owner, attrsList) {
+  const store = owner.lookup("service:store");
+  const topics = attrsList.map((attrs) => store.createRecord("topic", attrs));
+  owner.unregister("service:store");
+  owner.register(
+    "service:store",
+    { findFiltered: async () => ({ topics }) },
+    { instantiate: false }
+  );
+  return topics;
+}
+
+// Same, but it keeps what it was asked for.
+function recordingStoreWithModels(owner, attrsList) {
+  const calls = [];
+  const store = owner.lookup("service:store");
+  const topics = attrsList.map((attrs) => store.createRecord("topic", attrs));
+  owner.unregister("service:store");
+  owner.register(
+    "service:store",
+    {
+      findFiltered: async (type, options) => {
+        calls.push({ type, options });
+        return { topics };
+      },
+    },
+    { instantiate: false }
+  );
+  return calls;
+}
+
 module("Espublico Theme | Integration | homepage lanes", function (hooks) {
   setupRenderingTest(hooks);
 
@@ -91,7 +131,7 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       // stylesheets/app/topic-list.scss, so none of it is reimplemented here.
       // Verified against the reference on 2026-08-28 — community.hubspot.com's
       // own "Temas recientes" section is a real `table.topic-list`.
-      stubStore(this.owner, [
+      stubStoreWithModels(this.owner, [
         topic({ id: 900010, fancy_title: "Un tema reciente" }),
         topic({ id: 900011, fancy_title: "Otro tema" }),
       ]);
@@ -117,7 +157,7 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       // `fancy_title` arrives already cooked, and printing it escaped put
       // "La Seu d&rsquo;Urgell" on the page verbatim. Core's list owns this
       // now; the assertion stays because the regression is ours to notice.
-      stubStore(this.owner, [
+      stubStoreWithModels(this.owner, [
         topic({
           id: 900012,
           fancy_title: "La Seu d&rsquo;Urgell estrena sede",
@@ -138,7 +178,7 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       );
 
       assert
-        .dom(".block-latest .topic-list-item .title")
+        .dom(".block-latest .topic-list-item a.title")
         .hasText("La Seu d\u2019Urgell estrena sede");
     });
 
@@ -147,7 +187,9 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       // it 57% arrival announcements, because 4's listing included category
       // 78's 164 topics. Site-wide `latest` is the honest source for "what's
       // new" and it cannot be emptied by a category reorganisation.
-      const calls = recordingStore(this.owner, [topic({ id: 900013 })]);
+      const calls = recordingStoreWithModels(this.owner, [
+        topic({ id: 900013 }),
+      ]);
 
       withPluginApi((api) =>
         api.renderBlocks("main-outlet-blocks", [
