@@ -83,3 +83,26 @@ body.has-sidebar-page .sidebar-wrapper {
   max-width: var(--ga-measure);
   margin-inline: auto;
 }
+
+// Core paints a category's background image from admin, not from the theme:
+// `d-styles.gjs` injects `body.category-<fullSlug> { background-image: url(...) }`
+// into a runtime `<style>` in the head, and core's base serves it fixed and
+// cover (`common/base/discourse.scss:228`). The class comes from
+// `add-category-tag-classes.gjs`, which both discovery's navigation and
+// `templates/topic.gjs` render — so the photo shows on the listing *and*
+// inside every topic, and with `#main-outlet` transparent it sits behind the
+// posts themselves, not just in the gutters the rules above widened.
+//
+// The brand system asks for a clean surface. Neutralised here, once, rather
+// than by deleting 6 uploads on PRE and 18 on PROD and trusting that nobody
+// uploads another.
+//
+// `html body.category` is (0,1,2) against core's (0,1,1): it outranks rather
+// than ties, the same policy the grid above follows and for the same reason —
+// a load order the theme does not control is a poor thing to depend on. Core
+// writes `.category` alongside `.category-<slug>`, so the selector covers
+// exactly the pages it paints and no others. The dark variant is covered too:
+// a media query adds no specificity.
+html body.category {
+  background-image: none;
+}
