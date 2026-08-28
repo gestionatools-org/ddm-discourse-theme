@@ -1,0 +1,82 @@
+// The application shell — the frame every other surface sits inside.
+//
+// Core caps every `.wrap` at the measure, so the header, the topbar and the
+// sidebar are parked together in an island the width of the measure plus the
+// sidebar (1512px here), floating in the middle of a wide window. This
+// full-bleeds that chrome and hands the measure back to the content column
+// alone. It is the layout community.hubspot.com runs, which is Discourse too.
+//
+// Measured on PRE at 1920 / 1600 / 1280 / 390, on a listing, the homepage and a
+// topic. The reading measure inside a post is untouched at every width.
+
+// Releasing the cap is done by widening the variable over the chrome's subtree
+// rather than by overriding `max-width` on `.wrap`. Custom properties inherit,
+// so redefining one on a descendant simply wins for that subtree — no
+// specificity contest with core's `body.has-sidebar-page .wrap`, which an
+// equal-specificity theme rule does not reliably beat on this instance.
+//
+// 100vw rather than `none`: core builds the sidebar case as
+// `calc(var(--d-sidebar-width) + var(--d-max-width))`, and `none` inside a
+// `calc()` invalidates the whole declaration. A viewport-relative length can
+// never bind instead, because a wrap's containing block is at most the viewport.
+.d-header-wrap,
+.topbar,
+#main-outlet-wrapper {
+  --d-max-width: 100vw;
+}
+
+// Three columns where core has two, so the content column is centred on the
+// window rather than on whatever space is left beside the sidebar.
+//
+// `minmax()` does the responsive work with no breakpoints at all: the left
+// gutter is not allowed below the sidebar's own width, so the right gutter
+// gives way first, and only once that has reached zero does the content column
+// begin to narrow. 1920 → 308/1240/308, 1600 → 272/1240/24, 1280 → 272/944/0.
+//
+// That pins the content in the same place whether the sidebar is open or shut,
+// but only while the window can afford it — from 1848px up
+// (measure + both gaps + two sidebar widths). Below that the left gutter is
+// held at the sidebar's width and the content sits beside it instead of
+// centred, so toggling the sidebar still shifts it. The reference makes the
+// same trade; centring at every width would mean letting the sidebar overlap
+// the content.
+//
+// `grid-template-areas` is deliberately left alone — core names two areas, and
+// the third column stays unnamed and simply holds the right gutter. Redefining
+// the areas would also mean owning core's `below-content` row and its
+// `sidebar-animate` transition.
+//
+// `.wrap` is on the selector for specificity only: core's own rule is already
+// `body.has-sidebar-page #main-outlet-wrapper`, so matching it exactly would
+// merely tie — and a tie does not win here.
+body.has-sidebar-page #main-outlet-wrapper.wrap {
+  grid-template-columns:
+    minmax(var(--d-sidebar-width), 1fr)
+    minmax(0, var(--ga-measure))
+    1fr;
+
+  // The gutters and the column gap supply the margins now, so the wrap's own
+  // inline padding would do nothing but push the sidebar off the window edge.
+  // Scoped to the sidebar case on purpose: with no sidebar core keeps this
+  // padding, and it is the only thing holding content off the edge on a phone.
+  padding-inline: 0;
+}
+
+// The sidebar holds its own width instead of stretching to fill the gutter. Its
+// panel is painted (see sidebar.scss), so a stretched one would read as a
+// mistake that grows and shrinks with the window.
+body.has-sidebar-page .sidebar-wrapper {
+  justify-self: start;
+  width: var(--d-sidebar-width);
+}
+
+// The measure, back where it belongs. `max-width` carries the case core lays
+// out in a single column — no sidebar, so no middle track to bound it.
+// Restoring the variable as well keeps every consumer *inside* the column
+// reading the measure rather than the viewport: `.more-topics__container`
+// divides it, and would otherwise be sized against the whole window.
+#main-outlet {
+  --d-max-width: var(--ga-measure);
+  max-width: var(--ga-measure);
+  margin-inline: auto;
+}
