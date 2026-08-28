@@ -1,0 +1,28 @@
+// The global notice band, between the header and the page.
+//
+// Core renders one `.alert` per active notice into `.global-notice`, keyed by
+// an id class: `alert-read-only`, `alert-staff-writes-only`, `theme-preview`,
+// `alert-global-notice` (the admin's own announcement, from the `global_notice`
+// site setting), and `alert-emails-disabled`. None of them is dismissable —
+// `dismissable` defaults to false in core's `Notice`, so no close button is
+// rendered and there is no way to silence one from the UI.
+//
+// Only the email one is suppressed here, and only that one. Outgoing email is
+// disabled site-wide on our instances by deliberate configuration, so the
+// notice states a permanent condition rather than reporting an incident: it
+// costs every member ~61px above the fold on every page, forever, to say
+// something nobody can act on. The others report transient states an admin does
+// need to see, so they keep rendering.
+//
+// The cost of hiding it: the same id class also carries core's "email is not
+// configured" warning (`site.email_configured === false`), which *is* a fault
+// signal — core scopes that one to admin/login routes, but nothing in the
+// markup distinguishes it from ours, so it goes quiet too. If SMTP ever has to
+// work on an instance running this theme, delete this file.
+//
+// Hiding the `.alert` is enough: `.global-notice` and its `.row` wrapper carry
+// no box of their own — measured on PRE 2026-08-28, both collapse to 0px with
+// the alert out, leaving no gap.
+.global-notice .alert-emails-disabled {
+  display: none;
+}
