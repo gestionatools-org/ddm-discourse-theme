@@ -78,10 +78,18 @@
   // --- Semantic surfaces --------------------------------------------------
   // Core's --secondary is the page background (the system's --background).
   // Cards sit one step above it, which core has no token for.
+  //
+  // The light scheme's floor is neutral-100, not neutral-50, and every step
+  // below is measured from there. It used to be neutral-50, which left the page
+  // 1.037:1 from white — a gap the eye does not resolve, so the header and the
+  // cards that are supposed to sit *above* the page read as level with it.
+  // Dropping the floor one step puts white at 1.097:1 and gives the elevated
+  // surfaces something to be elevated from. The dark scheme never had the
+  // problem: its floor is #071318 and its card is #0f1e24.
   --ga-card: light-dark(var(--ga-neutral-0), var(--ga-dark-card));
-  --ga-muted: light-dark(var(--ga-neutral-100), var(--ga-dark-muted));
+  --ga-muted: light-dark(var(--ga-neutral-200), var(--ga-dark-muted));
   --ga-accent-surface: light-dark(var(--ga-cyan-50), var(--ga-dark-accent));
-  --ga-border: light-dark(var(--ga-neutral-200), var(--ga-dark-border));
+  --ga-border: light-dark(var(--ga-neutral-300), var(--ga-dark-border));
   --ga-muted-fg: light-dark(var(--ga-neutral-600), var(--ga-dark-muted-fg));
 
   // Decorative cyan: fills, rules, icon marks. Never text on a light surface.
@@ -89,9 +97,16 @@
   --ga-mark: var(--ga-cyan-500);
 
   // The 3px edge, the signature of the system. Its colour is decided by the
-  // surface underneath, not by the element: this value is calibrated to 3.09:1
-  // against the light background, which is why it drops one ramp step there.
+  // surface underneath, not by the element, and 3:1 is the floor: it is
+  // non-text content that carries meaning, so WCAG 1.4.11 applies to it.
+  //
+  // cyan-700 rather than cyan-600 because the light floor moved. On the old
+  // neutral-50 page cyan-600 measured 3.09:1 — over the line by 0.09. On
+  // neutral-100 the same colour is 2.92:1 and fails. cyan-700 reads 4.04:1 on
+  // the page and 4.43:1 on a white card, so it clears both surfaces the edge
+  // is ever drawn on with room to spare rather than by a rounding error.
+  //
   // On the dark scheme's own background that constraint does not apply and the
   // edge uses the brand cyan at full strength instead.
-  --ga-edge: light-dark(var(--ga-cyan-600), var(--ga-cyan-500));
+  --ga-edge: light-dark(var(--ga-cyan-700), var(--ga-cyan-500));
 }

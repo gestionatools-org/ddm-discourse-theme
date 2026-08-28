@@ -1,14 +1,19 @@
 // The information band above the site header.
 //
-// Deliberately quieter than the header below it. That header is white and
-// carries the logotype; a saturated band on top of it would outweigh the mark
-// and invert the page's hierarchy. This is context, not primary navigation, so
-// it sits below the header visually as well as structurally.
+// It carries no surface of its own: the band is the page, and only its
+// trailing hairline says where it ends. The band used to be painted --ga-muted
+// to sit visibly below the header, but that put three tones in the top 90px of
+// the page — muted band, white header, near-white body — competing to be read
+// as the topmost thing. Letting the band fall back to the floor leaves exactly
+// one elevated surface up there, which is the header, and the hierarchy states
+// itself instead of being argued.
+//
+// This is context, not primary navigation, and being level with the page is
+// what says so.
 //
 // No 3px cyan edge. That gesture means "active, focused or leading" in the
 // identity system, not "topmost", and spending it here would devalue it.
 .topbar {
-  background: var(--ga-muted);
   border-bottom: 1px solid var(--ga-border);
   font-size: var(--font-down-2);
 
