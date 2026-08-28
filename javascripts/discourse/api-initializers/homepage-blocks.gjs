@@ -2,14 +2,16 @@ import BlockGroup from "discourse/blocks/builtin/block-group";
 import { apiInitializer } from "discourse/lib/api";
 import BlockEvents from "../blocks/block-events";
 import BlockForum from "../blocks/block-forum";
+import BlockHero from "../blocks/block-hero";
 import BlockLibrary from "../blocks/block-library";
 import BlockNews from "../blocks/block-news";
 import BlockShowcase from "../blocks/block-showcase";
 import { parseCategoryIds } from "../lib/category-topics";
 
-// The homepage is composed of six lanes. Every lane but the first is keyed by
-// category ID because this instance's slugs are legacy and no longer match
-// their category; the news lane is site-wide and has no category to lose.
+// The homepage is composed of six lanes below a heading band. Every lane but
+// the first is keyed by category ID because this instance's slugs are legacy
+// and no longer match their category; the news lane is site-wide and has no
+// category to lose.
 //
 // Each lane's shape follows how its category is actually used, measured rather
 // than assumed: conversational categories get topic lists with reply counts,
@@ -19,8 +21,16 @@ import { parseCategoryIds } from "../lib/category-topics";
 // No user or group conditions: every member of this community is a student, so
 // the only split is anonymous vs. signed in, which category permissions already
 // enforce server-side.
+//
+// The hero band is the first entry, ahead of every lane, and takes no args of
+// its own — it is the same component and resolver the category pages use,
+// called with no context so it renders the community copy.
 export default apiInitializer((api) => {
   api.renderBlocks("homepage-blocks", [
+    {
+      block: BlockHero,
+      id: "home-hero",
+    },
     {
       block: BlockGroup,
       id: "home-main",

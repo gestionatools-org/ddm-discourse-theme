@@ -1,0 +1,119 @@
+// The heading band at the top of the homepage and every listing.
+//
+// Edge to edge of the content column, not of the window. Full-bleed would mean
+// fighting the measure cap `layout.scss` already negotiates, and the reference
+// (community.hubspot.com) bleeds its chrome, not its page heading.
+//
+// If full-bleed is ever wanted here, test the rule by inserting it into the
+// theme's own compiled sheet. A <style> appended to <head> from the console is
+// not a faithful preview of a theme rule — that mistake produced a confident,
+// wrong conclusion about this instance's cascade that reached a commit message.
+.page-hero {
+  // The gradient runs dark-to-brand so the title sits on the deeper end. In the
+  // dark scheme both stops drop a step: on that background petrol-700 is a
+  // surface, not a lift.
+  background: linear-gradient(
+    135deg,
+    light-dark(var(--ga-petrol-800), var(--ga-petrol-950)),
+    light-dark(var(--ga-petrol-700), var(--ga-petrol-900))
+  );
+  border-radius: var(--ga-radius-xl);
+  padding: var(--space-6) var(--space-5);
+
+  // The homepage lane needs no outer margin — `homepage.scss`'s grid `gap`
+  // already spaces every lane, including this one. The discovery mount has
+  // nothing else supplying it, so it opts in explicitly rather than the base
+  // rule carrying a margin the homepage would then double up on.
+  &.--standalone {
+    margin-block: var(--space-5);
+  }
+
+  &__inner {
+    display: flex;
+    flex-direction: column;
+
+    // Left-aligned, not centred. The band shares the content column with the
+    // topic list below it, and a centred heading breaks the reading edge every
+    // listing establishes down its left side.
+    //
+    // Logical values rather than `left`/`flex-start` so the whole band mirrors
+    // with the document direction, the way `margin-inline-start` does in
+    // `topbar.scss`.
+    align-items: start;
+    gap: var(--space-3);
+    text-align: start;
+  }
+
+  &__title {
+    margin: 0;
+
+    // 5.94:1 on petrol-700 — the deepest stop the gradient reaches under it.
+    color: var(--ga-neutral-0);
+
+    // Roboto Slab, the system's typographic signature. The theme vendors it
+    // and decides where it lands precisely so it stays on page titles and
+    // brand moments — it "pierde su valor si se reparte".
+    font-family: var(--ga-font-slab);
+    font-size: var(--font-up-4);
+    line-height: var(--line-height-small);
+  }
+
+  &__subtitle {
+    // 5.00:1 on petrol-700. A step down from the title in tone, not in size,
+    // so the two read as one voice.
+    max-width: 46rem;
+    margin: 0;
+    color: var(--ga-petrol-100);
+    font-size: var(--font-up-1);
+    line-height: var(--line-height-medium);
+
+    // Category 85 carries 414 characters. Clamping is presentation: the whole
+    // description goes on serving the native categories page, and nobody has to
+    // rewrite a description in admin to keep this band in proportion.
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  &__button.btn-primary {
+    // Brand cyan is a fill here, never text on a light surface — the constraint
+    // recorded in colors.scss. Ink on it measures 6.81:1.
+    margin-block-start: var(--space-2);
+    background: var(--ga-mark);
+    color: var(--ga-petrol-950);
+
+    // WCAG 1.4.11 non-text contrast: the fill itself does not clear 3:1 against
+    // every point of the gradient it sits on. --ga-mark (#00b4d3) against the
+    // gradient's lighter stop in the light scheme, --ga-petrol-700 (#006d87),
+    // is 2.39:1 — the 135deg gradient runs toward that stop at bottom-right,
+    // exactly where this centred button sits. The dark-scheme stops (and
+    // --ga-petrol-800) already clear 3:1; only this one combination fails.
+    // Rather than touch the gradient — which would change the title and
+    // subtitle contrast figures pinned above, computed against exactly these
+    // two stops — the button gets a border that clears 3:1 on its own,
+    // light scheme only, using the SC's own carve-out for a sufficiently
+    // contrasting border. White against petrol-700 is already used for the
+    // title at 5.94:1, well past the 3:1 floor; the dark scheme keeps it
+    // transparent since its fill already passes without one.
+    border: 2px solid light-dark(var(--ga-neutral-0), transparent);
+
+    &:hover,
+    &:focus-visible {
+      background: var(--ga-cyan-400);
+      color: var(--ga-petrol-950);
+    }
+  }
+
+  @include viewport.until(sm) {
+    padding: var(--space-5) var(--space-4);
+
+    &__title {
+      font-size: var(--font-up-2);
+    }
+
+    &__subtitle {
+      font-size: var(--font-0);
+    }
+  }
+}

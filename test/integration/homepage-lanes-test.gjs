@@ -5,6 +5,7 @@ import { withPluginApi } from "discourse/lib/plugin-api";
 import { setupRenderingTest } from "discourse/tests/helpers/component-test";
 import BlockEvents from "../../discourse/blocks/block-events";
 import BlockForum from "../../discourse/blocks/block-forum";
+import BlockHero from "../../discourse/blocks/block-hero";
 import BlockNews from "../../discourse/blocks/block-news";
 import BlockShowcase from "../../discourse/blocks/block-showcase";
 
@@ -178,6 +179,20 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       );
 
       assert.deepEqual(calls[0].options, { filter: "latest" });
+    });
+  });
+
+  module("hero band", function () {
+    test("renders the community copy at the top of the homepage", async function (assert) {
+      withPluginApi((api) =>
+        api.renderBlocks("main-outlet-blocks", [{ block: BlockHero }])
+      );
+
+      await render(
+        <template><BlockOutlet @name="main-outlet-blocks" /></template>
+      );
+
+      assert.dom(".page-hero__title").hasText("We keep learning together");
     });
   });
 
