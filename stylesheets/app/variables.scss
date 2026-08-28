@@ -8,9 +8,16 @@
   --d-button-border-radius: 8px;
   --d-input-border-radius: 8px;
 
-  // The decks run a 1280px stage; keep the forum measure close to it so
-  // embedded slide screenshots sit at their native scale.
-  --d-max-width: 1240px;
+  // The measure — how wide a column of content is allowed to get. The decks run
+  // a 1280px stage; keep the forum measure close to it so embedded slide
+  // screenshots sit at their native scale.
+  //
+  // It gets its own token because the layout hands --d-max-width two different
+  // jobs, and only one of them is the measure — see stylesheets/app/layout.scss.
+  // Core consumers that are not the content column (the composer's hide-preview
+  // offset, large badge cards) keep reading --d-max-width and keep getting this.
+  --ga-measure: 1240px;
+  --d-max-width: var(--ga-measure);
 
   // Shape tokens from the identity system.
   //
