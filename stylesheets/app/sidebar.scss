@@ -1,4 +1,11 @@
-// The sidebar sits on the page's own surface.
+// The sidebar is chrome, and chrome is the elevated surface.
+//
+// The rail and the header share one tone and the reading area has another, so
+// the tone carries a distinction instead of an accident: white is persistent
+// navigation, the floor is where you read. They meet at a corner and close an L
+// from the logo down the left edge. The topbar stays on the floor and is the
+// better for it — it is context, not navigation, which is the argument that put
+// it there.
 //
 // It used to be petrol dark in both schemes — a deliberate inversion that gave
 // the brand cyan a surface it could carry text on, since #00b4d3 scores 2.48:1
@@ -6,30 +13,34 @@
 // dark slab down the side of an otherwise light interface, and the slab is what
 // went. What replaces it costs no accessibility: the action colour already
 // inverts per scheme in `about.json`, so `--tertiary` is petrol on light
-// (5.72:1 against the page) and brand cyan on dark (7.59:1). The state is
+// (5.94:1 against the rail) and brand cyan on dark (7.59:1). The state is
 // marked at full strength either way, without a surface of its own.
 //
-// Separation is now the border's job, not the fill's — which is the system's
-// own rule for flat surfaces, see `elevation.scss`.
+// Tone and border now say the same thing, which is deliberate rather than
+// redundant: the tone groups the rail with the header across a gap the eye has
+// to jump, and the hairline draws the join where rail and reading area actually
+// touch. `elevation.scss` still forbids a shadow here — a border does this.
 //
 // Every variable below was read out of core's own
 // `common/base/sidebar{,-section,-section-link}.scss`, not from the abbreviated
 // list in the authoring skill, which omits about half of them.
 :root {
-  // The rail is the same plane as the content beside it. Only the border says
-  // where one ends and the other begins.
-  --d-sidebar-background: var(--secondary);
+  // --ga-card, not a white of its own: the token already means "the surface
+  // that sits above the floor", so the dark scheme follows to #0f1e24 without a
+  // second declaration, and the rail can never drift from the cards it is
+  // supposed to share a plane with.
+  --d-sidebar-background: var(--ga-card);
   --d-sidebar-border-color: var(--ga-border);
   --d-sidebar-section-border-color: var(--ga-border);
 
-  // Link text sits one step below the page's ink: 8.37:1 on light, 13.05:1 on
+  // Link text sits one step below the page's ink: 8.68:1 on light, 13.05:1 on
   // dark. Full --primary would make a menu shout as loud as a post.
   --d-sidebar-link-color: light-dark(
     var(--ga-neutral-700),
     var(--ga-neutral-300)
   );
 
-  // Icons and section headers share the muted tone — 5.59:1 / 7.61:1, still
+  // Icons and section headers share the muted tone — 5.80:1 / 7.61:1, still
   // body-text legible, clearly quieter than the links they accompany. Headers
   // separate from icons by size and case, so they need no second tone.
   --d-sidebar-link-icon-color: var(--ga-muted-fg);
@@ -43,9 +54,10 @@
   --d-sidebar-active-icon-color: var(--tertiary);
   --d-sidebar-active-suffix-color: var(--tertiary);
 
-  // The filo carries the active state, so the row keeps the page surface rather
-  // than gaining a block of fill behind it. This is the line that does the most
-  // work for "clean": with a pill here the rail reads as a stack of buttons.
+  // The filo carries the active state, so the row keeps the rail's own surface
+  // rather than gaining a block of fill behind it. This is the line that does
+  // the most work for "clean": with a pill here the rail reads as a stack of
+  // buttons.
   --d-sidebar-active-background: transparent;
 
   // 500 is the system's emphasis weight. The active item must be marked by
@@ -56,8 +68,11 @@
   // in the meantime.
   --d-sidebar-active-font-weight: 500;
 
-  // Hover is the page's own muted step, so pointing at a row lifts it without
-  // introducing a colour. Core's "highlight" pair is the keyboard/hover state.
+  // Hover is the muted step, so pointing at a row lifts it without introducing
+  // a colour. It reads better against a white rail than it did against the
+  // floor — 1.237:1 rather than 1.128:1, which is the difference between
+  // noticing that a row responds and not noticing. Core's "highlight" pair is
+  // the keyboard/hover state.
   --d-sidebar-highlight-background: var(--ga-muted);
   --d-sidebar-highlight-hover-background: var(--ga-muted);
   --d-sidebar-highlight-color: var(--primary);
@@ -68,11 +83,22 @@
   --d-sidebar-link-badge-color: var(--ga-muted-fg);
 }
 
+// Core paints the rail itself from --d-sidebar-background, but the wrapper
+// around it inherits the page surface — which is the floor, not the rail. Left
+// alone that shows as a strip of the wrong colour beside a white rail. This
+// rule existed for the dark rail, was deleted when the rail briefly matched the
+// page, and comes back now for the same reason it was written: the wrapper has
+// to be told.
+.sidebar-wrapper {
+  background: var(--ga-card);
+}
+
 // The filo. Applied to the link rather than the row so it aligns with the text
 // box, and drawn as an inset shadow rather than a border so it never shifts the
 // row's contents. --ga-edge rather than a cyan of its own: the edge's colour is
 // decided by the surface underneath it, and on a light surface that is the same
-// token `nav.scss` already paints its pill with. Core marks the current item
+// token `nav.scss` already paints its pill with. On the white rail it measures
+// 4.43:1, its best surface anywhere in the theme. Core marks the current item
 // with three different classes depending on how it was matched; all three mean
 // "you are here".
 .sidebar-section-link.active,
