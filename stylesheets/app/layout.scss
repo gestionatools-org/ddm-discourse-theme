@@ -11,9 +11,9 @@
 
 // Releasing the cap is done by widening the variable over the chrome's subtree
 // rather than by overriding `max-width` on `.wrap`. Custom properties inherit,
-// so redefining one on a descendant simply wins for that subtree — no
-// specificity contest with core's `body.has-sidebar-page .wrap`, which an
-// equal-specificity theme rule does not reliably beat on this instance.
+// so redefining one on a descendant wins for that subtree outright: it is a
+// different element from the `:root` that declares it, so there is no
+// specificity contest with core to have an opinion about.
 //
 // 100vw rather than `none`: core builds the sidebar case as
 // `calc(var(--d-sidebar-width) + var(--d-max-width))`, and `none` inside a
@@ -46,9 +46,12 @@
 // the areas would also mean owning core's `below-content` row and its
 // `sidebar-animate` transition.
 //
-// `.wrap` is on the selector for specificity only: core's own rule is already
-// `body.has-sidebar-page #main-outlet-wrapper`, so matching it exactly would
-// merely tie — and a tie does not win here.
+// `.wrap` is on the selector to outrank core rather than to tie it. Core's own
+// rule is already `body.has-sidebar-page #main-outlet-wrapper`, so matching it
+// exactly would tie at (1,1,1) and rely on the theme's stylesheet being the
+// later one. It is — a tie declared in the compiled theme sheet does win, see
+// CLAUDE.md — but the extra class means this rule does not depend on that, and
+// a load order the theme does not control is a poor thing to depend on.
 body.has-sidebar-page #main-outlet-wrapper.wrap {
   grid-template-columns:
     minmax(var(--d-sidebar-width), 1fr)
