@@ -2,6 +2,7 @@ import Component from "@glimmer/component";
 import { action } from "@ember/object";
 import { service } from "@ember/service";
 import { trustHTML } from "@ember/template";
+import PermissionType from "discourse/models/permission-type";
 import DButton from "discourse/ui-kit/d-button";
 import dReplaceEmoji from "discourse/ui-kit/helpers/d-replace-emoji";
 import { i18n } from "discourse-i18n";
@@ -43,19 +44,21 @@ export default class PageHero extends Component {
   // everywhere — so which categories land on the false branch is verified on
   // PRE with a non-admin account rather than asserted here.
   //
-  // `1` is Discourse's `full` permission constant, compared exactly rather than
-  // with a truthiness check: loosening it would show the button in read-only
-  // categories the current user can see but not post in.
+  // Strict equality against `PermissionType.FULL`, not a truthiness check or a
+  // fallback for the absent case. Core writes the field itself, conditionally:
+  // `app/models/site.rb` sets `category[:permission] = permission_types[:full]`
+  // only `if allowed_topic_create&.include?(category[:id]) || @guardian.is_admin?`
+  // — there is no `else`, so the key is absent precisely when the user may NOT
+  // create a topic there. Core's own getter agrees:
+  // `frontend/discourse/app/models/category.js`'s `canCreateTopic` is
+  // `this.permission === PermissionType.FULL`, with no absent-case fallback.
+  // So absence must read as false here too. (This line has been got wrong
+  // twice — once treating absence as "unknown, show it anyway" — so the
+  // reasoning is spelled out rather than left to be re-derived.)
   //
-  // An absent (`undefined`/`null`) `permission` field defers to the global
-  // check above instead of hiding the button. Treating an absent field as
-  // "not full" would hide the button site-wide, silently, the moment any
-  // category object doesn't carry the field — the exact failure class this
-  // repo has been bitten by before (a lane rendering nothing for want of a
-  // field, with no error). The reverse mistake — one extra button in a
-  // genuinely read-only category — is visible, bounded, and rare: a
-  // `read_restricted` category isn't shown at all to a user who can't post in
-  // it, and the composer rejects the topic server-side regardless.
+  // `category.permission` is compared directly rather than through
+  // `category.canCreateTopic`: the test fixtures are plain objects, not
+  // `Category` model instances, and have no such getter.
   //
   // `currentUser` is null for an anonymous visitor. The instance is
   // login_required so that is the login page alone, but it is also the one page
@@ -66,15 +69,11 @@ export default class PageHero extends Component {
     }
 
     const { category } = this.args.content;
-    if (
-      !category ||
-      category.permission === undefined ||
-      category.permission === null
-    ) {
+    if (!category) {
       return true;
     }
 
-    return category.permission === 1;
+    return category.permission === PermissionType.FULL;
   }
 
   @action

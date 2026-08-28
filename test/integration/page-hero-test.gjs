@@ -106,11 +106,12 @@ module("Espublico Theme | Integration | page hero", function (hooks) {
     );
   });
 
-  // Pins the deferral rather than a Discourse guarantee: whether a serialized
-  // category always carries a `permission` field is unverified — check on PRE.
-  // Absent the field entirely, the button must still render rather than
-  // disappear silently.
-  test("shows the button when the category carries no permission field", async function (assert) {
+  // Core (`app/models/site.rb`) writes `permission` only when the user may
+  // create a topic in that category — there is no `else` branch, so the field
+  // is absent precisely when the answer is no. An absent field must therefore
+  // hide the button, the same as a present-but-not-full one below; treating
+  // absence as "show it anyway" was the defect this test used to pin.
+  test("hides the button when the category carries no permission field", async function (assert) {
     stubComposer(this.owner);
     stubCurrentUser(this.owner, { can_create_topic: true });
     const content = {
@@ -124,7 +125,31 @@ module("Espublico Theme | Integration | page hero", function (hooks) {
 
     await render(<template><PageHero @content={{content}} /></template>);
 
-    assert.dom(".page-hero__button").exists();
+    assert.dom(".page-hero__button").doesNotExist();
+  });
+
+  // The case that was missing entirely: the global gate is open
+  // (`can_create_topic: true`) but the category itself refuses. Without this,
+  // a category-level regression is invisible — the only other "hides the
+  // button" test below exercises the global gate alone.
+  test("hides the button for a readonly category even when the user can create topics elsewhere", async function (assert) {
+    stubComposer(this.owner);
+    stubCurrentUser(this.owner, { can_create_topic: true });
+    const content = {
+      title: "Administradores",
+      titleKey: null,
+      titleArgs: null,
+      subtitle: null,
+      subtitleKey: null,
+      // 3 is Discourse's `readonly` permission constant — present, but not
+      // `full` (1).
+      category: { id: 3, name: "Administradores", permission: 3 },
+    };
+
+    await render(<template><PageHero @content={{content}} /></template>);
+
+    assert.dom(".page-hero__title").exists("the band still renders");
+    assert.dom(".page-hero__button").doesNotExist();
   });
 
   // The check the API keys cannot measure — /categories.json answers with the
