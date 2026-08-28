@@ -31,7 +31,15 @@
 
   // No inline padding: the box is already the content column, so the text lines
   // up with the topic list below rather than sitting inset from it.
-  padding-block: var(--space-6);
+  //
+  // The block padding is generous on purpose — this is the one place on the
+  // page that is allowed to be quiet. Measured against the reference on
+  // 2026-08-28: community.hubspot.com's category band clears 50px above its
+  // title and 60px below its subtitle, in a band 205px tall. 48px here lands in
+  // the same register; our band also carries a button, so equal padding gives a
+  // comparable overall height without copying their asymmetry, which reads as
+  // incidental rather than designed.
+  padding-block: var(--space-12);
 
   // The homepage lane needs no outer margin — `homepage.scss`'s grid `gap`
   // already spaces every lane, including this one. The discovery mount has
@@ -105,7 +113,9 @@
   }
 
   @include viewport.until(sm) {
-    padding-block: var(--space-5);
+    // Still roomy, but not 48px of it: on a 390px screen that much air pushes
+    // the first topic below the fold on its own.
+    padding-block: var(--space-8);
 
     &__title {
       font-size: var(--font-up-2);
