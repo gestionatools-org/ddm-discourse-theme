@@ -55,7 +55,7 @@ en:
     tag:
       title: "Topics tagged %{tag}"
       subtitle: "Everything the community has filed under this tag"
-    button: "Ask a question"
+    button: "New post"
 
   homepage:
     news:

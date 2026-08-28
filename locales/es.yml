@@ -56,7 +56,7 @@ es:
     tag:
       title: "Temas etiquetados %{tag}"
       subtitle: "Todo lo que la comunidad ha guardado bajo esta etiqueta"
-    button: "Hacer una pregunta"
+    button: "Nueva publicación"
 
   homepage:
     news:
