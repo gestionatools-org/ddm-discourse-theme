@@ -46,6 +46,18 @@ es:
         one: "me gusta"
         other: "me gusta"
 
+  # La banda de cabecera de la portada y de cada listado. Una página de
+  # categoría sustituye ambos textos por su propio nombre y descripción, así que
+  # esto es lo que se ve en /latest, /top y /unread.
+  hero:
+    home:
+      title: "Seguimos aprendiendo juntos"
+      subtitle: "Comparte tus ideas o recibe consejos de otros usuarios certificados"
+    tag:
+      title: "Temas etiquetados %{tag}"
+      subtitle: "Todo lo que la comunidad ha guardado bajo esta etiqueta"
+    button: "Hacer una pregunta"
+
   homepage:
     news:
       title: "Novedades"

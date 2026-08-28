@@ -45,6 +45,18 @@ en:
         one: "like"
         other: "likes"
 
+  # The heading band at the top of the homepage and every listing. A category
+  # page overrides both strings with its own name and description, so these are
+  # the fallback the community sees on /latest, /top and /unread.
+  hero:
+    home:
+      title: "We keep learning together"
+      subtitle: "Share your ideas or get advice from other certified users"
+    tag:
+      title: "Topics tagged %{tag}"
+      subtitle: "Everything the community has filed under this tag"
+    button: "Ask a question"
+
   homepage:
     news:
       title: "What's new"
