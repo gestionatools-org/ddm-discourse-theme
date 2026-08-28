@@ -54,3 +54,30 @@
     }
   }
 }
+
+// The panel variant, used by the ideas lane beside the latest list.
+//
+// A card, like the shortcuts card above it, because in the panel this lane is
+// support for the reading column rather than a section in its own right. The
+// heading loses its trailing link in the template — at ~430px it wrapped onto a
+// second line and started reading as a new section — so the header here is a
+// title alone and needs no space held for a button beside it.
+.block-forum.--compact {
+  padding: var(--space-5);
+  border-radius: var(--d-border-radius-large);
+  border: 1px solid var(--ga-border);
+
+  .block-forum__title {
+    font-size: var(--font-0);
+  }
+
+  // Tighter rows: the panel shows more titles in less width, so the vertical
+  // rhythm has to give way before the line length does.
+  .block-forum__item {
+    padding-block: var(--space-2);
+  }
+
+  .block-forum__item-title {
+    font-size: var(--font-down-1);
+  }
+}

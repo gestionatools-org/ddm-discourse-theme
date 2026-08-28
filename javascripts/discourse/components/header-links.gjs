@@ -1,31 +1,19 @@
 import Component from "@glimmer/component";
 import { i18n } from "discourse-i18n";
+import { destinationLinks } from "../lib/destination-links";
 
 // Destination links in the site header: Academy, Demo Gestiona, Primeros pasos.
 //
-// Labels are i18n keys and live in locales/*.yml; only the URLs are settings.
-// That split is the theme's rule — settings.yml is functional configuration,
-// every user-visible string is a translation.
+// The list, the trim and the drop-if-empty rule moved to
+// `lib/destination-links.js` when the homepage's shortcuts card became a second
+// consumer of the same three destinations. This component owns the header's
+// presentation of them and nothing else.
 //
 // A link with no URL configured renders nothing rather than pointing at "#",
 // and the nav element itself disappears when none is set.
-//
-// The URL reaches `href` after nothing but a trim, so an absolute destination
-// typed without its scheme resolves as a path on this forum and 404s. The
-// setting descriptions in locales/en.yml say so; there is no validation to
-// lean on, because `validations: { url: true }` exists only for properties
-// inside a `type: objects` schema.
-const LINKS = [
-  { key: "header.links.academy", url: () => settings.academy_url },
-  { key: "header.links.demo", url: () => settings.demo_url },
-  { key: "header.links.first_steps", url: () => settings.first_steps_url },
-];
-
 export default class HeaderLinks extends Component {
   get links() {
-    return LINKS.map(({ key, url }) => ({ key, url: url()?.trim() })).filter(
-      (link) => link.url
-    );
+    return destinationLinks();
   }
 
   <template>

@@ -1,14 +1,38 @@
 import Component from "@glimmer/component";
+import { service } from "@ember/service";
 import { block } from "discourse/blocks";
+import TopicList from "discourse/components/topic-list/list";
+import { bind } from "discourse/lib/decorators";
+import DAsyncContent from "discourse/ui-kit/d-async-content";
+import DButton from "discourse/ui-kit/d-button";
+import dIcon from "discourse/ui-kit/helpers/d-icon";
+import { i18n } from "discourse-i18n";
+import { loadLatestTopics } from "../lib/category-topics";
 
-// STUB — args declared, behaviour not yet honoured.
+// The site-wide latest topics, rendered with core's own topic list.
 //
-// Deliberate, and the order matters. An undeclared arg raises an uncaught
-// BlockError that aborts the entire QUnit run, taking down tests that have
-// nothing to do with blocks; and an import of a missing export makes Rollup
-// hard-fail the whole theme bundle, reported as a compile error rather than a
-// test failure. So the export and the arg schema land first, inert, and the
-// implementation follows on top of a suite that still reports.
+// This lane used to print a hand-rolled `<ul>` of titles and excerpts. It
+// renders `discourse/components/topic-list/list` instead — the same component
+// every listing uses — for three reasons, all of them measured rather than
+// assumed:
+//
+//   - It is what the reference does. community.hubspot.com's own "Temas
+//     recientes" section is a real `table.topic-list` with core's classes,
+//     checked live on 2026-08-28: `main-link`, `posters`, `num posts`, `views`,
+//     `activity`.
+//   - The theme already styles that table — `stylesheets/app/topic-list.scss`
+//     puts its header on `--ga-muted`, swaps core's borders for the brand
+//     hairline and forces tabular figures. The list arrives on the homepage
+//     already wearing the brand, with no new SCSS.
+//   - Reply, view and activity counts are the signal a "what's new" lane is
+//     for, and reimplementing any of them would be rebuilding core badly.
+//
+// What is given up is the excerpt: the native list has no room for one. The
+// `serialize_topic_excerpts` modifier stays — the showcase lane still reads it.
+//
+// `import TopicList from "discourse/components/topic-list/list"` and **not**
+// `discourse/components/topic-list`, which is a deprecated shim that logs
+// `discourse.legacy-topic-list` and curries straight through to this one.
 @block("theme:espublico:latest", {
   description: "The site-wide latest topics, as core's own topic list",
   args: {
@@ -19,7 +43,51 @@ import { block } from "discourse/blocks";
   },
 })
 export default class BlockLatest extends Component {
+  @service store;
+
+  @bind
+  async fetchTopics() {
+    return await loadLatestTopics(this.store, this.args.count);
+  }
+
   <template>
-    <section class="block-latest"></section>
+    <section class="block-latest">
+      <header class="block-latest__header">
+        <h2 class="block-latest__title">
+          {{dIcon "newspaper"}}
+          {{i18n (themePrefix @title)}}
+        </h2>
+        {{#if @linkUrl}}
+          <DButton
+            class="btn-flat block-latest__link"
+            @href={{@linkUrl}}
+            @translatedLabel={{i18n (themePrefix @linkText)}}
+          />
+        {{/if}}
+      </header>
+
+      <DAsyncContent @asyncData={{this.fetchTopics}}>
+        <:loading>
+          <div class="block-latest__loading"><div class="spinner" /></div>
+        </:loading>
+
+        <:empty>
+          <p class="block-latest__empty">{{i18n
+              (themePrefix "homepage.latest.empty")
+            }}</p>
+        </:empty>
+
+        <:content as |topics|>
+          {{! `showPosters` opts into the participants column — the one column
+              that carries faces rather than numbers, and the reason the
+              reference's list reads as a community rather than as a report.
+
+              No `bulkSelectHelper` and no `canBulkSelect`: bulk selection
+              belongs to a moderator working through a real listing, and the
+              checkbox column would cost the title width it needs here. }}
+          <TopicList @topics={{topics}} @showPosters={{true}} />
+        </:content>
+      </DAsyncContent>
+    </section>
   </template>
 }

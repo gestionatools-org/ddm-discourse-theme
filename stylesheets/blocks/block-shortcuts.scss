@@ -1,0 +1,43 @@
+// The short card at the top of the homepage panel: one action, three
+// destinations.
+//
+// It is a card where the lanes beside it are not, and that is the point — the
+// panel has to read as support for the reading column rather than as a second
+// column of equal weight. The surface is `--ga-muted`, the same one step above
+// the page that the heading band uses, so the two agree.
+.block-shortcuts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  border-radius: var(--d-border-radius-large);
+  background: var(--ga-muted);
+}
+
+.block-shortcuts__title {
+  margin: 0;
+  color: var(--primary);
+  font-family: var(--ga-font-slab);
+  font-size: var(--font-up-1);
+  line-height: var(--line-height-small);
+}
+
+.block-shortcuts__new-topic {
+  // Full width of the card: it is the card's reason to exist, and a button
+  // shrink-wrapped to its label reads as one option among several.
+  justify-content: center;
+  width: 100%;
+}
+
+.block-shortcuts__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.block-shortcuts__link {
+  font-size: var(--font-down-1);
+}
