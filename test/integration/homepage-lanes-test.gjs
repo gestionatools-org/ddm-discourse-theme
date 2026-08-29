@@ -3,10 +3,10 @@ import { module, test } from "qunit";
 import BlockOutlet from "discourse/blocks/block-outlet";
 import { withPluginApi } from "discourse/lib/plugin-api";
 import { setupRenderingTest } from "discourse/tests/helpers/component-test";
+import BlockEvents from "../../discourse/blocks/block-events";
 import BlockForum from "../../discourse/blocks/block-forum";
 import BlockHero from "../../discourse/blocks/block-hero";
 import BlockLatest from "../../discourse/blocks/block-latest";
-import BlockShortcuts from "../../discourse/blocks/block-shortcuts";
 
 // The three bugs left from the 2026-08-16/17 review live in the templates, not
 // in the pipeline `test/acceptance/category-topics-test.js` already covers.
@@ -213,84 +213,96 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
     });
   });
 
-  module("panel", function (panelHooks) {
-    // Theme settings are global for the run, so a lane that writes one has to
-    // put it back — otherwise the next module inherits it. The header-links
-    // acceptance test does the same thing for the same three settings.
-    panelHooks.afterEach(function () {
-      settings.academy_url = "";
-      settings.demo_url = "";
-      settings.first_steps_url = "";
-    });
+  module("events lane", function () {
+    // Relative to now, so the split cannot rot into a false pass the way a
+    // hardcoded date would.
+    const day = 86400000;
+    const soon = new Date(Date.now() + day).toISOString();
+    const later = new Date(Date.now() + 30 * day).toISOString();
+    const gone = new Date(Date.now() - 30 * day).toISOString();
 
-    test("renders the shortcut destinations that are configured", async function (assert) {
-      settings.academy_url = "https://academy.example.com";
-      settings.demo_url = "/demo";
-      settings.first_steps_url = "";
-
-      // `setupRenderingTest` signs nobody in, so the card's `can_create_topic`
-      // guard hides the composer button by default. Stubbed rather than worked
-      // around: the guard is the behaviour worth asserting, and the instance is
-      // login_required, so a real viewer always has a user.
-      this.owner.unregister("service:current-user");
-      this.owner.register(
-        "service:current-user",
-        { can_create_topic: true },
-        { instantiate: false }
-      );
-
+    function renderEvents() {
       withPluginApi((api) =>
         api.renderBlocks("main-outlet-blocks", [
           {
-            block: BlockShortcuts,
-            args: {
-              title: "homepage.shortcuts.title",
-              newTopicText: "homepage.shortcuts.new_topic",
-            },
+            block: BlockEvents,
+            args: { title: "homepage.events.title", categoryId: 59, count: 4 },
           },
         ])
       );
 
-      await render(
+      return render(
         <template><BlockOutlet @name="main-outlet-blocks" /></template>
       );
+    }
 
-      // A link with an empty URL is not rendered — the same rule the header
-      // links follow, so an undecided destination leaves no dead affordance.
-      assert.dom(".block-shortcuts__link").exists({ count: 2 });
+    test("puts what is still ahead first, soonest first", async function (assert) {
+      // The listing arrives bumped_at descending whatever the category's event
+      // sort setting says, so the one upcoming event led the lane only by
+      // accident of being the most recently bumped topic. Served out of order
+      // here on purpose.
+      stubStore(this.owner, [
+        topic({ id: 900040, fancy_title: "Congreso", event_starts_at: later }),
+        topic({
+          id: 900041,
+          fancy_title: "Jornada pasada",
+          event_starts_at: gone,
+        }),
+        topic({ id: 900042, fancy_title: "Webinar", event_starts_at: soon }),
+      ]);
+
+      await renderEvents();
+
+      const groups = [...document.querySelectorAll(".block-events__group")];
+      assert.strictEqual(groups.length, 2, "both halves are labelled");
+
+      const upcoming = [
+        ...groups[0].querySelectorAll(".block-events__item-title"),
+      ].map((el) => el.textContent.trim());
+
+      assert.deepEqual(
+        upcoming,
+        ["Webinar", "Congreso"],
+        "soonest first, not in the order served"
+      );
+
+      const past = [
+        ...groups[1].querySelectorAll(".block-events__item-title"),
+      ].map((el) => el.textContent.trim());
+
+      assert.deepEqual(past, ["Jornada pasada"]);
+    });
+
+    test("marks a real event date apart from a topic date", async function (assert) {
+      // Core's relative helpers cannot render a future date — `medium` prints
+      // every one of them as "now" — so a scheduled date is absolute and
+      // carries its own modifier.
+      stubStore(this.owner, [
+        topic({ id: 900043, fancy_title: "Webinar", event_starts_at: soon }),
+        topic({ id: 900044, fancy_title: "Sin evento" }),
+      ]);
+
+      await renderEvents();
+
+      assert.dom(".block-events__item-date.--scheduled").exists({ count: 1 });
+      assert.dom(".block-events__item-date").exists({ count: 2 });
+    });
+
+    test("shows the archive alone rather than an empty heading", async function (assert) {
+      stubStore(this.owner, [
+        topic({
+          id: 900045,
+          fancy_title: "Solo pasado",
+          event_starts_at: gone,
+        }),
+      ]);
+
+      await renderEvents();
+
+      assert.dom(".block-events__group").exists({ count: 1 });
       assert
-        .dom(".block-shortcuts__new-topic")
-        .exists("the composer affordance, for a member who may post");
-    });
-
-    test("the compact forum lane drops the section heading link", async function (assert) {
-      // In the panel the lane is a list, not a section: at ~430px a heading
-      // with a trailing link wraps onto two lines and reads as a second
-      // section rather than as part of this one.
-      stubStore(this.owner, [topic({ id: 900050 })]);
-
-      withPluginApi((api) =>
-        api.renderBlocks("main-outlet-blocks", [
-          {
-            block: BlockForum,
-            args: {
-              title: "homepage.ideas.title",
-              linkText: "homepage.ideas.link_text",
-              linkUrl: "/c/18",
-              categoryId: 18,
-              count: 5,
-              compact: true,
-            },
-          },
-        ])
-      );
-
-      await render(
-        <template><BlockOutlet @name="main-outlet-blocks" /></template>
-      );
-
-      assert.dom(".block-forum.--compact").exists("carries the modifier");
-      assert.dom(".block-forum__link").doesNotExist("no trailing link");
+        .dom(".block-events__group-title")
+        .hasText("Past events", "no 'Coming up' with nothing under it");
     });
   });
 
@@ -411,6 +423,36 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       );
 
       assert.dom(".block-forum__item-replies").includesText("7");
+    });
+
+    test("drops the section heading link in compact form", async function (assert) {
+      // In the panel the lane is a list, not a section: at ~430px a heading
+      // with a trailing link wraps onto two lines and reads as a second
+      // section rather than as part of this one.
+      stubStore(this.owner, [topic({ id: 900050 })]);
+
+      withPluginApi((api) =>
+        api.renderBlocks("main-outlet-blocks", [
+          {
+            block: BlockForum,
+            args: {
+              title: "homepage.ideas.title",
+              linkText: "homepage.ideas.link_text",
+              linkUrl: "/c/18",
+              categoryId: 18,
+              count: 5,
+              compact: true,
+            },
+          },
+        ])
+      );
+
+      await render(
+        <template><BlockOutlet @name="main-outlet-blocks" /></template>
+      );
+
+      assert.dom(".block-forum.--compact").exists("carries the modifier");
+      assert.dom(".block-forum__link").doesNotExist("no trailing link");
     });
   });
 });

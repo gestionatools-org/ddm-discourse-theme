@@ -1,23 +1,24 @@
 # Functional configuration only. Display strings live in locales/en.yml.
 #
-# The panel's ideas lane is keyed by category ID, never by slug. On this
-# instance the slugs are legacy and no longer describe their category — id 18
-# "Tengo una idea" is `ideas-gestiona`. A slug rename would silently empty the
-# lane; an ID rename is not a thing. IDs also survive reparenting, so promoting
-# a subcategory to top level is free.
+# The panel's two lanes — events and ideas — are keyed by category ID, never by
+# slug. On this instance the slugs are legacy and no longer describe their
+# category: id 18 "Tengo una idea" is `ideas-gestiona`, id 59 "Eventos" is
+# `eventos`. A slug rename would silently empty a lane; an ID rename is not a
+# thing. IDs also survive reparenting, so promoting a subcategory to top level
+# is free.
 #
-# A category reorganisation still breaks the setting three ways, and only the
+# A category reorganisation still breaks these settings three ways, and only the
 # first one announces itself:
 #
 #   deleted or merged  -> c/<id>/l/latest 404s and the lane shows an error
 #   emptied by a move  -> the lane renders its <:empty> state, silently
 #   repurposed         -> the lane renders the wrong topics, silently
 #
-# Re-check the ID by hand after any category reorganisation. The two silent
+# Re-check both IDs by hand after any category reorganisation. The two silent
 # modes are indistinguishable from a quiet category, so nothing in the theme or
 # in CI will report them.
 #
-# Discourse has no single-category setting type, so it is a plain integer
+# Discourse has no single-category setting type, so these are plain integers
 # (same as discourse-theme-skills' `sidebar_category_id`). 0 disables the lane.
 
 # --- Section 1: the latest list ---------------------------------------------
@@ -33,6 +34,23 @@ latest_count:
   default: 8
   min: 1
   max: 20
+
+# --- Section 1's panel: events ---------------------------------------------
+# "Agenda del certificado" — category 59, in the slot the shortcuts card used
+# to hold. BlockEvents splits the listing client-side into upcoming and past:
+# category 59 carries `sort_topics_by_event_start_date` but the listing it
+# serves is still `bumped_at` descending, so the split has to be done here or
+# the next date gets buried under write-ups of past ones. See
+# javascripts/discourse/blocks/block-events.gjs.
+events_category_id:
+  type: integer
+  default: 59
+
+events_count:
+  type: integer
+  default: 4
+  min: 1
+  max: 10
 
 # --- Section 1's panel: ideas ------------------------------------------------
 # Category 18 is the largest on the site (441 topics, 3.6 replies/topic). It was

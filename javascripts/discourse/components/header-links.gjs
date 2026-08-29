@@ -4,9 +4,9 @@ import { destinationLinks } from "../lib/destination-links";
 
 // Destination links in the site header: Academy, Demo Gestiona, Primeros pasos.
 //
-// The list, the trim and the drop-if-empty rule moved to
-// `lib/destination-links.js` when the homepage's shortcuts card became a second
-// consumer of the same three destinations. This component owns the header's
+// The list, the trim and the drop-if-empty rule live in
+// `lib/destination-links.js` — extracted when the homepage's shortcuts card was
+// a second consumer (since removed). This component owns the header's
 // presentation of them and nothing else.
 //
 // A link with no URL configured renders nothing rather than pointing at "#",

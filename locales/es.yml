@@ -3,6 +3,8 @@ es:
     description: "Tema de Discourse para la comunidad de es|public."
     settings:
       latest_count: "Cuántos temas mostrar en la lista de últimas publicaciones."
+      events_category_id: "Categoría que se muestra en la franja de eventos del panel. Incluye sus subcategorías. 0 oculta la franja."
+      events_count: "Cuántos eventos mostrar en la franja del panel."
       ideas_category_id: "Categoría que se muestra en el panel, junto a las últimas publicaciones. Incluye sus subcategorías. 0 lo oculta."
       panel_ideas_count: "Cuántas ideas mostrar en el panel."
       academy_url: "Adónde apunta el enlace Academy de la cabecera. Los destinos externos deben llevar el esquema — https://ejemplo.com, no ejemplo.com, que el navegador resuelve como una ruta de este sitio. Empieza por / para una página de este foro. Vacío oculta el enlace."
@@ -57,9 +59,14 @@ es:
       title: "Últimas publicaciones"
       link_text: "Ver todas"
       empty: "Todavía no hay publicaciones."
-    shortcuts:
-      title: "Empieza aquí"
-      new_topic: "Nueva publicación"
+    events:
+      title: "Agenda del certificado"
+      link_text: "Ver agenda"
+      empty: "No hay eventos programados."
+      # Group headings. The lane is a record as much as an announcement, so
+      # both halves are labelled rather than merged into one undated run.
+      upcoming: "Próximamente"
+      past: "Celebrados"
     ideas:
       title: "Tengo una idea"
       link_text: "Comparte tu idea"
