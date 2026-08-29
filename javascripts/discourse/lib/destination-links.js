@@ -1,9 +1,10 @@
-// The three configured destinations — Academy, Demo Gestiona, Primeros pasos —
-// shared by the site header and the homepage's shortcuts card.
+// The three configured destinations — Academy, Demo Gestiona, Primeros pasos.
 //
-// Extracted when the second consumer arrived rather than copied: the list, the
-// trim and the drop-if-empty rule are one behaviour, and two copies of it would
-// drift the moment a fourth destination is added.
+// Extracted when a second consumer arrived — the homepage's shortcuts card,
+// removed 2026-08-29 — rather than copied: the list, the trim and the
+// drop-if-empty rule are one behaviour, and two copies would drift the moment a
+// fourth destination is added. Kept as a unit against the next consumer; the
+// site header is the only one today.
 //
 // Labels are **not** here. They are i18n keys under `header.links.*` in
 // locales/*.yml, and only the URLs are settings — the theme's standing split

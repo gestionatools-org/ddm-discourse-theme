@@ -1,22 +1,22 @@
 import BlockGroup from "discourse/blocks/builtin/block-group";
 import { apiInitializer } from "discourse/lib/api";
+import BlockEvents from "../blocks/block-events";
 import BlockForum from "../blocks/block-forum";
 import BlockHero from "../blocks/block-hero";
 import BlockLatest from "../blocks/block-latest";
-import BlockShortcuts from "../blocks/block-shortcuts";
 
-// The homepage is a heading band and then a stack of **sections**, each of which
-// may split into two columns of its own. That is the shape the reference runs —
-// community.hubspot.com, measured on 2026-08-28: three full-width sections in a
-// flex column, with the two-column split happening *inside* the first two.
+// The homepage is a heading band and then section 1: a reading column and a
+// panel beside it. The panel holds two cards — the events lane ("Agenda del
+// certificado") and the ideas lane ("Tengo una idea") — stacked against the
+// site-wide latest list.
 //
-// It replaced a global two-column grid that never worked. `layouts/homepage.scss`
-// has always carried `@container homepage-blocks (width > 60rem)`, but nothing
-// declared that container — not the theme, not core — so the query never
-// matched and the homepage was a single column for its whole life. The events
-// lane was not "in the right-hand column"; it was fifth in a stack.
+// The section frame is a container query in `layouts/homepage.scss`. It
+// replaced a page-level two-column grid that never worked: the file carried
+// `@container homepage-blocks (...)` since the homepage was written, but
+// nothing declared that container — not the theme, not core — so the query
+// never matched and the page was a single stacked column for its whole life.
 //
-// The ideas lane in the panel is keyed by category ID because this instance's
+// The events and ideas lanes are keyed by category ID because this instance's
 // slugs are legacy and no longer match their category; the latest list is
 // site-wide and has no category to lose.
 //
@@ -56,18 +56,28 @@ export default apiInitializer((api) => {
           id: "latest-panel",
           children: [
             {
-              block: BlockShortcuts,
-              id: "panel-shortcuts",
+              // The events lane, in the slot the "Empieza aquí" shortcuts card
+              // used to hold. Its own SCSS already makes it a card on
+              // `--ga-muted`, so it drops into the panel without a change.
+              // `event_starts_at` reaches the topic list only while
+              // discourse-calendar's `display_post_event_date_on_topic_title`
+              // is on — it is, on this instance — otherwise every row falls
+              // back to the topic's own date.
+              block: BlockEvents,
+              id: "panel-events",
               args: {
-                title: "homepage.shortcuts.title",
-                newTopicText: "homepage.shortcuts.new_topic",
+                title: "homepage.events.title",
+                linkText: "homepage.events.link_text",
+                linkUrl: `/c/${settings.events_category_id}`,
+                categoryId: settings.events_category_id,
+                count: settings.events_count,
               },
             },
             {
-              // The ideas lane, moved out of the stack and into the panel.
-              // Category 18 is the largest on the site (441 topics, 3.6
-              // replies/topic) and its listing answers even on a dormant
-              // instance, so this is the one panel slot that is never empty.
+              // The ideas lane. Category 18 is the largest on the site (441
+              // topics, 3.6 replies/topic) and its listing answers even on a
+              // dormant instance, so this is the one panel slot that is never
+              // empty.
               block: BlockForum,
               id: "panel-ideas",
               args: {
@@ -85,10 +95,5 @@ export default apiInitializer((api) => {
         },
       ],
     },
-
-    // Sections 2 and 3 are still to be designed. The forum, showcase and
-    // library lanes that used to render full width below section 1 were
-    // removed on 2026-08-29; until the redesign says otherwise, the homepage
-    // is the band and section 1.
   ]);
 });

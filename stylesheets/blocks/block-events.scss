@@ -1,0 +1,82 @@
+.block-events {
+  padding: var(--space-4);
+  border: 1px solid var(--ga-border);
+  border-radius: var(--d-border-radius-large);
+  background: var(--ga-muted);
+
+  &__header {
+    @include lane-header;
+  }
+
+  &__title {
+    @include lane-title;
+  }
+
+  &__empty {
+    @include lane-empty;
+  }
+
+  // Two labelled groups: what is coming, then what has been held. A group
+  // renders only when it has rows, so a lane with nothing upcoming shows the
+  // archive alone rather than an empty heading.
+  &__group + &__group {
+    margin-top: var(--space-4);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--ga-border);
+  }
+
+  // Quieter than the lane title and set apart from it: this labels a run of
+  // rows, it does not open a new section. The letter-spacing matches the item
+  // dates, so the heading reads as part of the same date-forward column rather
+  // than as a second heading level competing with the lane's own.
+  &__group-title {
+    margin: 0 0 var(--space-2);
+    color: var(--ga-muted-fg);
+    font-size: var(--font-down-2);
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  &__list {
+    @include lane-list;
+  }
+
+  &__item-link {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-half);
+    color: inherit;
+
+    &:hover .block-events__item-title,
+    &:focus-visible .block-events__item-title {
+      color: var(--tertiary);
+    }
+  }
+
+  &__item-date {
+    color: var(--ga-muted-fg);
+    font-size: var(--font-down-2);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+
+    // A real start time, not the topic's own date. Marked out so a scheduled
+    // event reads as actionable next to the plain topic dates it sits among.
+    // 500 is the system's emphasis weight; core serves only 400 and 700, so
+    // until Roboto Medium is vendored this renders at 400 and the colour is
+    // doing the work on its own.
+    &.--scheduled {
+      color: var(--tertiary);
+      font-weight: 500;
+    }
+  }
+
+  &__item-title {
+    font-weight: 700;
+    line-height: var(--line-height-medium);
+  }
+
+  &__footer {
+    margin-top: var(--space-3);
+  }
+}

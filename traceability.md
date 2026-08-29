@@ -922,4 +922,57 @@ lane is).
 prettier, ember-tsc). YAML re-parsed with Homebrew Ruby. System/QUnit specs run in CI only.
 No instance touched — `refactor/…` branch, PR, CI-green-before-merge as always.
 
-`theme_version` 0.30.0.
+`theme_version` 0.30.0. **Merged as `71f41e2` (#73)**, CI green, and the PRE pull was
+forced (`remote_update: true`) the same session: `local_version` = `71f41e2`,
+`last_error_text` None, settings schema down to 6. `academy_url` also fixed to `https` on
+PRE via `PUT /admin/themes/15/setting.json` (instance override, survives theme updates).
+
+## 2026-08-29 — Events comes back as "Agenda del certificado", in the panel
+
+**The branch.** `feat/homepage-agenda-lane`. Ricardo's call as the redesign continued: bring
+back the events lane #71 removed, drop it into the panel slot the "Empieza aquí" shortcuts
+card held, and remove the shortcuts card. The homepage is now **three lanes** — latest
+(reading column), events + ideas (panel) — plus the band.
+
+**Restored verbatim from `40d2950`** (the commit before #71): `blocks/block-events.gjs` and
+`stylesheets/blocks/block-events.scss`. The block was already built as a self-contained card
+on `--ga-muted` — it used to be the lone occupant of the never-rendered `home-side` column —
+so it drops into the panel with no change. `ember-tsc` confirms every import in it still
+resolves against current core, `d-format-date` included; `calendar-days` is in the default
+FA subset, so `svg_icons` needs nothing.
+
+**The rename.** ES `homepage.events.title` = **"Agenda del certificado"**, EN = **"What's
+on"** (Ricardo picked it over "Certification calendar"/"agenda"). `link_text` kept ("Ver
+agenda" / "See the calendar") — Ricardo chose to keep the footer button, so events has a
+"see all" affordance the panel's ideas lane (compact, link dropped) does not. `upcoming` /
+`past` group headings restored unchanged.
+
+**Settings.** `events_category_id` (default 59) and `events_count` (default 4, 1–10)
+restored with their locale descriptions. `settings.yml` header comment now covers two
+category-keyed panel lanes, not one.
+
+**Shortcuts removed.** `blocks/block-shortcuts.gjs`, its SCSS + `@import`, `homepage.shortcuts.*`
+strings, the panel test, the import. **`lib/destination-links.js` kept** — `header-links.gjs`
+is still a consumer; its comment and the lib's now say the card is gone but the unit stays.
+What the homepage loses: the prominent "Nueva publicación" primary button (still in the hero
+band) and an on-page copy of the three header links (still in the site header). No capability
+lost, one duplicated surface removed.
+
+**Tests.** `module("panel")` became `module("events lane")` with the three restored tests
+(soonest-first split, `--scheduled` date modifier, archive-alone-no-empty-heading). The
+"compact forum lane drops its link" test moved into `module("ideas lane")`. The shortcuts
+destinations test went with the card. Integration count 10 → 12.
+
+**Known cosmetic gap, flagged not fixed:** the events card carries both a `--ga-muted`
+background and a border; the ideas compact card has only a border. They will not look quite
+alike stacked in the panel. One SCSS line if Ricardo wants them aligned after seeing PRE.
+
+**Not touched:** `discourse-calendar` (its `display_post_event_date_on_topic_title` +
+`calendar_enabled` are on on PRE, so `event_starts_at` reaches the topic list — plugin
+settings, not theme-settable); `serialize_topic_excerpts` / `topic_thumbnail_sizes` (still
+dead, still deferred to an about.json pass).
+
+**Verification.** `npx pnpm@10.28.0 lint` green on all five. YAML re-parsed with Homebrew
+Ruby. QUnit runs in CI only.
+
+`theme_version` 0.31.0.
