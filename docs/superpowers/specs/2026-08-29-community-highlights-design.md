@@ -450,12 +450,13 @@ but the maintainer's eyes.
    placeholder is a designed state, not a failure.
 4. **`enable_user_directory` must stay on** for the member card.
 
-## Deferred decisions, for the review of this spec
+## Decisions settled at spec review (2026-08-29)
 
-- **Rolling 30 days vs. calendar month for the member card.** Discourse's directory has no
+- **Rolling 30 days, not calendar month, for the member card.** Discourse's directory has no
   calendar-month period; `monthly` is the last 30 days, the same window the topbar already
-  labels "Este mes:". Tentatively accepted in conversation — confirm here.
-- **Tag-overlap handling.** Currently: accept that newsletter and podcast can show the same
-  topic, fix by tag hygiene. The alternative — a combined fetch phase that de-dups before
-  render — reintroduces the "one slow fetch blocks all" problem the independent
-  `<DAsyncContent>` design avoids.
+  labels "Este mes:". Confirmed by the maintainer.
+- **Tag-overlap is not coded around.** Newsletter and podcast can resolve to the same topic
+  (PRE topic 2597 carries both tags today); the maintainer fixes this by tag hygiene in
+  admin. The rejected alternative — a combined fetch phase that de-dups before render —
+  reintroduces the "one slow fetch blocks all" problem the independent `<DAsyncContent>`
+  design avoids.
