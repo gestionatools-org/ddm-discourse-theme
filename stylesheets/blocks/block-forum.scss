@@ -55,17 +55,14 @@
   }
 }
 
-// The panel variant, used by the ideas lane beside the latest list.
-//
-// A card, like the shortcuts card above it, because in the panel this lane is
-// support for the reading column rather than a section in its own right. The
-// heading loses its trailing link in the template — at ~430px it wrapped onto a
-// second line and started reading as a new section — so the header here is a
-// title alone and needs no space held for a button beside it.
+// The panel variant, used by the ideas lane beside the latest list. It shares
+// `panel-card` with the events lane above it — the two are siblings in the
+// panel with no hierarchy between them. The heading loses its trailing link in
+// the template — at ~430px it wrapped onto a second line and started reading as
+// a new section — so the header here is a title alone and needs no space held
+// for a button beside it.
 .block-forum.--compact {
-  padding: var(--space-5);
-  border-radius: var(--d-border-radius-large);
-  border: 1px solid var(--ga-border);
+  @include panel-card;
 
   .block-forum__title {
     font-size: var(--font-0);
