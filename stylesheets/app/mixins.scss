@@ -24,7 +24,13 @@
   align-items: center;
   gap: var(--space-2);
   margin: 0;
-  font-size: var(--font-up-1);
+
+  // One size for all three lane headings — latest, events, ideas. `--font-0`
+  // rather than `--font-up-1`: the frame and the filo edge already say
+  // "section", so the heading can stay a compact bold label and leave the
+  // larger step to the content it heads (the latest list's topic links run at
+  // `--font-up-1`).
+  font-size: var(--font-0);
   font-weight: 700;
 
   .d-icon {
@@ -97,15 +103,25 @@
   }
 }
 
-// Rows that read as a list of links: hairline separators, no bullets.
+// Rows that read as a list of links: hairline separators, no bullets. Used by
+// the events and ideas lanes (the latest lane renders core's table instead), so
+// the row rhythm is tuned for a narrow panel card — `--space-2` rather than
+// `--space-3`.
 @mixin lane-list {
   margin: 0;
   padding: 0;
   list-style: none;
 
   > li {
-    padding-block: var(--space-3);
+    padding-block: var(--space-2);
     border-bottom: 1px solid var(--ga-border);
+
+    // The header's own `margin-bottom` is the gap above the first row, and the
+    // card's padding is the gap below the last — so the outer rows shed the
+    // padding that would double it.
+    &:first-child {
+      padding-top: 0;
+    }
 
     &:last-child {
       border-bottom: 0;

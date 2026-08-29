@@ -23,10 +23,11 @@
     @include lane-empty;
   }
 
-  // Core's list draws its own top border under the header row, so the lane's
-  // heading needs no rule of its own to sit against.
   .topic-list {
-    margin-block-start: var(--space-3);
+    // No margin of its own: `lane-header`'s `margin-bottom` is the gap above the
+    // list, the same as in the events and ideas lanes. The table draws its own
+    // top border, so it needs nothing more to sit against.
+    margin-block-start: 0;
 
     // Site-wide the list header sits on `--ga-muted` to lift it off the page.
     // Inside the frame there is no page behind it to lift off, and the events

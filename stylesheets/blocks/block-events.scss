@@ -10,10 +10,6 @@
 
   &__title {
     @include lane-title;
-
-    // Matches the ideas lane beside it — neither panel title sits above the
-    // other.
-    font-size: var(--font-0);
   }
 
   &__empty {
@@ -30,26 +26,20 @@
   }
 
   // Quieter than the lane title and set apart from it: this labels a run of
-  // rows, it does not open a new section. The letter-spacing matches the item
-  // dates, so the heading reads as part of the same date-forward column rather
-  // than as a second heading level competing with the lane's own.
+  // rows, it does not open a new section. Same `letter-spacing` as the item
+  // dates below, so the heading reads as part of the same date-forward column
+  // rather than as a second heading level competing with the lane's own.
   &__group-title {
     margin: 0 0 var(--space-2);
     color: var(--ga-muted-fg);
     font-size: var(--font-down-2);
     font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.04em;
   }
 
   &__list {
     @include lane-list;
-
-    // Tighter rows, matching the ideas lane: the panel shows more titles in
-    // less width, so the vertical rhythm gives way first.
-    > li {
-      padding-block: var(--space-2);
-    }
   }
 
   &__item-link {
