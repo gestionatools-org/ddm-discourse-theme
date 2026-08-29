@@ -143,17 +143,23 @@ module("Espublico Theme | Unit | highlights | rankTopMember", function () {
   });
 
   test("picks the highest weighted composite, not the highest single field", function (assert) {
-    // A: leads on posts. B: leads on likes and days. With the default weights
-    // A's post lead (0.5) beats B's likes+days (0.35 + 0.15 of a smaller gap).
-    const a = { post_count: 10, likes_received: 1, days_visited: 1 };
-    const b = { post_count: 1, likes_received: 10, days_visited: 10 };
-    // a.score = .5*1 + .35*.1 + .15*.1 = .55 ; b.score = .5*.1 + .35*1 + .15*1 = .55
-    // tie-break: reduce keeps the first, which is `a`
-    assert.strictEqual(rankTopMember([a, b], WEIGHTS), a);
+    // `wide` leads every field by a clear margin -> unambiguous winner, no
+    // floating-point knife-edge.
+    const narrow = { post_count: 2, likes_received: 2, days_visited: 2 };
+    const wide = { post_count: 6, likes_received: 6, days_visited: 6 };
+    assert.strictEqual(rankTopMember([narrow, wide], WEIGHTS), wide);
+  });
 
-    const c = { post_count: 3, likes_received: 10, days_visited: 10 };
-    // c.score = .5*.3 + .35 + .15 = .65 > a.score .55 -> c wins over a
-    assert.strictEqual(rankTopMember([a, c], WEIGHTS), c);
+  test("a big lead on the weighted field beats a big lead on a light one", function (assert) {
+    // `poster` trails on likes and days but its post lead, at weight 0.5,
+    // outweighs the other's lead at 0.35 + 0.15.
+    // poster.score = .5*1   + .35*0   + .15*0   = .500
+    // liker.score  = .5*0   + .35*1   + .15*1   = 0.35 + 0.15 = .500  -> tie
+    // Make it not a tie: give the poster a sliver on days too.
+    const poster = { post_count: 20, likes_received: 0, days_visited: 1 };
+    const liker = { post_count: 0, likes_received: 20, days_visited: 20 };
+    // poster: .5*1 + 0 + .15*(1/20) = .5075 ; liker: 0 + .35 + .15 = .5
+    assert.strictEqual(rankTopMember([poster, liker], WEIGHTS), poster);
   });
 
   test("treats a field whose max is zero as contributing nothing", function (assert) {
@@ -556,13 +562,12 @@ EOF
 
 - [ ] **Step 1: Write the failing rendering tests**
 
-Create `test/integration/homepage-highlights-test.gjs`:
+Create `test/integration/homepage-highlights-test.gjs`. **Import only `HighlightPodcastCard`** — `HighlightMemberCard` does not exist until Task 4, which adds its own import line with its module. A test file importing a not-yet-created module hard-fails the Rollup bundle and takes the whole QUnit run down.
 
 ```js
 import { click, render } from "@ember/test-helpers";
 import { module, test } from "qunit";
 import { setupRenderingTest } from "discourse/tests/helpers/component-test";
-import HighlightMemberCard from "../../discourse/components/highlight-member-card";
 import HighlightPodcastCard from "../../discourse/components/highlight-podcast-card";
 
 // Components render directly — they are plain Glimmer components, not Blocks, so
@@ -752,7 +757,13 @@ EOF
 
 - [ ] **Step 1: Write the failing rendering tests**
 
-Add to `test/integration/homepage-highlights-test.gjs`:
+Add to `test/integration/homepage-highlights-test.gjs`. First add the import at the top of the file, next to the existing `HighlightPodcastCard` import:
+
+```js
+import HighlightMemberCard from "../../discourse/components/highlight-member-card";
+```
+
+Then add the module:
 
 ```js
 module("Espublico Theme | Integration | highlights | member card", function (hooks) {
