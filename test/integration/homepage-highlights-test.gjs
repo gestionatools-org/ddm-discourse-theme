@@ -1,6 +1,7 @@
 import { click, render } from "@ember/test-helpers";
 import { module, test } from "qunit";
 import { setupRenderingTest } from "discourse/tests/helpers/component-test";
+import HighlightMemberCard from "../../discourse/components/highlight-member-card";
 import HighlightPodcastCard from "../../discourse/components/highlight-podcast-card";
 
 // Components render directly — they are plain Glimmer components, not Blocks, so
@@ -71,6 +72,62 @@ module(
       assert
         .dom(".highlight-card__title")
         .includesText("Episodio 7 — Contratación con IA");
+    });
+  }
+);
+
+module(
+  "Espublico Theme | Integration | highlights | member card",
+  function (hooks) {
+    setupRenderingTest(hooks);
+
+    const member = {
+      post_count: 40,
+      likes_received: 96,
+      days_visited: 12,
+      user: {
+        username: "msanz",
+        name: "María Sanz",
+        avatar_template: "/letter_avatar/msanz/{size}/1.png",
+      },
+    };
+
+    test("shows the badge, the figures and a profile link", async function (assert) {
+      await render(
+        <template><HighlightMemberCard @member={{member}} /></template>
+      );
+
+      assert.dom(".highlight-member").includesText("Member of the month");
+      assert.dom(".highlight-member__figures").includesText("40 posts");
+      assert.dom(".highlight-member__figures").includesText("96 likes");
+      assert.dom(".highlight-member__figures").includesText("12 active days");
+      assert
+        .dom(".highlight-card__cta")
+        .hasAttribute("href", "/u/msanz/summary");
+      assert
+        .dom(".highlight-member__avatar")
+        .hasAttribute("href", "/u/msanz/summary");
+    });
+
+    test("falls back to the username when the member has no display name", async function (assert) {
+      const noName = { ...member, user: { ...member.user, name: null } };
+      await render(
+        <template><HighlightMemberCard @member={{noName}} /></template>
+      );
+      assert.dom(".highlight-card__title").hasText("msanz");
+    });
+
+    test("with no member, renders the take-part CTA instead", async function (assert) {
+      await render(
+        <template><HighlightMemberCard @member={{null}} /></template>
+      );
+
+      assert.dom(".highlight-member__empty").exists();
+      assert
+        .dom(".highlight-member__empty")
+        .includesText("Post and take part this month");
+      assert.dom(".highlight-card__cta").hasAttribute("href", "/new-topic");
+      assert.dom(".highlight-member__figures").doesNotExist();
     });
   }
 );
