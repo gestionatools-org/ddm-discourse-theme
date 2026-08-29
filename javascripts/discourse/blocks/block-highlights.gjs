@@ -2,13 +2,22 @@ import Component from "@glimmer/component";
 import { service } from "@ember/service";
 import { trustHTML } from "@ember/template";
 import { block } from "discourse/blocks";
+import { ajax } from "discourse/lib/ajax";
 import { bind } from "discourse/lib/decorators";
 import { eq } from "discourse/truth-helpers";
 import DAsyncContent from "discourse/ui-kit/d-async-content";
 import DButton from "discourse/ui-kit/d-button";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
-import { loadLatestTaggedTopic } from "../lib/highlights";
+import HighlightMemberCard from "../components/highlight-member-card";
+import HighlightPodcastCard from "../components/highlight-podcast-card";
+import {
+  extractVideoId,
+  loadLatestTaggedTopic,
+  memberHasActivity,
+  rankTopMember,
+  WEIGHTS,
+} from "../lib/highlights";
 
 // A content card for the newsletter and novedad cells: an optional cover image
 // (or a branded placeholder), a label, the topic title and a CTA. `fancy_title`
@@ -102,6 +111,43 @@ export default class BlockHighlights extends Component {
     return loadLatestTaggedTopic(this.store, this.args.newsTag);
   }
 
+  @bind
+  async fetchPodcast() {
+    const topic = await loadLatestTaggedTopic(this.store, this.args.podcastTag);
+    if (!topic) {
+      return null;
+    }
+    // Cheap second hop: the topic list carries no post bodies, and the video id
+    // lives in the first post's cooked HTML. A removed or access-controlled
+    // topic just means no inline player.
+    let videoId = null;
+    try {
+      const full = await ajax(`/t/${topic.id}.json`);
+      videoId = extractVideoId(full?.post_stream?.posts?.[0]?.cooked);
+    } catch {
+      // no reachable first post: the card falls back to a plain topic link
+    }
+    return { topic, videoId };
+  }
+
+  @bind
+  async fetchMember() {
+    // A directory that is switched off or unreachable is the same as nobody
+    // qualifying: the card falls to its take-part nudge. Any `order` works —
+    // rankTopMember re-ranks — so the directory's own default is fine.
+    let member = null;
+    try {
+      const { directory_items } = await ajax(
+        `/directory_items.json?period=${this.args.memberPeriod}&order=likes_received&limit=50`
+      );
+      const top = rankTopMember(directory_items, WEIGHTS);
+      member = memberHasActivity(top) ? top : null;
+    } catch {
+      // directory switched off or unreachable: nobody qualifies, show the CTA
+    }
+    return { member };
+  }
+
   <template>
     {{#if this.active}}
       <section class="block-highlights">
@@ -132,6 +178,22 @@ export default class BlockHighlights extends Component {
             </div>
           {{/if}}
 
+          {{#if @podcastTag}}
+            <div class="block-highlights__cell --podcast">
+              <DAsyncContent @asyncData={{this.fetchPodcast}}>
+                <:content as |data|>
+                  <HighlightPodcastCard
+                    @topic={{data.topic}}
+                    @videoId={{data.videoId}}
+                  />
+                </:content>
+                <:empty>
+                  <Placeholder @variant="wide" @icon="podcast" />
+                </:empty>
+              </DAsyncContent>
+            </div>
+          {{/if}}
+
           {{#if @newsTag}}
             <div class="block-highlights__cell --novedad">
               <DAsyncContent @asyncData={{this.fetchNews}}>
@@ -151,8 +213,13 @@ export default class BlockHighlights extends Component {
             </div>
           {{/if}}
 
-          {{! podcast cell and the always-present member cell are wired in Task 6,
-              between the newsletter cell and the novedad cell / after novedad }}
+          <div class="block-highlights__cell --miembro">
+            <DAsyncContent @asyncData={{this.fetchMember}}>
+              <:content as |data|>
+                <HighlightMemberCard @member={{data.member}} />
+              </:content>
+            </DAsyncContent>
+          </div>
         </div>
       </section>
     {{/if}}
