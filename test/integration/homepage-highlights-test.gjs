@@ -1,12 +1,47 @@
 import { click, render } from "@ember/test-helpers";
 import { module, test } from "qunit";
+import BlockOutlet from "discourse/blocks/block-outlet";
+import { withPluginApi } from "discourse/lib/plugin-api";
 import { setupRenderingTest } from "discourse/tests/helpers/component-test";
+import BlockHighlights from "../../discourse/blocks/block-highlights";
 import HighlightMemberCard from "../../discourse/components/highlight-member-card";
 import HighlightPodcastCard from "../../discourse/components/highlight-podcast-card";
 
 // Components render directly — they are plain Glimmer components, not Blocks, so
 // they do not need the `<BlockOutlet>` dance the block tests below use. Data
 // arrives as args; the block owns the fetching.
+
+function stubStore(owner, byFilter) {
+  // byFilter: { "tag/podcast/l/latest": [topic, …], … }. A filter with no entry
+  // resolves to an empty list.
+  owner.unregister("service:store");
+  owner.register(
+    "service:store",
+    {
+      findFiltered: async (_type, { filter }) => ({
+        topics: byFilter[filter] || [],
+      }),
+    },
+    { instantiate: false }
+  );
+}
+
+function renderHighlights(args) {
+  withPluginApi((api) =>
+    api.renderBlocks("main-outlet-blocks", [{ block: BlockHighlights, args }])
+  );
+  return render(
+    <template><BlockOutlet @name="main-outlet-blocks" /></template>
+  );
+}
+
+const DEFAULT_ARGS = {
+  title: "homepage.highlights.title",
+  podcastTag: "podcast",
+  newsletterTag: "newsletter",
+  newsTag: "nueva-version-gestiona",
+  memberPeriod: "monthly",
+};
 
 module(
   "Espublico Theme | Integration | highlights | podcast card",
@@ -128,6 +163,120 @@ module(
         .includesText("Post and take part this month");
       assert.dom(".highlight-card__cta").hasAttribute("href", "/new-topic");
       assert.dom(".highlight-member__figures").doesNotExist();
+    });
+  }
+);
+
+module(
+  "Espublico Theme | Integration | highlights | section",
+  function (hooks) {
+    setupRenderingTest(hooks);
+
+    test("renders the heading and the newsletter and novedad cards", async function (assert) {
+      stubStore(this.owner, {
+        "tag/newsletter/l/latest": [
+          {
+            id: 900101,
+            fancy_title: "Newsletter 14",
+            url: "/t/nl-14/900101",
+            excerpt: "Resumen de julio.",
+            image_url: null,
+          },
+        ],
+        "tag/nueva-version-gestiona/l/latest": [
+          {
+            id: 900102,
+            fancy_title: "Gestiona V9.3",
+            url: "/t/v93/900102",
+            excerpt: "Firma en lote.",
+            image_url: null,
+          },
+        ],
+      });
+
+      await renderHighlights(DEFAULT_ARGS);
+
+      assert.dom(".block-highlights__title").hasText("Community highlights");
+      assert
+        .dom(".block-highlights__cell.--news .highlight-card__title")
+        .includesText("Newsletter 14");
+      assert
+        .dom(".block-highlights__cell.--news .highlight-card__excerpt")
+        .hasText("Resumen de julio.");
+      assert
+        .dom(".block-highlights__cell.--novedad .highlight-card__title")
+        .includesText("Gestiona V9.3");
+      // novedad is the compact variant — no excerpt
+      assert
+        .dom(".block-highlights__cell.--novedad .highlight-card__excerpt")
+        .doesNotExist();
+    });
+
+    test("a content card with no topic shows the coming-soon placeholder", async function (assert) {
+      stubStore(this.owner, {}); // every filter empty
+
+      await renderHighlights(DEFAULT_ARGS);
+
+      assert
+        .dom(".block-highlights__cell.--news .highlight-card.--empty")
+        .exists();
+      assert.dom(".block-highlights__cell.--news").includesText("Coming soon");
+    });
+
+    test("a content card with a topic but no image shows the placeholder icon, not a broken img", async function (assert) {
+      stubStore(this.owner, {
+        "tag/newsletter/l/latest": [
+          {
+            id: 900103,
+            fancy_title: "Sin imagen",
+            url: "/t/x/900103",
+            excerpt: "x",
+            image_url: null,
+          },
+        ],
+      });
+
+      await renderHighlights(DEFAULT_ARGS);
+
+      assert
+        .dom(".block-highlights__cell.--news .highlight-card__media img")
+        .doesNotExist();
+      assert
+        .dom(".block-highlights__cell.--news .highlight-card__placeholder")
+        .exists();
+    });
+
+    test("the section does not render when all three tags are empty", async function (assert) {
+      stubStore(this.owner, {});
+
+      await renderHighlights({
+        ...DEFAULT_ARGS,
+        podcastTag: "",
+        newsletterTag: "",
+        newsTag: "",
+      });
+
+      assert.dom(".block-highlights").doesNotExist();
+    });
+
+    // Two separate tests, not one: a second `renderBlocks("main-outlet-blocks", …)`
+    // inside one test body raises "already has a layout registered" — the reset is
+    // between rendering tests, not within (see homepage-lanes-test.gjs).
+    test("the grid modifier is --count-4 with all three tags set", async function (assert) {
+      stubStore(this.owner, {});
+      await renderHighlights(DEFAULT_ARGS);
+      assert
+        .dom(".block-highlights__grid.--count-4")
+        .exists("podcast + newsletter + novedad + member");
+    });
+
+    test("the grid modifier drops to --count-3 when a content tag is empty", async function (assert) {
+      stubStore(this.owner, {});
+      await renderHighlights({ ...DEFAULT_ARGS, newsTag: "" });
+      assert.dom(".block-highlights__grid.--count-3").exists();
+      assert
+        .dom(".block-highlights__cell.--novedad")
+        .doesNotExist("no novedad cell");
     });
   }
 );
