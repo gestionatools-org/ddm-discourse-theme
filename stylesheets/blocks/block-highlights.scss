@@ -151,14 +151,10 @@
   }
 }
 
-// The newsletter card leads with a tall portrait image; the compact novedad card
-// has no image at all.
+// The newsletter card leads with a tall portrait image. The compact novedad
+// card renders no media slot at all (see `ContentCard`), so it needs no rule.
 .highlight-content.--tall .highlight-card__media {
   aspect-ratio: 3 / 4;
-}
-
-.highlight-content.--compact .highlight-card__media {
-  display: none;
 }
 
 .highlight-content.--empty .highlight-card__body {

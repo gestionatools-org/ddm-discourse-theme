@@ -1,5 +1,6 @@
 import { module, test } from "qunit";
 import { acceptance } from "discourse/tests/helpers/qunit-helpers";
+import { definitionTopicIds } from "../../discourse/lib/category-topics";
 import {
   extractVideoId,
   loadLatestTaggedTopic,
@@ -97,6 +98,18 @@ module("Espublico Theme | Unit | highlights | rankTopMember", function () {
     const y = { post_count: 0, likes_received: 2, days_visited: 0 };
     assert.strictEqual(rankTopMember([x, y], WEIGHTS), x);
   });
+
+  test("a tie keeps the earlier item", function (assert) {
+    // Identical composite scores: the reduce keeps `best` on a non-strict-
+    // greater score, so the first item in the list wins.
+    const first = { post_count: 5, likes_received: 5, days_visited: 5 };
+    const second = { post_count: 5, likes_received: 5, days_visited: 5 };
+    assert.strictEqual(
+      rankTopMember([first, second], WEIGHTS),
+      first,
+      "the earlier of two equal items"
+    );
+  });
 });
 
 module("Espublico Theme | Unit | highlights | memberHasActivity", function () {
@@ -118,6 +131,22 @@ acceptance(
   "Espublico Theme | Unit | highlights | loadLatestTaggedTopic",
   function (needs) {
     needs.user();
+    // One category whose definition topic id (the trailing number of its
+    // `topic_url`) is known, so the filter below can be shown to drop it.
+    // `needs.site` replaces the preloaded category list, so this is the whole
+    // set `definitionTopicIds()` sees here.
+    needs.site({
+      categories: [
+        {
+          id: 4242,
+          name: "Podcast",
+          slug: "podcast-cat",
+          color: "0088CC",
+          topic_count: 0,
+          topic_url: "/t/acerca-de-la-categoria-podcast/424242",
+        },
+      ],
+    });
 
     test("returns null for an empty tag without a request", async function (assert) {
       const store = { findFiltered: () => assert.step("should not be called") };
@@ -139,6 +168,29 @@ acceptance(
     test("returns null when the tag has no topics", async function (assert) {
       const store = { findFiltered: async () => ({ topics: [] }) };
       assert.strictEqual(await loadLatestTaggedTopic(store, "podcast"), null);
+    });
+
+    test("drops a category definition topic and returns the next", async function (assert) {
+      assert.true(
+        definitionTopicIds().has(424242),
+        "the seeded category's definition topic is in the drop set"
+      );
+
+      const store = {
+        findFiltered: async () => ({
+          topics: [
+            { id: 424242, fancy_title: "Acerca de la categoría Podcast" },
+            { id: 900002, fancy_title: "Episodio real" },
+          ],
+        }),
+      };
+
+      const topic = await loadLatestTaggedTopic(store, "podcast");
+      assert.strictEqual(
+        topic.id,
+        900002,
+        "the pinned definition topic is skipped, not returned first"
+      );
     });
   }
 );

@@ -25,7 +25,16 @@ export default class HighlightMemberCard extends Component {
   <template>
     <article class="highlight-card highlight-member">
       {{#if @member}}
-        <a href={{this.profileUrl}} class="highlight-member__avatar">
+        {{! The third link to the same profile — the title and the "Ver perfil"
+            button already carry text. It wraps only a decorative avatar, so
+            hide it from assistive tech and skip it in the tab order rather than
+            expose a nameless duplicate link. }}
+        <a
+          href={{this.profileUrl}}
+          class="highlight-member__avatar"
+          aria-hidden="true"
+          tabindex="-1"
+        >
           {{dAvatar this.user imageSize="large"}}
         </a>
         <div class="highlight-card__body">

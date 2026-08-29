@@ -80,7 +80,11 @@ module(
         .exists("the iframe after pressing");
       assert
         .dom(".highlight-podcast__player")
-        .hasAttribute("src", /\/embed\/1qH2Ye8IJrE/, "embeds the right video");
+        .hasAttribute(
+          "src",
+          "https://www.youtube.com/embed/1qH2Ye8IJrE?autoplay=1",
+          "embeds the right video on www.youtube.com, not the -nocookie host"
+        );
       assert
         .dom(".highlight-podcast__play")
         .doesNotExist("play button is gone");
@@ -313,9 +317,6 @@ module(
           },
         })
       );
-      pretender.get("/directory_items.json", () =>
-        response({ directory_items: [] })
-      );
 
       await renderHighlights({
         ...DEFAULT_ARGS,
@@ -343,9 +344,6 @@ module(
         response({
           post_stream: { posts: [{ cooked: `<p>No video here.</p>` }] },
         })
-      );
-      pretender.get("/directory_items.json", () =>
-        response({ directory_items: [] })
       );
 
       await renderHighlights({

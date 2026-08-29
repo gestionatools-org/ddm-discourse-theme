@@ -6,10 +6,12 @@ import BlockHero from "../blocks/block-hero";
 import BlockHighlights from "../blocks/block-highlights";
 import BlockLatest from "../blocks/block-latest";
 
-// The homepage is a heading band and then section 1: a reading column and a
-// panel beside it. The panel holds two cards — the events lane ("Agenda del
-// certificado") and the ideas lane ("Tengo una idea") — stacked against the
-// site-wide latest list.
+// The homepage is a heading band, then section 1 — a reading column and a panel
+// beside it — then section 2, the community-highlights bento. The panel holds
+// two cards, the events lane ("Agenda del certificado") and the ideas lane
+// ("Tengo una idea"), stacked against the site-wide latest list; section 2 is a
+// four-card grid (podcast · newsletter · novedad · member of the month) that
+// renders only when at least one of its content tags is set.
 //
 // The section frame is a container query in `layouts/homepage.scss`. It
 // replaced a page-level two-column grid that never worked: the file carried

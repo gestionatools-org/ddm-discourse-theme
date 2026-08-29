@@ -32,6 +32,14 @@ export default class HighlightPodcastCard extends Component {
     this.playing = true;
   }
 
+  // NOTE: the spec's edge-case table says a 404 on the `i.ytimg.com` thumbnail
+  // "swaps to the placeholder via `<img onerror>`". That is NOT implemented: an
+  // `{{on "error"}}` handler that removed the `<img>` would race the rendering
+  // tests, whose synchronous assertions read the thumbnail's `src` right after
+  // `render()` and would see it gone if the (networkless CI) load failed first.
+  // `hqdefault` always exists for a real video id, so the only miss is the
+  // private/removed-video case, where YouTube's own error frame covers it once
+  // play is pressed. Left aspirational — see the fix-wave report.
   <template>
     <article class="highlight-card highlight-podcast">
       <div class="highlight-podcast__frame">

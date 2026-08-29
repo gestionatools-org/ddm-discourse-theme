@@ -26,13 +26,17 @@ import {
 // is what serialises it.
 const ContentCard = <template>
   <article class="highlight-card highlight-content --{{@variant}}">
-    <div class="highlight-card__media">
-      {{#if @topic.image_url}}
-        <img src={{@topic.image_url}} alt="" loading="lazy" />
-      {{else}}
-        <span class="highlight-card__placeholder">{{dIcon @icon}}</span>
-      {{/if}}
-    </div>
+    {{#unless (eq @variant "compact")}}
+      {{! The compact novedad card has no image — the media slot would only
+          carry a placeholder icon that the label already shows. }}
+      <div class="highlight-card__media">
+        {{#if @topic.image_url}}
+          <img src={{@topic.image_url}} alt="" loading="lazy" />
+        {{else}}
+          <span class="highlight-card__placeholder">{{dIcon @icon}}</span>
+        {{/if}}
+      </div>
+    {{/unless}}
     <div class="highlight-card__body">
       <div class="highlight-card__label">
         {{dIcon @icon}}
@@ -53,14 +57,22 @@ const ContentCard = <template>
   </article>
 </template>;
 
-// Shown in a content cell whose tag is set but currently has no topic.
+// Shown in a content cell whose tag is set but currently has no topic. It has
+// no media slot, so it takes no variant — the body is centred the same way in
+// every cell.
 const Placeholder = <template>
-  <article class="highlight-card highlight-content --{{@variant}} --empty">
+  <article class="highlight-card highlight-content --empty">
     <div class="highlight-card__body">
       <span class="highlight-card__placeholder">{{dIcon @icon}}</span>
       <p>{{i18n (themePrefix "homepage.highlights.soon")}}</p>
     </div>
   </article>
+</template>;
+
+// While a cell's fetch is in flight. Same markup the events, latest and forum
+// lanes give their own `<DAsyncContent>`; one copy for all four cells here.
+const CellLoading = <template>
+  <div class="block-highlights__loading"><div class="spinner" /></div>
 </template>;
 
 // Section 2 of the homepage: a bento of four cards. Each cell has its own
@@ -162,6 +174,7 @@ export default class BlockHighlights extends Component {
           {{#if @newsletterTag}}
             <div class="block-highlights__cell --news">
               <DAsyncContent @asyncData={{this.fetchNewsletter}}>
+                <:loading><CellLoading /></:loading>
                 <:content as |topic|>
                   <ContentCard
                     @topic={{topic}}
@@ -172,7 +185,7 @@ export default class BlockHighlights extends Component {
                   />
                 </:content>
                 <:empty>
-                  <Placeholder @variant="tall" @icon="envelope" />
+                  <Placeholder @icon="envelope" />
                 </:empty>
               </DAsyncContent>
             </div>
@@ -181,6 +194,7 @@ export default class BlockHighlights extends Component {
           {{#if @podcastTag}}
             <div class="block-highlights__cell --podcast">
               <DAsyncContent @asyncData={{this.fetchPodcast}}>
+                <:loading><CellLoading /></:loading>
                 <:content as |data|>
                   <HighlightPodcastCard
                     @topic={{data.topic}}
@@ -188,7 +202,7 @@ export default class BlockHighlights extends Component {
                   />
                 </:content>
                 <:empty>
-                  <Placeholder @variant="wide" @icon="podcast" />
+                  <Placeholder @icon="podcast" />
                 </:empty>
               </DAsyncContent>
             </div>
@@ -197,6 +211,7 @@ export default class BlockHighlights extends Component {
           {{#if @newsTag}}
             <div class="block-highlights__cell --novedad">
               <DAsyncContent @asyncData={{this.fetchNews}}>
+                <:loading><CellLoading /></:loading>
                 <:content as |topic|>
                   <ContentCard
                     @topic={{topic}}
@@ -207,7 +222,7 @@ export default class BlockHighlights extends Component {
                   />
                 </:content>
                 <:empty>
-                  <Placeholder @variant="compact" @icon="rocket" />
+                  <Placeholder @icon="rocket" />
                 </:empty>
               </DAsyncContent>
             </div>
@@ -215,6 +230,7 @@ export default class BlockHighlights extends Component {
 
           <div class="block-highlights__cell --miembro">
             <DAsyncContent @asyncData={{this.fetchMember}}>
+              <:loading><CellLoading /></:loading>
               <:content as |data|>
                 <HighlightMemberCard @member={{data.member}} />
               </:content>
