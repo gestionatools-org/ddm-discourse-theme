@@ -1,8 +1,8 @@
+// Shares `panel-card` with the ideas lane below it: same frame, no background
+// tint, no hierarchy between them. The internal upcoming/past split is events
+// being events, not a second tier.
 .block-events {
-  padding: var(--space-4);
-  border: 1px solid var(--ga-border);
-  border-radius: var(--d-border-radius-large);
-  background: var(--ga-muted);
+  @include panel-card;
 
   &__header {
     @include lane-header;
@@ -10,6 +10,10 @@
 
   &__title {
     @include lane-title;
+
+    // Matches the ideas lane beside it — neither panel title sits above the
+    // other.
+    font-size: var(--font-0);
   }
 
   &__empty {
@@ -40,6 +44,12 @@
 
   &__list {
     @include lane-list;
+
+    // Tighter rows, matching the ideas lane: the panel shows more titles in
+    // less width, so the vertical rhythm gives way first.
+    > li {
+      padding-block: var(--space-2);
+    }
   }
 
   &__item-link {
@@ -74,6 +84,7 @@
   &__item-title {
     font-weight: 700;
     line-height: var(--line-height-medium);
+    font-size: var(--font-down-1);
   }
 
   &__footer {

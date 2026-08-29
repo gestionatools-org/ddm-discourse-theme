@@ -963,9 +963,9 @@ lost, one duplicated surface removed.
 "compact forum lane drops its link" test moved into `module("ideas lane")`. The shortcuts
 destinations test went with the card. Integration count 10 → 12.
 
-**Known cosmetic gap, flagged not fixed:** the events card carries both a `--ga-muted`
-background and a border; the ideas compact card has only a border. They will not look quite
-alike stacked in the panel. One SCSS line if Ricardo wants them aligned after seeing PRE.
+**Known cosmetic gap, flagged not fixed here:** the events card carries both a `--ga-muted`
+background and a border; the ideas compact card has only a border. Fixed in the follow-up
+below.
 
 **Not touched:** `discourse-calendar` (its `display_post_event_date_on_topic_title` +
 `calendar_enabled` are on on PRE, so `event_starts_at` reaches the topic list — plugin
@@ -975,4 +975,34 @@ dead, still deferred to an about.json pass).
 **Verification.** `npx pnpm@10.28.0 lint` green on all five. YAML re-parsed with Homebrew
 Ruby. QUnit runs in CI only.
 
-`theme_version` 0.31.0.
+`theme_version` 0.31.0. **Merged as `f444a16` (#74)**, CI green, PRE pull forced:
+`local_version` = `f444a16`, `last_error_text` None, settings schema 8 (events restored),
+`events_category_id`/`events_count` at defaults 59/4.
+
+## 2026-08-29 — Panel lanes share one frame
+
+**The branch.** `refactor/unify-panel-lane-cards`. Ricardo, seeing #74 on PRE: "unifica el
+estilo conforme al de tengo una idea. Son secciones sin jerarquía visual. El marco ya las
+identifica como independientes."
+
+**The change.** A `panel-card` mixin in `app/mixins.scss` — `padding: --space-5`, border,
+border-radius, **no background**. `block-forum.scss`'s `.--compact` and the whole of
+`block-events.scss` now `@include` it instead of repeating (or diverging on) those lines.
+The events card additionally drops to a `--font-0` title and `--space-2` rows, matching what
+`.block-forum.--compact` already did — so the two panel lanes are now pixel-identical in
+frame and density, differing only in content (events keeps its upcoming/past split and
+footer link).
+
+**What went:** `background: var(--ga-muted)` on `.block-events`, and its `--space-4` padding
+(now `--space-5` via the mixin). Comments in both SCSS files that still named the removed
+shortcuts card were swept.
+
+`mixins.scss` now carries `panel-card` alongside the older `lane-card` (which is orphaned
+since #73 removed showcase/library — left per "conservar helpers", noted again here).
+
+**Verification.** `npx pnpm@10.28.0 lint` green on all five (one `scss/double-slash-comment-empty-line-before`
+caught and fixed). No JS/HBS/test changes, so the DOM the integration tests assert on is
+untouched. No instance touched yet.
+
+`theme_version` 0.32.0 — the panel card visibly changes (loses its background tint, smaller
+title), so it is a user-visible change.
