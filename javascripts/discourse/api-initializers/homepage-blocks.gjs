@@ -3,6 +3,7 @@ import { apiInitializer } from "discourse/lib/api";
 import BlockEvents from "../blocks/block-events";
 import BlockForum from "../blocks/block-forum";
 import BlockHero from "../blocks/block-hero";
+import BlockHighlights from "../blocks/block-highlights";
 import BlockLatest from "../blocks/block-latest";
 
 // The homepage is a heading band and then section 1: a reading column and a
@@ -94,6 +95,21 @@ export default apiInitializer((api) => {
           ],
         },
       ],
+    },
+
+    // Section 2. The community highlights bento — see
+    // docs/superpowers/specs/2026-08-29-community-highlights-design.md. Its own
+    // SCSS carries the grid; here it is just one more section of the stack.
+    {
+      block: BlockHighlights,
+      id: "home-highlights",
+      args: {
+        title: "homepage.highlights.title",
+        podcastTag: settings.highlights_podcast_tag,
+        newsletterTag: settings.highlights_newsletter_tag,
+        newsTag: settings.highlights_news_tag,
+        memberPeriod: settings.highlights_member_period,
+      },
     },
   ]);
 });
