@@ -371,7 +371,7 @@ the same idiom as `events_category_id: 0`.
 | A tag setting is empty | That card is removed; the grid falls back to a two-column layout over the remaining cards. |
 | Tag set, no topics | "Próximamente" placeholder in that cell; the bento holds. |
 | Podcast topic has no recognisable video | Thumbnail (topic image or placeholder) links to the topic; no play button. |
-| Podcast `videoId` resolves but the video is private/removed | The `<iframe>` shows YouTube's own error; the `i.ytimg.com` thumbnail 404 swaps to the placeholder via `<img onerror>`. |
+| Podcast `videoId` resolves but the video is private/removed | The `<iframe>` shows YouTube's own error. `hqdefault.jpg` is still served for removed videos, so the thumbnail rarely 404s; an `<img onerror>` → placeholder swap was specced but **not built** (deferred in the whole-branch fix wave, 2026-08-29 — it flaked the rendering test), so a genuine thumbnail 404 shows a broken-image icon until it is added. |
 | Newsletter and podcast resolve to the **same topic** | Both cards show it. This happens on PRE today (topic 2597 carries both tags). Documented, not coded around — cross-card de-dup between independent `<DAsyncContent>` blocks is not worth its complexity. The fix is tag hygiene (admin task). |
 | `enable_user_directory` off, or the directory request fails | Treated as "no eligible member" → the member cell renders the CTA. |
 | Directory returns only zero-activity users | `memberHasActivity` is false → CTA. |
