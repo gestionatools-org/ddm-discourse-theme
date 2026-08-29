@@ -56,13 +56,13 @@
 }
 
 // The panel variant, used by the ideas lane beside the latest list. It shares
-// `panel-card` with the events lane above it — the two are siblings in the
-// panel with no hierarchy between them. The heading loses its trailing link in
-// the template — at ~430px it wrapped onto a second line and started reading as
-// a new section — so the header here is a title alone and needs no space held
-// for a button beside it.
+// `lane-frame` with the events lane above it and the latest list — no hierarchy
+// between the three. The heading loses its trailing link in the template — at
+// ~430px it wrapped onto a second line and started reading as a new section —
+// so the header here is a title alone and needs no space held for a button
+// beside it.
 .block-forum.--compact {
-  @include panel-card;
+  @include lane-frame;
 
   .block-forum__title {
     font-size: var(--font-0);

@@ -1005,4 +1005,43 @@ caught and fixed). No JS/HBS/test changes, so the DOM the integration tests asse
 untouched. No instance touched yet.
 
 `theme_version` 0.32.0 — the panel card visibly changes (loses its background tint, smaller
-title), so it is a user-visible change.
+title), so it is a user-visible change. **Merged as `68bacb6` (#75)**, CI green, PRE pull
+forced.
+
+## 2026-08-29 — All three homepage lanes framed and lifted
+
+**The branch.** `feat/frame-and-lift-homepage-lanes`. Ricardo, still iterating on PRE:
+"enmarca también el espacio de últimas publicaciones y haz que los bloques tengan sombra en
+el borde para destacar del fondo."
+
+**The policy reversal, made explicit.** `app/elevation.scss` had a written rule — content
+surfaces get a border, never a shadow, on purpose ("a management interface with shadows on
+every card reads restless"). This overrides it *for the three homepage lanes only*: they are
+the whole page, floating on the near-white `--secondary` floor with nothing else to give
+them edges, and a 1px border left them lying flat in the page rather than on it. The file's
+rationale paragraph is rewritten to say so; "bordes antes que sombras" still governs
+everything *inside* a lane (rows, cells).
+
+**`--ga-shadow-lane`** = the corporate `--shadow-card` verbatim (`assets/css/corporate.css`):
+`0 2px 16px` petrol at 6% on light, `rgb(0 0 0 / 32%)` on dark (the petrol tint is lighter
+than the `#071318` floor and would halo — same flip the overlay tokens make).
+
+**`panel-card` → `lane-frame`.** Renamed (it now frames the reading column too, not just the
+panel) and given `box-shadow: var(--ga-shadow-lane)`. `block-latest.scss` picks it up;
+`block-events.scss` and `block-forum.scss` just follow the rename and get the shadow for
+free.
+
+**`block-latest.scss` also drops the list-header fill.** Site-wide the topic-list header sits
+on `--ga-muted`; scoped to `.block-latest` that is set to `transparent`, because inside the
+frame there is no page behind it to lift off and the other two lanes carry no fill behind
+their headers. This assumes core reads `--d-topic-list-header-background-color` (the theme's
+own `topic-list.scss` sets it, so it should) — if not, it is a harmless no-op and the band
+stays; check on PRE.
+
+**Not touched:** the hero band (a full-bleed band, not a lane — it already casts a `100vmax`
+spread shadow); every within-lane surface stays flat.
+
+**Verification.** `npx pnpm@10.28.0 lint` green on all five (one prettier reflow of
+`elevation.scss`, auto-fixed). No JS/HBS/test changes.
+
+`theme_version` 0.33.0.

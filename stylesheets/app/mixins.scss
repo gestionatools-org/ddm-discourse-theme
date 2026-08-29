@@ -68,15 +68,16 @@
   }
 }
 
-// The frame around a lane that sits in the homepage panel — the events lane and
-// the ideas lane. Flat and bordered, no background tint: the border is the
-// whole frame. The two lanes are siblings with no hierarchy between them, so
-// they wear it identically (see also the --font-0 title and tighter rows each
-// applies).
-@mixin panel-card {
+// The frame around a homepage lane — latest, events, ideas. Bordered, no
+// background tint, and lifted off the near-white page floor by
+// `--ga-shadow-lane` (the one content surface that carries a shadow — see
+// app/elevation.scss). All three lanes wear it identically; there is no
+// hierarchy between them, only the reading column being wider.
+@mixin lane-frame {
   padding: var(--space-5);
   border: 1px solid var(--ga-border);
   border-radius: var(--d-border-radius-large);
+  box-shadow: var(--ga-shadow-lane);
 }
 
 // Flat surface separated by a border, never by a shadow — "bordes antes que

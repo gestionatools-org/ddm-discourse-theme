@@ -1,26 +1,33 @@
 // Corporate elevation.
 //
-// The system's rule is "bordes antes que sombras", and it still holds where it
-// was aimed: **content** surfaces — cards, table rows, list items — are
-// separated by a border, never by a shadow. A management interface with shadows
-// on every card reads restless; with borders it reads ordered. So there is
-// deliberately no card-shadow token here: the lane cards carry `--ga-border`
-// and nothing else.
+// "Bordes antes que sombras" still holds *inside* a surface: table rows, list
+// items and the cells of a grid are separated by a border, never by a shadow —
+// a listing with a shadow on every row reads restless; with hairlines it reads
+// ordered.
 //
-// The rule used to name the header and the sidebar among those flat surfaces,
-// and that is no longer true. **Chrome is lifted off the reading plane by a
-// shadow.** The reason is not decoration: the header, the rail and the page are
-// all within 1.037:1 of each other, so nothing separates them by tone, and a
-// hairline alone does not say which side is on top. This is the arrangement
-// forum.asana.com runs, measured rather than guessed.
+// **The homepage lanes are the exception, and it is deliberate.** The three of
+// them — latest, events, ideas — are the whole page, floating on the near-white
+// `--secondary` floor with nothing else to give them edges. A 1px border alone
+// left them lying flat *in* the page rather than sitting *on* it. They now carry
+// `--ga-shadow-lane` as well: the corporate `--shadow-card` value verbatim
+// (`assets/css/corporate.css`), a 16px petrol blur at 6%. Soft enough that it
+// never announces itself, present enough that the lane has a near edge. This is
+// the one content surface that gets a shadow; everything within a lane stays
+// flat.
+//
+// Chrome — the header and the sidebar — is lifted the same way and for a
+// related reason. The header, the rail and the page are all within 1.037:1 of
+// each other, so nothing separates them by tone, and a hairline alone does not
+// say which side is on top. This is the arrangement forum.asana.com runs,
+// measured rather than guessed.
 //
 // It is also less of a departure than it looks. Core already draws the header's
 // hairline *as a shadow* — `--shadow-header: 0 0 0 1px var(--content-border-color)`
 // — so what follows extends an existing shadow rather than introducing the
 // first one.
 //
-// Shadow is otherwise still reserved for real overlays: dropdown, popover,
-// dialog, toast.
+// Shadow is otherwise reserved for real overlays (dropdown, popover, dialog,
+// toast) and, now, the homepage lanes.
 //
 // The tint flips between schemes, and that is not an oversight. On light the
 // shadow is tinted petrol, never pure black, so it stays on the same hue axis as
@@ -32,6 +39,13 @@
     light-dark(rgb(0 48 64 / 12%), rgb(0 0 0 / 55%));
   --ga-shadow-popover: 0 2px 10px
     light-dark(rgb(0 48 64 / 10%), rgb(0 0 0 / 45%));
+
+  // The homepage lanes, and nothing else among the content surfaces. The light
+  // value is the corporate `--shadow-card` verbatim — `0 2px 16px` at petrol
+  // 6%. Dark keeps the 16px blur but swaps to black at 32%: the petrol tint
+  // rgb(0 48 64) is lighter than the #071318 floor and would halo, the same
+  // reason the overlays flip.
+  --ga-shadow-lane: 0 2px 16px light-dark(rgb(0 48 64 / 6%), rgb(0 0 0 / 32%));
 
   // The chrome shadow is declared as a COLOUR, not as a finished shadow, so the
   // header can cast downwards and the rail rightwards from one value. A shadow
