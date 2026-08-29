@@ -21,18 +21,21 @@
 # Discourse has no single-category setting type, so these are plain integers
 # (same as discourse-theme-skills' `sidebar_category_id`). 0 disables the lane.
 
-# --- Lane 1: news -----------------------------------------------------------
+# --- Section 1: the latest list ---------------------------------------------
 # Site-wide `latest`, with no category setting at all. It used to be keyed on
 # category 4, which made it 57% arrival announcements because 4's listing
 # carried category 78's 164 topics. Being category-free also makes it the one
 # lane a taxonomy change cannot empty.
-news_count:
+#
+# Rendered with core's own topic list, so a row costs less vertical space than
+# the old title-plus-excerpt did and the default is higher than the 4 it was.
+latest_count:
   type: integer
-  default: 4
+  default: 8
   min: 1
-  max: 10
+  max: 20
 
-# --- Lane 2: the certification forum ----------------------------------------
+# --- Deferred lane: the certification forum ---------------------------------
 # Parent of the ideas subcategory, whose topics are included.
 forum_category_id:
   type: integer
@@ -44,7 +47,7 @@ forum_count:
   min: 1
   max: 15
 
-# --- Lane 3: ideas ----------------------------------------------------------
+# --- Section 1's panel: ideas ------------------------------------------------
 # The same block as lane 2, pointed at a different category. Category 18 is the
 # largest on the site (318 topics, 3.6 replies/topic) and was buried as a
 # subcategory of 5, so the forum lane printed it and it had no heading of its
@@ -56,13 +59,16 @@ ideas_category_id:
   type: integer
   default: 18
 
-ideas_count:
+# The panel is ~430px wide, so this counts rows in a narrow card rather than in
+# a full-width lane. `ideas_count` was the old standalone lane's setting and is
+# gone with it.
+panel_ideas_count:
   type: integer
-  default: 6
+  default: 5
   min: 1
-  max: 15
+  max: 10
 
-# --- Lane 4: showcase -------------------------------------------------------
+# --- Deferred lane: showcase ------------------------------------------------
 # Rendered as an image grid, so point this at a category whose topics carry a
 # cover image. Topics without one degrade to a text card.
 showcase_category_id:
@@ -100,25 +106,7 @@ showcase_tag:
   type: string
   default: "poster-evf"
 
-# --- Lane 5: events ---------------------------------------------------------
-# A category listing that carries real event dates where they exist.
-# `discourse-calendar` was enabled on this site on 2026-08-12, so
-# `event_starts_at` reaches `topic_list_item` for every topic whose first post
-# carries an `[event]` block — and only for those. The lane renders both kinds
-# from the one request: the event date where it is serialized, the topic date
-# otherwise, and it groups the result into upcoming and past.
-# See javascripts/discourse/blocks/block-events.gjs.
-events_category_id:
-  type: integer
-  default: 59
-
-events_count:
-  type: integer
-  default: 4
-  min: 1
-  max: 10
-
-# --- Lane 6: library --------------------------------------------------------
+# --- Deferred lane: library -------------------------------------------------
 # Reference categories rendered as directory cards rather than topic lists.
 # Their topics have essentially zero replies (id 73's whole tree: 66 topics,
 # 0 replies ever), so "latest topic" carries no signal and a list would be a

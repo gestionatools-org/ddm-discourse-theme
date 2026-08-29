@@ -1,0 +1,28 @@
+// The latest-topics section: a heading and then core's own topic list.
+//
+// Deliberately thin. The list itself is styled once, site-wide, in
+// stylesheets/app/topic-list.scss — header on `--ga-muted`, brand hairlines,
+// tabular figures — and it arrives here already wearing all of it. Restating
+// any of that would mean two places to change when the table changes.
+//
+// The file this replaced carried ~35 lines for a hand-rolled list and its
+// excerpt clamp. The native list needs none of them.
+.block-latest {
+  &__header {
+    @include lane-header;
+  }
+
+  &__title {
+    @include lane-title;
+  }
+
+  &__empty {
+    @include lane-empty;
+  }
+
+  // Core's list draws its own top border under the header row, so the lane's
+  // heading needs no rule of its own to sit against.
+  .topic-list {
+    margin-block-start: var(--space-3);
+  }
+}

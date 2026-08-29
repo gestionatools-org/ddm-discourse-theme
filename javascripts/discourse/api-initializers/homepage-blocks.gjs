@@ -1,96 +1,107 @@
 import BlockGroup from "discourse/blocks/builtin/block-group";
 import { apiInitializer } from "discourse/lib/api";
-import BlockEvents from "../blocks/block-events";
 import BlockForum from "../blocks/block-forum";
 import BlockHero from "../blocks/block-hero";
+import BlockLatest from "../blocks/block-latest";
 import BlockLibrary from "../blocks/block-library";
-import BlockNews from "../blocks/block-news";
+import BlockShortcuts from "../blocks/block-shortcuts";
 import BlockShowcase from "../blocks/block-showcase";
 import { parseCategoryIds } from "../lib/category-topics";
 
-// The homepage is composed of six lanes below a heading band. Every lane but
-// the first is keyed by category ID because this instance's slugs are legacy
-// and no longer match their category; the news lane is site-wide and has no
-// category to lose.
+// The homepage is a heading band and then a stack of **sections**, each of which
+// may split into two columns of its own. That is the shape the reference runs —
+// community.hubspot.com, measured on 2026-08-28: three full-width sections in a
+// flex column, with the two-column split happening *inside* the first two.
 //
-// Each lane's shape follows how its category is actually used, measured rather
-// than assumed: conversational categories get topic lists with reply counts,
-// the poster category gets an image grid, and the reference tree gets directory
-// cards with no topic list at all (66 topics, zero replies in its history).
+// It replaced a global two-column grid that never worked. `layouts/homepage.scss`
+// has always carried `@container homepage-blocks (width > 60rem)`, but nothing
+// declared that container — not the theme, not core — so the query never
+// matched and the homepage was a single column for its whole life. The events
+// lane was not "in the right-hand column"; it was fifth in a stack.
+//
+// Every lane but the first is keyed by category ID because this instance's slugs
+// are legacy and no longer match their category; the latest lane is site-wide
+// and has no category to lose.
 //
 // No user or group conditions: every member of this community is a student, so
 // the only split is anonymous vs. signed in, which category permissions already
 // enforce server-side.
-//
-// The hero band is the first entry, ahead of every lane, and takes no args of
-// its own — it is the same component and resolver the category pages use,
-// called with no context so it renders the community copy.
 export default apiInitializer((api) => {
   api.renderBlocks("homepage-blocks", [
+    // The band, ahead of every section. It takes no args of its own — the same
+    // component and resolver the category pages use, called with no context so
+    // it renders the community copy.
     {
       block: BlockHero,
       id: "home-hero",
     },
+
+    // Section 1. The reading column and its panel.
     {
       block: BlockGroup,
-      id: "home-main",
+      id: "home-latest",
       children: [
         {
-          block: BlockNews,
-          id: "home-news",
+          block: BlockLatest,
+          id: "latest-list",
           args: {
-            title: "homepage.news.title",
-            linkText: "homepage.news.link_text",
+            title: "homepage.latest.title",
+            linkText: "homepage.latest.link_text",
             linkUrl: "/latest",
-            count: settings.news_count,
+            count: settings.latest_count,
           },
         },
         {
-          block: BlockForum,
-          id: "home-forum",
-          args: {
-            title: "homepage.forum.title",
-            linkText: "homepage.forum.link_text",
-            linkUrl: `/c/${settings.forum_category_id}`,
-            categoryId: settings.forum_category_id,
-            count: settings.forum_count,
-          },
-        },
-        {
-          // The same block again, not a new one: BlockForum is fully
-          // parameterised and its shape — a topic list with the reply count
-          // promoted — is what a category at 3.6 replies/topic wants. Only the
-          // icon had to be lifted out of the template to tell the two apart.
-          block: BlockForum,
-          id: "home-ideas",
-          args: {
-            title: "homepage.ideas.title",
-            linkText: "homepage.ideas.link_text",
-            linkUrl: `/c/${settings.ideas_category_id}`,
-            icon: "lightbulb",
-            emptyText: "homepage.ideas.empty",
-            categoryId: settings.ideas_category_id,
-            count: settings.ideas_count,
-          },
+          // A group inside a group, which the Blocks API supports explicitly.
+          // It exists so the panel's own two cards stack against each other
+          // rather than becoming two more cells of the section's grid.
+          block: BlockGroup,
+          id: "latest-panel",
+          children: [
+            {
+              block: BlockShortcuts,
+              id: "panel-shortcuts",
+              args: {
+                title: "homepage.shortcuts.title",
+                newTopicText: "homepage.shortcuts.new_topic",
+              },
+            },
+            {
+              // The ideas lane, moved out of the stack and into the panel.
+              // Category 18 is the largest on the site (441 topics, 3.6
+              // replies/topic) and its listing answers even on a dormant
+              // instance, so this is the one panel slot that is never empty.
+              block: BlockForum,
+              id: "panel-ideas",
+              args: {
+                title: "homepage.ideas.title",
+                linkText: "homepage.ideas.link_text",
+                linkUrl: `/c/${settings.ideas_category_id}`,
+                icon: "lightbulb",
+                emptyText: "homepage.ideas.empty",
+                categoryId: settings.ideas_category_id,
+                count: settings.panel_ideas_count,
+                compact: true,
+              },
+            },
+          ],
         },
       ],
     },
+
+    // Sections 2 and 3 are not decided yet. Until they are, these three lanes
+    // keep rendering full width, one below the other, exactly as they did
+    // before — the section frame above needs no change to absorb them later.
     {
-      block: BlockGroup,
-      id: "home-side",
-      children: [
-        {
-          block: BlockEvents,
-          id: "home-events",
-          args: {
-            title: "homepage.events.title",
-            linkText: "homepage.events.link_text",
-            linkUrl: `/c/${settings.events_category_id}`,
-            categoryId: settings.events_category_id,
-            count: settings.events_count,
-          },
-        },
-      ],
+      block: BlockForum,
+      id: "home-forum",
+      args: {
+        title: "homepage.forum.title",
+        linkText: "homepage.forum.link_text",
+        linkUrl: `/c/${settings.forum_category_id}`,
+        categoryId: settings.forum_category_id,
+        count: settings.forum_count,
+      },
     },
     {
       block: BlockShowcase,

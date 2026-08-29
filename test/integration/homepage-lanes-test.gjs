@@ -3,10 +3,10 @@ import { module, test } from "qunit";
 import BlockOutlet from "discourse/blocks/block-outlet";
 import { withPluginApi } from "discourse/lib/plugin-api";
 import { setupRenderingTest } from "discourse/tests/helpers/component-test";
-import BlockEvents from "../../discourse/blocks/block-events";
 import BlockForum from "../../discourse/blocks/block-forum";
 import BlockHero from "../../discourse/blocks/block-hero";
-import BlockNews from "../../discourse/blocks/block-news";
+import BlockLatest from "../../discourse/blocks/block-latest";
+import BlockShortcuts from "../../discourse/blocks/block-shortcuts";
 import BlockShowcase from "../../discourse/blocks/block-showcase";
 
 // The three bugs left from the 2026-08-16/17 review live in the templates, not
@@ -50,6 +50,14 @@ function topic(attrs) {
     image_url: null,
     excerpt: null,
     created_at: "2026-08-01T10:00:00.000Z",
+    // Core's topic list serializer always sends `posters`, and `Topic`'s
+    // `featuredUsers` getter reads `this.posters.length` without a null guard
+    // (`models/topic.js`) — unlike its `creator` and `lastPoster` siblings. The
+    // latest lane renders `<TopicList @showPosters={{true}} />`, so an absent
+    // `posters` raises "Cannot read properties of undefined (reading 'length')"
+    // as an uncaught global error that fails the run without naming a test. The
+    // POJO lanes ignore this key; only the model fixtures need it.
+    posters: [],
     ...attrs,
   };
 }
@@ -81,17 +89,98 @@ function recordingStore(owner, topics) {
   return calls;
 }
 
+// Core's topic list needs real Topic **models**, not the plain objects the
+// other lanes are happy with: `topic-list/item` calls `topic?.get(...)`, so a
+// POJO raises "topic?.get is not a function" as an uncaught global error and
+// fails the run without naming a test. In production the models arrive for
+// free — `store.findFiltered` returns them — so this is a fixture concern only.
+//
+// The real store is looked up *before* the stub replaces it, and the reference
+// stays valid afterwards. `store.createRecord("topic", …)` is core's own idiom,
+// from `tests/integration/components/topic-list-test.gjs`.
+//
+// `url` has to come off the attrs first. On the model it is
+// `@computed("id", "slug")` (`models/topic.js`), so handing it over as an
+// attribute raises "Cannot override the computed property `url`" — which is
+// what took these three tests down once the `.get` error was fixed. The model
+// derives the same path from the id, and `fancy_title` stays because it *is* a
+// plain attribute: the computed one is `fancyTitle`, which reads it.
+function topicModel(store, attrs) {
+  const settable = { ...attrs };
+  delete settable.url;
+  return store.createRecord("topic", settable);
+}
+
+function stubStoreWithModels(owner, attrsList) {
+  const store = owner.lookup("service:store");
+  const topics = attrsList.map((attrs) => topicModel(store, attrs));
+  owner.unregister("service:store");
+  owner.register(
+    "service:store",
+    { findFiltered: async () => ({ topics }) },
+    { instantiate: false }
+  );
+  return topics;
+}
+
+// Same, but it keeps what it was asked for.
+function recordingStoreWithModels(owner, attrsList) {
+  const calls = [];
+  const store = owner.lookup("service:store");
+  const topics = attrsList.map((attrs) => topicModel(store, attrs));
+  owner.unregister("service:store");
+  owner.register(
+    "service:store",
+    {
+      findFiltered: async (type, options) => {
+        calls.push({ type, options });
+        return { topics };
+      },
+    },
+    { instantiate: false }
+  );
+  return calls;
+}
+
 module("Espublico Theme | Integration | homepage lanes", function (hooks) {
   setupRenderingTest(hooks);
 
-  module("news lane", function () {
+  module("latest lane", function () {
+    test("renders core's own topic list, not a hand-rolled one", async function (assert) {
+      // The whole point of this lane's rewrite: the native list carries reply,
+      // view and activity columns and inherits the theme's table styling from
+      // stylesheets/app/topic-list.scss, so none of it is reimplemented here.
+      // Verified against the reference on 2026-08-28 — community.hubspot.com's
+      // own "Temas recientes" section is a real `table.topic-list`.
+      stubStoreWithModels(this.owner, [
+        topic({ id: 900010, fancy_title: "Un tema reciente" }),
+        topic({ id: 900011, fancy_title: "Otro tema" }),
+      ]);
+
+      withPluginApi((api) =>
+        api.renderBlocks("main-outlet-blocks", [
+          {
+            block: BlockLatest,
+            args: { title: "homepage.latest.title", count: 8 },
+          },
+        ])
+      );
+
+      await render(
+        <template><BlockOutlet @name="main-outlet-blocks" /></template>
+      );
+
+      assert.dom(".block-latest table.topic-list").exists("the native table");
+      assert.dom(".block-latest tr.topic-list-item").exists({ count: 2 });
+    });
+
     test("renders a title's entities as characters, not as markup", async function (assert) {
-      // `fancy_title` arrives already cooked. Passing it through dReplaceEmoji
-      // escaped the ampersand first, so the page printed the entity verbatim:
-      // "La Seu d&rsquo;Urgell".
-      stubStore(this.owner, [
+      // `fancy_title` arrives already cooked, and printing it escaped put
+      // "La Seu d&rsquo;Urgell" on the page verbatim. Core's list owns this
+      // now; the assertion stays because the regression is ours to notice.
+      stubStoreWithModels(this.owner, [
         topic({
-          id: 900010,
+          id: 900012,
           fancy_title: "La Seu d&rsquo;Urgell estrena sede",
         }),
       ]);
@@ -99,8 +188,8 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       withPluginApi((api) =>
         api.renderBlocks("main-outlet-blocks", [
           {
-            block: BlockNews,
-            args: { title: "homepage.news.title", count: 4 },
+            block: BlockLatest,
+            args: { title: "homepage.latest.title", count: 8 },
           },
         ])
       );
@@ -109,53 +198,12 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
         <template><BlockOutlet @name="main-outlet-blocks" /></template>
       );
 
+      // `includesText`, not `hasText`: core's TopicLink adds an `sr-only` span
+      // inside the anchor for the unread case, and this assertion is about the
+      // entity being decoded rather than about the anchor's exact contents.
       assert
-        .dom(".block-news__item-title")
-        .hasText("La Seu d’Urgell estrena sede");
-    });
-
-    test("resolves emoji shortcodes in an excerpt", async function (assert) {
-      // ExcerptParser strips cooked HTML back to text and turns emoji images
-      // into their `:shortcode:`, so one news excerpt in four printed
-      // ":automobile:" as words on the live homepage.
-      //
-      // The setting is a precondition, not decoration. `emojiUnescape` is a
-      // no-op unless `emojiOptions()` returns options, and that reads
-      // `helperContext().siteSettings` (`discourse/lib/text.js`) — which
-      // `autoLoadModules` captured by reference from
-      // `owner.lookup("service:site-settings")` during this test's beforeEach.
-      // Writing to `this.siteSettings` instead does not reach it, and the
-      // shortcode then survives while the block is working correctly.
-      const siteSettings = this.owner.lookup("service:site-settings");
-      siteSettings.enable_emoji = true;
-      siteSettings.emoji_set = "twitter";
-
-      stubStore(this.owner, [
-        topic({
-          id: 900011,
-          excerpt: "Un aniversario :tada: para la comunidad",
-        }),
-      ]);
-
-      withPluginApi((api) =>
-        api.renderBlocks("main-outlet-blocks", [
-          {
-            block: BlockNews,
-            args: { title: "homepage.news.title", count: 4 },
-          },
-        ])
-      );
-
-      await render(
-        <template><BlockOutlet @name="main-outlet-blocks" /></template>
-      );
-
-      assert
-        .dom(".block-news__item-excerpt img.emoji")
-        .exists({ count: 1 }, "the shortcode became an image");
-      assert
-        .dom(".block-news__item-excerpt")
-        .doesNotIncludeText(":tada:", "no shortcode survives as text");
+        .dom(".block-latest .topic-list-item a.title")
+        .includesText("La Seu d\u2019Urgell estrena sede");
     });
 
     test("reads the site-wide latest list, with no category to point at", async function (assert) {
@@ -163,13 +211,15 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       // it 57% arrival announcements, because 4's listing included category
       // 78's 164 topics. Site-wide `latest` is the honest source for "what's
       // new" and it cannot be emptied by a category reorganisation.
-      const calls = recordingStore(this.owner, [topic({ id: 900012 })]);
+      const calls = recordingStoreWithModels(this.owner, [
+        topic({ id: 900013 }),
+      ]);
 
       withPluginApi((api) =>
         api.renderBlocks("main-outlet-blocks", [
           {
-            block: BlockNews,
-            args: { title: "homepage.news.title", count: 4 },
+            block: BlockLatest,
+            args: { title: "homepage.latest.title", count: 8 },
           },
         ])
       );
@@ -179,6 +229,87 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       );
 
       assert.deepEqual(calls[0].options, { filter: "latest" });
+    });
+  });
+
+  module("panel", function (panelHooks) {
+    // Theme settings are global for the run, so a lane that writes one has to
+    // put it back — otherwise the next module inherits it. The header-links
+    // acceptance test does the same thing for the same three settings.
+    panelHooks.afterEach(function () {
+      settings.academy_url = "";
+      settings.demo_url = "";
+      settings.first_steps_url = "";
+    });
+
+    test("renders the shortcut destinations that are configured", async function (assert) {
+      settings.academy_url = "https://academy.example.com";
+      settings.demo_url = "/demo";
+      settings.first_steps_url = "";
+
+      // `setupRenderingTest` signs nobody in, so the card's `can_create_topic`
+      // guard hides the composer button by default. Stubbed rather than worked
+      // around: the guard is the behaviour worth asserting, and the instance is
+      // login_required, so a real viewer always has a user.
+      this.owner.unregister("service:current-user");
+      this.owner.register(
+        "service:current-user",
+        { can_create_topic: true },
+        { instantiate: false }
+      );
+
+      withPluginApi((api) =>
+        api.renderBlocks("main-outlet-blocks", [
+          {
+            block: BlockShortcuts,
+            args: {
+              title: "homepage.shortcuts.title",
+              newTopicText: "homepage.shortcuts.new_topic",
+            },
+          },
+        ])
+      );
+
+      await render(
+        <template><BlockOutlet @name="main-outlet-blocks" /></template>
+      );
+
+      // A link with an empty URL is not rendered — the same rule the header
+      // links follow, so an undecided destination leaves no dead affordance.
+      assert.dom(".block-shortcuts__link").exists({ count: 2 });
+      assert
+        .dom(".block-shortcuts__new-topic")
+        .exists("the composer affordance, for a member who may post");
+    });
+
+    test("the compact forum lane drops the section heading link", async function (assert) {
+      // In the panel the lane is a list, not a section: at ~430px a heading
+      // with a trailing link wraps onto two lines and reads as a second
+      // section rather than as part of this one.
+      stubStore(this.owner, [topic({ id: 900050 })]);
+
+      withPluginApi((api) =>
+        api.renderBlocks("main-outlet-blocks", [
+          {
+            block: BlockForum,
+            args: {
+              title: "homepage.ideas.title",
+              linkText: "homepage.ideas.link_text",
+              linkUrl: "/c/18",
+              categoryId: 18,
+              count: 5,
+              compact: true,
+            },
+          },
+        ])
+      );
+
+      await render(
+        <template><BlockOutlet @name="main-outlet-blocks" /></template>
+      );
+
+      assert.dom(".block-forum.--compact").exists("carries the modifier");
+      assert.dom(".block-forum__link").doesNotExist("no trailing link");
     });
   });
 
@@ -393,99 +524,6 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
 
       assert.deepEqual(calls[0].options, { filter: "c/78/l/latest" });
       assert.dom(".block-showcase__card").exists({ count: 1 });
-    });
-  });
-
-  module("events lane", function () {
-    // Relative to now, so the split cannot rot into a false pass the way a
-    // hardcoded date would.
-    const day = 86400000;
-    const soon = new Date(Date.now() + day).toISOString();
-    const later = new Date(Date.now() + 30 * day).toISOString();
-    const gone = new Date(Date.now() - 30 * day).toISOString();
-
-    function renderEvents() {
-      withPluginApi((api) =>
-        api.renderBlocks("main-outlet-blocks", [
-          {
-            block: BlockEvents,
-            args: { title: "homepage.events.title", categoryId: 59, count: 4 },
-          },
-        ])
-      );
-
-      return render(
-        <template><BlockOutlet @name="main-outlet-blocks" /></template>
-      );
-    }
-
-    test("puts what is still ahead first, soonest first", async function (assert) {
-      // The listing arrives bumped_at descending whatever the category's event
-      // sort setting says, so the one upcoming event led the lane only by
-      // accident of being the most recently bumped topic. Served out of order
-      // here on purpose.
-      stubStore(this.owner, [
-        topic({ id: 900040, fancy_title: "Congreso", event_starts_at: later }),
-        topic({
-          id: 900041,
-          fancy_title: "Jornada pasada",
-          event_starts_at: gone,
-        }),
-        topic({ id: 900042, fancy_title: "Webinar", event_starts_at: soon }),
-      ]);
-
-      await renderEvents();
-
-      const groups = [...document.querySelectorAll(".block-events__group")];
-      assert.strictEqual(groups.length, 2, "both halves are labelled");
-
-      const upcoming = [
-        ...groups[0].querySelectorAll(".block-events__item-title"),
-      ].map((el) => el.textContent.trim());
-
-      assert.deepEqual(
-        upcoming,
-        ["Webinar", "Congreso"],
-        "soonest first, not in the order served"
-      );
-
-      const past = [
-        ...groups[1].querySelectorAll(".block-events__item-title"),
-      ].map((el) => el.textContent.trim());
-
-      assert.deepEqual(past, ["Jornada pasada"]);
-    });
-
-    test("marks a real event date apart from a topic date", async function (assert) {
-      // Core's relative helpers cannot render a future date — `medium` prints
-      // every one of them as "now" — so a scheduled date is absolute and
-      // carries its own modifier.
-      stubStore(this.owner, [
-        topic({ id: 900043, fancy_title: "Webinar", event_starts_at: soon }),
-        topic({ id: 900044, fancy_title: "Sin evento" }),
-      ]);
-
-      await renderEvents();
-
-      assert.dom(".block-events__item-date.--scheduled").exists({ count: 1 });
-      assert.dom(".block-events__item-date").exists({ count: 2 });
-    });
-
-    test("shows the archive alone rather than an empty heading", async function (assert) {
-      stubStore(this.owner, [
-        topic({
-          id: 900045,
-          fancy_title: "Solo pasado",
-          event_starts_at: gone,
-        }),
-      ]);
-
-      await renderEvents();
-
-      assert.dom(".block-events__group").exists({ count: 1 });
-      assert
-        .dom(".block-events__group-title")
-        .hasText("Past events", "no 'Coming up' with nothing under it");
     });
   });
 });

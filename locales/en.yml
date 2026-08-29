@@ -2,16 +2,14 @@ en:
   theme_metadata:
     description: "Custom Discourse theme for the es|public community."
     settings:
-      news_count: "How many news topics to show."
+      latest_count: "How many topics to show in the latest list."
       forum_category_id: "Category shown in the certification forum lane. Its subcategories are included. 0 hides the lane."
       forum_count: "How many forum topics to show."
-      ideas_category_id: "Category shown in the ideas lane. Its subcategories are included. 0 hides the lane."
-      ideas_count: "How many ideas to show."
+      ideas_category_id: "Category shown in the panel beside the latest list. Its subcategories are included. 0 hides it."
+      panel_ideas_count: "How many ideas to show in the panel beside the latest list."
       showcase_category_id: "Category shown as an image grid. Topics without a cover image degrade to a text card. 0 hides the lane."
       showcase_count: "How many showcase entries to show."
       showcase_tag: "Restricts the showcase grid to topics carrying this tag, on top of the category above. Empty shows the whole category. A tag that does not exist empties the lane."
-      events_category_id: "Category shown in the events lane. 0 hides the lane."
-      events_count: "How many events to show."
       library_category_ids: "Reference categories rendered as directory cards instead of topic lists."
       academy_url: "Where the Academy item in the site header points. External destinations must include the scheme — https://example.com, not example.com, which the browser resolves as a path on this site. Start with / for a page on this forum. Empty hides the item."
       demo_url: "Where the Demo Gestiona item in the site header points. External destinations must include the scheme — https://example.com, not example.com, which the browser resolves as a path on this site. Start with / for a page on this forum. Empty hides the item."
@@ -58,10 +56,13 @@ en:
     button: "New post"
 
   homepage:
-    news:
-      title: "What's new"
+    latest:
+      title: "Latest posts"
       link_text: "See all"
       empty: "Nothing new yet."
+    shortcuts:
+      title: "Get started"
+      new_topic: "New post"
     forum:
       title: "Certification forum"
       link_text: "Go to the forum"
@@ -77,14 +78,6 @@ en:
       title: "What our members are making"
       link_text: "See everything"
       empty: "Nothing published yet."
-    events:
-      title: "Events"
-      link_text: "See the calendar"
-      empty: "No events scheduled."
-      # Group headings. The lane is a record as much as an announcement, so
-      # both halves are labelled rather than merged into one undated run.
-      upcoming: "Coming up"
-      past: "Past events"
     library:
       title: "Library"
       subcategories:

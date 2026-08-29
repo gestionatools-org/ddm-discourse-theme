@@ -3,6 +3,7 @@ import { service } from "@ember/service";
 import { trustHTML } from "@ember/template";
 import { block } from "discourse/blocks";
 import { bind } from "discourse/lib/decorators";
+import { and, not } from "discourse/truth-helpers";
 import DAsyncContent from "discourse/ui-kit/d-async-content";
 import DButton from "discourse/ui-kit/d-button";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
@@ -29,6 +30,11 @@ import { loadCategoryTopics } from "../lib/category-topics";
     emptyText: { type: "string", default: "homepage.forum.empty" },
     categoryId: { type: "number", required: true },
     count: { type: "number", default: 6 },
+    // The panel variant. In the homepage panel this lane is a list inside a
+    // section, not a section of its own: at ~430px a heading with a trailing
+    // link wraps onto two lines and starts reading as a second section. So the
+    // modifier drops the link and the SCSS tightens the rest.
+    compact: { type: "boolean", default: false },
   },
 })
 export default class BlockForum extends Component {
@@ -44,13 +50,16 @@ export default class BlockForum extends Component {
   }
 
   <template>
-    <section class="block-forum">
+    {{! A standalone `--modifier` class, not `block-forum--compact`: the
+        theme's BEM convention keeps modifiers separable so a rule can target
+        the state without restating the block. }}
+    <section class="block-forum {{if @compact '--compact'}}">
       <header class="block-forum__header">
         <h2 class="block-forum__title">
           {{dIcon @icon}}
           {{i18n (themePrefix @title)}}
         </h2>
-        {{#if @linkUrl}}
+        {{#if (and @linkUrl (not @compact))}}
           <DButton
             class="btn-flat block-forum__link"
             @href={{@linkUrl}}
