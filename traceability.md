@@ -831,3 +831,50 @@ text also improves the native categories page.
 
 `theme_version` 0.25.0. Committed on `feat/page-hero-band`; not pushed, no PR opened, no
 instance touched — releasing this is a separate, explicit decision for the maintainer.
+
+## 2026-08-29 — The latest section's tests go green, three commits after the same wound
+
+**The branch.** `feat/homepage-latest-section` / PR #71 — first increment of the homepage
+redesign: a section frame, and section 1 (a site-wide *latest* list rendered with core's own
+`topic-list/list`, beside a panel holding a shortcuts card and the ideas lane in compact
+form). The events lane came out. `BlockNews` became `BlockLatest`; `news`/`ideas_count`
+became `latest`/`panel_ideas_count`. Design and implementation landed in a prior session
+(`8b42edb`); this session only closed CI.
+
+**The symptom.** `frontend_tests` failed on three successive commits (`da9fea5`, `8b42edb`,
+`a6b713b`, `6c4efba`) with an *escalating* error, each fix exposing the next:
+
+1. `topic?.get is not a function` — the POJO fixtures the other lanes use.
+2. `Cannot override the computed property url` — once real models were used, `url` is
+   `@computed` on `models/topic.js` and cannot be passed to `createRecord`.
+3. `Cannot read properties of undefined (reading 'length')` — a **global** error that
+   aborted the run after 21 of 75 tests without naming one.
+
+**Root cause of #3, read from core rather than guessed.** The render stack in the CI log
+(`BlockLatest → TopicList → Item → PluginOutlet → posters column`) pointed at
+`Topic#featuredUsers` (`models/topic.js:466`): `const posterCount = this.posters.length` —
+**no null guard**, unlike its `creator` and `lastPoster` siblings a dozen lines up, which use
+`this.posters?.`. The latest lane renders `<TopicList @showPosters={{true}} />`, which is the
+only thing that mounts the posters column and evaluates that getter. Core's own
+`topic-list-test.gjs` never passes `@showPosters`, so core never hits it and the fixture gap
+is invisible upstream.
+
+**Production was never exposed — verified, not assumed.** `GET /latest.json` on PRE
+serializes `posters` as a non-empty array on all 30 topics; the topic-list serializer always
+includes it. The hole was the hand-built model fixtures only.
+
+**The fix.** `posters: []` on the shared `topic()` factory (`9f9d02d`). `featuredUsers` then
+returns `[]`, the column renders empty, and the component tree is identical to the one core's
+own passing tests render. CI green: **75/75 frontend**, all five checks CLEAN.
+
+**The lesson.** The jump from POJO to "a real model" (#1) is only done when the model is
+complete *for what the consumer renders*, not merely non-throwing for the last error seen —
+otherwise it is the same wound in a new place, three commits running. What ended it was one
+`gh api` call to read the throwing line in core; three commits of black-box iteration before
+that did not. Same note as 2026-08-28: `frontend/discourse/app/` is the path, and core source
+is always one call away.
+
+`theme_version` 0.29.0. **PR #71 squash-merged itself as `a265f01`** the moment the required
+checks went green — auto-merge had been armed on 2026-08-28T14:30 and CI was the only gate
+left. The latest section is on `main` and bound for every PRE user on the next theme pull.
+This traceability entry missed that merge by minutes and rode in on its own PR.
