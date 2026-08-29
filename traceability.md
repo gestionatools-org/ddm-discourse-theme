@@ -1044,4 +1044,46 @@ spread shadow); every within-lane surface stays flat.
 **Verification.** `npx pnpm@10.28.0 lint` green on all five (one prettier reflow of
 `elevation.scss`, auto-fixed). No JS/HBS/test changes.
 
-`theme_version` 0.33.0.
+`theme_version` 0.33.0. **Merged as `4b2da1e` (#76)**, CI green, PRE pull forced
+(`local_version` = `4b2da1e`, `last_error_text` None). Ricardo checked it: "comprobado y OK".
+
+## 2026-08-29 — Align the three lanes' type and spacing; fill the ideas card
+
+**The branch.** `feat/align-lane-typography-and-fill-panel`. Ricardo: "amplía el número de
+entradas de tengo una idea para que llegue hasta el final del listado de últimas
+publicaciones. Comprueba que los tamaños de letra, los espaciados, etc. coinciden — da la
+sensación de que hay algunas diferencias."
+
+**The audit found four real cross-lane mismatches** (the rest — the latest table's 18px topic
+links vs the panel lists' 14px rows, the ideas reply badge vs the events date — are inherent
+to the components and left):
+
+1. **Heading size.** Latest ran at `--font-up-1` (18px), events and ideas at `--font-0`
+   (16px overrides). Unified: `lane-title` is now `--font-0`, the two overrides deleted. All
+   three headings 16px — the frame and filo edge already carry "section", so the heading is a
+   compact label and the larger step is left to the content it heads.
+2. **Gap under the heading.** `block-latest` added `margin-block-start: var(--space-3)` to the
+   table *on top of* `lane-header`'s own `margin-bottom` — a double gap the other two lanes
+   did not have. Set to `0`.
+3. **First row's top padding.** `lane-list` rows carry symmetric `padding-block`, so the ideas
+   list's first row sat `--space-2` lower than the events lane's first group label. Added
+   `> li:first-child { padding-top: 0 }` to `lane-list` — a mirror of the `:last-child`
+   rule that was already there. Now the first row hugs the heading margin in both.
+4. **Label letter-spacing.** The events `__group-title` was `0.06em` while the `__item-date`
+   it is supposed to match (per its own comment) was `0.04em`. Both `0.04em` now.
+
+**DRY fallout, no visual change:** `lane-list`'s default row padding moved from `--space-3`
+to `--space-2` (both consumers already overrode to that), so `block-events` and
+`block-forum` drop their `padding-block` overrides. `block-forum.--compact` is down to the
+frame plus one line (the smaller row title).
+
+**The ideas count.** `panel_ideas_count` default `5 → 10`, max `10 → 20`. This is the dial
+for how far down the ideas card reaches; exact alignment with the latest list is not a static
+property (different row heights, variable events card), so the setting note says to tune it
+against the live page. No CSS stretch — Ricardo asked for more entries, not a taller card,
+and his tolerance is "que se aproximen, no hasta el último pixel".
+
+**Verification.** `npx pnpm@10.28.0 lint` green on all five (one
+`scss/double-slash-comment-empty-line-before`, fixed). No JS/HBS/test changes.
+
+`theme_version` 0.34.0.

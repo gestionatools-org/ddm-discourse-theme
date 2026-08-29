@@ -63,12 +63,15 @@ ideas_category_id:
   default: 18
 
 # The panel is ~430px wide, so this counts rows in a narrow card rather than in
-# a full-width lane.
+# a full-width lane. The default is set high enough that the ideas card reaches
+# roughly the foot of the latest list beside it; tune it against the live page,
+# since the two lists have different row heights and the events card above it
+# varies.
 panel_ideas_count:
   type: integer
-  default: 5
+  default: 10
   min: 1
-  max: 10
+  max: 20
 
 # --- Header links -----------------------------------------------------------
 # Destination links shown in the site header, between the search field and the

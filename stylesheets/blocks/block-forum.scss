@@ -56,23 +56,13 @@
 }
 
 // The panel variant, used by the ideas lane beside the latest list. It shares
-// `lane-frame` with the events lane above it and the latest list — no hierarchy
-// between the three. The heading loses its trailing link in the template — at
-// ~430px it wrapped onto a second line and started reading as a new section —
-// so the header here is a title alone and needs no space held for a button
-// beside it.
+// `lane-frame`, `lane-header` and `lane-list` with the events lane above it and
+// the latest list — the frame, the title size and the row rhythm all come from
+// there. The heading loses its trailing link in the template (at ~430px it
+// wrapped onto a second line and read as a new section), so all `--compact`
+// still adds is a smaller row title.
 .block-forum.--compact {
   @include lane-frame;
-
-  .block-forum__title {
-    font-size: var(--font-0);
-  }
-
-  // Tighter rows: the panel shows more titles in less width, so the vertical
-  // rhythm has to give way before the line length does.
-  .block-forum__item {
-    padding-block: var(--space-2);
-  }
 
   .block-forum__item-title {
     font-size: var(--font-down-1);
