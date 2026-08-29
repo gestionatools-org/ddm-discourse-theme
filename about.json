@@ -18,7 +18,7 @@
     "custom_homepage": true,
     "only_theme_color_schemes": true,
     "topic_thumbnail_sizes": ["400x300"],
-    "svg_icons": ["newspaper", "lightbulb"]
+    "svg_icons": ["newspaper", "lightbulb", "podcast"]
   },
   "theme_site_settings": {
     "enable_welcome_banner": false,

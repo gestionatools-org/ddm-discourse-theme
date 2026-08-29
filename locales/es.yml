@@ -10,6 +10,10 @@ es:
       academy_url: "Adónde apunta el enlace Academy de la cabecera. Los destinos externos deben llevar el esquema — https://ejemplo.com, no ejemplo.com, que el navegador resuelve como una ruta de este sitio. Empieza por / para una página de este foro. Vacío oculta el enlace."
       demo_url: "Adónde apunta el enlace Demo Gestiona de la cabecera. Los destinos externos deben llevar el esquema — https://ejemplo.com, no ejemplo.com, que el navegador resuelve como una ruta de este sitio. Empieza por / para una página de este foro. Vacío oculta el enlace."
       first_steps_url: "Adónde apunta el enlace de primeros pasos de la cabecera. Los destinos externos deben llevar el esquema — https://ejemplo.com, no ejemplo.com, que el navegador resuelve como una ruta de este sitio. Empieza por / para una página de este foro. Vacío oculta el enlace."
+      highlights_podcast_tag: "Etiqueta cuyo tema más reciente ocupa la tarjeta de podcast. Se compara por slug. Vacío oculta la tarjeta."
+      highlights_newsletter_tag: "Etiqueta cuyo tema más reciente ocupa la tarjeta de newsletter. Se compara por slug. Vacío oculta la tarjeta."
+      highlights_news_tag: "Etiqueta cuyo tema más reciente ocupa la tarjeta «Novedad de Gestiona». Se compara por slug. Vacío oculta la tarjeta."
+      highlights_member_period: "Ventana para el ranking del miembro más activo. «monthly» son los últimos 30 días — Discourse no ofrece mes natural."
 
   header:
     links:
@@ -79,3 +83,30 @@ es:
       replies:
         one: "%{count} respuesta"
         other: "%{count} respuestas"
+    highlights:
+      title: "Destacado de la comunidad"
+      soon: "Próximamente"
+      podcast:
+        label: "Podcast"
+        cta: "Ver el episodio"
+        play: "Reproducir el episodio"
+      newsletter:
+        label: "Newsletter"
+        cta: "Leer la newsletter"
+      news:
+        label: "Novedad de Gestiona"
+        cta: "Ver la novedad"
+      member:
+        badge: "Miembro del mes"
+        posts:
+          one: "%{count} publicación"
+          other: "%{count} publicaciones"
+        likes:
+          one: "%{count} me gusta"
+          other: "%{count} me gusta"
+        days:
+          one: "%{count} día activo"
+          other: "%{count} días activos"
+        profile: "Ver perfil"
+        cta_empty: "Publica y participa este mes para aparecer aquí"
+        cta_empty_button: "Escribir una publicación"
