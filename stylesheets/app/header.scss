@@ -30,23 +30,6 @@
   --d-header-icon-color: var(--ga-muted-fg);
 }
 
-// The header's search field, on the header's own surface rather than the
-// page's. Core builds it from `background: var(--d-input-bg-color)`, which
-// resolves to the page floor and left a tinted box sitting on a white bar.
-//
-// Redefined on the header's subtree rather than at :root on purpose: this is
-// the search field that lives on white, and the composer, the admin forms and
-// every other input in the theme still want a field that reads against the
-// page. Custom properties inherit, so scoping is enough — no specificity
-// contest with core, which is the same technique `layout.scss` uses.
-//
-// The border stays. On a white field over a white bar it is the only thing
-// that says where the box is; removing it would not be "not emphasised", it
-// would be gone.
-.d-header {
-  --d-input-bg-color: var(--ga-card);
-}
-
 // Destination links, rendered into `before-header-panel` — between the search
 // field and the user icons.
 .header-links {
