@@ -90,11 +90,19 @@
   // arrangement forum.asana.com runs, measured — header, page and rail all
   // white, separation carried entirely by a hairline and a soft shadow.
   //
-  // The steps below did NOT go back up with it. muted and border were widened
-  // for the darker floor and read better against this one too, which is why
-  // they stay where they are rather than reverting on principle.
+  // When it went back up, `--ga-border` did not follow: it was widened to
+  // neutral-300 for the darker floor and reads better against this one too.
+  //
+  // `--ga-muted` did follow, eventually. It sat at neutral-200 until 2026-08-29,
+  // where the search field and the category heading band read as grey boxes
+  // stamped onto the page rather than as a quiet step above it. One ramp step
+  // down to neutral-100 keeps a tone the eye still registers against the
+  // neutral-50 floor and lets the chrome's shadow carry the rest of the
+  // separation. Only the light half moved — the dark surfaces are declared
+  // outright rather than from a ramp, and dark-muted already sits one stop off
+  // dark-card.
   --ga-card: light-dark(var(--ga-neutral-0), var(--ga-dark-card));
-  --ga-muted: light-dark(var(--ga-neutral-200), var(--ga-dark-muted));
+  --ga-muted: light-dark(var(--ga-neutral-100), var(--ga-dark-muted));
   --ga-accent-surface: light-dark(var(--ga-cyan-50), var(--ga-dark-accent));
   --ga-border: light-dark(var(--ga-neutral-300), var(--ga-dark-border));
   --ga-muted-fg: light-dark(var(--ga-neutral-600), var(--ga-dark-muted-fg));
