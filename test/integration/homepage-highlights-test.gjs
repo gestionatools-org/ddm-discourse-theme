@@ -3,6 +3,7 @@ import { module, test } from "qunit";
 import BlockOutlet from "discourse/blocks/block-outlet";
 import { withPluginApi } from "discourse/lib/plugin-api";
 import { setupRenderingTest } from "discourse/tests/helpers/component-test";
+import pretender, { response } from "discourse/tests/helpers/create-pretender";
 import BlockHighlights from "../../discourse/blocks/block-highlights";
 import HighlightMemberCard from "../../discourse/components/highlight-member-card";
 import HighlightPodcastCard from "../../discourse/components/highlight-podcast-card";
@@ -172,6 +173,17 @@ module(
   function (hooks) {
     setupRenderingTest(hooks);
 
+    // Wiring `fetchMember` (Task 6) means every render of the section now hits
+    // `/directory_items.json`. Core ships no default handler for it and an
+    // unhandled request throws, so hand every section test an empty directory
+    // by default; the member-cell tests below override this in their own body
+    // (route-recognizer keeps the last registration for an identical path).
+    hooks.beforeEach(function () {
+      pretender.get("/directory_items.json", () =>
+        response({ directory_items: [] })
+      );
+    });
+
     test("renders the heading and the newsletter and novedad cards", async function (assert) {
       stubStore(this.owner, {
         "tag/newsletter/l/latest": [
@@ -277,6 +289,169 @@ module(
       assert
         .dom(".block-highlights__cell.--novedad")
         .doesNotExist("no novedad cell");
+    });
+
+    test("the podcast cell embeds the video from the topic's first post", async function (assert) {
+      stubStore(this.owner, {
+        "tag/podcast/l/latest": [
+          {
+            id: 2597,
+            fancy_title: "Episodio 7",
+            url: "/t/ep-7/2597",
+            image_url: null,
+          },
+        ],
+      });
+      pretender.get("/t/2597.json", () =>
+        response({
+          post_stream: {
+            posts: [
+              {
+                cooked: `<div class="lazy-video-container" data-video-id="1qH2Ye8IJrE"></div>`,
+              },
+            ],
+          },
+        })
+      );
+      pretender.get("/directory_items.json", () =>
+        response({ directory_items: [] })
+      );
+
+      await renderHighlights({
+        ...DEFAULT_ARGS,
+        newsletterTag: "",
+        newsTag: "",
+      });
+
+      assert
+        .dom(".block-highlights__cell.--podcast .highlight-podcast__play")
+        .exists();
+    });
+
+    test("the podcast cell degrades to a topic link when the first post has no video", async function (assert) {
+      stubStore(this.owner, {
+        "tag/podcast/l/latest": [
+          {
+            id: 2592,
+            fancy_title: "Newsletter 14",
+            url: "/t/nl-14/2592",
+            image_url: null,
+          },
+        ],
+      });
+      pretender.get("/t/2592.json", () =>
+        response({
+          post_stream: { posts: [{ cooked: `<p>No video here.</p>` }] },
+        })
+      );
+      pretender.get("/directory_items.json", () =>
+        response({ directory_items: [] })
+      );
+
+      await renderHighlights({
+        ...DEFAULT_ARGS,
+        newsletterTag: "",
+        newsTag: "",
+      });
+
+      assert
+        .dom(".block-highlights__cell.--podcast .highlight-podcast__play")
+        .doesNotExist();
+      assert
+        .dom(".block-highlights__cell.--podcast .highlight-podcast__link")
+        .exists();
+    });
+
+    test("the member cell crowns the highest composite and shows the figures", async function (assert) {
+      stubStore(this.owner, {});
+      pretender.get("/directory_items.json", () =>
+        response({
+          directory_items: [
+            {
+              post_count: 2,
+              likes_received: 1,
+              days_visited: 3,
+              user: {
+                username: "a",
+                name: "A",
+                avatar_template: "/a/{size}.png",
+              },
+            },
+            {
+              post_count: 40,
+              likes_received: 96,
+              days_visited: 12,
+              user: {
+                username: "msanz",
+                name: "María Sanz",
+                avatar_template: "/m/{size}.png",
+              },
+            },
+          ],
+        })
+      );
+
+      await renderHighlights({
+        ...DEFAULT_ARGS,
+        podcastTag: "",
+        newsletterTag: "",
+        newsTag: "nueva-version-gestiona",
+      });
+      // (newsTag kept non-empty only so the section renders; its cell is a placeholder)
+
+      assert
+        .dom(".block-highlights__cell.--miembro .highlight-card__title")
+        .hasText("María Sanz");
+      assert
+        .dom(".block-highlights__cell.--miembro .highlight-member__figures")
+        .includesText("40 posts");
+    });
+
+    test("the member cell falls to the CTA when the directory is all zeros", async function (assert) {
+      stubStore(this.owner, {});
+      pretender.get("/directory_items.json", () =>
+        response({
+          directory_items: [
+            {
+              post_count: 0,
+              likes_received: 0,
+              days_visited: 9,
+              user: {
+                username: "z",
+                name: "Z",
+                avatar_template: "/z/{size}.png",
+              },
+            },
+          ],
+        })
+      );
+
+      await renderHighlights({
+        ...DEFAULT_ARGS,
+        podcastTag: "",
+        newsletterTag: "",
+      });
+
+      assert
+        .dom(".block-highlights__cell.--miembro .highlight-member__empty")
+        .exists();
+    });
+
+    test("the member cell falls to the CTA when the directory request fails", async function (assert) {
+      stubStore(this.owner, {});
+      pretender.get("/directory_items.json", () =>
+        response(403, { errors: ["forbidden"] })
+      );
+
+      await renderHighlights({
+        ...DEFAULT_ARGS,
+        podcastTag: "",
+        newsletterTag: "",
+      });
+
+      assert
+        .dom(".block-highlights__cell.--miembro .highlight-member__empty")
+        .exists();
     });
   }
 );
