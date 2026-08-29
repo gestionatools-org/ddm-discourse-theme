@@ -1,0 +1,240 @@
+// The community-highlights section: a bento of four cards below section 1.
+// Frame and header come from the shared lane mixins; the asymmetric grid and
+// the card treatments are this section's own. Tokens: `--ga-*` from
+// stylesheets/brand/colors.scss, all verified present.
+.block-highlights {
+  @include lane-frame;
+
+  &__header {
+    @include lane-header;
+  }
+
+  &__title {
+    @include lane-title;
+  }
+
+  &__grid {
+    display: grid;
+    gap: var(--space-4);
+
+    // The safe default for any card count: a responsive row that wraps. The
+    // tuned bento only replaces this at --count-4 on a wide container.
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+  }
+
+  // The tuned arrangement. 56rem is the panel's own threshold, measured against
+  // the container (the content column narrows when the sidebar opens); the
+  // 40rem step keeps the newsletter card from becoming a tower on a tablet.
+  &__grid.--count-4 {
+    @container homepage-blocks (width > 40rem) {
+      grid-template-columns: 1fr 1fr;
+      grid-template-areas:
+        "news    podcast"
+        "novedad miembro";
+    }
+
+    @container homepage-blocks (width > 56rem) {
+      grid-template-columns: 0.95fr 1.35fr 1fr;
+      grid-template-areas:
+        "news podcast podcast"
+        "news novedad miembro";
+    }
+  }
+
+  &__cell {
+    display: flex; // the card fills the cell — matters where `news` spans two rows
+    min-width: 0;
+
+    &.--news {
+      grid-area: news;
+    }
+
+    &.--podcast {
+      grid-area: podcast;
+    }
+
+    &.--novedad {
+      grid-area: novedad;
+    }
+
+    &.--miembro {
+      grid-area: miembro;
+    }
+  }
+}
+
+// One card. Flat bordered surface — "bordes antes que sombras"; only the section
+// frame carries a shadow.
+.highlight-card {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--ga-border);
+  border-radius: var(--d-border-radius-large);
+  background: var(--ga-card);
+
+  &__media {
+    position: relative;
+    aspect-ratio: 16 / 10;
+    background: var(--ga-muted);
+
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__placeholder {
+    display: grid;
+    place-items: center;
+    min-height: 6rem;
+    color: var(--ga-mark);
+    font-size: var(--font-up-3);
+  }
+
+  &__body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-3);
+  }
+
+  &__label {
+    display: flex;
+    align-items: center;
+    gap: var(--space-half);
+    color: var(--tertiary);
+    font-size: var(--font-down-2);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+
+    .d-icon {
+      color: var(--ga-mark);
+    }
+  }
+
+  &__title {
+    margin: 0;
+    font-size: var(--font-0);
+    font-weight: 700;
+    line-height: var(--line-height-medium);
+
+    a {
+      color: inherit;
+    }
+
+    a:hover,
+    a:focus-visible {
+      color: var(--tertiary);
+    }
+  }
+
+  &__excerpt {
+    display: -webkit-box;
+    overflow: hidden;
+    margin: 0;
+    color: var(--ga-muted-fg);
+    font-size: var(--font-down-1);
+    line-height: var(--line-height-medium);
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  &__cta {
+    align-self: flex-start;
+    margin-top: auto;
+  }
+}
+
+// The newsletter card leads with a tall portrait image; the compact novedad card
+// has no image at all.
+.highlight-content.--tall .highlight-card__media {
+  aspect-ratio: 3 / 4;
+}
+
+.highlight-content.--compact .highlight-card__media {
+  display: none;
+}
+
+.highlight-content.--empty .highlight-card__body {
+  align-items: center;
+  color: var(--ga-muted-fg);
+  text-align: center;
+}
+
+// The podcast card: a 16:9 frame that swaps thumbnail for player in place.
+.highlight-podcast {
+  &__frame {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: var(--ga-muted);
+  }
+
+  &__player,
+  &__play img,
+  &__link img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+    object-fit: cover;
+  }
+
+  &__play {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  &__play-icon {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    background: var(--ga-mark);
+    color: var(--ga-petrol-950);
+    font-size: var(--font-up-2);
+    box-shadow: 0 4px 16px rgb(0 0 0 / 30%);
+  }
+}
+
+// The member card: avatar, then the figures that earned the spot.
+.highlight-member {
+  &__avatar {
+    display: block;
+    padding: var(--space-3) var(--space-3) 0;
+
+    img {
+      border-radius: 50%;
+    }
+  }
+
+  &__figures {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-half) var(--space-2);
+    margin: 0;
+    color: var(--ga-muted-fg);
+    font-size: var(--font-down-1);
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__empty {
+    align-items: flex-start;
+    color: var(--ga-muted-fg);
+    text-align: left;
+  }
+}
