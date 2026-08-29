@@ -3,14 +3,8 @@ es:
     description: "Tema de Discourse para la comunidad de es|public."
     settings:
       latest_count: "Cuántos temas mostrar en la lista de últimas publicaciones."
-      forum_category_id: "Categoría que se muestra en la franja del foro del Certificado. Incluye sus subcategorías. 0 oculta la franja."
-      forum_count: "Cuántos temas del foro mostrar."
       ideas_category_id: "Categoría que se muestra en el panel, junto a las últimas publicaciones. Incluye sus subcategorías. 0 lo oculta."
       panel_ideas_count: "Cuántas ideas mostrar en el panel."
-      showcase_category_id: "Categoría que se muestra como parrilla de imágenes. Los temas sin imagen de portada no aparecen. 0 oculta la franja."
-      showcase_count: "Cuántos trabajos mostrar."
-      showcase_tag: "Limita la parrilla a los temas que llevan esta etiqueta, además de la categoría de arriba. Vacío muestra la categoría entera. Una etiqueta que no existe deja la franja vacía."
-      library_category_ids: "Categorías de recursos que se muestran como fichas de directorio en lugar de listas de temas."
       academy_url: "Adónde apunta el enlace Academy de la cabecera. Los destinos externos deben llevar el esquema — https://ejemplo.com, no ejemplo.com, que el navegador resuelve como una ruta de este sitio. Empieza por / para una página de este foro. Vacío oculta el enlace."
       demo_url: "Adónde apunta el enlace Demo Gestiona de la cabecera. Los destinos externos deben llevar el esquema — https://ejemplo.com, no ejemplo.com, que el navegador resuelve como una ruta de este sitio. Empieza por / para una página de este foro. Vacío oculta el enlace."
       first_steps_url: "Adónde apunta el enlace de primeros pasos de la cabecera. Los destinos externos deben llevar el esquema — https://ejemplo.com, no ejemplo.com, que el navegador resuelve como una ruta de este sitio. Empieza por / para una página de este foro. Vacío oculta el enlace."
@@ -66,26 +60,15 @@ es:
     shortcuts:
       title: "Empieza aquí"
       new_topic: "Nueva publicación"
-    forum:
-      title: "Foro del certificado"
-      link_text: "Entrar al foro"
-      empty: "Todavía no hay conversaciones."
-      replies:
-        one: "%{count} respuesta"
-        other: "%{count} respuestas"
     ideas:
       title: "Tengo una idea"
       link_text: "Comparte tu idea"
       empty: "Todavía no hay ideas."
-    showcase:
-      title: "Lo que hacen los certificados"
-      link_text: "Ver todo"
-      empty: "Todavía no hay trabajos publicados."
-    library:
-      title: "Biblioteca"
-      subcategories:
-        one: "%{count} sección"
-        other: "%{count} secciones"
-      documents:
-        one: "%{count} documento"
-        other: "%{count} documentos"
+    # Lo renderiza BlockForum para la franja de ideas. `empty` es el valor por
+    # defecto del arg del componente (la franja de ideas lo sustituye por
+    # `ideas.empty`); `replies` se lee directamente desde la plantilla.
+    forum:
+      empty: "Todavía no hay conversaciones."
+      replies:
+        one: "%{count} respuesta"
+        other: "%{count} respuestas"

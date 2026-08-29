@@ -102,12 +102,11 @@ export default class PageHero extends Component {
   <template>
     <section class={{this.sectionClass}}>
       <div class="page-hero__inner">
-        {{! `dReplaceEmoji`, not the `emojiUnescape` used on news excerpts. The
-            discriminator is what the field already holds: an excerpt is
-            HTML-encoded and escaping it again prints "&rsquo;" verbatim, while
-            a category name and its description_text are plain text and must be
-            escaped before the emoji images are substituted in. `block-library`
-            applies the same helper to a category name for the same reason. }}
+        {{! `dReplaceEmoji`, not `emojiUnescape`. The discriminator is what the
+            field already holds: an HTML-encoded excerpt escaped again prints
+            "&rsquo;" verbatim, while a category name and its description_text
+            are plain text and must be escaped before the emoji images are
+            substituted in. }}
         {{#if this.isH1}}
           <h1 class="page-hero__title">{{trustHTML
               (dReplaceEmoji this.title)

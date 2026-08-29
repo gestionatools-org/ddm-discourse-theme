@@ -1,24 +1,23 @@
 # Functional configuration only. Display strings live in locales/en.yml.
 #
-# Every homepage lane is keyed by category ID, never by slug. On this instance
-# the slugs are legacy and no longer describe their category — id 4
-# "Te contamos..." is `comunidad-expertos`, id 5 "El foro del Certificado" is
-# `grupos-de-trabajo`, id 50 "Analiza" is `analitica-datos`. A slug rename would
-# silently empty a lane; an ID rename is not a thing.
+# The panel's ideas lane is keyed by category ID, never by slug. On this
+# instance the slugs are legacy and no longer describe their category — id 18
+# "Tengo una idea" is `ideas-gestiona`. A slug rename would silently empty the
+# lane; an ID rename is not a thing. IDs also survive reparenting, so promoting
+# a subcategory to top level is free.
 #
-# IDs also survive reparenting, so promoting a subcategory to top level is free.
-# A category reorganisation still breaks these settings three ways, and only the
+# A category reorganisation still breaks the setting three ways, and only the
 # first one announces itself:
 #
 #   deleted or merged  -> c/<id>/l/latest 404s and the lane shows an error
 #   emptied by a move  -> the lane renders its <:empty> state, silently
 #   repurposed         -> the lane renders the wrong topics, silently
 #
-# Re-check every ID below by hand after any category reorganisation. The two
-# silent modes are indistinguishable from a quiet category, so nothing in the
-# theme or in CI will report them.
+# Re-check the ID by hand after any category reorganisation. The two silent
+# modes are indistinguishable from a quiet category, so nothing in the theme or
+# in CI will report them.
 #
-# Discourse has no single-category setting type, so these are plain integers
+# Discourse has no single-category setting type, so it is a plain integer
 # (same as discourse-theme-skills' `sidebar_category_id`). 0 disables the lane.
 
 # --- Section 1: the latest list ---------------------------------------------
@@ -35,86 +34,23 @@ latest_count:
   min: 1
   max: 20
 
-# --- Deferred lane: the certification forum ---------------------------------
-# Parent of the ideas subcategory, whose topics are included.
-forum_category_id:
-  type: integer
-  default: 5
-
-forum_count:
-  type: integer
-  default: 6
-  min: 1
-  max: 15
-
 # --- Section 1's panel: ideas ------------------------------------------------
-# The same block as lane 2, pointed at a different category. Category 18 is the
-# largest on the site (318 topics, 3.6 replies/topic) and was buried as a
-# subcategory of 5, so the forum lane printed it and it had no heading of its
-# own. The reorganisation promotes it to top level; this lane gives it a voice.
-#
-# The forum lane deliberately does NOT also point here: with a lane each, one
-# category pointing at both would print the same 318 topics twice on one page.
+# Category 18 is the largest on the site (441 topics, 3.6 replies/topic). It was
+# buried as a subcategory with no heading of its own; the reorganisation
+# promotes it to top level and this lane gives it a voice beside the latest
+# list. Rendered by BlockForum, the same component the (now removed) forum lane
+# used — subcategory topics are included.
 ideas_category_id:
   type: integer
   default: 18
 
 # The panel is ~430px wide, so this counts rows in a narrow card rather than in
-# a full-width lane. `ideas_count` was the old standalone lane's setting and is
-# gone with it.
+# a full-width lane.
 panel_ideas_count:
   type: integer
   default: 5
   min: 1
   max: 10
-
-# --- Deferred lane: showcase ------------------------------------------------
-# Rendered as an image grid, so point this at a category whose topics carry a
-# cover image. Topics without one degrade to a text card.
-showcase_category_id:
-  type: integer
-  default: 78
-
-showcase_count:
-  type: integer
-  default: 6
-  min: 2
-  max: 12
-
-# Restricts the grid to one tag, on top of the category above. Sent to the
-# server as a `tags` param, so it selects across the whole category rather than
-# trimming the page already fetched — see loadCategoryTopics.
-#
-# It exists because category 78 is not a gallery: every one of its topics is an
-# arrival announcement, and only about a third of them carry the member's
-# poster. Measured 2026-08-27 over the API: 149 topics, 17 with the poster
-# embedded as an image, 36 with it attached as a PDF, 98 with neither. The tag
-# is what tells them apart; the image requirement then decides what the grid can
-# actually hang.
-#
-# `poster-evf` is the certification's *evaluación final* poster specifically,
-# renamed from the flat `posters` on 2026-08-27 so that posters tied to an event
-# can carry their own tag — `poster-congreso-2025` for the III Encuentro — rather
-# than being conflated with the ones the programme evaluates. That is why the
-# name is narrow: this lane exhibits member work from the certification, and a
-# congress compilation is a different thing that would otherwise land in it.
-#
-# Empty disables the filter and the lane falls back to the whole category. An
-# unknown tag empties the lane silently — which is exactly what a tag rename
-# does, so this default has to be changed in the same pass as the rename.
-showcase_tag:
-  type: string
-  default: "poster-evf"
-
-# --- Deferred lane: library -------------------------------------------------
-# Reference categories rendered as directory cards rather than topic lists.
-# Their topics have essentially zero replies (id 73's whole tree: 66 topics,
-# 0 replies ever), so "latest topic" carries no signal and a list would be a
-# misleading affordance.
-library_category_ids:
-  type: list
-  list_type: category
-  default: "73|85|14"
 
 # --- Header links -----------------------------------------------------------
 # Destination links shown in the site header, between the search field and the

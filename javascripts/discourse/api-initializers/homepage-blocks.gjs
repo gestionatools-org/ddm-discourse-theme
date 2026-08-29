@@ -3,10 +3,7 @@ import { apiInitializer } from "discourse/lib/api";
 import BlockForum from "../blocks/block-forum";
 import BlockHero from "../blocks/block-hero";
 import BlockLatest from "../blocks/block-latest";
-import BlockLibrary from "../blocks/block-library";
 import BlockShortcuts from "../blocks/block-shortcuts";
-import BlockShowcase from "../blocks/block-showcase";
-import { parseCategoryIds } from "../lib/category-topics";
 
 // The homepage is a heading band and then a stack of **sections**, each of which
 // may split into two columns of its own. That is the shape the reference runs —
@@ -19,9 +16,9 @@ import { parseCategoryIds } from "../lib/category-topics";
 // matched and the homepage was a single column for its whole life. The events
 // lane was not "in the right-hand column"; it was fifth in a stack.
 //
-// Every lane but the first is keyed by category ID because this instance's slugs
-// are legacy and no longer match their category; the latest lane is site-wide
-// and has no category to lose.
+// The ideas lane in the panel is keyed by category ID because this instance's
+// slugs are legacy and no longer match their category; the latest list is
+// site-wide and has no category to lose.
 //
 // No user or group conditions: every member of this community is a student, so
 // the only split is anonymous vs. signed in, which category permissions already
@@ -89,39 +86,9 @@ export default apiInitializer((api) => {
       ],
     },
 
-    // Sections 2 and 3 are not decided yet. Until they are, these three lanes
-    // keep rendering full width, one below the other, exactly as they did
-    // before — the section frame above needs no change to absorb them later.
-    {
-      block: BlockForum,
-      id: "home-forum",
-      args: {
-        title: "homepage.forum.title",
-        linkText: "homepage.forum.link_text",
-        linkUrl: `/c/${settings.forum_category_id}`,
-        categoryId: settings.forum_category_id,
-        count: settings.forum_count,
-      },
-    },
-    {
-      block: BlockShowcase,
-      id: "home-showcase",
-      args: {
-        title: "homepage.showcase.title",
-        linkText: "homepage.showcase.link_text",
-        linkUrl: `/c/${settings.showcase_category_id}`,
-        categoryId: settings.showcase_category_id,
-        count: settings.showcase_count,
-        tag: settings.showcase_tag,
-      },
-    },
-    {
-      block: BlockLibrary,
-      id: "home-library",
-      args: {
-        title: "homepage.library.title",
-        categoryIds: parseCategoryIds(settings.library_category_ids),
-      },
-    },
+    // Sections 2 and 3 are still to be designed. The forum, showcase and
+    // library lanes that used to render full width below section 1 were
+    // removed on 2026-08-29; until the redesign says otherwise, the homepage
+    // is the band and section 1.
   ]);
 });
