@@ -1,13 +1,16 @@
-// The latest-topics section: a heading and then core's own topic list.
+// The latest-topics section: a heading and then core's own topic list, in the
+// same `lane-frame` the events and ideas lanes wear.
 //
 // Deliberately thin. The list itself is styled once, site-wide, in
-// stylesheets/app/topic-list.scss — header on `--ga-muted`, brand hairlines,
-// tabular figures — and it arrives here already wearing all of it. Restating
-// any of that would mean two places to change when the table changes.
+// stylesheets/app/topic-list.scss — brand hairlines, tabular figures — and it
+// arrives here already wearing all of it. Restating any of that would mean two
+// places to change when the table changes.
 //
 // The file this replaced carried ~35 lines for a hand-rolled list and its
 // excerpt clamp. The native list needs none of them.
 .block-latest {
+  @include lane-frame;
+
   &__header {
     @include lane-header;
   }
@@ -24,5 +27,11 @@
   // heading needs no rule of its own to sit against.
   .topic-list {
     margin-block-start: var(--space-3);
+
+    // Site-wide the list header sits on `--ga-muted` to lift it off the page.
+    // Inside the frame there is no page behind it to lift off, and the events
+    // and ideas lanes carry no fill behind their headers — so drop it here and
+    // let the hairline under the header row do the separating.
+    --d-topic-list-header-background-color: transparent;
   }
 }

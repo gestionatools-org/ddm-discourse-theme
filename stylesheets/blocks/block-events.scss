@@ -1,8 +1,8 @@
-// Shares `panel-card` with the ideas lane below it: same frame, no background
-// tint, no hierarchy between them. The internal upcoming/past split is events
-// being events, not a second tier.
+// Shares `lane-frame` with the ideas lane below it and the latest list beside
+// them: same frame, no background tint, no hierarchy between them. The internal
+// upcoming/past split is events being events, not a second tier.
 .block-events {
-  @include panel-card;
+  @include lane-frame;
 
   &__header {
     @include lane-header;
