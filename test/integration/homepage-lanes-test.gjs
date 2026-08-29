@@ -7,7 +7,6 @@ import BlockForum from "../../discourse/blocks/block-forum";
 import BlockHero from "../../discourse/blocks/block-hero";
 import BlockLatest from "../../discourse/blocks/block-latest";
 import BlockShortcuts from "../../discourse/blocks/block-shortcuts";
-import BlockShowcase from "../../discourse/blocks/block-showcase";
 
 // The three bugs left from the 2026-08-16/17 review live in the templates, not
 // in the pipeline `test/acceptance/category-topics-test.js` already covers.
@@ -69,24 +68,6 @@ function stubStore(owner, topics) {
     { findFiltered: async () => ({ topics }) },
     { instantiate: false }
   );
-}
-
-// Same stub, but it keeps what it was asked for. Used where the assertion is
-// about which listing a lane requests rather than what it renders.
-function recordingStore(owner, topics) {
-  const calls = [];
-  owner.unregister("service:store");
-  owner.register(
-    "service:store",
-    {
-      findFiltered: async (type, options) => {
-        calls.push({ type, options });
-        return { topics };
-      },
-    },
-    { instantiate: false }
-  );
-  return calls;
 }
 
 // Core's topic list needs real Topic **models**, not the plain objects the
@@ -328,11 +309,11 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
   });
 
   module("ideas lane", function () {
-    test("takes its icon as an arg, so a second forum lane is not stamped with the first one's", async function (assert) {
+    test("takes its icon as an arg rather than hardcoding one", async function (assert) {
       // "Tengo una idea" reuses BlockForum wholesale — same shape, same reply
-      // count promotion, 3.6 replies/topic. The icon was the one thing the
-      // component hardcoded, and two lanes under one icon read as one lane
-      // split in half.
+      // count promotion, 3.6 replies/topic — and passes its own `lightbulb`.
+      // The icon was hardcoded once, back when this component also backed the
+      // forum lane and the two read as one lane split in half.
       stubStore(this.owner, [topic({ id: 900013 })]);
 
       withPluginApi((api) =>
@@ -384,7 +365,11 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       assert.dom(".block-forum__empty").hasText("No ideas yet.");
     });
 
-    test("keeps the forum's own icon when none is given", async function (assert) {
+    test("keeps BlockForum's own icon when none is given", async function (assert) {
+      // No production call site omits the icon any more — the ideas lane always
+      // passes `lightbulb` — but the `far-comments` default is still part of
+      // the component contract, and it is the thing that told the forum and
+      // ideas lanes apart while both were on the page.
       stubStore(this.owner, [topic({ id: 900014 })]);
 
       withPluginApi((api) =>
@@ -392,8 +377,8 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
           {
             block: BlockForum,
             args: {
-              title: "homepage.forum.title",
-              categoryId: 5,
+              title: "homepage.ideas.title",
+              categoryId: 18,
               count: 6,
             },
           },
@@ -406,17 +391,17 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
 
       assert.dom(".block-forum__title .d-icon-far-comments").exists();
     });
-  });
 
-  module("forum lane", function () {
     test("promotes the reply count, which is this lane's reason to exist", async function (assert) {
+      // "Tengo una idea" averages 3.6 replies/topic; the number beside each
+      // title is the proof the category is alive.
       stubStore(this.owner, [topic({ id: 900020, reply_count: 7 })]);
 
       withPluginApi((api) =>
         api.renderBlocks("main-outlet-blocks", [
           {
             block: BlockForum,
-            args: { title: "homepage.forum.title", categoryId: 5, count: 6 },
+            args: { title: "homepage.ideas.title", categoryId: 18, count: 6 },
           },
         ])
       );
@@ -426,104 +411,6 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       );
 
       assert.dom(".block-forum__item-replies").includesText("7");
-    });
-  });
-
-  module("showcase lane", function () {
-    test("hangs only the topics that carry a cover image", async function (assert) {
-      // Half the live grid was grey boxes: a card with no image exhibits
-      // nothing, and this lane exists to exhibit work.
-      stubStore(this.owner, [
-        topic({ id: 900030, image_url: null }),
-        topic({ id: 900031, image_url: "/uploads/poster.png" }),
-      ]);
-
-      withPluginApi((api) =>
-        api.renderBlocks("main-outlet-blocks", [
-          {
-            block: BlockShowcase,
-            args: {
-              title: "homepage.showcase.title",
-              categoryId: 78,
-              count: 6,
-            },
-          },
-        ])
-      );
-
-      await render(
-        <template><BlockOutlet @name="main-outlet-blocks" /></template>
-      );
-
-      assert.dom(".block-showcase__card").exists({ count: 1 });
-      assert
-        .dom(".block-showcase__card-image")
-        .hasAttribute("src", "/uploads/poster.png");
-    });
-
-    test("asks the server for the tagged subset of the category", async function (assert) {
-      // The image test alone is not enough. Every topic in the showcase
-      // category is an arrival announcement, and roughly a third of them carry
-      // the poster the lane exists to exhibit; the rest carry a photo, a
-      // screenshot, or nothing. Only the tag separates them, and it has to
-      // reach the server: the poster-bearing topics are spread across the whole
-      // category, not across the page a single request returns.
-      const calls = recordingStore(this.owner, [
-        topic({ id: 900032, image_url: "/uploads/poster.png" }),
-      ]);
-
-      withPluginApi((api) =>
-        api.renderBlocks("main-outlet-blocks", [
-          {
-            block: BlockShowcase,
-            args: {
-              title: "homepage.showcase.title",
-              categoryId: 78,
-              count: 6,
-              tag: "posters",
-            },
-          },
-        ])
-      );
-
-      await render(
-        <template><BlockOutlet @name="main-outlet-blocks" /></template>
-      );
-
-      assert.deepEqual(calls[0].options, {
-        filter: "c/78/l/latest",
-        params: { tags: ["posters"] },
-      });
-    });
-
-    test("requests the whole category when no tag is configured", async function (assert) {
-      // The setting is a free-text string, so "unset" is the empty string. It
-      // has to mean *no filter* rather than `tags: [""]`, which matches nothing
-      // and would empty the grid without an error anywhere.
-      const calls = recordingStore(this.owner, [
-        topic({ id: 900033, image_url: "/uploads/poster.png" }),
-      ]);
-
-      withPluginApi((api) =>
-        api.renderBlocks("main-outlet-blocks", [
-          {
-            block: BlockShowcase,
-            args: {
-              title: "homepage.showcase.title",
-              categoryId: 78,
-              count: 6,
-              tag: "",
-            },
-          },
-        ])
-      );
-
-      await render(
-        <template><BlockOutlet @name="main-outlet-blocks" /></template>
-      );
-
-      assert.deepEqual(calls[0].options, { filter: "c/78/l/latest" });
-      assert.dom(".block-showcase__card").exists({ count: 1 });
     });
   });
 });

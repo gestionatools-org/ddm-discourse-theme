@@ -16,17 +16,19 @@ import { loadCategoryTopics } from "../lib/category-topics";
     title: { type: "string" },
     linkText: { type: "string" },
     linkUrl: { type: "string" },
-    // The lane is instantiated twice — the forum and "Tengo una idea" — and the
-    // icon is the only thing that told them apart. Any icon outside core's
-    // default Font Awesome subset also needs an entry in about.json's
-    // `svg_icons`, which nothing here can check: dIcon writes the
-    // `d-icon-<name>` class whether or not the sprite carries the symbol, so a
-    // missing entry renders an empty box and every test still passes.
+    // An arg, not a constant: this component used to back two lanes — the forum
+    // and "Tengo una idea" — and only the icon told them apart. The forum lane
+    // is gone but the parameterisation stays, so a second lane can return
+    // without forking the component. Any icon outside core's default Font
+    // Awesome subset also needs an entry in about.json's `svg_icons`, which
+    // nothing here can check: dIcon writes the `d-icon-<name>` class whether or
+    // not the sprite carries the symbol, so a missing entry renders an empty
+    // box and every test still passes.
     icon: { type: "string", default: "far-comments" },
-    // The second thing this template hardcoded, after the icon. A lane that
-    // announces the wrong absence — "no conversations" under a heading that
-    // asks for ideas — is the kind of thing nobody notices and nobody can
-    // explain later. The default keeps the forum lane's own call site silent.
+    // Also an arg for reuse, not a constant. A lane that announces the wrong
+    // absence — "no conversations" under a heading that asks for ideas — is the
+    // kind of thing nobody notices and nobody can explain later. The ideas lane
+    // passes `homepage.ideas.empty`; this default is the component's own.
     emptyText: { type: "string", default: "homepage.forum.empty" },
     categoryId: { type: "number", required: true },
     count: { type: "number", default: 6 },

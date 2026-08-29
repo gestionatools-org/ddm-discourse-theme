@@ -878,3 +878,48 @@ is always one call away.
 checks went green — auto-merge had been armed on 2026-08-28T14:30 and CI was the only gate
 left. The latest section is on `main` and bound for every PRE user on the next theme pull.
 This traceability entry missed that merge by minutes and rode in on its own PR.
+
+## 2026-08-29 — The homepage drops to the band and section 1
+
+**The branch.** `refactor/remove-deferred-homepage-lanes`. Ricardo asked for the three
+full-width lanes below section 1 to come off the homepage: **foro del certificado** (forum,
+cat 5), **lo que hacen los certificados** (showcase, cat 78, tag `poster-evf`) and
+**biblioteca** (library, cats 73/85/14). After #71 these were the "deferred" lanes still
+rendering while sections 2 and 3 were undesigned; the redesign now says they are out.
+
+**Scope chosen — "quitar carriles, conservar helpers".** Ricardo picked the middle option of
+three: remove everything lane-specific, keep the shared plumbing.
+
+- **Gone:** the three `renderBlocks` entries; `blocks/block-showcase.gjs` +
+  `blocks/block-library.gjs` and their SCSS (+ the two `@import`s in `blocks/_index.scss`);
+  settings `forum_category_id`, `forum_count`, `showcase_category_id`, `showcase_count`,
+  `showcase_tag`, `library_category_ids` and their locale descriptions; strings
+  `homepage.forum.title` / `.link_text`, `homepage.showcase.*`, `homepage.library.*`; the
+  `showcase lane` integration module (3 tests) and the standalone `forum lane` module.
+- **Kept:** `blocks/block-forum.gjs` + `block-forum.scss` — the panel's "Tengo una idea" lane
+  is a `BlockForum` (compact variant, which layers on the same base rules). `lib/category-topics.js`
+  untouched: `categoryStats`, `resolveCategories`, `parseCategoryIds`, and the
+  `requireImage` / `tag` options of `loadCategoryTopics` stay, with their acceptance and unit
+  tests, ready if a lane returns. `homepage.forum.empty` (BlockForum's `emptyText` arg
+  default) and `homepage.forum.replies` (read straight from the template) stay — they are
+  component contract, not lane copy, so they moved under an explaining comment.
+- **about.json untouched** per the chosen option — only `theme_version` 0.29.0 → 0.30.0. But
+  the `serialize_topic_excerpts` modifier is now provably dead (nothing in the theme reads a
+  topic excerpt since #71 moved the latest lane to core's `TopicList`; the showcase lane it
+  was long attributed to never read excerpts at all). `topic_thumbnail_sizes` likewise only
+  fed the showcase grid's `image_url`. Both flagged in `block-latest.gjs` and *Pending* for a
+  separate about.json pass.
+- The one folded test: `forum lane`'s reply-count assertion moved into `ideas lane`, because
+  the panel lane promotes reply counts too (3.6 replies/topic). Integration suite 13 → 10.
+
+**Stale comments swept in the same commit** — they now named deleted things: `block-latest.gjs`
+(the `serialize_topic_excerpts` rationale), `page-hero.gjs` (an example pointing at
+`block-library`), `block-forum.gjs` (both arg comments said the component "is instantiated
+twice"), `settings.yml`'s header (was "every homepage lane is keyed by category ID"; now one
+lane is).
+
+**Verification.** `npx pnpm@10.28.0 lint` green on all five (stylelint, eslint, ember-template-lint,
+prettier, ember-tsc). YAML re-parsed with Homebrew Ruby. System/QUnit specs run in CI only.
+No instance touched — `refactor/…` branch, PR, CI-green-before-merge as always.
+
+`theme_version` 0.30.0.
