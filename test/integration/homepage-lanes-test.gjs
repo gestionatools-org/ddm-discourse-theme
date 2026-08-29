@@ -50,6 +50,14 @@ function topic(attrs) {
     image_url: null,
     excerpt: null,
     created_at: "2026-08-01T10:00:00.000Z",
+    // Core's topic list serializer always sends `posters`, and `Topic`'s
+    // `featuredUsers` getter reads `this.posters.length` without a null guard
+    // (`models/topic.js`) — unlike its `creator` and `lastPoster` siblings. The
+    // latest lane renders `<TopicList @showPosters={{true}} />`, so an absent
+    // `posters` raises "Cannot read properties of undefined (reading 'length')"
+    // as an uncaught global error that fails the run without naming a test. The
+    // POJO lanes ignore this key; only the model fixtures need it.
+    posters: [],
     ...attrs,
   };
 }
