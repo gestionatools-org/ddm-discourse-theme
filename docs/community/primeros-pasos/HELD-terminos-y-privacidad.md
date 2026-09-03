@@ -1,5 +1,5 @@
 > **Metadatos para publicar** — no forman parte del post
-> **Título:** ☝️ Dónde están los términos de uso y la privacidad
+> **Título:** Dónde están los términos de uso y la privacidad
 > **Categoría:** Primeros pasos (78)
 > **Sustituye a:** *Términos de uso de la Comunidad de Asana* (12 KB de texto legal)
 >
@@ -37,4 +37,4 @@ Están enlazados de forma permanente desde el menú de la cabecera, así que no 
 > protección de datos (acceso, rectificación, supresión), aquí es donde debería aparecer.
 > Dime cuál es y la añado; la he dejado fuera porque no me la puedo inventar.
 
-Si algo de los documentos no se entiende, pregúntalo en los comentarios. 📄
+Si algo de los documentos no se entiende, pregúntalo en los comentarios.

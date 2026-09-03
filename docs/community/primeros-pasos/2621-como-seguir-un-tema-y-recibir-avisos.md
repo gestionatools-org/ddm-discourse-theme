@@ -1,4 +1,4 @@
-¿Vuelves cada dos días a un hilo a ver si alguien contestó? No hace falta: puedes pedirle al foro que te avise. :bell:
+¿Vuelves cada dos días a un hilo a ver si alguien contestó? No hace falta: puedes pedirle al foro que te avise.
 
 ## Un tema concreto
 
@@ -29,4 +29,4 @@ El control está en la página de la etiqueta, y todos tus niveles se ven juntos
 
 Dentro del foro, en el icono de la cabecera: ahí aparece todo, siempre.
 
-Si crees que te estás perdiendo avisos que deberías recibir, dilo en los comentarios. :slight_smile:
+Si crees que te estás perdiendo avisos que deberías recibir, dilo en los comentarios.

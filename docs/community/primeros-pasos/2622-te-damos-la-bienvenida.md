@@ -1,4 +1,4 @@
-¡Hola, y gracias por unirte a **Gestiona Avanza**! :wave:
+¡Hola, y gracias por unirte a **Gestiona Avanza**!
 
 Esta es la comunidad de quienes participan en el programa de certificación **Administración Avanzada de Gestiona** de esPublico. Es un espacio cerrado: solo entra quien tiene cuenta, así que puedes preguntar con la confianza de estar entre compañeros que trabajan en lo mismo que tú.
 
@@ -21,4 +21,4 @@ Esta es la comunidad de quienes participan en el programa de certificación **Ad
 - [Cómo buscar en la comunidad](/t/como-buscar-en-la-comunidad/2620) — con más de mil temas publicados, buscar bien es la diferencia entre encontrar la respuesta y abrir el hilo número cuatro sobre lo mismo.
 - [Cómo seguir un tema y recibir avisos](/t/como-seguir-un-tema-y-recibir-avisos/2621) — para no tener que volver a mirar si alguien te contestó.
 
-Si te pierdes por el foro o algo no funciona como esperas, dilo en los comentarios de este tema. Nos vemos por aquí. :raised_hands:
+Si te pierdes por el foro o algo no funciona como esperas, dilo en los comentarios de este tema. Nos vemos por aquí.
