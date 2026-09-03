@@ -1379,3 +1379,74 @@ under the title unconditionally (`templates/topic.gjs:296`) and the theme does n
 the icon ever appears under a title with no tags beside it, that assumption was false.
 
 `theme_version` 0.39.0.
+
+## 2026-09-03 — The Primeros pasos onboarding set (#88)
+
+**The ask.** Ricardo: *"quiero que me repliques los post que hay en la categoria primeros pasos
+de esta comunidad. Crea post equivalentes y adaptados a esta comunidad. Publicalos con mi
+cuenta"*, pointing at `forum.asana.com/c/forum-es/primerospasos/165`. Content work, not theme
+work: nothing in `javascripts/` or `stylesheets/` changed, and `theme_version` did not move.
+
+**Asana's set is six topics**, read over its JSON API and `/raw/<id>/1`. Four adapted, one
+rewritten in place, one refused. Six are now live on PRE in category 78 as `RicardoPG`; the
+bodies are versioned under `docs/community/primeros-pasos/`, named by topic ID, with the full
+record in that directory's README. What follows is only what outlives the content itself.
+
+**Category 78 was emptied first** — its 160 arrival announcements moved to category 5 (203 →
+363). Worth noting because that is exactly the shape of the failure this repo has already paid
+for twice: a lane pointed at an emptied category renders empty in silence. It did not happen
+here, and the reason is checkable — `settings.yml` keys only `events_category_id` (59) and
+`ideas_category_id` (18), so nothing on the homepage referenced 78.
+
+**`topic_count` hid two thirds of category 3.** It reported 7; the listing returned 17. The
+difference is 9 unlisted topics plus the definition topic — the documented gap, met again, and
+the reason the move set could be decided at all. Three of those 17 were candidates and only one
+moved; the traps were **`/t/6` "Guía del administrador: Primeros pasos"**, which is Discourse's
+*admin* quick-start and collides with the destination category by name alone, and the nine
+archived `expertos-espublico` topics, which phase 4 deliberately archived in place.
+
+**Topic 4 was rewritten rather than duplicated.** It is wired to `/guidelines` and `/faq` by
+site setting, so publishing house rules as a new topic would have left two contradicting sets of
+rules — ours in the category, Discourse's stock "lugar civilizado para la discusión pública"
+still served at `/faq`. Discourse sanctions the edit in its own post #2: *"Edita la primera
+publicación de este tema para cambiar el contenido de la página Preguntas
+frecuentes/Directrices."* Verified after: `/guidelines` 200 serving the new text, `/faq` 302 to
+it, boilerplate phrase gone.
+
+**Two site-setting findings, both of which changed what got written:**
+
+- **`flag_post_allowed_groups` was `1|2|3`** — admins, moderators, staff. Discourse ships
+  `1|2|11`, which includes trust level 1. **No ordinary member could flag anything**, so the
+  reporting post was held rather than published describing a button that did not exist for its
+  readers. Changed to `1|2|3|11` at Ricardo's instruction, then published.
+- **Trust level 1 costs 50 topics entered, 250 posts read and 180 minutes** on this instance,
+  against defaults of 5 / 30 / 10. Opening the permission was necessary and **not sufficient**:
+  a new account waits weeks. The post says so instead of repeating Asana's "leyendo unos cuantos
+  temas", and carries the two fallbacks. The lever for day-one flagging is those thresholds, not
+  the permission.
+
+**`/tos` is Discourse's unedited template and disclaims itself.** Topic 8 opens with
+*"Cámbiame"* and states the conditions *"no regulan el uso del foro"*. Someone filled in the
+company name on 2025-01-07 and left the rest. That is why the sixth post is held and why
+nothing published links `/tos` — a post directing members there is worse than no post. The
+draft's own warning, written before the document could be read, turned out to be the case.
+
+**The legal and FAQ documents are readable by ID when the routes are not.** `/tos`, `/privacy`,
+`/faq` and `/guidelines` all answer **403** to the granular read-only key, but `/t/4`, `/t/8`
+and `/t/9` answer 200 — and the topic listing of category 3 is what yields those IDs. The route
+being closed does not mean the content is unreadable; go through the topic.
+
+**`disable_emails` is not exposed.** It is not among the 1448 settings
+`/admin/site_settings.json` returns, and the login page carries no banner, so the claim in
+`CLAUDE.local.md` could not be confirmed today. The email paragraph was cut from the
+notifications post rather than published unverified.
+
+**Slugs stayed out of every link.** Internal links are ID-keyed and categories are named in
+bold text, because this instance's slugs are legacy: category 4 is `comunidad-expertos` and
+displays as *Noticias*. A `/c/<slug>` link in member-facing copy is a rename hazard aimed at
+readers rather than at maintainers.
+
+**Not replicated, and stated in the README:** the terms of use, the personal introduction in
+the welcome post (cut rather than invented), the email paragraph, and every screenshot. PROD has
+had none of this applied and its category IDs do not match — 34 unreorganised categories, its
+own three legal documents to inspect, and every internal link to re-key.
