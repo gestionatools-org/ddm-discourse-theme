@@ -72,6 +72,16 @@
     }
   }
 
+  // Section 2. `BlockHighlights` renders nothing when all three of its content
+  // tags are emptied (`{{#if this.active}}` false), so collapse its wrapper
+  // rather than leaving the layout's `gap: var(--space-12)` as trailing dead
+  // space. A plain block's wrapper is `__block--<id>` (the BlockGroup wrappers
+  // above are `__block-container--<id>`), verified against Discourse's own
+  // discourse-theme-skills reference and `builtin/block-group.d.ts`.
+  &__block--home-highlights:empty {
+    display: none;
+  }
+
   // 56rem (896px), not the 60rem this file used to name. The threshold is the
   // width at which the panel still has room to be a panel, and it is measured
   // against the container, not the window:

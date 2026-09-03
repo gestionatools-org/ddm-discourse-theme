@@ -109,3 +109,41 @@ demo_url:
 first_steps_url:
   type: string
   default: ""
+
+# --- Section 2: community highlights ---------------------------------------
+# Four cards below section 1: latest podcast, latest newsletter, latest Gestiona
+# release, and the month's most active member. The three tag settings are matched
+# by slug, exactly as in /tag/<slug>. Each hides its card when empty; a card
+# whose tag is set but currently has no topic shows a "coming soon" placeholder.
+#
+# The section renders only when at least one of the three tags is non-empty —
+# the member card is a companion, never the sole reason to show the section.
+# Emptying all three hides it, the same idiom as events_category_id: 0.
+#
+# A renamed tag empties its card in silence, the same failure mode the category
+# IDs above carry. Re-check the three slugs after any tag reorganisation.
+highlights_podcast_tag:
+  type: string
+  default: "podcast"
+
+highlights_newsletter_tag:
+  type: string
+  default: "newsletter"
+
+# Ricardo is creating this tag in admin; until it exists and carries topics the
+# card shows "coming soon". Set empty to drop the card entirely.
+highlights_news_tag:
+  type: string
+  default: "nueva-version-gestiona"
+
+# Rolling window for the "most active member" ranking. Discourse's directory has
+# no calendar-month period — "monthly" is the last 30 days, the same window the
+# topbar figures use ("Este mes:").
+highlights_member_period:
+  type: enum
+  default: monthly
+  choices:
+    - monthly
+    - quarterly
+    - yearly
+    - all

@@ -3,12 +3,15 @@ import { apiInitializer } from "discourse/lib/api";
 import BlockEvents from "../blocks/block-events";
 import BlockForum from "../blocks/block-forum";
 import BlockHero from "../blocks/block-hero";
+import BlockHighlights from "../blocks/block-highlights";
 import BlockLatest from "../blocks/block-latest";
 
-// The homepage is a heading band and then section 1: a reading column and a
-// panel beside it. The panel holds two cards — the events lane ("Agenda del
-// certificado") and the ideas lane ("Tengo una idea") — stacked against the
-// site-wide latest list.
+// The homepage is a heading band, then section 1 — a reading column and a panel
+// beside it — then section 2, the community-highlights bento. The panel holds
+// two cards, the events lane ("Agenda del certificado") and the ideas lane
+// ("Tengo una idea"), stacked against the site-wide latest list; section 2 is a
+// four-card grid (podcast · newsletter · novedad · member of the month) that
+// renders only when at least one of its content tags is set.
 //
 // The section frame is a container query in `layouts/homepage.scss`. It
 // replaced a page-level two-column grid that never worked: the file carried
@@ -94,6 +97,21 @@ export default apiInitializer((api) => {
           ],
         },
       ],
+    },
+
+    // Section 2. The community highlights bento — see
+    // docs/superpowers/specs/2026-08-29-community-highlights-design.md. Its own
+    // SCSS carries the grid; here it is just one more section of the stack.
+    {
+      block: BlockHighlights,
+      id: "home-highlights",
+      args: {
+        title: "homepage.highlights.title",
+        podcastTag: settings.highlights_podcast_tag,
+        newsletterTag: settings.highlights_newsletter_tag,
+        newsTag: settings.highlights_news_tag,
+        memberPeriod: settings.highlights_member_period,
+      },
     },
   ]);
 });

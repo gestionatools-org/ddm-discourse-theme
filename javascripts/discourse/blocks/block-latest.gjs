@@ -27,10 +27,9 @@ import { loadLatestTopics } from "../lib/category-topics";
 //   - Reply, view and activity counts are the signal a "what's new" lane is
 //     for, and reimplementing any of them would be rebuilding core badly.
 //
-// What is given up is the excerpt: the native list has no room for one. Nothing
-// in the theme reads a topic excerpt any more, so about.json's
-// `serialize_topic_excerpts` modifier is now dead weight — left in place for a
-// separate about.json pass, not because anything depends on it.
+// What is given up here is the excerpt: the native list has no room for one.
+// `serialize_topic_excerpts` (about.json) is still earned, though — the
+// community-highlights content cards read `topic.excerpt`.
 //
 // `import TopicList from "discourse/components/topic-list/list"` and **not**
 // `discourse/components/topic-list`, which is a deprecated shim that logs

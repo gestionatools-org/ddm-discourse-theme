@@ -1087,3 +1087,43 @@ and his tolerance is "que se aproximen, no hasta el último pixel".
 `scss/double-slash-comment-empty-line-before`, fixed). No JS/HBS/test changes.
 
 `theme_version` 0.34.0.
+
+## 2026-08-29 — The community-highlights bento mounts on the homepage
+
+**The branch.** `feat/homepage-highlights-section` / PR #79 — section 2 of the redesigned
+homepage: a bento of four cards, built over six SDD tasks (pure helpers, settings + strings,
+the podcast and member card components, the `BlockHighlights` section, the cell wiring). This
+last task mounts it — a third top-level entry in `homepage-blocks`, after the latest section —
+bumps `theme_version` to **0.36.0**, and corrects the `block-latest.gjs` comment that had
+called `serialize_topic_excerpts` dead weight: the content cards read `topic.excerpt`, so the
+modifier is earned again (and `topic_thumbnail_sizes` feeds their `image_url`). Both stay in
+about.json; the *Pending* note that wanted them dropped is overtaken.
+
+**The four cells.** Newsletter and *novedad* are `loadLatestTaggedTopic` content cards — the
+latest non-definition topic carrying `highlights_newsletter_tag` / `highlights_news_tag`.
+Podcast is a thumbnail that plays a YouTube embed in place. Member is the month's most active
+directory member, or a take-part CTA. Each cell has its own `<DAsyncContent>` — no combined
+fetch phase — so a slow or failing fetch never blocks the others, and newsletter/podcast
+resolving to the same topic is a tag-hygiene job, not a code one. The section renders iff at
+least one of the three content tags is set; the member card never keeps it alive alone.
+
+**Three facts the build established, none of them guessable:**
+
+- **This Discourse version's directory serializer omits `time_read`.** The member composite
+  (`WEIGHTS` in `lib/highlights.js`) was meant to weigh time on the platform; with `time_read`
+  gone it uses `days_visited` as the stand-in. A one-line edit, deliberately not four theme
+  settings — the card shows raw figures, never the score.
+- **The podcast video id comes from the first post, not the topic list.** The list carries no
+  post bodies, so `fetchPodcast` makes a second hop to `/t/<id>.json` and reads `data-video-id`
+  off the first post's cooked HTML — Discourse's own lazy-video container, with bare-URL
+  regexes as fallback. A removed or access-controlled first post just means no inline player.
+- **The member card cannot be validated on PRE.** Its 30-day directory is all zeros today, so
+  `memberHasActivity` is false and the card correctly shows the CTA — but the populated state
+  has no live data to check against. Needs a PROD check once the theme is there, or a wait for
+  PRE activity to pick up.
+
+**Verification.** `npx pnpm@10.28.0 lint` green on all five. QUnit + system specs run in CI
+only. No instance touched — the PR stays a draft for the whole-branch review; releasing this
+is a separate, explicit decision for the maintainer.
+
+`theme_version` 0.36.0.

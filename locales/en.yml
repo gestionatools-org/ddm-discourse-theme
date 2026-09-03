@@ -10,6 +10,10 @@ en:
       academy_url: "Where the Academy item in the site header points. External destinations must include the scheme — https://example.com, not example.com, which the browser resolves as a path on this site. Start with / for a page on this forum. Empty hides the item."
       demo_url: "Where the Demo Gestiona item in the site header points. External destinations must include the scheme — https://example.com, not example.com, which the browser resolves as a path on this site. Start with / for a page on this forum. Empty hides the item."
       first_steps_url: "Where the first steps item in the site header points. External destinations must include the scheme — https://example.com, not example.com, which the browser resolves as a path on this site. Start with / for a page on this forum. Empty hides the item."
+      highlights_podcast_tag: "Tag whose most recent topic fills the podcast card. Matched by slug. Empty hides the card."
+      highlights_newsletter_tag: "Tag whose most recent topic fills the newsletter card. Matched by slug. Empty hides the card."
+      highlights_news_tag: "Tag whose most recent topic fills the 'What's new in Gestiona' card. Matched by slug. Empty hides the card."
+      highlights_member_period: "Window for the most-active-member ranking. 'monthly' is the last 30 days — Discourse has no calendar-month option."
 
   header:
     links:
@@ -76,3 +80,30 @@ en:
       replies:
         one: "%{count} reply"
         other: "%{count} replies"
+    highlights:
+      title: "Community highlights"
+      soon: "Coming soon"
+      podcast:
+        label: "Podcast"
+        cta: "Watch the episode"
+        play: "Play the episode"
+      newsletter:
+        label: "Newsletter"
+        cta: "Read the newsletter"
+      news:
+        label: "What's new in Gestiona"
+        cta: "See what's new"
+      member:
+        badge: "Member of the month"
+        posts:
+          one: "%{count} post"
+          other: "%{count} posts"
+        likes:
+          one: "%{count} like"
+          other: "%{count} likes"
+        days:
+          one: "%{count} active day"
+          other: "%{count} active days"
+        profile: "View profile"
+        cta_empty: "Post and take part this month to show up here"
+        cta_empty_button: "Write a post"

@@ -4,7 +4,7 @@
   "authors": "es|public",
   "about_url": "https://github.com/gestionatools-org/ddm-discourse-theme",
   "license_url": "https://github.com/gestionatools-org/ddm-discourse-theme/blob/main/LICENSE",
-  "theme_version": "0.35.0",
+  "theme_version": "0.36.0",
   "minimum_discourse_version": "2026.7.0",
   "maximum_discourse_version": null,
   "assets": {
@@ -18,7 +18,7 @@
     "custom_homepage": true,
     "only_theme_color_schemes": true,
     "topic_thumbnail_sizes": ["400x300"],
-    "svg_icons": ["newspaper", "lightbulb"]
+    "svg_icons": ["newspaper", "lightbulb", "podcast"]
   },
   "theme_site_settings": {
     "enable_welcome_banner": false,
