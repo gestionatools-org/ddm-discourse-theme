@@ -11,23 +11,62 @@
 // now: the field is shaped below, and still by variable rather than by
 // redeclaring core's rule.
 :root {
-  // Core's default logo height puts our logotype below its own minimum size.
-  // The official file is 720×260, an aspect ratio of 2.77, and the manual sets
-  // a floor of 120px wide for the full logotype — below that the split between
-  // the two petrol arcs stops reading as two pieces. Core's 2.4em resolves to
-  // ~38px tall, which is only ~106px wide. 2.75em gives ~44px tall and ~122px
-  // wide, clearing the floor with a little room.
-  //
-  // This only matters while the site logo is the full logotype. If an admin
-  // uploads the isotype alone (square, 24px floor) the constraint disappears
-  // and this can go back to core's default.
-  --d-logo-height: 2.75em;
-
   // Core dims resting header icons to --header_primary-low-mid. The system has
   // no "quiet icon" token and treats a mark as either legible or decorative, so
   // this lifts the resting state to the muted-text step — a value that is
   // contrast-checked in both schemes rather than an arbitrary fade.
   --d-header-icon-color: var(--ga-muted-fg);
+}
+
+// The header is taller than core's, so it reads as the topmost surface rather
+// than as a second band under the information strip.
+//
+// The strip carries no surface of its own (see topbar.scss), so the hierarchy
+// up here is stated by height and by the header's shadow — not by a third
+// tone, which that file rejected in writing. Core serves 3.25em (52px against
+// the site's 16px root) from its modernize-foundation layer, one step over the
+// strip's 41px; at 4.5em the header is 72px, 1.76× the strip, and the two stop
+// competing.
+//
+// `.d-header` unqualified is deliberate. Core's rule is
+// `:where(.uc-modernize-foundation-theme) .d-header`, and `:where()` adds no
+// specificity, so this ties at (0,1,0) and wins on order: the theme's compiled
+// sheet is the last unlayered stylesheet on the page. Measured on PRE
+// 2026-09-03, and it is what discourse-central-theme and discourse-air both do.
+//
+// Nothing needs to follow this by hand. Core measures `.d-header-wrap` with an
+// observer and writes `--header-offset`, so the sticky sidebar, the topic
+// timeline and the composer all move with it.
+.d-header {
+  // Below sm the header holds the logo, the search field and the user icons
+  // with no destination links to give up, and there is no room to spend: 72px
+  // of header over the strip's 41px would take 113px off an 844px phone. Core's
+  // 52px is the right height there.
+  @include viewport.from(sm) {
+    height: 4.5em;
+  }
+}
+
+// The logotype grows with the bar, keeping the air around it rather than
+// leaving the extra height empty.
+//
+// Declared on `.d-header .title` because that is where core declares it —
+// `:where(.uc-modernize-foundation-theme) .d-header .title { --d-logo-height:
+// 2.3em }`, which sits closer to the `<img>` than any `:root` can. A `:root`
+// override stood here until 2026-09-03 and had never once applied.
+//
+// 2.75em is the value that override was reaching for. The official file is
+// 720×260, an aspect ratio of 2.77, and the manual sets a floor of 120px wide
+// for the full logotype — below that the split between the two petrol arcs
+// stops reading as two pieces. 2.75em gives 44px tall, comfortably clear.
+//
+// This only matters while the site logo is the full logotype. If an admin
+// uploads the isotype alone (square, 24px floor) the constraint disappears and
+// this can go back to core's default.
+.d-header .title {
+  @include viewport.from(sm) {
+    --d-logo-height: 2.75em;
+  }
 }
 
 // Destination links, rendered into `before-header-panel` — between the search
