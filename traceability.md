@@ -1523,3 +1523,26 @@ branched from the new `main`. Cost about four minutes and removed the ambiguity 
 
 The held terms draft lost the emoji from its suggested title and its closing line, and keeps its
 `⚠️` review markers — those are notes to whoever publishes it, not post content.
+
+## 2026-09-03 — Renaming the welcome topic off a slug collision (#91)
+
+Ricardo: *"renombra 2622 para que no choque con /t/5"*.
+
+**The clash was worse than the titles suggested: the two shared a slug.** Topic 5 (Discourse's
+stock welcome, `system`, category 4) and the new 2622 both resolved to
+`te-damos-la-bienvenida-a-gestiona-avanza`, distinguished only by the trailing ID. Discourse
+permits duplicate slugs and disambiguates by ID, so nothing was broken — but it produces two
+URLs differing by one digit, which is a support question waiting to happen.
+
+Renamed to **Empieza aquí: qué puedes hacer en la comunidad**, slug
+`empieza-aqui-que-puedes-hacer-en-la-comunidad`. The new title also describes the post better
+than the old one did: it is a tour of the categories plus three things to do first, not only a
+greeting, and it reads correctly as the pinned first item of the category.
+
+**Free, because nothing linked to it.** Checked before renaming — the guidelines hub links
+2620, 2621, 2623 and 2624, never 2622 — so no slug-keyed link had to be rewritten. Worth the
+one grep: a rename is only cheap when the inbound links are ID-keyed or absent, and this set
+deliberately uses IDs everywhere else for exactly that reason.
+
+Topic 5 keeps its `:wave:` in the title. It is outside the category, `system`-authored, and
+kept as the historical welcome by decision, so the emoji pass never covered it.
