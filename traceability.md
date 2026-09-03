@@ -1718,3 +1718,33 @@ anchor appeared exactly once, so a drifted anchor fails loudly instead of editin
 passage. Sixteen for sixteen, and a `grep` afterwards confirmed no anchor was left behind.
 
 `theme_version` unchanged.
+
+## 2026-09-03 — Closing the two `.env.local` items (#95)
+
+Ricardo: *"quita la línea de PRE_WRITE_API_KEY y las duplicadas"*. These are the two
+recommendations #94 recorded as having been written down and never applied. `.env.local` is
+gitignored, so this is the versioned record that they are now done.
+
+**`PRE_WRITE_API_KEY` deleted.** Verified dead first, because **deleting a line with a live key
+is unrecoverable** — Discourse never shows an API key's value again after creation. Probed
+403 on `/t/4.json`, `/categories.json` and `/session/current.json`, against the read-only key
+returning **200** on the same two endpoints as a control. That control is the part that matters:
+403 alone could have been a proxy, a bad username or a URL typo; 403 beside a 200 on the same
+request shape isolates it to the key.
+
+**Both duplicated names deduplicated.** `PRE_DISCOURSE_API_USERNAME` and `PRE_DISCOURSE_URL`
+were confirmed byte-identical by **comparing SHA-256 digests of the values, not by printing
+them** — the same discipline the file already prescribes for telling duplicated keys apart. The
+**last** occurrence of each was kept, so the effective value under `source` is unchanged
+whatever the digests had said.
+
+`.env.local` now holds nine assignments, three `PROD_*` and six `PRE_*`, with no name twice.
+All four surviving keys re-probed by capability afterwards: 200 across the board, and
+`/admin/themes/15.json` still answers 200 through the Global key, which is what confirms the
+deduplicated URL and username pair still resolves.
+
+A copy of the pre-edit file is in the session scratchpad at mode 600. It is a credentials file,
+so it stays out of the repo — `.env.local.bak` and `.env.bak` are both gitignored here, which
+was checked before choosing where to put it.
+
+`theme_version` unchanged.
