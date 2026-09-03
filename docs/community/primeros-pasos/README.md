@@ -27,7 +27,7 @@ Verified after: none of them on page 1 of `/latest`.
 
 | File | Topic | Date | Notes |
 |---|---|---|---|
-| `2622-te-damos-la-bienvenida.md` | [2622](https://discourse.gestiona4dev.tech/t/-/2622) | 2024-01-15 | pinned |
+| `2622-empieza-aqui.md` | [2622](https://discourse.gestiona4dev.tech/t/-/2622) | 2024-01-15 | pinned |
 | `0004-pautas-y-preguntas-frecuentes.md` | [4](https://discourse.gestiona4dev.tech/t/-/4) | 2024-01-15 | **serves `/guidelines`, and `/faq` redirects to it**; closed, moved out of category 3 |
 | `2620-como-buscar-en-la-comunidad.md` | [2620](https://discourse.gestiona4dev.tech/t/-/2620) | 2024-01-16 | |
 | `2621-como-seguir-un-tema-y-recibir-avisos.md` | [2621](https://discourse.gestiona4dev.tech/t/-/2621) | 2024-01-16 | |
@@ -79,10 +79,17 @@ just covered. **Both were there before any of this**, and neither was noticed wh
   Resolution: 63 moved into the category and the two now cite each other. Its original text was
   not edited — only a `Ver también` line appended.
 - **Topic 5, *¡Te damos la bienvenida a Gestiona Avanza!*** — Discourse's stock welcome topic,
-  lightly customised, by `system`, closed, in category 4, 164 views. Nearly the same title as
-  2622. **Both were deliberately kept**: 5 stays in *Noticias* as the historical welcome, 2622
-  is the category's. Its links already point the right way — `/faq` now serves the new
-  guidelines, and its "debate útil" link goes to 63.
+  lightly customised, by `system`, closed, in category 4, 164 views. **Both were deliberately
+  kept**: 5 stays in *Noticias* as the historical welcome, 2622 is the category's entry point.
+  Its links already point the right way — `/faq` now serves the new guidelines, and its
+  "debate útil" link goes to 63.
+
+  The two started out with the same title **and the same slug**,
+  `te-damos-la-bienvenida-a-gestiona-avanza`, distinguished only by ID. Discourse permits
+  that, but it makes two URLs that differ by one digit. 2622 was renamed to *Empieza aquí:
+  qué puedes hacer en la comunidad*, which also describes it better — the post is a tour of
+  the categories and three things to do first, not only a greeting. Nothing in the set linked
+  to it, so the slug change cost nothing.
 
 The pattern is worth naming, because it caught three times in one session: **Discourse already
 ships a place for most of this, and so did the community.** Check for the existing topic before
@@ -153,8 +160,6 @@ three thresholds, not the permission.
 - **The welcome post has no personal introduction.** Asana's is signed by the person who runs
   the forum, who presents themselves. That paragraph was cut rather than invented; the post
   works without it. It is the one gap with a real name on it.
-- **Topics 5 and 2622 have nearly the same title.** Kept on purpose, but a reader browsing
-  search results sees two welcomes.
 - **PROD has had none of this applied**, and its category IDs do not match: 34 unreorganised
   categories, and its own `/tos`, `/privacy` and `/faq` documents to inspect first. Locate the
   equivalent category and the three document topics before replaying anything, and re-key every
