@@ -1665,3 +1665,56 @@ categoría* exists on PRE and not on PROD. Measured today, PROD carries 35 categ
 including 1, and PRE does not have it. It is the reverse.
 
 `theme_version` unchanged: an audit and its record, no theme code.
+
+## 2026-09-03 — Auditing CLAUDE.local.md, and one open question closed (#94)
+
+Ricardo: *"mira si hay más contradicciones en CLAUDE.local.md"*, then *"sí, arreglalas"*.
+653 lines read; **16 corrections applied**. The file itself is gitignored, so this entry is the
+only versioned record of what was wrong in it — and of the one finding that is worth more than
+the tidying.
+
+**A cleared thumbnail does not come back. Measured, finally.** The file asked twice — under the
+redesign handoff and under phase 6 — *"whether it recovers after a day is still unchecked"*.
+Checked a week after the writes: `/t/2611`, `/t/2574` and `/t/2550` are all still
+`image_url: null`, and none has had a post since June or July, so nothing re-triggered a bake
+in between. **The loss is permanent.** That closes a question carried for a week and, more
+usefully, it is the argument against any mass edit of old topics: 217 of them carry absolute
+PROD links, and rewriting those would cost up to 217 thumbnails for no functional gain.
+
+**Four real contradictions — two statements that could not both be true:**
+
+- **Phase 6 was both done and pending.** One section said *"all six phases done, phase 6 ran on
+  2026-08-27"*; a *Pending* bullet said *"phase 6 is admin work in PRE and is Ricardo's"*.
+- **The redesign had both not started and shipped.** A handoff section said *"started, nothing
+  decided… no code until Ricardo approves a design"* and tabled **six** lanes, while *Pending*
+  and *Homepage sections* described the **three** lanes live since 2026-08-29.
+- **Category 3 had 7, 17 and 8/18 topics** in three places. Each was true on its day: the first
+  is `topic_count`, the second and third the listing, measured at different times. Not a real
+  divergence but it reads as one, so the file now states the mechanism at the census and says
+  which number is which. Today: `topic_count` 6, listing 16.
+- **`/c/<id>/show.json` was "the working endpoint" and also a 403.** True of the route and of
+  the granular read-only key respectively, but ninety lines apart, and the caveat is the half
+  that bites.
+
+**Nine stale-to-wrong claims**, the notable ones being a merged PR still described as pending
+(`feat/homepage-agenda-lane`, with `theme_version` since moved 0.31.0 → 0.39.0); every category
+count in two tables; two items deferred *to* a homepage lane that #73 had already deleted; a
+"22 topics for 6 cells" figure contradicted by a "17" seventeen lines earlier; PROD described
+as 34 categories when it has 35; and a cross-reference pointing *below* at a note that is
+*above*.
+
+**Two of the file's own recommendations had never been applied**, and both were re-verified
+rather than assumed: `PRE_WRITE_API_KEY` is still in `.env.local` a week after *"the line can
+go"*, and `PRE_DISCOURSE_API_USERNAME` / `PRE_DISCOURSE_URL` are still duplicated — harmless
+while the values match, but that is the exact shape of the collision that has bitten twice.
+
+**Added while there:** the granular read-only key also 403s on `/tos`, `/privacy`, `/faq`,
+`/guidelines` and `/u/<username>.json`, **but `/t/<id>.json` answers 200** — a closed route does
+not mean unreadable content, and that is how the legal documents were read, through the topic
+ids category 3's listing supplies.
+
+**Method note.** Every edit was an explicit anchor replacement with an assertion that the
+anchor appeared exactly once, so a drifted anchor fails loudly instead of editing the wrong
+passage. Sixteen for sixteen, and a `grep` afterwards confirmed no anchor was left behind.
+
+`theme_version` unchanged.
