@@ -94,7 +94,7 @@ already carries the `min-width: 0` a grid child needs. The bento grid lives enti
 
 | File | Responsibility |
 |---|---|
-| `javascripts/discourse/blocks/block-highlights.gjs` | The block. Section frame (`lane-frame` + `lane-header` + `lane-title`) and the bento grid with four cells, each cell its own `<DAsyncContent>`. Holds a local `<template>` const `ContentCard` for the newsletter and novedad cards. ~150 lines. |
+| `javascripts/discourse/blocks/block-highlights.gjs` | The block. The section heading and the bento grid with four cells, each cell its own `<DAsyncContent>`. Holds a local `<template>` const `ContentCard` for the newsletter and novedad cards. ~150 lines. (The section is a full-bleed band, not a framed lane — see **Layout**, revised 2026-09-03.) |
 | `javascripts/discourse/components/highlight-podcast-card.gjs` | The 16:9 card. `@tracked playing`. Not playing: `<img>` YouTube thumbnail + a play `<button>`. Playing: `<iframe>` `youtube-nocookie.com/embed/<id>?autoplay=1`. No `videoId`: the thumbnail is an `<a>` to the topic, no button. |
 | `javascripts/discourse/components/highlight-member-card.gjs` | Avatar (core's `avatar` helper) + name + `star` badge + a line of raw figures. Links to `/u/<username>/summary`. Also renders the "post to show up here" CTA when handed no eligible member. |
 | `javascripts/discourse/lib/highlights.js` | Framework-free: `loadLatestTaggedTopic`, `extractVideoId`, `youtubeThumbnail`, `rankTopMember`, `memberHasActivity`, plus the `WEIGHTS` const. |
@@ -104,56 +104,38 @@ already carries the `min-width: 0` a grid child needs. The bento grid lives enti
 
 ## Layout
 
-`stylesheets/blocks/block-highlights.scss`:
+`stylesheets/blocks/block-highlights.scss`. **Revised 2026-09-03** after visual review:
+the section does NOT wear `lane-frame`. It is a full-bleed band — the same treatment
+`app/page-hero.scss` gives the heading band and every category header — so that section 2
+reads as a distinct zone rather than a fourth framed lane.
 
-```scss
-.block-highlights {
-  @include lane-frame;
-
-  &__header { @include lane-header; }
-  &__title  { @include lane-title; }
-
-  &__grid {
-    display: grid;
-    gap: var(--space-4);
-    grid-template-columns: 1fr;
-    grid-template-areas: "news" "podcast" "novedad" "miembro";
-  }
-
-  // Tablet: two columns, so the newsletter card is not a kilometre tall.
-  @container homepage-blocks (width > 40rem) {
-    &__grid {
-      grid-template-columns: 1fr 1fr;
-      grid-template-areas:
-        "news    podcast"
-        "novedad miembro";
-    }
-  }
-
-  // The full bento. Same 56rem threshold the panel uses, measured against the
-  // container (the content column narrows when the sidebar opens).
-  @container homepage-blocks (width > 56rem) {
-    &__grid {
-      grid-template-columns: 0.95fr 1.35fr 1fr;
-      grid-template-areas:
-        "news podcast podcast"
-        "news novedad miembro";
-    }
-  }
-}
-```
-
-- **Frame:** the section wears `lane-frame` like the other three lanes (border +
-  `--ga-shadow-lane`). Inside, each card is a flat bordered surface (`lane-card`), no shadow —
-  "bordes antes que sombras".
-- **`news` spans two rows** at the widest breakpoint → the tall portrait image the newsletter
-  card is built around. `podcast` spans two columns → the 16:9 video. `novedad` and `miembro`
-  are twin small cards on the bottom row.
-- **Reduced layouts.** The four-card bento is the only visually tuned arrangement. When a
-  card is absent because its setting is empty (a deliberate admin choice, not a transient
-  emptiness), the block recomputes `grid-template-areas` from the active set and falls back
-  to the functional two-column grid. These fallbacks are not pixel-tuned; the common case is
-  all four present.
+- **The band.** `background` + a `box-shadow: 0 0 0 100vmax` spread + `clip-path: inset(0
+  -100vmax)`, lifted verbatim from `.page-hero`: the paint bleeds edge-to-edge, it answers to
+  the box rather than the window so it is exact at every width, and it creates no scrollable
+  overflow (`container-type: inline-size` on `.homepage-blocks` was already checked not to
+  clip the identical hero bleed). Surface: `--ga-accent-surface` (the palest brand cyan,
+  `#effbff`) — the maintainer chose the cyan tint over the flatter `--ga-muted` for more
+  visual lift.
+- **The heading.** No `lane-header`, no `lane-title` — no filo edge, no hairline, no icon,
+  because a category header carries none. `.block-highlights__title` takes the
+  `.page-hero__title` treatment instead: Roboto Slab (`--ga-font-slab`), `--font-up-4`,
+  `--primary` ink; `--font-up-2` below 40rem. The `{{dIcon "star"}}` is removed from the
+  block template.
+- **Even air.** A single `--highlights-air` custom property drives the band's `padding-block`
+  *and* the header's `margin-bottom`, so the gap above the title, the gap between the title
+  and the cards, and the gap below the cards are provably equal — `--space-12` on desktop,
+  `--space-8` below 40rem, both symmetric.
+- **The grid is unchanged** from the original design: `--count-4` bento at `> 56rem`, 2×2 at
+  `> 40rem`, a single stacked column below (`grid-template-columns: repeat(auto-fit,
+  minmax(min(100%, 16rem), 1fr))`). `news` spans two rows at the widest step (the tall
+  newsletter image), `podcast` spans two columns (the 16:9 video), `novedad` and `miembro`
+  are the twin small cards. **The `grid-area` assignments live inside the `> 40rem` /
+  `> 56rem` container queries** — a fix from 2026-09-03: unconditional `grid-area` values
+  naming areas that only exist inside those queries minted implicit grid lines that stacked
+  all four cards into one overlapping pile below 40rem.
+- **The cards themselves are untouched** — white `--ga-card` surfaces with a border, now
+  sitting on the cyan band for contrast. "Los 4 bloques integrados en el fondo con los
+  contenedores tal como están."
 
 ## Data flow
 

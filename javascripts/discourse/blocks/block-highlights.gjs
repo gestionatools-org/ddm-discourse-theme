@@ -164,8 +164,10 @@ export default class BlockHighlights extends Component {
     {{#if this.active}}
       <section class="block-highlights">
         <header class="block-highlights__header">
+          {{! No icon: this heading takes the category-header treatment (a
+              full-bleed band, Roboto Slab), and a category header carries
+              none. }}
           <h2 class="block-highlights__title">
-            {{dIcon "star"}}
             {{i18n (themePrefix @title)}}
           </h2>
         </header>
