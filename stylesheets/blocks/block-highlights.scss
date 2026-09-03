@@ -12,8 +12,8 @@
   // the window, so it is exact at every width and creates no scrollable
   // overflow — measured on the page-hero, and `container-type: inline-size` on
   // `.homepage-blocks` was checked not to clip it.
-  background: var(--ga-accent-surface);
-  box-shadow: 0 0 0 100vmax var(--ga-accent-surface);
+  background: var(--ga-muted);
+  box-shadow: 0 0 0 100vmax var(--ga-muted);
   clip-path: inset(0 -100vmax);
 
   // One value drives every gap in the band, so the air above the title, the air

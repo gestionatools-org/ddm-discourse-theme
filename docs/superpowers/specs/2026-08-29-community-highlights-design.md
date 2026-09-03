@@ -113,9 +113,10 @@ reads as a distinct zone rather than a fourth framed lane.
   -100vmax)`, lifted verbatim from `.page-hero`: the paint bleeds edge-to-edge, it answers to
   the box rather than the window so it is exact at every width, and it creates no scrollable
   overflow (`container-type: inline-size` on `.homepage-blocks` was already checked not to
-  clip the identical hero bleed). Surface: `--ga-accent-surface` (the palest brand cyan,
-  `#effbff`) — the maintainer chose the cyan tint over the flatter `--ga-muted` for more
-  visual lift.
+  clip the identical hero bleed). Surface: `--ga-muted` — the same fill `app/page-hero.scss`
+  gives the hero band and every category header. (A `--ga-accent-surface` cyan tint shipped
+  briefly in #79 and was reverted the same day, 2026-09-03: the maintainer wanted the band
+  to match the hero exactly, not carry its own colour.)
 - **The heading.** No `lane-header`, no `lane-title` — no filo edge, no hairline, no icon,
   because a category header carries none. `.block-highlights__title` takes the
   `.page-hero__title` treatment instead: Roboto Slab (`--ga-font-slab`), `--font-up-4`,
@@ -133,9 +134,8 @@ reads as a distinct zone rather than a fourth framed lane.
   `> 56rem` container queries** — a fix from 2026-09-03: unconditional `grid-area` values
   naming areas that only exist inside those queries minted implicit grid lines that stacked
   all four cards into one overlapping pile below 40rem.
-- **The cards themselves are untouched** — white `--ga-card` surfaces with a border, now
-  sitting on the cyan band for contrast. "Los 4 bloques integrados en el fondo con los
-  contenedores tal como están."
+- **The cards themselves are untouched** — white `--ga-card` surfaces with a border, sitting
+  on the band. "Los 4 bloques integrados en el fondo con los contenedores tal como están."
 
 ## Data flow
 
