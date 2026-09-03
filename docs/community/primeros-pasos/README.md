@@ -115,6 +115,28 @@ ships a place for most of this, and so did the community.** Check for the existi
 writing a new one — category 3's listing and a `/search.json` query for the title would have
 found both of these in two calls.
 
+## The presentation, and where it came from
+
+The welcome post opens with a two-paragraph introduction in the first person. It was left out
+of the first publish rather than invented, and written on 2026-09-03 from **Ricardo's own
+Discourse profile**, which is the only self-supplied source available:
+
+| Claim | Source |
+|---|---|
+| *director del programa de certificación* | his profile `title`: "Director programa certificación Gestiona" |
+| *desde el día que se abrió, en enero de 2024* | account `created_at` 2024-01-15T11:31, and the forum's first topics are 2024-01-15 |
+| *la administro junto al resto del equipo de esPublico* | `admin: true`, `moderator: true`, alongside 14 other staff accounts |
+
+The one sentence that is **not** derived from the profile is the invitation to be mentioned —
+*"mencióname con @RicardoPG y te echo una mano"*. That is the Asana pattern applied, and it
+commits him to being pingable; it is the sentence to cut if he would rather not promise it.
+
+The mention is deliberately **not** in backticks. Written as `` `@RicardoPG` `` it cooks as
+code — no link, no profile — which is how it shipped for one revision before being fixed.
+
+**His profile `bio_raw` is empty**, which is worth knowing because this post asks every new
+member to complete theirs.
+
 ## Held
 
 `HELD-terminos-y-privacidad.md` — **not published, and it should not be until someone writes
@@ -176,9 +198,6 @@ three thresholds, not the permission.
 
 ## Open
 
-- **The welcome post has no personal introduction.** Asana's is signed by the person who runs
-  the forum, who presents themselves. That paragraph was cut rather than invented; the post
-  works without it. It is the one gap with a real name on it.
 - **PROD has had none of this applied**, and its category IDs do not match: 34 unreorganised
   categories, and its own `/tos`, `/privacy` and `/faq` documents to inspect first. Locate the
   equivalent category and the three document topics before replaying anything, and re-key every
