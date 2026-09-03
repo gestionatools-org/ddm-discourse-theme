@@ -22,15 +22,41 @@
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
   }
 
+  &__cell {
+    display: flex; // the card fills the cell — matters where `news` spans two rows
+    min-width: 0;
+  }
+
   // The tuned arrangement. 56rem is the panel's own threshold, measured against
   // the container (the content column narrows when the sidebar opens); the
   // 40rem step keeps the newsletter card from becoming a tower on a tablet.
+  //
+  // `grid-area` is assigned ONLY inside these queries, where the matching
+  // `grid-template-areas` exists. An unconditional `grid-area: news` on a grid
+  // with no `news` area still mints implicit line names, which stacked all four
+  // cells into one overlapping pile below 40rem and in the --count-3/2 layouts.
   &__grid.--count-4 {
     @container homepage-blocks (width > 40rem) {
       grid-template-columns: 1fr 1fr;
       grid-template-areas:
         "news    podcast"
         "novedad miembro";
+
+      .block-highlights__cell.--news {
+        grid-area: news;
+      }
+
+      .block-highlights__cell.--podcast {
+        grid-area: podcast;
+      }
+
+      .block-highlights__cell.--novedad {
+        grid-area: novedad;
+      }
+
+      .block-highlights__cell.--miembro {
+        grid-area: miembro;
+      }
     }
 
     @container homepage-blocks (width > 56rem) {
@@ -38,27 +64,6 @@
       grid-template-areas:
         "news podcast podcast"
         "news novedad miembro";
-    }
-  }
-
-  &__cell {
-    display: flex; // the card fills the cell — matters where `news` spans two rows
-    min-width: 0;
-
-    &.--news {
-      grid-area: news;
-    }
-
-    &.--podcast {
-      grid-area: podcast;
-    }
-
-    &.--novedad {
-      grid-area: novedad;
-    }
-
-    &.--miembro {
-      grid-area: miembro;
     }
   }
 }
