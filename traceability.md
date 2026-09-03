@@ -1262,3 +1262,120 @@ auto-merge. No test covers header geometry — `core_features_spec.rb` does not 
 QUnit has no layout assertions — so the live measurement above is the only net this has.
 
 `theme_version` 0.37.0.
+
+## 2026-09-03 — Tags get an outline, an icon and a second home (#85, #86)
+
+**The ask.** Ricardo: *"investiga qué podríamos hacer para modificar el aspecto de las
+etiquetas. Ahora están subrayadas y no me gusta tal como se ve"*, then — pointing at a
+reference forum — *"quiero que se muestre en ambos sitios. Debajo del título del tema me
+gustaría que fueran precedidas de un flat icon de etiqueta"*. Classified **bounded** both
+times: SCSS plus two outlet connectors, no spec.
+
+**There was no underline.** All 35 stylesheets PRE serves were downloaded and real tag markup
+probed against the live compiled CSS. **No `text-decoration: underline` on a tag anywhere** —
+not in core's `common/base/tagging.scss`, not in the theme, not in any plugin sheet. Links sit
+at `--d-link-text-decoration: none` and `.hashtag-cooked` sets `none` explicitly. The only
+`underline` near anything tag-shaped is `.tag-sort-options a`, the *sort by* links on `/tags`.
+
+What was actually there: **the theme had given tags a background but core gives them no
+padding.** `--d-tag-background-color: var(--ga-muted)` with core's
+`--d-tag-horizontal-padding` still at its default `0em` and no block padding either, so each
+tag was a band flush against its own glyphs — measured `68.5×19.5px`, `padding: 0px`. Core's
+`--d-tag-*` defaults are all "off" (`transparent`, `0px` radius, `0em` padding): **core ships
+tags as plain text**, and a background is the one thing that cannot be added to them alone.
+
+Worth keeping about the diagnosis itself: the complaint named a CSS property that was not
+involved, and the property it named is the first thing anyone would grep for. Reading the
+served stylesheets was what turned a wrong lead into the real geometry in one pass.
+
+**Shipped in #85.** Outlined tags — `transparent` background, `1px solid var(--ga-border)`,
+text `--ga-muted-fg`, padding `0.5em / 0.15em`, hover recolouring border and text to
+`--tertiary` by overriding `--tag-text-color` (core's own hook) rather than declaring `color`
+and racing core's `:visited`/`:hover` rules on specificity. A `tag` icon fronts the row under
+the topic title, and the tags now repeat at the foot of the topic.
+
+Three facts from building it that outlive it:
+
+- **Core builds the tag row as an HTML string.** `lib/render-tags.js`, reached through the
+  `d-discourse-tags` helper, returns `trustHTML(...)`, so **no template can insert anything
+  into that list** — which rules out putting the icon beside the tags. It mounts in the
+  `topic-category` outlet instead, a sibling of the list inside the same flex row, and
+  `tagging.scss` reorders badge / icon / tags with `order`. The alternative, a connector on
+  `topic-category-wrapper`, replaces core's default block and would have meant reimplementing
+  the category link too.
+- **An empty flex item still collects its `gap`.** That outlet's wrapper `<span>` is rendered
+  whether or not anything goes into it, so an unconditional `order` would have shifted every
+  topic that has no tags. Hence two `:has()` guards, and hence the icon component rendering
+  *nothing* rather than an empty wrapper. Measured both ways: with the guards, an untagged row
+  is pixel-identical to core.
+- **`renderTags` inserts a literal comma** between tags at `tag_style: simple`
+  (`.discourse-tags__tag-separator`, overridable through the `tag-separator` value
+  transformer, default `","`). Between two outlined chips it reads as a typo; hidden in CSS,
+  with a `gap` in its place, since the `<ul>`/`<li>` structure already carries the separation
+  for a screen reader.
+
+**Two import facts.** `tag` and `tags` are both in core's default FontAwesome subset, so **no
+`svg_icons` entry was needed** — `about.json` only moved its version. And core's tag helper
+now lives at `discourse/ui-kit/helpers/d-discourse-tags`; the old `discourse/helpers/
+discourse-tags` path is a 404, which the vendored reference theme `discourse-topic-cards`
+still imports. The new path is reachable from a theme — proven by CI, not by `lint:types`,
+which validates the type layer only.
+
+**Tests, on request.** Nine integration tests in `test/integration/topic-tags-test.gjs`, both
+components rendered directly. The suite reported **119 pass, 0 fail, 0 skip**, and all nine
+new tests were counted by name in the CI log rather than inferred from a green check — this
+repo's documented failure mode is a run that looks complete until the log is counted. Two
+carry the
+decisions that are easy to undo: the icon rendering nothing for an untagged topic (the
+`:has()` guards rest on it), and the foot showing the topic's *full* tag set. The second is
+testable only because the double gives `visibleListTags` a value different from `tags` —
+adding `mode="list"` to the helper call then renders an empty row and fails. Without that
+divergence the two lists coincide, since they differ only when
+`suppress_overlapping_tags_in_list` is on.
+
+Not reachable from QUnit, and stated in the file: the `order` + `:has()` reordering and the
+outlined chip itself. The theme's compiled sheet is not in the JS test bundle, so those were
+measured on PRE by `insertRule` into the theme's own stylesheet — per the `CLAUDE.md` note
+that a `<style>` in `<head>` is not a faithful preview.
+
+**#86 — the metadata row had no space above it at all.** Ricardo, looking at the result:
+*"Las etiquetas y la/s categoria/s debajo del título amplia el espacio. Mismo margen que
+respecto a la raya inferior."* `.title-wrapper` is a wrapping flex container and core declares
+no `row-gap`, so the row sat flush against the title's line box. Measured: **0px above, 16px
+below**. Fixed with `row-gap: var(--space-4)` — the space belongs to the container's wrap, not
+to one of its items, and that row is not always a single item.
+
+**The first attempt at it was wrong, and the reason is the point.** It assumed the 16px below
+came from core's `#topic-title { padding: 0 0 1em }`. **That padding is not in force**: three
+rules target `#topic-title` in the compiled sheet and the one that wins is
+`{margin:0;padding:0}` — computed `padding-bottom` is `0px`. The 16px comes from
+`margin-bottom: 1em` in a different rule. Adding the padding on top produced **16 above and 32
+below**, the opposite of the ask. Both halves are now declared from `--space-4`, which makes
+the `margin-bottom` a no-op today and states the symmetry in one token instead of leaving it
+to be inferred from a value that was not where it looked. Same family as the phantom container
+query and the never-applied `--d-logo-height`: **a rule that reads correctly and is not the
+one doing the work.**
+
+**PRE pulled on its own, within 41 seconds.** Both merges were followed by a forced
+`remote_update`, but the first read showed PRE already at the merge commit with `updated_at`
+41s after it — Discourse Cloud is reacting to the push, not waiting for its next scheduled
+check. That does not retire the standing rule, it sharpens it: the number to read is
+`updated_at`, and here it was genuinely later than the commit. `remote_compat_ref` None
+throughout, `last_error_text` null after both, `local_version` `895d325` then `aab3a7b`.
+
+**`theme_version` is not in `/admin/themes/<id>.json`.** No field at the theme level carries
+it — the only version keys belong to `remote_theme`. So a release is confirmed by the SHA plus
+grepping the served stylesheet for the rules themselves, which is the stronger check anyway:
+`--d-tag-background-color: transparent` in the live sheet is what proves the old `--ga-muted`
+band is gone.
+
+**Verification.** `npx pnpm@10.28.0 lint` green on all five steps for both PRs; CI green on
+all five checks for both before merge, with #85's QUnit run counted test by test; live rules
+grepped out of the compiled theme sheet on PRE after each merge.
+
+**Open.** The reference screenshot never arrived — no attachment reached the session — so the
+work assumed *"aquí"* meant the example forum, on the evidence that core renders the tag row
+under the title unconditionally (`templates/topic.gjs:296`) and the theme does not hide it. If
+the icon ever appears under a title with no tags beside it, that assumption was false.
+
+`theme_version` 0.39.0.
