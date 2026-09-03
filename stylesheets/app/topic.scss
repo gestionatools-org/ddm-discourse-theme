@@ -59,6 +59,27 @@
 // surface, and they now live in `tagging.scss` — which is also where the icon
 // that introduces them, and its row ordering, are explained.
 
+// The metadata row under the topic title — category badge, tag icon, tags —
+// had no space above it at all: `.title-wrapper` is a wrapping flex container
+// and core declares no `row-gap`, so the row sat flush against the title's
+// line box. Measured on PRE: 0px above, 16px below.
+//
+// `row-gap` rather than a margin on `.topic-category`, because the space
+// belongs to the flex container's wrap, not to one of its items — and the row
+// is not always one item.
+//
+// Both gaps are declared from `--space-4` so the symmetry is stated once
+// rather than inferred. The 16px below is core's `#topic-title` margin, whose
+// `1em` is the same 16px today; restating it here is a no-op that keeps the two
+// sides equal if core ever moves its half.
+#topic-title {
+  margin-bottom: var(--space-4);
+
+  .title-wrapper {
+    row-gap: var(--space-4);
+  }
+}
+
 // The topic title is the page title of this surface, and page titles are the
 // one place the system spends Roboto Slab — "pierde su valor si se reparte"
 // (`AGENTS.md`). The hero title is the only other use in the theme, so the two
