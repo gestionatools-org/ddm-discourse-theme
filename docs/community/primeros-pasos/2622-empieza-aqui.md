@@ -2,6 +2,10 @@
 
 Esta es la comunidad de quienes participan en el programa de certificación **Administración Avanzada de Gestiona** de esPublico. Es un espacio cerrado: solo entra quien tiene cuenta, así que puedes preguntar con la confianza de estar entre compañeros que trabajan en lo mismo que tú.
 
+Me presento: soy **Ricardo Penalver**, director del programa de certificación *Administración Avanzada de Gestiona*. Estoy en esta comunidad desde el día que se abrió, en enero de 2024, y la administro junto al resto del equipo de esPublico.
+
+Si te pierdes por el foro, si algo no funciona como esperas, o si simplemente no sabes en qué categoría va tu pregunta, mencióname con @RicardoPG en cualquier hilo y te echo una mano.
+
 ## Qué puedes hacer aquí
 
 - **Preguntar y responder** en **Foro del Certificado**, que es donde se resuelven las dudas del día a día. Si tu pregunta ya la tuvo alguien, probablemente la respuesta esté ahí.
