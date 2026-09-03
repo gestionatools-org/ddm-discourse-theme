@@ -1,4 +1,4 @@
-Reportar no es denunciar a nadie. Es la forma más rápida de que un moderador mire algo. :triangular_flag_on_post:
+Reportar no es denunciar a nadie. Es la forma más rápida de que un moderador mire algo.
 
 ## Por qué reportarías algo
 
@@ -16,7 +16,7 @@ Si dudas, avisa. Descartar un aviso cuesta un minuto; encontrar por casualidad u
 ## Cómo se hace
 
 1. En el menú de los tres puntos, debajo de la publicación.
-2. Pulsa el icono de la bandera :triangular_flag_on_post:.
+2. Pulsa el icono de la bandera.
 3. Elige el motivo que mejor encaje.
 4. Confirma.
 

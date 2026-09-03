@@ -43,11 +43,15 @@ this instance are legacy and do not match the display names — category 4 is `c
 and shows as *Noticias* — so every internal link here is ID-keyed on purpose, and category
 references are plain bold text rather than `/c/<slug>` links.
 
-**No emoji in the titles.** They were published with them, copying Asana's pattern, and then
-stripped: topic 63 — the pre-existing post, and the house rule on this instance — advises
-against emoji as too informal, and a category cannot carry both conventions. The slugs never
-held the emoji, so nothing broke. Bodies still carry a few `:emoji:` shortcodes; that is
-unresolved.
+**No emoji, in titles or bodies.** They were published with them, copying Asana's pattern, and
+then stripped in two passes: topic 63 — the pre-existing post, and the house rule on this
+instance — advises against emoji as too informal, and a category cannot carry both
+conventions. The titles went first, then the six `:emoji:` shortcodes in the bodies of 2621,
+2622 and 2623. The slugs never held any, so nothing broke. Verified across all seven topics:
+no shortcodes and no literal emoji characters in either titles or first posts.
+
+The held draft keeps its `⚠️` review markers, which are notes to whoever publishes it rather
+than post content.
 
 ## Topic 4 is not a new topic
 
@@ -149,8 +153,6 @@ three thresholds, not the permission.
 - **The welcome post has no personal introduction.** Asana's is signed by the person who runs
   the forum, who presents themselves. That paragraph was cut rather than invented; the post
   works without it. It is the one gap with a real name on it.
-- **`:emoji:` shortcodes remain in the bodies** even though the titles were stripped. Same
-  tension with topic 63's advice, unresolved.
 - **Topics 5 and 2622 have nearly the same title.** Kept on purpose, but a reader browsing
   search results sees two welcomes.
 - **PROD has had none of this applied**, and its category IDs do not match: 34 unreorganised

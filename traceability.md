@@ -1499,3 +1499,27 @@ attaches the heredoc to `tail`, not to `gh`, so `gh` waits on stdin until the to
 two minutes lost and no PR. Write the body to a file and pass its path.
 
 `theme_version` unchanged: content and its record, no theme code.
+
+## 2026-09-03 — Emoji out of the bodies too (#90)
+
+Ricardo, immediately after #89: *"quita los emoji de los cuerpos también"*. The titles had been
+stripped in #89 on the strength of topic 63's own advice; the bodies had been left and recorded
+as an open item, which is what made it a one-line request rather than a rediscovery.
+
+Six `:emoji:` shortcodes across three posts — `:bell:` and `:slight_smile:` in 2621, `:wave:`
+and `:raised_hands:` in 2622, `:triangular_flag_on_post:` twice in 2623. The other four topics
+were already clean, **Ricardo's own topic 63 included**, which is consistent: the advice against
+emoji is his.
+
+**Edited from the live raw, not from the local copies.** `GET /raw/<topic>/1` then `PUT
+/posts/<id>.json` with the stripped text, so the edit could not clobber a divergence between
+repo and instance. Verified across all seven topics afterwards, by regex for shortcodes and by
+Unicode category `So` for literal characters: zero in titles, zero in bodies.
+
+**Pushing to a branch with auto-merge armed is a race worth not starting.** #89 sat at 4 of 5
+checks with `--auto` waiting; a push would either have joined the squash or missed it depending
+on when `system_tests` finished. Waited for the merge with an `until` loop on `gh pr view`, then
+branched from the new `main`. Cost about four minutes and removed the ambiguity entirely.
+
+The held terms draft lost the emoji from its suggested title and its closing line, and keeps its
+`⚠️` review markers — those are notes to whoever publishes it, not post content.
