@@ -1738,7 +1738,10 @@ them** — the same discipline the file already prescribes for telling duplicate
 **last** occurrence of each was kept, so the effective value under `source` is unchanged
 whatever the digests had said.
 
-`.env.local` now holds nine assignments, three `PROD_*` and six `PRE_*`, with no name twice.
+`.env.local` now holds **eight** assignments — three `PROD_*` and five `PRE_*` — with no name
+twice. *(Corrected: this said nine, three and six. The count was written from the summary
+rather than recounted from the file, which is the third miscounted figure of the day; see
+the note in #97.)*
 All four surviving keys re-probed by capability afterwards: 200 across the board, and
 `/admin/themes/15.json` still answers 200 through the Global key, which is what confirms the
 deduplicated URL and username pair still resolves.
@@ -1748,3 +1751,77 @@ so it stays out of the repo — `.env.local.bak` and `.env.bak` are both gitigno
 was checked before choosing where to put it.
 
 `theme_version` unchanged.
+
+## 2026-09-03 — What PROD actually looks like, before any migration plan (#97)
+
+Ricardo: *"replicaremos los posts en PRODUCCIÓN cuando procedamos a la migración. ¿qué queda
+pendiente?"* — asked before designing the plan, which is the right order. Measured over PROD's
+granular read-only key rather than assumed. No writes to PROD.
+
+**PROD's terms of service are the same self-disclaiming template, and they are live.** `/t/8`
+on PROD opens with *"Cámbiame"* and states that the conditions *"no regulan el uso del foro"*.
+This was found on PRE first and assumed to be a pre-production artifact. **It is not.** The real
+community's `/tos` disclaims itself, and has since long before any of this work. That is the
+single finding here that matters independently of the migration.
+
+`/t/9` (privacy) carries no placeholder markers. `/t/4` on PROD is still **Discourse's default
+guidelines** — "un lugar civilizado para la discusión pública" — exactly as PRE's was.
+
+**The onboarding set has no destination on PROD.** There is no *Primeros pasos* category.
+PROD's 78 is *"Nuevos usuarios certificados · Pósters"*, a **subcategory of 4**, with 164
+topics — the pre-reorganisation state PRE left behind. So replication requires a taxonomy
+decision first: replay phase 4 there (rename 78, promote it, move its 164 announcements into 5),
+or create a new category and leave 78 alone. Not a content decision, and it gates everything
+else.
+
+**Every category name the posts cite in prose differs on PROD:**
+
+| in the posts (PRE) | on PROD | id |
+|---|---|---|
+| Foro del Certificado | **El** foro del Certificado | 5 |
+| Eventos | Eventos **certificación** | 59 |
+| Comparte | Recursos y proyectos compartidos (0 topics) | 85 |
+| Noticias | Te contamos… | 4 |
+| Tengo una idea | Tengo una idea, but a **subcategory** | 18 |
+
+**The ID-keyed links survive and the prose does not** — which is the whole argument for the
+ID-keying convention, met from the other side. `/c/5`, `/c/59` and `/t/-/4` resolve on both
+instances; the bold names have to be retouched one by one.
+
+**PROD's granular key cannot reach admin routes**, so four things the posts depend on are
+unverified there: `/admin/site_settings.json` → **404**, `/u/<username>.json` → **403**,
+`/admin/users/list/staff.json` → **404**.
+
+- `flag_post_allowed_groups` — the reporting post is only true if trust level 1 can flag. On
+  PRE it was staff-only and had to be opened.
+- `tl1_requires_topics_entered` / `_read_posts` / `_time_spent_mins` — that post quotes 50 / 250
+  / 180, which are **PRE's** numbers.
+- whether mail leaves the instance — the notifications post shipped without its email paragraph
+  precisely because this could not be verified.
+- Ricardo's profile — the welcome post's introduction was built from his PRE `title`.
+
+An admin-scoped PROD key, or the admin UI, is needed for all four. **`/t/<id>.json` does read**
+with the granular key, same as on PRE, which is how the four documents above were inspected.
+
+**What replays unchanged:** the in-place rewrite of `/t/4`, since PROD's is still the stock
+document wired to `/faq` and `/guidelines`; and both decisions about `/t/5` and `/t/63`, which
+exist on PROD with the same IDs and both in category 4.
+
+**Still open besides the taxonomy:** the terms themselves, which no one should draft but
+esPublico's legal criterion; PROD's own creation date, before repeating the backdating (PRE's
+2024-01-15 may not apply); who publishes, since the current PROD key cannot write; and the fact
+that PROD has had **nothing** applied — not the theme, not the reorganisation, not the category
+background cleanup. The posts are the small part.
+
+**Credentials hygiene.** The pre-edit copy of `.env.local` made in #95 was deleted from the
+session scratchpad once the four surviving keys had been re-probed at 200. A backup of a
+credentials file is worth making for an irreversible edit and worth removing the moment the
+edit is verified; leaving one in a temp directory outlives the session that owns it.
+
+**A third miscounted figure, same day.** `.env.local` was reported as holding **nine**
+assignments — "three `PROD_*` and six `PRE_*`" — in the summary, in #95's entry and in
+`CLAUDE.local.md`. It holds **eight**: three `PROD_*` and five `PRE_*`. The number was written
+from the running summary instead of recounted from the file, which is the same failure as the
+"eight absolute links" that were 361 and the sample that read 14 alive as 14 dead. All three
+were arithmetic or parsing done once and then quoted, never re-derived. **Quote a figure only
+from the command that produced it, in the message that produces it.**
