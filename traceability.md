@@ -1201,3 +1201,64 @@ manual layout pass (bento at three container widths, podcast playback end to end
 backend + system specs) green on each before merge.
 
 `theme_version` 0.36.0.
+
+## 2026-09-03 — The site header grows to 4.5em (#83)
+
+**The ask.** Ricardo: *"me gustaría ampliar la altura del menú de la cabecera. Así destacaría
+un poco más de la franja superior de datos."* Classified **bounded** — one SCSS file, no spec.
+
+**Measured before proposing anything**, on PRE at 1440×900 with the compiled theme sheet:
+strip 41px, header 52px, logotype 36.8px with 7.6px of air either side. Two facts came out of
+that pass that were not in the ask and outlive it:
+
+- **The site runs core's `uc-modernize-foundation-theme` layer**, which redeclares header
+  height (`3.25em`), icon sizes and `--d-logo-height` (`2.3em`) *under* the theme, all wrapped
+  in `:where(…)`. Any future override of the header is played against that layer, not against
+  the core CSS one would expect to find. `:where()` adds no specificity, so a plain `.d-header`
+  rule **ties at (0,1,0) and wins on order** — the theme's compiled sheet is the last unlayered
+  stylesheet on the page. That is the CLAUDE.md cascade note holding up in practice, and it is
+  what `discourse-central-theme` and `discourse-air` both rely on.
+- **The root font size is 16px, not 13px.** Several theme comments compute their `em` values
+  against 13px; the numbers they quote are wrong even where the rules do the right thing.
+  `header.scss`'s old block was one of them ("Core's 2.4em resolves to ~38px").
+
+**`--d-logo-height: 2.75em` on `:root` had never once applied.** Core redeclares it on
+`.d-header .title`, which sits closer to the `<img>`, so the logotype rendered at core's
+`2.3em` — 36.8px, 188px wide — rather than the 44px its own comment spent eleven lines
+arguing for. Fixed by moving the declaration to the selector core uses. Same family as the
+homepage's phantom container query: a rule that read correctly and did nothing.
+
+**Shipped.** `.d-header { height: 4.5em }` and `.d-header .title { --d-logo-height: 2.75em }`,
+both inside `viewport.from(sm)`. Below 640px the header carries the logo, the search field and
+the user icons with no destination links to give up, and 72px over the strip's 41px would take
+113px off an 844px phone — core's 52px is right there. The strip itself is untouched: it stays
+level with the page floor, because `topbar.scss` rejected painting it in writing (three tones
+in the top 90px compete to be read as the topmost thing), which leaves height and the header's
+shadow as the only levers.
+
+**Nothing had to follow it by hand.** Core measures `.d-header-wrap` with an observer and
+writes `--header-offset`, so the sticky sidebar, the topic timeline and the composer moved
+with it: 93px → 113px, and `#main-outlet` starts at exactly 113.
+
+**Verified live on PRE**, after forcing `remote_update` (`local_version` `c05ce31` = tip of
+`main`, `remote_compat_ref` None):
+
+| viewport | strip | header | logotype | `--header-offset` | overflow |
+|---|---|---|---|---|---|
+| 1440 | 41px | **72px** | **44px** (225px wide) | 113px | no |
+| 700 | 41px | 72px | 44px | 113px | no |
+| 375 | 41px | 52px | 38.4px (`2.4em`, core's) | 93px | no |
+
+The 700px row is the one that matters beyond the headline: it proves the gate fires at `sm`
+and not at `lg`.
+
+**The Playwright MCP server will not write outside the repo.** `.playwright-mcp/` (gitignored)
+and the repo root are its only allowed paths — the scratchpad is refused outright. So the
+standing "screenshot to the scratchpad" rule cannot be satisfied in one step: capture into
+`.playwright-mcp/`, then move the file out. `git status` stays clean either way.
+
+**Verification.** `npx pnpm@10.28.0 lint` green on all five steps; CI green on #83 before
+auto-merge. No test covers header geometry — `core_features_spec.rb` does not reach it and
+QUnit has no layout assertions — so the live measurement above is the only net this has.
+
+`theme_version` 0.37.0.
