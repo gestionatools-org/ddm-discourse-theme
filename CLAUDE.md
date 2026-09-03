@@ -169,7 +169,7 @@ Rules that are enforced by review, not by tooling:
 - `common.scss` imports **folders only**, never individual files. Each folder's `_index.scss` imports its own files, so adding a file touches exactly one `_index.scss`.
 - Only `_index.scss` carries the underscore prefix.
 - **Never write a raw media query.** Use `viewport.from(lg)` / `viewport.until(sm)` / `viewport.between(sm, md)`. Breakpoints: `sm` 640px, `md` 768px, `lg` 1024px, `xl` 1280px, `2xl` 1536px.
-- BEM with standalone `--modifier` classes (`.topic-card__title.--highlighted`, not `.topic-card__title--highlighted`) and `is-`/`has-` state prefixes. One BEM block per Ember component.
+- BEM with standalone `--modifier` classes (`.topic-card__title.--highlighted`, not `.topic-card__title--highlighted`) and `is-`/`has-` state prefixes. One BEM block per Ember component — **except a shared base**: when several components render the same surface, the root may carry two blocks, a base (`highlight-card`) styled once for the shared chrome and a component-specific block (`highlight-content` / `highlight-podcast` / `highlight-member`) for what differs. The base owns `__body`, `__title`, `__media`, `__cta`, `__placeholder`; the variant blocks add only their own elements. The homepage highlights section is the precedent (`stylesheets/blocks/block-highlights.scss`). Do not reach for this to avoid a modifier — it is for a genuine shared surface across three-plus components, not a single component with states.
 - Prefer overriding core CSS custom properties over redeclaring rules. Use `light-dark()` for brand tokens so one token serves both palettes.
 
 #### Test a cascade override in the compiled theme sheet, never from the console
