@@ -38,10 +38,16 @@ Verified after: none of them on page 1 of `/latest`.
 Topic 4 was already dated 2024-01-15 — it is Discourse's own document — so it needed no
 backdating.
 
-The guidelines are the hub: they link the other posts by **topic ID**, not by slug. Slugs on
-this instance are legacy and do not match the display names — category 4 is `comunidad-expertos`
-and shows as *Noticias* — so every internal link here is ID-keyed on purpose, and category
-references are plain bold text rather than `/c/<slug>` links.
+The guidelines are the hub: they link the other posts by **topic ID**, not by slug, and category
+references are plain bold text or `/c/<id>` links.
+
+That convention was originally justified by the slugs being legacy and not matching the display
+names. **That is no longer true and the note was corrected**: measured 2026-09-03, only
+category 3 still mismatches (`Administradores` → `moderadores`); 4 is `noticias`, 5 is
+`foro-del-certificado`, 78 is `primeros-pasos`. The convention stands on a better reason —
+**slugs get renamed and IDs do not**. Category 5's slug used to be `grupos-de-trabajo`, and
+`/c/grupos-de-trabajo/5` still 301s to the current path only because the ID is in it. A link
+keyed on the slug alone would have broken.
 
 **No emoji, in titles or bodies.** They were published with them, copying Asana's pattern, and
 then stripped in two passes: topic 63 — the pre-existing post, and the house rule on this
@@ -49,6 +55,10 @@ instance — advises against emoji as too informal, and a category cannot carry 
 conventions. The titles went first, then the six `:emoji:` shortcodes in the bodies of 2621,
 2622 and 2623. The slugs never held any, so nothing broke. Verified across all seven topics:
 no shortcodes and no literal emoji characters in either titles or first posts.
+
+Topic 5 followed in a third pass — it sits outside the category and had been left alone until
+then. Its `:wave:` came out of the title; its body's three `:emoji:` were doing structural
+work as bullet markers, so they became a real `-` list rather than being deleted.
 
 The held draft keeps its `⚠️` review markers, which are notes to whoever publishes it rather
 than post content.
@@ -83,6 +93,15 @@ just covered. **Both were there before any of this**, and neither was noticed wh
   kept**: 5 stays in *Noticias* as the historical welcome, 2622 is the category's entry point.
   Its links already point the right way — `/faq` now serves the new guidelines, and its
   "debate útil" link goes to 63.
+
+  **Its body pointed at a category that no longer exists.** It told new members to ask in
+  `#sugerencias-sobre-el-sitio` — category **2**, deleted in phase 4 of the reorganisation.
+  Discourse renders an invalid hashtag as plain text (`data-valid=false`, no background, no
+  padding), so it did not even look like a broken link. Repointed to
+  [Foro del Certificado](/c/5). The live categories are 3, 4, 5, 14, 18, 59, 73, 75, 78, 85 —
+  worth checking any hashtag written before the reorganisation against that list.
+  Body versioned here as `0005-te-damos-la-bienvenida.md`, though the topic lives in
+  *Noticias*, not in this category.
 
   The two started out with the same title **and the same slug**,
   `te-damos-la-bienvenida-a-gestiona-avanza`, distinguished only by ID. Discourse permits

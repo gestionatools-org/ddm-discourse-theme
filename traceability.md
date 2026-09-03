@@ -1546,3 +1546,38 @@ deliberately uses IDs everywhere else for exactly that reason.
 
 Topic 5 keeps its `:wave:` in the title. It is outside the category, `system`-authored, and
 kept as the historical welcome by decision, so the emoji pass never covered it.
+
+## 2026-09-03 — The stock welcome topic, and a dead category hashtag in it (#92)
+
+Ricardo: *"quita el emoji del título de /t/5"*, then *"sí, lista con negritas y apunta a Foro
+del Certificado"*. Topic 5 is Discourse's stock welcome, `system`-authored, in category 4, and
+had been left alone by the two earlier emoji passes because it sits outside *Primeros pasos*.
+
+**Its title emoji came out; its body's three did not just come out.** `:speaking_head:`,
+`:handshake:` and `:face_with_monocle:` opened the three "cosas que puedes hacer para empezar"
+paragraphs — they were **bullet markers, not decoration**, so deleting them would have left
+three loose paragraphs. They became a real `-` list instead. Verified in the cooked HTML: one
+`<ul>`, three `<li>`, zero emoji images.
+
+**And reading that body turned up a dead pointer.** It told every new member to ask in
+`#sugerencias-sobre-el-sitio` — **category 2, deleted in phase 4** of the reorganisation.
+Confirmed with the Global key, which sees restricted categories: the live set is
+`3, 4, 5, 14, 18, 59, 73, 75, 78, 85`. **Discourse renders an invalid hashtag as plain text**
+(`data-valid=false`, background and padding unset), so it did not even read as a broken link —
+it read as a category name that simply led nowhere. Repointed to
+`[Foro del Certificado](/c/5)`; zero `data-valid="false"` left in the cooked post.
+
+Any hashtag written before the reorganisation is suspect the same way, and the check is one
+call against the ID list above.
+
+**The slug justification in the set's README was out of date and got corrected.** It said the
+slugs are legacy and do not match the display names, citing category 4 as `comunidad-expertos`.
+Measured today: 4 is `noticias`, 5 is `foro-del-certificado`, 78 is `primeros-pasos`, and
+**only category 3 still mismatches** (`Administradores` → `moderadores`; 14 and 73 differ only
+by accent normalisation). The ID-keyed convention stands on a better reason — **slugs get
+renamed and IDs do not**: category 5 used to be `grupos-de-trabajo`, and
+`/c/grupos-de-trabajo/5` still resolves *only because the ID is in the path*. A slug-only link
+would have broken.
+
+`/c/<id>` on its own works too: `/c/5` 301s to `/c/foro-del-certificado/5`. That is the form
+now used in member-facing copy.
