@@ -34,7 +34,9 @@ También en cualquier hilo donde alguien está bloqueado con un plazo encima. Ah
 
 ---
 
-Si te interesa el tema, las dos lecturas son cortas y envejecen bien:
+En esta misma categoría está [Construir un debate útil](/t/construir-un-debate-util/63), que es la otra mitad: diez consejos sobre **cómo escribir** en un foro — tono, extensión, no repetir, citar fuentes. Esto de aquí va de **cómo discrepar**. Merece la pena leer los dos.
+
+Si te interesa el tema, las dos lecturas de fondo son cortas y envejecen bien:
 
 - Paul Graham, [How to Disagree](https://www.paulgraham.com/disagree.html) (2008)
 - Jeff Atwood, [Civilized Discourse Construction Kit](https://blog.codinghorror.com/civilized-discourse-construction-kit/) (2013)
