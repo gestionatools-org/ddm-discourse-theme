@@ -1,0 +1,110 @@
+// Tags, on every surface that renders them: under a topic title, at the foot of
+// a topic, in a listing's bottom line, on /tags.
+//
+// The three tokens below used to sit in `topic.scss`, which was the wrong
+// address — they are global, and the thread surface was simply the place the
+// need first came up.
+:root {
+  // Outlined rather than filled. The `tag` icon that now introduces the row
+  // (`topic-tags-icon.gjs`) already says "these are tags", so a filled chip
+  // spends surface without buying meaning. The filled version this replaces
+  // was worse than a plain chip: it set `--ga-muted` as a background while
+  // core's `--d-tag-horizontal-padding: 0em` was still in force, so the band
+  // sat flush against the glyphs and read as a marker stroke.
+  --d-tag-background-color: transparent;
+  --d-tag-border-radius: var(--d-border-radius);
+  --d-tag-font-weight: 400;
+
+  // Core ships `0em`, which leaves a tag with a surface of its own no room to
+  // stand in. 0.5em / 0.15em lands on core's own `.box` padding (2px 8px) at
+  // the step tags actually render at, expressed in em so it holds if the step
+  // changes.
+  --d-tag-horizontal-padding: 0.5em;
+
+  // Core's own hook for tag text. Overriding the property rather than
+  // declaring `color` keeps core's `:visited` and `:hover` rules resolving to
+  // whatever this theme sets, instead of racing them on specificity.
+  --tag-text-color: var(--ga-muted-fg);
+}
+
+// (0,2,0) — one class above core's `.discourse-tag`, so this outranks core
+// rather than tying it. `border` has no custom property to override.
+.discourse-tags .discourse-tag {
+  border: 1px solid var(--ga-border);
+
+  // Core sets `padding: 0 var(--d-tag-horizontal-padding)`, so the block axis
+  // has to be reopened by a longhand of higher specificity.
+  padding-block: 0.15em;
+
+  &:hover {
+    // `--tertiary` is the action colour, declared once in `about.json` and
+    // inverted between palettes — see `topic.scss` for why the theme reaches
+    // for it rather than a token of its own.
+    --tag-text-color: var(--tertiary);
+    border-color: var(--tertiary);
+  }
+}
+
+// With `tag_style: simple` core puts a literal comma between tags
+// (`lib/render-tags.js` → `.discourse-tags__tag-separator`). Between two
+// outlined chips that reads as a typo, and the `<ul>`/`<li>` structure already
+// carries the separation for a screen reader, so a gap replaces it.
+.discourse-tags {
+  gap: var(--space-1);
+}
+
+.discourse-tags__tag-separator {
+  display: none;
+}
+
+// The tag row under a topic title.
+//
+// The icon rides in the `topic-category` outlet, which core renders *last* in
+// this flex row — after the tags it is meant to introduce. `order` puts it back
+// in front without replacing any of core's markup, which the alternative
+// (a connector on `topic-category-wrapper`) would have required.
+//
+// Both guards are load-bearing. The outer one keeps a topic with no tags
+// pixel-identical to core: the outlet's wrapper `<span>` exists whether or not
+// anything renders into it, and an empty flex item still earns a `gap`, so
+// nothing may take an `order` until the icon is really there. The inner one
+// picks that wrapper out from the category badge, which is also a direct-child
+// `<span>` (`.badge-wrapper`).
+.topic-category:has(.topic-tags-icon) {
+  > span:has(.topic-tags-icon) {
+    order: 1;
+  }
+
+  .topic-header-extra {
+    order: 2;
+  }
+}
+
+.topic-tags-icon {
+  display: inline-flex;
+  align-items: center;
+
+  .d-icon {
+    color: var(--ga-muted-fg);
+
+    // The tags themselves sit inside core's `.list-tags`, which steps them down
+    // to `--font-down-1`. The icon is outside it, so it takes the same step by
+    // hand or it reads a size larger than the row it introduces.
+    font-size: var(--font-down-1);
+  }
+}
+
+// The tag row at the foot of a topic, above the reply/bookmark/share buttons.
+// It carries the step itself rather than borrowing `.list-tags`, whose styling
+// is written for the inline flow of the header row.
+.topic-footer-tags {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-block: var(--space-4);
+  font-size: var(--font-down-1);
+
+  .d-icon {
+    color: var(--ga-muted-fg);
+  }
+}

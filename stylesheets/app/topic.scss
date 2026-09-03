@@ -53,15 +53,11 @@
   // action colour at rest rather than waiting for a hover to earn it.
   --d-post-control-create-icon-color: var(--tertiary);
   --d-post-control-create-text-color: var(--tertiary);
-
-  // --- Tags ---------------------------------------------------------------
-  // Corporate radius scale, muted surface. Weight stays at the body register:
-  // a tag is a label, not a title, and 700 here would compete with the topic
-  // title two lines above it.
-  --d-tag-background-color: var(--ga-muted);
-  --d-tag-border-radius: var(--d-border-radius);
-  --d-tag-font-weight: 400;
 }
+
+// Tags used to be dressed from here. They are global, not part of the thread
+// surface, and they now live in `tagging.scss` — which is also where the icon
+// that introduces them, and its row ordering, are explained.
 
 // The topic title is the page title of this surface, and page titles are the
 // one place the system spends Roboto Slab — "pierde su valor si se reparte"
