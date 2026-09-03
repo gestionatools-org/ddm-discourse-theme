@@ -1450,3 +1450,52 @@ readers rather than at maintainers.
 the welcome post (cut rather than invented), the email paragraph, and every screenshot. PROD has
 had none of this applied and its category IDs do not match — 34 unreorganised categories, its
 own three legal documents to inspect, and every internal link to re-key.
+
+## 2026-09-03 — Backdating the set, and the two topics it already had (#89)
+
+Follow-up to #88, same afternoon. Ricardo: *"los temas de primeros pasos se han publicado con
+fecha actual y por eso aparecen en la lista de recientes. ¿los puedes publicar con fechas
+antiguas, de cuando se creo el foro?"*
+
+**The forum opened 2024-01-15** — topics 1 to 10 are all from that day. The five new topics
+moved back to the days after it, welcome on the day itself and the guides over the two
+following, in reading order. `PUT /t/<id>/change-timestamp.json` takes a Unix epoch and moves
+`created_at` on **both the topic and its first post**, and `bumped_at` with them — which is
+what `/latest` orders by, and therefore what made them read as news. Verified after: none of
+them on page 1 of `/latest`. Topic 4 needed nothing; as Discourse's own document it was already
+dated 2024-01-15.
+
+**Looking up that date is what found the two topics the category already had**, neither of
+which had been noticed while writing six posts to cover the same ground:
+
+- **Topic 63, *Construir un debate útil*** — 4.8 KB of advice on writing in a forum,
+  **authored by Ricardo in January 2024**, closed, in category 4, and **already linked from the
+  stock welcome topic**. So the request *"busca un post sobre la construcción de un debate
+  online y añádela"* most likely meant *find the one that exists and add it to the category* —
+  and it was read as *go find an external reference and write one*. The external post (2624,
+  Graham's disagreement hierarchy) had already been published by then. They turned out to be
+  genuinely complementary — 63 is **how to write**, 2624 is **how to disagree** — so both stay,
+  63 moved into the category, and each cites the other. Ricardo's text was not edited; only a
+  `Ver también` line appended.
+- **Topic 5, *¡Te damos la bienvenida a Gestiona Avanza!*** — Discourse's stock welcome,
+  lightly customised, by `system`, 164 views, nearly the same title as the new 2622. Both kept
+  by decision.
+
+**Three times in one session, the place already existed.** Topic 4 (`/faq` + `/guidelines`),
+topic 63, topic 5. Only the first was caught before publishing, and only because the guidelines
+had to be checked for boilerplate anyway. **The cheap check that would have caught all three is
+two calls** — the destination category's listing, and `/search.json?q=<title>` — and neither was
+made until the third one turned up by accident. Worth doing before writing community content,
+not after.
+
+**The emoji came back out of the titles.** Published with them, copying Asana; stripped once
+topic 63 surfaced, because its advice nº 3 calls emoji too informal and one category cannot
+carry both conventions. The slugs never held the emoji, so no link broke — `retitle` left every
+`slug` identical. Bodies still carry `:emoji:` shortcodes, which is unresolved and recorded as
+such.
+
+**A `gh` invocation to be careful with.** `gh pr create --body-file - 2>&1 | tail -2 <<'BODY'`
+attaches the heredoc to `tail`, not to `gh`, so `gh` waits on stdin until the tool times out —
+two minutes lost and no PR. Write the body to a file and pass its path.
+
+`theme_version` unchanged: content and its record, no theme code.
