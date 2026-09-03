@@ -1581,3 +1581,87 @@ would have broken.
 
 `/c/<id>` on its own works too: `/c/5` 301s to `/c/foro-del-certificado/5`. That is the form
 now used in member-facing copy.
+
+## 2026-09-03 — Auditing every hashtag and absolute link on PRE (#93)
+
+Ricardo, after the dead hashtag in topic 5: *"revisa los hashtags de otros posts"*.
+
+**The answer is clean: one cooked hashtag in the whole instance, and it is valid.** 5310 posts
+scanned across 107 pages; the only `hashtag-cooked` anchor is `/tag/app/207` in topic 180, a
+tag hashtag. The `#sugerencias-sobre-el-sitio` in topic 5 was the only dead one there has ever
+been, and it was already fixed. This community barely uses category hashtags, so that was an
+anomaly rather than the tip of anything.
+
+**Two methods failed first, and both failures are worth keeping.**
+
+- **`#slug` in a search query is a category filter, not literal text.** `q=#tengo-una-idea`
+  returns 50 posts *from* that category, not the posts that mention it. It is the same
+  `#category` syntax documented in the search guide, and as a hashtag detector it produces a
+  100% false-positive rate.
+- **Searching a dead slug as plain text finds the topics that used to live in that category.**
+  `blog` alone returns **0** posts; `blog-gestiona` returns **9** — and none of the nine
+  contains that string. They are the topics that were in category 66 *Blog Gestiona*, deleted
+  in phase 4: **`search_data` retains the old category name and slug**. Same for
+  `cafe-con-certificados` (8 topics, category 87) and `grupos-de-trabajo` (topic 180, category
+  5 before its rename). Useless for finding hashtags, genuinely useful as archaeology — it
+  answers "what used to be in this category" after the category is gone.
+
+**The tool that works is `/posts.json` with `before=<id>`.** It returns 50 posts per page
+**with `cooked` and `raw`**, and walks backwards over every post on the site. 107 pages, ~4
+minutes at 1.15s between calls. That is the way to ask any "does this appear anywhere" question
+about post content on an instance with no Data Explorer plugin — which this one does not have.
+
+**The id in a category path is what saves a renamed link.** Measured:
+
+| URL | result |
+|---|---|
+| `/c/documentacion-analiza/73` | **301** → `/c/recursos-analitica/73` |
+| `/c/documentacion-analiza` | **404** |
+| `/c/comunidad-expertos/4` | **301** → `/c/noticias/4` |
+| `/c/comunidad-expertos` | **404** |
+| `/c/analitica-datos/50` | **404** — category deleted on PRE |
+
+`/c/<id>` alone works too, **including for subcategories**: `/c/79` → 301 →
+`/c/recursos-analitica/tecnicas-y-expresiones-basicas/79`. That is what lets one link work on
+both instances even though category 73's slug differs between them — `recursos-analitica` on
+PRE, `documentacion-analiza` on PROD.
+
+**Two links were fixed, and only two.** Topic 343's *Eventos* link pointed at category **27,
+which exists on neither instance** — dead since before the reorganisation, repointed to
+`/c/59`. Topic 2168 is the Analítica resources index and all eight of its links were absolute
+PROD URLs, so every entry in a navigation index took the reader off the instance; they are now
+`/c/<id>`. Eleven links, two writes.
+
+**361 absolute PROD links remain, in 217 topics, and they should stay.** 325 of them are `/t/`
+links; a random sample of 14 checked against PROD with its own key came back **14 alive, 0
+dead**. They are not broken — this content was authored on PROD and PRE is a copy, so an
+absolute URL is the natural artifact of pasting a link on the real site.
+
+The reason not to clean them is a measured cost this repo already paid: **a topic write clears
+its list thumbnail**, by either API route, and a rebake does not restore it. Editing 217 topics
+would destroy up to 217 thumbnails irreversibly so that links which already work stop being
+absolute. And PRE being a copy means new content keeps arriving with absolute links, so it is a
+cleanup that never finishes. The two that were fixed earned it on different grounds: one was
+genuinely dead everywhere, the other was a navigation index.
+
+**Two numbers were reported wrong before being checked, and both are worth recording.**
+
+- **"Eight absolute PROD links"** came from a scan that only looked at `/c/` hrefs. The real
+  figure is 361. A partial scan reported as a total.
+- **A sample check said "14 of 14 dead" and the truth was 14 of 14 alive.** A
+  `while read … done < file` loop lost `PATH`, so `curl` never ran; every iteration returned an
+  empty status code, which the comparison read as dead. The `command not found` lines in the
+  output were the only clue. Re-run with `/usr/bin/curl`: zero dead. **A status-code check must
+  treat an empty code as a broken check, not as a broken link.**
+
+**And a category count in this session was wrong.** The live set was reported as
+`3, 4, 5, 14, 18, 59, 73, 75, 78, 85`. **PRE has 17 categories**: the seven children of 73
+(79–84, 88) were missing because `categories.json` nests children under `subcategory_list` and
+the parse only read the top level. It did not change the topic-5 conclusion — category 2 is
+genuinely gone — but the list was stated as fact.
+
+**`CLAUDE.local.md` has this backwards and needs a one-line fix:** it says category 1 *Sin
+categoría* exists on PRE and not on PROD. Measured today, PROD carries 35 category ids
+including 1, and PRE does not have it. It is the reverse.
+
+`theme_version` unchanged: an audit and its record, no theme code.
