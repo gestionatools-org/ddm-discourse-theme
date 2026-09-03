@@ -1127,3 +1127,77 @@ only. No instance touched — the PR stays a draft for the whole-branch review; 
 is a separate, explicit decision for the maintainer.
 
 `theme_version` 0.36.0.
+
+## 2026-09-03 — Highlights: whole-branch review, restyle as a band, ship
+
+**The branch.** `feat/homepage-highlights-section` again — from the whole-branch review
+through to merge. Three PRs landed: **#79** (`51de87e`, the section), **#80** (`48a18c8`, a
+`CLAUDE.md` edit), **#81** (`7d3ec21`, a colour revert). All under `theme_version` **0.36.0**
+— the restyle and the fixes shipped inside the one version the feature was already carrying.
+
+**The SDD whole-branch review** returned one Important finding — a stale header comment in
+`api-initializers/homepage-blocks.gjs` still describing the page as "band and then section 1"
+— plus a stack of minors. One fix wave cleared nine of them (the `:empty` collapse for the
+band wrapper, `aria-hidden`+`tabindex="-1"` on the decorative avatar link, a pinned iframe
+`src` in the test, a real definition-topic-filter test, a `rankTopMember` tie test, dead
+`__media` DOM on the compact card, `<:loading>` slots). The tenth — the spec's `<img onerror>`
+→ placeholder swap for a 404'd YouTube thumbnail — was **left unbuilt**: an `{{on "error"}}`
+handler raced the rendering tests' synchronous `src` assertions. `hqdefault` is served even
+for removed videos, so the miss is rare; the spec's edge-case table now says so rather than
+claiming behaviour that isn't there.
+
+**An offline preview caught a real layout bug.** `npx sass@1.80.0` compiles the whole theme
+sheet (`common/common.scss` with a stub `lib/viewport` and the injected asset vars) — and
+unlike corepack it fetches fine through the Fortinet proxy. Driven against a static harness
+of the four cards, it showed the bento **stacking all four cards on top of each other below
+40rem** and in the `--count-3`/`--count-2` layouts. Cause: the `.block-highlights__cell`
+`grid-area` rules were unconditional, but `grid-template-areas` only exists inside the
+`--count-4` container queries — and a `grid-area` naming an area that does not exist does
+**not** fall back to `auto`, it mints implicit line names that collapse the grid. Fix
+(`3775f4d`): the `grid-area` assignments moved inside the container queries that define the
+areas; everywhere else the cells flow in source order down the auto-fit column.
+
+**Section 2 restyled as a full-bleed band.** Ricardo: *"vamos a darle el mismo diseño que a
+las cabeceras de las categorías … el mismo color de fondo … la misma tipografía."* So the
+section dropped `lane-frame` / `lane-header` / `lane-title` and the star icon, and took the
+`.page-hero` treatment instead: the `box-shadow: 0 0 0 100vmax` + `clip-path` bleed (already
+proven safe inside `.homepage-blocks`' `container-type: inline-size` by the hero band itself),
+`--ga-muted` surface, and the `.page-hero__title` type — Roboto Slab, `--font-up-4`
+(`--font-up-2` below 40rem). A cyan `--ga-accent-surface` tint shipped in #79 and was
+reverted the same day in #81 — Ricardo wanted the band to match the hero exactly, not carry
+its own colour. A single `--highlights-air` custom property drives the band's `padding-block`
+*and* the header's `margin-bottom`, so the air above the title, between it and the cards, and
+below the cards is provably equal (`--space-12` / `--space-8` by width). No subtitle.
+
+**`CLAUDE.md` — the shared-base BEM pattern is now blessed** (#80). "One BEM block per Ember
+component" gains an explicit exception: a base block (`highlight-card`) styled once for the
+shared card chrome plus a component-specific block (`highlight-content` / `-podcast` /
+`-member`) on the same root. Guardrailed — it is for a genuine surface shared across
+three-plus components, not a way to dodge a modifier.
+
+**Shipped, and live on PRE.** Each merge forced a `remote_update`; `local_version` tracked
+`main` (`51de87e` → `48a18c8` → `7d3ec21`), `remote_compat_ref` None throughout. The section
+renders for every PRE user.
+
+**Tag setup on PRE, Ricardo's, verified over the API:**
+
+- The `podcast` / `newsletter` overlap the design had deferred to "tag hygiene" was real —
+  all six `podcast` topics also carried `newsletter`, so both cards resolved to the same
+  newest topic (2597). Ricardo normalised: no `podcast` topic carries `newsletter`. Then the
+  `newsletter` tag was moved onto **2592** *"Newsletter 14 Gestiona Avanza julio 2026"* (the
+  main issue) — `PUT /t/-/2592.json` with the granular `PRE_TAG_API_KEY`, `podcast` dropped
+  in the same write. 2592 had no list thumbnail, so the known write-clears-`image_url` cost
+  did not apply.
+- **Now:** newsletter card → 2592, podcast card → 2597 (which carries the YouTube
+  `data-video-id`, so the inline player works). `nueva-version-gestiona` exists but has **0
+  topics**, so the *novedad* card shows "Próximamente" until a release announcement is tagged.
+  The member card shows its CTA — PRE's 30-day directory is still all zeros.
+
+**Still not verifiable on PRE:** the populated member card (no live data), and the full
+manual layout pass (bento at three container widths, podcast playback end to end, the
+`:empty` collapse with all three tags cleared). PROD has had nothing applied.
+
+**Verification.** `npx pnpm@10.28.0 lint` green on all five for every PR; CI (lint + QUnit +
+backend + system specs) green on each before merge.
+
+`theme_version` 0.36.0.
