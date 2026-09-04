@@ -922,14 +922,20 @@ curl -sSL -H "Api-Key: $PRE_DISCOURSE_GLOBAL_API_KEY" -H "Api-Username: $PRE_DIS
 python3 -c "
 import json
 a = {x['name']: x['count'] for x in json.load(open('/tmp/tags.json'))['tags']}
+queue = a.pop('pendiente-etiquetar', None)
 low = sorted((c, n) for n, c in a.items() if c < 3)
-print(f'tags: {len(a)}  minimum uses: {min(a.values())}')
-print('below 3:', low or 'none')"
+print(f'tags: {len(a)} (excluding the queue)  minimum uses: {min(a.values())}')
+print('below 3:', low or 'none')
+print('pendiente-etiquetar:', queue, '(a working queue — exempt)')"
 ```
 
 Expected: `below 3: none`. The two renamed tags keep their topics, so the only way this
 regresses is if a group creation invented an empty tag — which Task 3 Step 2 is written to
 catch. If one appears, delete it and re-run `bin/tags-verify`.
+
+**`pendiente-etiquetar` is exempt from this assertion** and reported separately: its count is
+data about how much remains unclassified, not a signal about vocabulary quality, and it can
+legitimately land below 3.
 
 - [ ] **Step 3: Check the theme's three tag settings still resolve**
 
