@@ -1,0 +1,424 @@
+{
+ "adviento": [
+  {
+   "topic": 1108,
+   "title": "Llega la navidad a la comunidad Gestiona Avanza"
+  }
+ ],
+ "turrones": [
+  {
+   "topic": 1108,
+   "title": "Llega la navidad a la comunidad Gestiona Avanza"
+  }
+ ],
+ "villancico": [
+  {
+   "topic": 2001,
+   "title": "Felicitación de Navidad 2025"
+  }
+ ],
+ "añonuevo": [
+  {
+   "topic": 1976,
+   "title": "Seminarios de formación Gestiona Diciembre 2025"
+  }
+ ],
+ "felicitación": [
+  {
+   "topic": 2001,
+   "title": "Felicitación de Navidad 2025"
+  },
+  {
+   "topic": 1176,
+   "title": "Felicitación de Navidad 2024"
+  }
+ ],
+ "cambio-de-año": [
+  {
+   "topic": 2014,
+   "title": "SEMINARIO: El impacto del cambio de año en Gestiona: riesgos, ajustes y buenas prácticas"
+  }
+ ],
+ "anticipos": [
+  {
+   "topic": 1660,
+   "title": "Proyecto- Solicitud de anticipos reintegrables por parte del personal funcionario"
+  }
+ ],
+ "anular": [
+  {
+   "topic": 1482,
+   "title": "Anulacion de expedientes y sus datos"
+  }
+ ],
+ "apertura": [
+  {
+   "topic": 1376,
+   "title": "¿Apertura de expedientes para solicitudes de padrón, gestión tributaria, censo de animales...?"
+  }
+ ],
+ "ayudas-sociales": [
+  {
+   "topic": 600,
+   "title": "Nuevo compañero certificado · Manuel de los Reyes Gómez · CAAG 11"
+  },
+  {
+   "topic": 534,
+   "title": "Nuevo compañero certificado · Ignacio Borrego Tapia · CAAG 09"
+  }
+ ],
+ "buenas-prácticas": [
+  {
+   "topic": 2066,
+   "title": "SEMINARIO: Comienza el año dominando Gestiona"
+  }
+ ],
+ "cambio-climático": [
+  {
+   "topic": 1930,
+   "title": "🌱 24 de octubre: Día Mundial contra el Cambio Climático"
+  }
+ ],
+ "campo-personalizado": [
+  {
+   "topic": 2106,
+   "title": "SEMINARIO: Los tesauros en Gestiona I. Configuración"
+  },
+  {
+   "topic": 2133,
+   "title": "SEMINARIO: Los tesauros en Gestiona II. Uso y análisis"
+  }
+ ],
+ "catalán": [
+  {
+   "topic": 2285,
+   "title": "SEMINARI: Claus per començar a automatitzar processos, els Circuits de Resolució"
+  }
+ ],
+ "conformidad": [
+  {
+   "topic": 1712,
+   "title": "Aviso de conformidad de factura para intervención"
+  }
+ ],
+ "datos": [
+  {
+   "topic": 2518,
+   "title": "De tramitar expedientes a tomar decisiones con datos: la importancia de la analítica avanzada en la administración local"
+  }
+ ],
+ "encuesta": [
+  {
+   "topic": 2012,
+   "title": "Encuesta de experiencia y mejora de la Comunidad Gestiona Avanza"
+  }
+ ],
+ "excel": [
+  {
+   "topic": 1460,
+   "title": "Actualización Gestiona v 10.0.3.315.2"
+  }
+ ],
+ "firefox": [
+  {
+   "topic": 669,
+   "title": "Problema traslado texto a editor de texto de gestiona"
+  }
+ ],
+ "funciones": [
+  {
+   "topic": 1611,
+   "title": "Tesauro funcion / dato Tesorero"
+  },
+  {
+   "topic": 1475,
+   "title": "Crear sections con función de Representante"
+  }
+ ],
+ "gastos": [
+  {
+   "topic": 1594,
+   "title": "Expedientes con gasto. La función interventora"
+  },
+  {
+   "topic": 909,
+   "title": "Nuevo compañero certificado · Francisco Javier Soro Tena · CAAG 09"
+  }
+ ],
+ "gestión-policial": [
+  {
+   "topic": 2100,
+   "title": "SEMINARIO: Integración DRAG-Gestiona, activación y funcionamiento"
+  }
+ ],
+ "grupoespublico": [
+  {
+   "topic": 2599,
+   "title": "Seis meses sobre el terreno: así ha sido el primer semestre del grupo esPublico"
+  }
+ ],
+ "grupos": [
+  {
+   "topic": 2088,
+   "title": "Roles en \"Avisar a...\" de circuitos de tramitación"
+  },
+  {
+   "topic": 1524,
+   "title": "¿A qué grupos pertenece un usuario? uno de los grandes problemas de los Administradores"
+  }
+ ],
+ "ia": [
+  {
+   "topic": 2059,
+   "title": "PROMPTS IA para ayudar a configurar formularios en MARKDOWN/GESTIONA CODE"
+  },
+  {
+   "topic": 1765,
+   "title": "¿Cómo será el futuro del funcionariado en la era de la inteligencia artificial?"
+  }
+ ],
+ "ideas-v9": [
+  {
+   "topic": 496,
+   "title": "Campaña ideas Gestiona V9"
+  }
+ ],
+ "móvil": [
+  {
+   "topic": 1760,
+   "title": "Pilotos de nueva app de firma móvil"
+  }
+ ],
+ "nombre": [
+  {
+   "topic": 1617,
+   "title": "Circuito de Tramitación - Cambio de nombre"
+  }
+ ],
+ "representación": [
+  {
+   "topic": 2496,
+   "title": "Novedades versión 10.0.3.336"
+  }
+ ],
+ "transformación-digit": [
+  {
+   "topic": 2219,
+   "title": "¿Has visto el capítulo 9 del Podcast de Gestiona Avanza?"
+  },
+  {
+   "topic": 1930,
+   "title": "🌱 24 de octubre: Día Mundial contra el Cambio Climático"
+  }
+ ],
+ "transformación-local": [
+  {
+   "topic": 2597,
+   "title": "Cuando la transformación digital de Ciudad Rodrigo tiene nombre propio"
+  }
+ ],
+ "visualización": [
+  {
+   "topic": 1609,
+   "title": "Tesauro tipo porcentaje - posibilidad de escoger opciones de visualización"
+  }
+ ],
+ "vídeo": [
+  {
+   "topic": 1985,
+   "title": "Ya puedes ver el vídeo del III Encuentro de Usuarios Certificados Gestiona"
+  }
+ ],
+ "anexos": [
+  {
+   "topic": 1890,
+   "title": "Notificación de resolución con carta de pago y sin carta de pago"
+  },
+  {
+   "topic": 1529,
+   "title": "Incidencia \"Anexos documentos del expediente\" a registro salida"
+  }
+ ],
+ "appletless": [
+  {
+   "topic": 945,
+   "title": "App para búsquedas avanzadas de campos Tesauro"
+  },
+  {
+   "topic": 472,
+   "title": "Configuración del asistente (appletless) en infraestructuras centralizadas"
+  }
+ ],
+ "ayudasdana": [
+  {
+   "topic": 1245,
+   "title": "Nueva compañera certificada · Teresa Bonet Segura · CAAG 11"
+  }
+ ],
+ "bug": [
+  {
+   "topic": 2035,
+   "title": "Fallo con la búsqueda de algunos expedientes por asunto"
+  },
+  {
+   "topic": 1446,
+   "title": "Justificar texto en markdown"
+  }
+ ],
+ "casos-de-uso": [
+  {
+   "topic": 2603,
+   "title": "Circuitos plurales y recaudación ejecutiva"
+  },
+  {
+   "topic": 266,
+   "title": "Procedimiento de Retenciones de credito prévias para contratación"
+  }
+ ],
+ "cies": [
+  {
+   "topic": 1498,
+   "title": "SEMINARIO: Los servicios de impresión, ensobrado y envío de SMS"
+  },
+  {
+   "topic": 1458,
+   "title": "Nuevo curso en la Academia: Servicios de impresión, ensobrado y envío de SMS"
+  }
+ ],
+ "confirmaciónlectura": [
+  {
+   "topic": 1518,
+   "title": "TAREAS con confirmación de Lectura y Recepción"
+  }
+ ],
+ "debate-jurídico": [
+  {
+   "topic": 1441,
+   "title": "Debate: Quién debe tener el permiso de \"Expedientes (todos)\""
+  }
+ ],
+ "gestiona-comunica": [
+  {
+   "topic": 2287,
+   "title": "🔍 Consulta sobre tramitación reglada: Subvenciones, Convenios y Registro de Entidades"
+  },
+  {
+   "topic": 564,
+   "title": "Emisión en directo con Gestiona Comunica"
+  }
+ ],
+ "incidencia": [
+  {
+   "topic": 1955,
+   "title": "Firma de documento pone todo el texto en negrita y cursiva"
+  },
+  {
+   "topic": 669,
+   "title": "Problema traslado texto a editor de texto de gestiona"
+  }
+ ],
+ "mapa": [
+  {
+   "topic": 383,
+   "title": "Usuarios certificados por provincia y comunidad"
+  }
+ ],
+ "multiligue": [
+  {
+   "topic": 1408,
+   "title": "Utilización de Tesauro I18n multilingüe"
+  }
+ ],
+ "módulos-gestiona": [
+  {
+   "topic": 180,
+   "title": "Carpeta ciudadana"
+  }
+ ],
+ "poster-congreso-2025": [
+  {
+   "topic": 1959,
+   "title": "Los pósteres del III Encuentro de Usuarios Certificados de Gestiona"
+  }
+ ],
+ "resppatrimonial": [
+  {
+   "topic": 747,
+   "title": "Nuevo compañero certificado · Miguel Ángel Navarro Santamaria · CAAG 10"
+  },
+  {
+   "topic": 535,
+   "title": "Nuevo usuario certificado · Javier Fabello Ruiz · CAAG 11"
+  }
+ ],
+ "soporte-alumno": [
+  {
+   "topic": 2,
+   "title": "Acerca de la categoría Administradores"
+  }
+ ],
+ "usabilidad": [
+  {
+   "topic": 2066,
+   "title": "SEMINARIO: Comienza el año dominando Gestiona"
+  }
+ ],
+ "anonimizacion": [
+  {
+   "topic": 2610,
+   "title": "Anonimización y LOPD"
+  },
+  {
+   "topic": 1689,
+   "title": "Trucazo para la anonimización de datos en Markdown"
+  }
+ ],
+ "análisis": [
+  {
+   "topic": 1019,
+   "title": "Registros sin asignar"
+  }
+ ],
+ "extranjeros": [
+  {
+   "topic": 2619,
+   "title": "Necesidades en módulo Terceros para empresas extranjeras"
+  },
+  {
+   "topic": 1768,
+   "title": "Crear tercero extranjero con medio de notificación electrónico"
+  }
+ ],
+ "metodología": [
+  {
+   "topic": 472,
+   "title": "Configuración del asistente (appletless) en infraestructuras centralizadas"
+  },
+  {
+   "topic": 370,
+   "title": "Política de cookies de la sede"
+  }
+ ],
+ "nociones-básicas": [
+  {
+   "topic": 2284,
+   "title": "SEMINARIO: Nociones básicas de Gestiona I: El registro"
+  },
+  {
+   "topic": 2238,
+   "title": "Seminarios de formación Gestiona Abril 2026"
+  }
+ ],
+ "plataforma-formación": [
+  {
+   "topic": 1501,
+   "title": "Alta masiva usuarios en Academia"
+  }
+ ],
+ "requerimientos": [
+  {
+   "topic": 1480,
+   "title": "Aportación de documentos y respuesta a requerimientos de documentos a la tramitación"
+  }
+ ]
+}
