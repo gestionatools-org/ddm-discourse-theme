@@ -153,7 +153,16 @@ chmod +x bin/tags-verify
 set -a && source .env.local && set +a && ./bin/tags-verify
 ```
 
-Expected: exit 1, and output listing **8 missing groups**, **3 tags still present**, and **2 renames not done** — 13 assertions in total. If it reports anything else, stop: the preconditions have drifted since the plan was written.
+Expected: exit 1 with **15 assertions** — 8 `group missing:`, 3 `still present, should be deleted:`, and **4** from the rename block. Each pending rename produces *two* failures, because the old name is still a base tag *and* the new name does not exist yet:
+
+```
+✗ old name still a base tag, rename not done: pid
+✗ renamed tag absent: integracion-pid
+✗ old name still a base tag, rename not done: seriesdocumentales
+✗ renamed tag absent: serie-documental
+```
+
+If the count or the assertion kinds differ from this, stop: the preconditions have drifted since the plan was written.
 
 - [ ] **Step 4: Commit**
 
