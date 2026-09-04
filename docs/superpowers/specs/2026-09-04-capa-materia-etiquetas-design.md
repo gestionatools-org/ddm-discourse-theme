@@ -197,9 +197,15 @@ All measured on PRE on 2026-09-04. Each cost an attempt.
 
 - **Synonyms do not chain.** Merging a tag that already has a synonym fails with *"no está
   permitido mientras existan sinónimos"*. Move the child to the final target first.
-- **There is no tag-creation endpoint.** Tags are born by being used. To create one without
-  writing to a topic: merge a family into one member, rename it via
-  `PUT /tag/<id>/settings.json`, then post the old name back with `tags[][name]`.
+- **A tag group creates the tags it names.** `TagGroup#tag_names=` calls
+  `DiscourseTagging.add_or_create_tags_by_name`, so `POST /tag_groups.json` with
+  `name` + `tag_names[]` creates any tag that does not yet exist — no topic write needed.
+  Deleting the group afterwards destroys the memberships, not the tags, so a throwaway group
+  is a clean vehicle for creating a tag ahead of use. Verified on 2026-09-04 by creating
+  `nueva-version-gestiona`(id 289). Send **no `permissions` parameter**: supplying one returns
+  500, while omitting it defaults to `{"0": 1}` (everyone).
+  *(An earlier draft of this spec said there is no way to create a tag and prescribed a
+  merge-rename-resynonym dance. That was wrong.)*
 - **The `#` filter needs the exact accent.** `Tag.where_name` compares `lower(name)` with no
   `unaccent`. Any new accented tag needs an unaccented synonym or it is unreachable without the
   accent — and the failure is silent, returning a larger full-text result set.
