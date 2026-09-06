@@ -420,5 +420,108 @@
    "topic": 1480,
    "title": "Aportación de documentos y respuesta a requerimientos de documentos a la tramitación"
   }
+ ],
+ "interoperabilidad": [
+  {
+   "topic": 2237,
+   "title": "La Revolución del Low-code y No-Code: Democratizando la interoperabilidad en el sector público",
+   "tags": [
+    "blog-gestiona",
+    "integraciones",
+    "interoperabilidad"
+   ]
+  },
+  {
+   "topic": 1909,
+   "title": "Alta conseguida",
+   "tags": [
+    "administracion-avanzada",
+    "alumno-certificado",
+    "pid",
+    "interoperabilidad"
+   ]
+  },
+  {
+   "topic": 1144,
+   "title": "Curso \"Interoperabilidad AGE entre administraciones y con órganos judiciales\"",
+   "tags": [
+    "academia",
+    "interoperabilidad"
+   ]
+  },
+  {
+   "topic": 1133,
+   "title": "Seminario presentación del nuevo curso \"Interoperabilidad AGE entre administraciones y con órganos judiciales\"",
+   "tags": [
+    "webinars",
+    "interoperabilidad"
+   ]
+  }
+ ],
+ "desarrollo-software": [
+  {
+   "topic": 2605,
+   "title": "Frontend rápido y cuco con mis expedientes favoritos",
+   "tags": [
+    "expedientes",
+    "desarrollo-software"
+   ]
+  },
+  {
+   "topic": 2544,
+   "title": "Integración Continua",
+   "tags": [
+    "administracion-avanzada",
+    "integraciones",
+    "desarrollo-software"
+   ]
+  },
+  {
+   "topic": 2468,
+   "title": "II Meeting Gestiona: seguimos innovando para construir el mañana",
+   "tags": [
+    "blog-gestiona",
+    "desarrollo-software"
+   ]
+  }
+ ],
+ "debate-técnico": [
+  {
+   "topic": 1441,
+   "title": "Debate: Quién debe tener el permiso de \"Expedientes (todos)\"",
+   "tags": [
+    "administracion-avanzada",
+    "configuración",
+    "debate-técnico"
+   ]
+  },
+  {
+   "topic": 1471,
+   "title": "Un mismo procedimiento para 3 trámites",
+   "tags": [
+    "administracion-avanzada",
+    "tasas",
+    "debate-técnico"
+   ]
+  },
+  {
+   "topic": 1391,
+   "title": "Categorias multiples en Procedimientos",
+   "tags": [
+    "administracion-avanzada",
+    "ideas",
+    "mejoras",
+    "debate-técnico"
+   ]
+  },
+  {
+   "topic": 635,
+   "title": "Uso de tesauros tipo texto bilingües",
+   "tags": [
+    "administracion-avanzada",
+    "ideas",
+    "debate-técnico"
+   ]
+  }
  ]
 }
