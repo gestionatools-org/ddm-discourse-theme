@@ -1,0 +1,14 @@
+{
+  "groups": {
+    "Tramitación administrativa": ["tramitación-reglada", "tesauro", "expedientes", "circuitos-resolucion", "markdown", "tramitación", "gestiona-code", "procedimientos", "circuitos-tramitacion", "órganos-colegiados", "integracion-pid", "plantillas", "expedientes-apertura", "subprocesos", "gestiona-envia", "relacionados"],
+    "Configuración": ["tesauro", "configuración", "markdown", "usuario-perfil", "integraciones", "serie-documental"],
+    "Atención a la ciudadanía": ["sede-electrónica", "terceros", "paginas-informativas", "representante", "cita-previa", "carpeta-ciudadana", "transparencia", "canal-denuncias", "tablón-anuncios", "interesados", "temas-y-categorias"],
+    "Registro electrónico": ["registro", "tramites-externos", "ventanilla-única"],
+    "Inicio": ["tareas", "firma", "tareas-regladas", "asignaciones", "app-movil", "fechas", "tareas-personal", "asignado-a", "plazos"],
+    "Gestión económica": ["tasas", "contratación", "subvenciones", "ayudas", "ayudas-personal", "dietas", "menor"],
+    "Analítica de datos": ["analítica", "busquedas-avanzadas", "auditoria"],
+    "Aplicaciones y servicios": ["padrón", "urbanismo", "facturas", "sello-de-organo"]
+  },
+  "delete": ["interoperabilidad", "desarrollo-software", "debate-técnico"],
+  "rename": {"pid": "integracion-pid", "seriesdocumentales": "serie-documental"}
+}

@@ -1,0 +1,71 @@
+#!/usr/bin/env python3
+"""Assert the subject-layer target state on PRE. Exit 0 only if it all holds."""
+import json, os, pathlib, sys, time, urllib.request
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+MAP = json.loads((ROOT / "docs/superpowers/plans/data/2026-09-04-module-axis.json").read_text())
+URL = os.environ["PRE_DISCOURSE_URL"]
+KEY = os.environ["PRE_DISCOURSE_GLOBAL_API_KEY"]
+USER = os.environ["PRE_DISCOURSE_API_USERNAME"]
+
+
+def get(path):
+    req = urllib.request.Request(URL + path, headers={"Api-Key": KEY, "Api-Username": USER})
+    for _ in range(4):
+        try:
+            with urllib.request.urlopen(req, timeout=30) as f:
+                return json.load(f)
+        except urllib.error.HTTPError as e:
+            if e.code == 429:
+                time.sleep(8)
+                continue
+            return {"__err": e.code}
+        except Exception:
+            time.sleep(3)
+    return {"__err": "fail"}
+
+
+def main():
+    failures = []
+    tags = {t["name"]: t for t in get("/tags.json")["tags"]}
+    time.sleep(1.2)
+    groups = {g["name"]: g for g in get("/tag_groups.json")["tag_groups"]}
+
+    for name, want in MAP["groups"].items():
+        got = groups.get(name)
+        if not got:
+            failures.append(f"group missing: {name}")
+            continue
+        have = sorted(t["name"] for t in got["tags"])
+        if have != sorted(want):
+            failures.append(
+                f"group {name}: missing={sorted(set(want) - set(have))} extra={sorted(set(have) - set(want))}"
+            )
+
+    for name in MAP["delete"]:
+        if name in tags:
+            failures.append(f"still present, should be deleted: {name}")
+
+    for old, new in MAP["rename"].items():
+        if old in tags:
+            failures.append(f"old name still a base tag, rename not done: {old}")
+        if new not in tags:
+            failures.append(f"renamed tag absent: {new}")
+            continue
+        time.sleep(1.2)
+        info = get(f"/tag/{tags[new]['id']}/info.json").get("tag_info", {})
+        syns = [s["name"] for s in info.get("synonyms", [])]
+        if old not in syns:
+            failures.append(f"{new} does not carry '{old}' as a synonym — #{old} no longer filters")
+
+    if failures:
+        print(f"FAIL — {len(failures)} assertion(s)")
+        for f in failures:
+            print(f"  ✗ {f}")
+        return 1
+    print(f"PASS — {len(MAP['groups'])} groups, {len(MAP['delete'])} deletions, {len(MAP['rename'])} renames")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
