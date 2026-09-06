@@ -359,34 +359,77 @@ on the fly by the search parser rather than persisted.
 
 **Every one of the 8 groups was checked topic-by-topic, not sampled.** For each group, every
 topic `search.json` returned for `#<slug>` was checked against that group's own tag list from
-the mapping; a group counts as verified only if 100% of its returned topics carry at least one
-of its tags. All eight hit 100%. Four sit at the 50-result search-page cap — that number is the
-cap, not the group's true size, and is called out per row so it is never read as one:
+the mapping; the first pass counted a group as verified whenever 100% of its returned topics
+carried at least one of its tags. Seven of the eight did, cleanly. The eighth — Configuración —
+also showed 100%, but that number is a false pass: see the correction below before reading this
+table as eight confirmed group filters.
 
-| Group | Slug | Returned | Carrying a group tag | At 50-cap | Verified |
+| Group | Slug | Returned | Carrying a group tag | At 50-cap | What `#<slug>` actually resolved to |
 |---|---|---|---|---|---|
-| Tramitación administrativa | `tramitacion-administrativa` | 50 | 50 (100%) | yes — cap, not true size | ✅ |
-| Configuración | `configuracion` | 37 | 37 (100%) | no | ✅ |
-| Atención a la ciudadanía | `atencion-a-la-ciudadania` | 50 | 50 (100%) | yes — cap, not true size | ✅ |
-| Registro electrónico | `registro-electronico` | 50 | 50 (100%) | yes — cap, not true size | ✅ |
-| Inicio | `inicio` | 50 | 50 (100%) | yes — cap, not true size | ✅ |
-| Gestión económica | `gestion-economica` | 50 | 50 (100%) | yes — cap, not true size | ✅ |
-| Analítica de datos | `analitica-de-datos` | 36 | 36 (100%) | no | ✅ |
-| Aplicaciones y servicios | `aplicaciones-y-servicios` | 26 | 26 (100%) | no | ✅ |
+| Tramitación administrativa | `tramitacion-administrativa` | 50 | 50 (100%) | yes — cap, not true size | the tag group ✅ |
+| Configuración | `configuracion` | 37 | 37 (100%) | no | **the tag `configuración`, not the group — see below** ⚠️ |
+| Atención a la ciudadanía | `atencion-a-la-ciudadania` | 50 | 50 (100%) | yes — cap, not true size | the tag group ✅ |
+| Registro electrónico | `registro-electronico` | 50 | 50 (100%) | yes — cap, not true size | the tag group ✅ |
+| Inicio | `inicio` | 50 | 50 (100%) | yes — cap, not true size | the tag group ✅ |
+| Gestión económica | `gestion-economica` | 50 | 50 (100%) | yes — cap, not true size | the tag group ✅ |
+| Analítica de datos | `analitica-de-datos` | 36 | 36 (100%) | no | the tag group ✅ |
+| Aplicaciones y servicios | `aplicaciones-y-servicios` | 26 | 26 (100%) | no | the tag group ✅ |
 
-Zero non-matching topics in any group — no full-text-fallback false positive anywhere across all
-219 returned topics.
+Zero non-matching topics in any group — no plain full-text-fallback false positive anywhere
+across all 219 returned topics. But "100% of returned topics carry a group tag" cannot by itself
+distinguish "the group resolved" from "a single member tag resolved, and every result
+necessarily carries that one tag" — which is exactly what happened to Configuración.
 
-**Structural collision check, run independently of the reviewer's own check of the same thing:**
-of the 57 unique tags across all 8 groups, exactly one transliterates (accents stripped,
-lowercased, hyphenated) to a group slug — `configuración` → `configuracion`. That is not a
-fallback risk: `configuración` is itself a member tag of the *Configuración* group, so a topic
-carrying it is a genuine group match, already counted as such in the table above, not a
-coincidental collision with unrelated content. No other tag name collides with any of the 8
-group slugs. Separately, all 17 of PRE's current categories (walking `subcategory_list`,
-`include_subcategories=true`) were checked by slug — none collides with any of the 8 group
-slugs either. Together these are the structural reason `#<group-slug>` resolves to the tag
-group and not to a coincidentally-named category or full-text fallback.
+**Correction — Configuración's `#configuracion` filters the tag, not the group (round-2 review
+finding).** Discourse's `#foo` search resolves in a fixed order: **category slug → exact tag
+name → tag-group slug → full text.** The tag `configuración` (id 107) already carried an
+unaccented synonym `configuracion` (id 275, 0 uses of its own) — created before this task, not
+by it — so `#configuracion` matches at the *exact tag name* step and never reaches the
+tag-group step at all. Three independent checks confirm it:
+
+1. **The count is exact, not approximate.** `#configuracion` returns 37 topics; the tag
+   `configuración` itself has `topic_count: 37`. If the group (6 tags, including `tesauro` at 81
+   uses on its own) had resolved instead, the union would run far higher than 37.
+2. **Zero overlap with a fellow group member's own listing.** `#tesauro` returns 50 (capped);
+   `#configuracion` returns 37; the two result sets share **zero** topic ids. A genuine
+   group-level OR would surface at least some of `tesauro`'s topics under `#configuracion`.
+3. **The corrected stronger test (below) finds no topic missing the shadow tag.** All 37 topics
+   carry `configuración` itself — none is present only because of a *different* group member.
+   That is precisely what a single-tag match produces and a group-level OR would not.
+
+**Bounding — only Configuración is affected.** Re-ran the collision check properly this time:
+against not just the 103 primary tag names but **every synonym of every one of those 103 tags**
+(the first pass, in the initial cut of this section, checked primary names only and had
+dismissed this exact coincidence as harmless — it was the collision that mattered). Across all
+103 primary tags and their synonyms, exactly one pair collides with any of the 8 group slugs:
+the primary tag `configuración` (transliterates to `configuracion`) and its own synonym
+`configuracion` (a literal match). No other tag or synonym, anywhere in the vocabulary, matches
+any of the other 7 group slugs. Combined with the resolution order above, that is not merely
+"unfalsified" for those seven — since neither a category slug nor an exact tag/synonym name
+exists for any of them, `#<slug>` for those seven is *structurally forced* to fall through to
+the tag-group step. Category slugs were also re-checked (all 17 of PRE's current categories,
+walking `subcategory_list`): no collision with any of the 8 group slugs there either.
+
+**A stronger test for future readers, and the trap in its naive reading.** The intended test:
+*a group filter is only proven if `#<slug>` returns at least one topic that carries a group tag
+while **not** carrying whichever tag's own name equals the group slug.* Read carelessly as "at
+least one returned topic carries some other group tag too" it gives a **false pass even for
+Configuración**: 9 of its 37 results happen to also carry `tesauro`, `markdown` or
+`usuario-perfil` — ordinary co-tagging, since these subject tags are often applied together on
+the same topic — which would look like a pass under the sloppy reading. The test only works
+read as written: does any returned topic carry a group tag **instead of, not in addition to**,
+the shadowing tag? For Configuración the answer is zero out of 37 — every single result carries
+`configuración` — which is exactly what a tag-only match produces and a group-level OR could
+not, since nothing constrains a genuine OR to always include one particular member.
+
+**Net result of Step 4, corrected: 7 of the 8 group filters are verified genuine; Configuración
+is shadowed by its own member tag and its `#configuracion` search never reaches the group.** The
+group itself was created correctly with the right 6 members (Step 2's table stands unchanged —
+this is a search-filter finding, not a membership defect), and nothing on the instance was
+changed to produce or fix this: it is a pre-existing exact-match precedence in Discourse's
+search resolution, surfaced only by checking the filter, not by anything this task wrote. Whether
+to rename the tag or the group to remove the shadow is Ricardo's call, tracked separately —
+untouched here.
 
 Verifier, before this task vs. after:
 
