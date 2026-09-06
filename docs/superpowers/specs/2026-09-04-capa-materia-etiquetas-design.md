@@ -240,3 +240,75 @@ All measured on PRE on 2026-09-04. Each cost an attempt.
   depuration and can no longer be split without re-tagging 230 topics by hand.
 - **PROD.** It has neither the depuration, nor `min_search_term_length: 3`, nor
   `max_tag_search_results: 5`, and its tag vocabulary is unmeasured.
+
+## As executed (Task 2, 2026-09-06)
+
+Five operations on PRE, split across two sessions with no overlap in what each one touched.
+
+| # | Operation | Result |
+|---|---|---|
+| 1 | Delete `interoperabilidad` | done — HTTP 200 |
+| 2 | Delete `desarrollo-software` | done — HTTP 200 |
+| 3 | Delete `debate-técnico` | done — HTTP 200 |
+| 4 | Rename `pid` → `integracion-pid` | done — HTTP 200 |
+| 5 | Rename `seriesdocumentales` → `serie-documental` | done — HTTP 200 |
+| 6 | Recreate `pid` as a synonym of `integracion-pid` | done — HTTP 200, `{"success":"OK"}` |
+| 7 | Recreate `seriesdocumentales` as a synonym of `serie-documental` | done — HTTP 200, `{"success":"OK"}` |
+
+**Operations 1–5 had already executed before this session opened them.** The staff action log
+(`/admin/logs/staff_action_logs.json`) shows all five at 2026-09-06T07:48:11Z–07:49:35Z, actor
+`RicardoPG` (the Global key's attributed user) — a prior, uncommitted run of this same Step 3
+that got through the deletes and both renames and then stopped: no synonym-creation attempt is
+logged, `synonyms: []` on both renamed tags, and neither a git commit nor a task-2-report existed
+for it. This session verified that state (read-only), recognised operations 6–7 as the exact,
+already-authorised remainder of Step 3 — not new scope — and completed them, since leaving it
+half-done meant `#pid` and `#seriesdocumentales` were silently degraded to full-text search in
+production.
+
+Step 5 filter check, before (prior session's Step 1, itself already affected by the unfinished
+rename) vs. after this session's fix:
+
+| Tag | Before (this session's Step 1) | After (Step 5) | Expected |
+|---|---|---|---|
+| `#pid` | 50 (synonym missing → fell through to full text) | 7 | 9 |
+| `#seriesdocumentales` | 3 | 3 | 3 |
+
+The `7` for `#pid` is not the failure signature (`0` or `50`) the brief warns about: all 7
+`search.json` hits carry the `integracion-pid` tag with zero full-text false positives, and the
+direct listing endpoint `/tag/integracion-pid.json` returns the full **9**, matching the tag's
+own `topic_count`. The `search.json` result cap is a quirk of that endpoint, not evidence the
+synonym failed — the synonym's own presence is what the verifier asserts, and it is what the
+direct tag-info and tag-listing endpoints confirm.
+
+The three deletion candidates, captured at this session's Step 1 (after the prior session had
+already deleted them, so these are post-deletion full-text noise, not tag-filtered counts):
+`interoperabilidad` 15, `desarrollo-software` 3, `debate-técnico` 4 — all three tags absent from
+`/tags.json`, confirmed deleted.
+
+Verifier, before this session's fix (10 assertions — 8 `group missing:` + the 2 synonym gaps) →
+after (8 assertions, all `group missing:`, matching the plan's expected post-Task-2 state):
+
+```
+FAIL — 10 assertion(s)
+  ✗ group missing: Tramitación administrativa
+  ✗ group missing: Configuración
+  ✗ group missing: Atención a la ciudadanía
+  ✗ group missing: Registro electrónico
+  ✗ group missing: Inicio
+  ✗ group missing: Gestión económica
+  ✗ group missing: Analítica de datos
+  ✗ group missing: Aplicaciones y servicios
+  ✗ integracion-pid does not carry 'pid' as a synonym — #pid no longer filters
+  ✗ serie-documental does not carry 'seriesdocumentales' as a synonym — #seriesdocumentales no longer filters
+```
+```
+FAIL — 8 assertion(s)
+  ✗ group missing: Tramitación administrativa
+  ✗ group missing: Configuración
+  ✗ group missing: Atención a la ciudadanía
+  ✗ group missing: Registro electrónico
+  ✗ group missing: Inicio
+  ✗ group missing: Gestión económica
+  ✗ group missing: Analítica de datos
+  ✗ group missing: Aplicaciones y servicios
+```
