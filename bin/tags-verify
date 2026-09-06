@@ -1,12 +1,25 @@
 #!/usr/bin/env python3
 """Assert the subject-layer target state on PRE. Exit 0 only if it all holds."""
-import json, os, pathlib, sys, time, urllib.request
+import json, os, pathlib, re, sys, time, unicodedata, urllib.request
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 MAP = json.loads((ROOT / "docs/superpowers/plans/data/2026-09-04-module-axis.json").read_text())
 URL = os.environ["PRE_DISCOURSE_URL"]
 KEY = os.environ["PRE_DISCOURSE_GLOBAL_API_KEY"]
 USER = os.environ["PRE_DISCOURSE_API_USERNAME"]
+
+# The depuration left nothing below three uses; a tag under it is either a typo that
+# invented an empty tag or a concept that stopped classifying anything.
+MIN_USES = 3
+# Working queues are counted, not judged: their size is data about what is unclassified.
+USE_EXEMPT = {"pendiente-etiquetar"}
+
+
+def slug(s):
+    """Approximate the slug Discourse's search parser computes for a `#term`."""
+    s = unicodedata.normalize("NFKD", s.lower())
+    s = "".join(c for c in s if not unicodedata.combining(c))
+    return re.sub(r"[^a-z0-9]+", "-", s).strip("-")
 
 
 def get(path):
@@ -58,12 +71,43 @@ def main():
         if old not in syns:
             failures.append(f"{new} does not carry '{old}' as a synonym — #{old} no longer filters")
 
+    # A tag below the floor is usually an empty one invented by a typo in a group's
+    # tag_names[], which the membership check above cannot see: it compares names, and an
+    # invented tag has the right name.
+    for name, t in sorted(tags.items()):
+        if name not in USE_EXEMPT and t["count"] < MIN_USES:
+            failures.append(f"tag below {MIN_USES} uses: {name} ({t['count']})")
+
+    # A group whose slug is also a tag's or a category's is shadowed: search resolves
+    # `#foo` as category slug -> exact tag name -> tag-group slug, so the filter never
+    # reaches the group and silently returns a subset. Slugifying the base tag name also
+    # covers its unaccented synonym, which is the case that actually bit us. A synonym
+    # whose string differs otherwise is not checked — that would cost one call per tag.
+    time.sleep(1.2)
+    cats, stack = [], list(get("/categories.json?include_subcategories=true")["category_list"]["categories"])
+    while stack:
+        c = stack.pop()
+        cats.append(c)
+        stack.extend(c.get("subcategory_list") or [])
+    shadows = {}
+    for name in tags:
+        shadows.setdefault(slug(name), []).append(f"tag {name}")
+    for c in cats:
+        shadows.setdefault(c["slug"], []).append(f"category {c['id']} {c['name']}")
+    for name in MAP["groups"]:
+        by = shadows.get(slug(name))
+        if by:
+            failures.append(f"group {name} is shadowed on #{slug(name)} by {', '.join(by)}")
+
     if failures:
         print(f"FAIL — {len(failures)} assertion(s)")
         for f in failures:
             print(f"  ✗ {f}")
         return 1
-    print(f"PASS — {len(MAP['groups'])} groups, {len(MAP['delete'])} deletions, {len(MAP['rename'])} renames")
+    print(
+        f"PASS — {len(MAP['groups'])} groups, {len(MAP['delete'])} deletions, "
+        f"{len(MAP['rename'])} renames, {len(tags)} tags at {MIN_USES}+ uses, no shadowed slug"
+    )
     return 0
 
 
