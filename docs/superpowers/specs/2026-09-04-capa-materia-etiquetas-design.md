@@ -328,8 +328,7 @@ FAIL — 8 assertion(s)
 ## As executed (Task 3, 2026-09-06)
 
 Step 1 reproduced the expected red state exactly: 8 assertions, all `group missing:`, no more
-and no fewer — confirming Task 2's five operations (three deletions, two renames with synonyms
-restored) left nothing else outstanding for the verifier.
+and no fewer.
 
 Step 2 created all eight groups in one pass, `POST /tag_groups.json` with no `permissions`
 parameter (confirmed: that field 500s). Every group came back `200` with the tag count matching
@@ -356,24 +355,38 @@ response: a group object is only `id`, `name`, `tags`, `parent_tag`, `one_per_to
 `permissions`). So there is no stored "real slug" to read back and correct the brief's guesses
 against. What was verified instead: the brief's own guessed slugs — the group name, accents
 stripped, lowercased, spaces to hyphens — are exactly what `#<slug>` resolves against, computed
-on the fly by the search parser rather than persisted. All eight returned non-zero, none needed
-correcting:
+on the fly by the search parser rather than persisted.
 
-| Group | Guessed slug | Count | Note |
-|---|---|---|---|
-| Tramitación administrativa | `tramitacion-administrativa` | 50 | at the search-page cap |
-| Configuración | `configuracion` | 37 | |
-| Atención a la ciudadanía | `atencion-a-la-ciudadania` | 50 | at the cap |
-| Registro electrónico | `registro-electronico` | 50 | at the cap |
-| Inicio | `inicio` | 50 | at the cap |
-| Gestión económica | `gestion-economica` | 50 | at the cap |
-| Analítica de datos | `analitica-de-datos` | 36 | |
-| Aplicaciones y servicios | `aplicaciones-y-servicios` | 26 | |
+**Every one of the 8 groups was checked topic-by-topic, not sampled.** For each group, every
+topic `search.json` returned for `#<slug>` was checked against that group's own tag list from
+the mapping; a group counts as verified only if 100% of its returned topics carry at least one
+of its tags. All eight hit 100%. Four sit at the 50-result search-page cap — that number is the
+cap, not the group's true size, and is called out per row so it is never read as one:
 
-Spot-checked the smallest group (Aplicaciones y servicios, 4 tags: `padrón`, `urbanismo`,
-`facturas`, `sello-de-organo`) against all 26 returned topics: every one carries at least one of
-those four tags, zero full-text false positives. So `#<group-slug>` is a genuine OR across the
-group's own tags, not a fallback to plain text search landing on a coincidental non-zero count.
+| Group | Slug | Returned | Carrying a group tag | At 50-cap | Verified |
+|---|---|---|---|---|---|
+| Tramitación administrativa | `tramitacion-administrativa` | 50 | 50 (100%) | yes — cap, not true size | ✅ |
+| Configuración | `configuracion` | 37 | 37 (100%) | no | ✅ |
+| Atención a la ciudadanía | `atencion-a-la-ciudadania` | 50 | 50 (100%) | yes — cap, not true size | ✅ |
+| Registro electrónico | `registro-electronico` | 50 | 50 (100%) | yes — cap, not true size | ✅ |
+| Inicio | `inicio` | 50 | 50 (100%) | yes — cap, not true size | ✅ |
+| Gestión económica | `gestion-economica` | 50 | 50 (100%) | yes — cap, not true size | ✅ |
+| Analítica de datos | `analitica-de-datos` | 36 | 36 (100%) | no | ✅ |
+| Aplicaciones y servicios | `aplicaciones-y-servicios` | 26 | 26 (100%) | no | ✅ |
+
+Zero non-matching topics in any group — no full-text-fallback false positive anywhere across all
+219 returned topics.
+
+**Structural collision check, run independently of the reviewer's own check of the same thing:**
+of the 57 unique tags across all 8 groups, exactly one transliterates (accents stripped,
+lowercased, hyphenated) to a group slug — `configuración` → `configuracion`. That is not a
+fallback risk: `configuración` is itself a member tag of the *Configuración* group, so a topic
+carrying it is a genuine group match, already counted as such in the table above, not a
+coincidental collision with unrelated content. No other tag name collides with any of the 8
+group slugs. Separately, all 17 of PRE's current categories (walking `subcategory_list`,
+`include_subcategories=true`) were checked by slug — none collides with any of the 8 group
+slugs either. Together these are the structural reason `#<group-slug>` resolves to the tag
+group and not to a coincidentally-named category or full-text fallback.
 
 Verifier, before this task vs. after:
 
