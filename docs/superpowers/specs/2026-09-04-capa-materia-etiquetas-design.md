@@ -542,3 +542,61 @@ because 60 of the 455 proposed pairs were excluded.
 tags, groups, deletions or renames were touched by this task — only topic tag assignments —
 so there is no structural reason to expect it to fail; it stands unverified rather than
 verified-and-passing as of this commit.
+
+## As executed (Task 7, 2026-09-06)
+
+Steps 1-2 (regenerate the residual, split it by genre, run the body pass at threshold 3) had
+already been done in an earlier, read-only dispatch — see `task-7-report.md`'s first section.
+Summary: crawl of 1,261 topics; **818/1,261 (64.9%)** already carried a subject tag; residual
+443, of which 255 genre-matched (left untagged on purpose) and 188 had no title genre; the body
+pass over those 188 proposed at least one tag for 43 (22.9%), two of them flagged as likely
+false positives (a boilerplate template field label, and forum-onboarding help docs colliding
+with product vocabulary by homonym).
+
+Ricardo reviewed all 43 proposals individually and recorded the final decision in
+`docs/superpowers/plans/data/2026-09-04-body-decisions.json`: **14 topics** to receive a
+pruned subject-tag set (the weak/false-positive proposals removed), and the remaining
+**174 topics** to receive the structural `pendiente-etiquetar` tag instead
+(14 + 174 = 188, exactly the no-genre residual — every row accounted for, no overlap).
+
+Step 4 created `pendiente-etiquetar` through a throwaway tag group, per the brief:
+
+```
+[200] temporary group created, id=12
+[200] temporary group deleted
+verify /tags.json: pendiente-etiquetar present=True count=0
+```
+
+Verified present with 0 uses before any topic write, exactly as the brief requires.
+
+Steps 3+4 (writes) then ran as one read-modify-write pass, both using the pattern from Task 6
+Step 2 (read a topic's current tags, resend the union, skip rather than truncate at the 7-tag
+ceiling):
+
+- **Subject-tag writes (14 topics, exactly `body-decisions.json`'s `apply` map):**
+  **14 applied, 0 skipped, 0 failed.** No topic was within reach of the 7-tag ceiling — the
+  fullest case (`/t/2422`) went from 4 tags to 6. Full before/after list in
+  `task-7-report.md`.
+- **`pendiente-etiquetar` writes (174 topics, the `queue` list):**
+  **174 applied, 0 skipped, 0 failed.** Existing tag counts on these topics ranged 0-5
+  (median 1-2), so the ceiling was never approached; no skip to report.
+
+Step 5 verification:
+
+- **Coverage rose from 818/1,261 (64.9%) to 832/1,261 (65.98%)** — computed from the same
+  1,261-topic crawl plus the 14 newly subject-tagged topics (none of the 14 carried a subject
+  tag before this task, confirmed against the crawl, and the 174 `pendiente-etiquetar` writes
+  do not touch subject tags — that tag is in no module group). A fresh full re-crawl was not
+  re-run for this figure, since nothing else changed the topic set between the Step 1 crawl and
+  these writes.
+- **Final `pendiente-etiquetar` count: 174**, read from `/tags.json`'s per-tag `count` field —
+  the number the brief's own listing check (`/tag/pendiente-etiquetar/l/latest.json`) cannot
+  report past 30, since it paginates there and returned exactly 30 topics, not 174. Use the
+  `/tags.json` count field for any tag whose usage exceeds one page.
+- **`./bin/tags-verify` → `PASS — 8 groups, 3 deletions, 2 renames`, exit 0.** No tag, group,
+  deletion or rename was touched by this task beyond `pendiente-etiquetar` itself, which is
+  deliberately outside every module group and therefore outside everything the verifier checks.
+
+**174 is the count that matters for the next pass**: it is the size of the working queue this
+task opened, distinct from the 255 genre topics that were left untagged on purpose and are not
+meant to be worked.
