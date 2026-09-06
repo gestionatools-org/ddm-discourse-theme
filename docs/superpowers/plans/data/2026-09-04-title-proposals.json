@@ -1,0 +1,1906 @@
+{
+ "tesauro": [
+  {
+   "topic": 1388,
+   "title": "Asignación de un valor a un Tesauro tipo Selector I18N"
+  },
+  {
+   "topic": 1003,
+   "title": "Problema al condicionar documentación a un tesauro booleano utilizando función LET"
+  },
+  {
+   "topic": 2572,
+   "title": "Tesauros tipo texto. Problema con el salto de líneas al generar un pdf"
+  },
+  {
+   "topic": 1859,
+   "title": "Error tesauros con decimales"
+  },
+  {
+   "topic": 1590,
+   "title": "Mejoras en campos Tesauro (CIF y NIF conjunto + tesauro texto más configurable + ocultar tesauro)"
+  },
+  {
+   "topic": 1566,
+   "title": "Idea de creacion de campos Tesauro de tipo desplegable o tipado"
+  },
+  {
+   "topic": 1488,
+   "title": "Modificación de características de campos tesauro"
+  },
+  {
+   "topic": 1444,
+   "title": "Relacionar campos Tesauro a nivel Entidad con Acticidades"
+  },
+  {
+   "topic": 1411,
+   "title": "3842 # 08 - CONFIGURACIÓN\t08.09 - TESAURO\tMás tesauros tipados: email, teléfono, código postal, matrícula, aplicación presupuestaria, núm expediente, núm registro, cuenta bancaria SEPA, mes/año (como tarjetas), hipervínculo, etc"
+  },
+  {
+   "topic": 1407,
+   "title": "Creación de campo tesauro especifico o Tipado para aplicación presupuestaria"
+  },
+  {
+   "topic": 1389,
+   "title": "3680 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tPoder realizar campos calculados (let) en más tipos de tesauros: Fecha (por ejemplo \"hoy\"), Selector i18N, tipado NIF/CIF, etc"
+  },
+  {
+   "topic": 1384,
+   "title": "4453 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tAtributo markdown en los tesauros para ocultarlos (x ej: visible:false) y que se guarden datos. Útil tras un LET"
+  },
+  {
+   "topic": 1374,
+   "title": "3846 # 08 - CONFIGURACIÓN\t08.23 - CATEGORÍAS DE REGISTRO\tVincular la asignación de tema/categoría de un registro al valor de un tesauro del trámite externo"
+  },
+  {
+   "topic": 1370,
+   "title": "4322 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tEn caso de utilizar el mismo tesauro en dos section/condicionales distintas, uno con editable false y otro no, la section sin editable false se comporta como false cuando no debería"
+  },
+  {
+   "topic": 1366,
+   "title": "4446 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tNuevas dato/función en markdown: caja con el expone, el solicita y el información adicional del trámite externo. Tanto si tiene tesauros, como si es texto libre"
+  },
+  {
+   "topic": 1362,
+   "title": "4438 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tQue en la configuración de la tramitación reglada que sea más visual saber si está asignada a una persona, grupo, rol, tesauro usuario, etc"
+  },
+  {
+   "topic": 1361,
+   "title": "4435 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tNo permitir lanzar tarea reglada manual asignada a un tesauro usuario si éste no está informado en el expediente"
+  },
+  {
+   "topic": 1360,
+   "title": "4416 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tAtributo en markdown para obtener representaciones de tipo texto de tesauros de tipo numérico, moneda, fecha, etc"
+  },
+  {
+   "topic": 1358,
+   "title": "4411 # 08 - CONFIGURACIÓN\t08.08 - CIRCUITOS DE TRAMITACIÓN\tPoder definir como firmante en un circuito de tramitación al dato de un tesauro de tipo selector de usuario"
+  },
+  {
+   "topic": 1348,
+   "title": "4387 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tPoder vincular la documentación a presentar en la OAMR con tesauros de tipo sí/no, de cara a heredar en el procedimiento la información de si se presentó o no, y poderlo usar en la tramitación regl"
+  },
+  {
+   "topic": 1345,
+   "title": "4354 # 08 - configuración\t08.08 - circuitos de tramitación\tposibilidad de configurar en el circuito de tramitación con envío a un libro, la inserción de tesauros en el extracto"
+  },
+  {
+   "topic": 1339,
+   "title": "4303 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tPoder configurar que en el nombre de la tarea reglada se añadan valores de tesauro y/o datos/función"
+  },
+  {
+   "topic": 1337,
+   "title": "4301 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tEn la opción \"Abrir expediente relacionado\", que se trasladen funciones/dato y terceros. No sólo tesauros"
+  },
+  {
+   "topic": 1332,
+   "title": "4113 # 07 - ANALÍTICA DE DATOS\t07.02 - BÚSQUEDAS AVANZADAS\tBúsqueda avanzada de tesauros. Poder filtrar no sólo tesauros creados en v9 sino también anteriores. Saber en qué actividades/procedimientos se usan. Explotable también en Analiza"
+  },
+  {
+   "topic": 1331,
+   "title": "4111 # 10 - SEDE ELECTRÓNICA\t10.02 - TRÁMITES\tQue en la ficha informativa del trámite externo quede más clara la documentación requerida/obligatoria para cada caso en función de un valor de tesauro"
+  },
+  {
+   "topic": 1330,
+   "title": "4107 # 03 - REGISTRO ELECTRÓNICO\t03.02 - REGISTRO DE ENTRADA\tPoder trasladar tesauros y funciones/dato del trámite externo al expediente cuando se usa la funcionalidad de \"incorporar expediente\". Sólo lo hace cuando se abre nuevo. N solicitudes = Tesauro"
+  },
+  {
+   "topic": 1329,
+   "title": "4104 # 08 - CONFIGURACIÓN 08.09 - TESAURO Poder vincular tesauros a una actividad de manera masiva"
+  },
+  {
+   "topic": 1321,
+   "title": "3845 # 08 - CONFIGURACIÓN\t08.09 - TESAURO\tTesauro de tipo tabla, que pueda añadirse \"n\" filas (por ejemplo, tabla con los miembros de una unidad familiar)"
+  },
+  {
+   "topic": 1320,
+   "title": "3841 # 08 - CONFIGURACIÓN\t08.09 - TESAURO\tPoder duplicar tesauros"
+  },
+  {
+   "topic": 1311,
+   "title": "3684 # 08 - CONFIGURACIÓN\t08.09 - TESAURO\tQue los tesauros tipados de tipo NIF/CIF/DIR3 estén enganchados a la base de terceros. Poder crear nuevos terceros. Poder corregir desde el tesauro sus datos en caso de ya existir"
+  },
+  {
+   "topic": 1310,
+   "title": "3633 # 04 - tramitación administrativa\t04.01 - expedientes\tque si se modifica un tesauro, que sea visible en los expedientes ya existentes. sólo se ven los cambios en los expedientes que se crean después del cambio"
+  },
+  {
+   "topic": 1308,
+   "title": "3556 # 08 - configuración\t08.09 - tesauro\ttesauro multilínea y texto enriquecido (que admita negritas, salto de línea, cursivas, subrayados, etc"
+  },
+  {
+   "topic": 1305,
+   "title": "3472 # 04 - tramitación administrativa\t04.01 - expedientes\tpoder guardar datos en una propuesta circuito de resolución. permitiría heredar valores del tesauro de los antecedentes a la parte dispositiva"
+  },
+  {
+   "topic": 1304,
+   "title": "3431 # 08 - configuración\t08.06 - catálogo de actividades\ta la hora de configurar la documentación de un trámite externo, que se pueda añadir mas de una condición de aportación. (and / or de tesauros) que admita selector multiple i18n"
+  },
+  {
+   "topic": 1081,
+   "title": "Traslado de Tesauros datos básicos a Markdown"
+  },
+  {
+   "topic": 945,
+   "title": "App para búsquedas avanzadas de campos Tesauro"
+  },
+  {
+   "topic": 685,
+   "title": "Poder trasladar tesauros y funciones/dato del trámite externo al expediente cuando se usa la funcionalidad de “incorporar expediente"
+  },
+  {
+   "topic": 635,
+   "title": "Uso de tesauros tipo texto bilingües"
+  },
+  {
+   "topic": 456,
+   "title": "4129 # 08 - CONFIGURACIÓN\t08.09 - TESAURO\tTras V9, en la sede, ha dejado de mostrarse el nombre del tesauro y ahora pone \"Escribir\" y/o \"Seleccionar\". Tener un check a nivel de entidad para decidir mostrar como antes"
+  },
+  {
+   "topic": 449,
+   "title": "4100 # 09 - SEDE ELECTRÓNICA\t09.06 - SOLICITUDES EN BORRADOR\tPoder guardar un paso a medias sin finalizar. Por ejemplo, paso 2 formulario, puede ser largo con muchos tesauros y si no pasan al paso 3 documentación, no se almacena lo cumplimentado"
+  },
+  {
+   "topic": 451,
+   "title": "4104 # 08 - CONFIGURACIÓN\t08.09 - TESAURO\tPoder vincular tesauros a una actividad de manera masiva"
+  },
+  {
+   "topic": 464,
+   "title": "4193 # 08 - CONFIGURACIÓN\t08.01 - USUARIOS\tNuevo rol/permiso para la edición de tesauros a nivel de entidad"
+  },
+  {
+   "topic": 461,
+   "title": "4176 # 09 - SEDE ELECTRÓNICA\t09.02 - TRÁMITES\tEn tesauro de tipo \"Dirección postal\", generar un aviso indicando la relación de valores que son obligatorios si no están cumplimentados"
+  },
+  {
+   "topic": 459,
+   "title": "4142 # 08 - CONFIGURACIÓN\t08.09 - TESAURO\tPoder definir en el tesauro dirección que no apareciesen determinados campos. Por ejemplo, quitar estado, provincia, etc"
+  },
+  {
+   "topic": 454,
+   "title": "4113 # 06 - ANALÍTICA DE DATOS\t06.02 - BÚSQUEDAS AVANZADAS\tBúsqueda avanzada de tesauros. Poder filtrar no sólo tesauros creados en v9 sino también anteriores. Saber en qué actividades/procedimientos se usan. Explotable también en Analiza"
+  },
+  {
+   "topic": 447,
+   "title": "4076 # 08 - CONFIGURACIÓN\t08.09 - TESAURO\tTras la versión 9, poder fusionar tesauros repetidos en varias actividades para tener una única referencia"
+  },
+  {
+   "topic": 415,
+   "title": "Tesauro informado en solicitud mediante asignación LET si no se muestra en formulario solicitud, pierde su valor en expediente"
+  },
+  {
+   "topic": 381,
+   "title": "Valor predeterminado de tesauro Dirección postal falta provincia"
+  },
+  {
+   "topic": 2326,
+   "title": "Formatear valor de tesauro tipo Fecha"
+  },
+  {
+   "topic": 2336,
+   "title": "Agrupar valores de tesauro: Anidación de expresiones IF/Wildmatch en tesauro"
+  },
+  {
+   "topic": 2345,
+   "title": "10. Análisis de tesauros. Control de uso de tesauros"
+  },
+  {
+   "topic": 2346,
+   "title": "9. Análisis de tesauros. Tratamiento de tesauros y sus valores null"
+  }
+ ],
+ "configuración": [
+  {
+   "topic": 472,
+   "title": "Configuración del asistente (appletless) en infraestructuras centralizadas"
+  },
+  {
+   "topic": 1411,
+   "title": "3842 # 08 - CONFIGURACIÓN\t08.09 - TESAURO\tMás tesauros tipados: email, teléfono, código postal, matrícula, aplicación presupuestaria, núm expediente, núm registro, cuenta bancaria SEPA, mes/año (como tarjetas), hipervínculo, etc"
+  },
+  {
+   "topic": 1389,
+   "title": "3680 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tPoder realizar campos calculados (let) en más tipos de tesauros: Fecha (por ejemplo \"hoy\"), Selector i18N, tipado NIF/CIF, etc"
+  },
+  {
+   "topic": 1387,
+   "title": "3188 # 08 - configuración\t08.01 - usuarios\tcon el permiso editar catálogo limitado que se pueda publicar un trámite externo o que exista un permiso exclusivo para publicar trámites"
+  },
+  {
+   "topic": 1384,
+   "title": "4453 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tAtributo markdown en los tesauros para ocultarlos (x ej: visible:false) y que se guarden datos. Útil tras un LET"
+  },
+  {
+   "topic": 1374,
+   "title": "3846 # 08 - CONFIGURACIÓN\t08.23 - CATEGORÍAS DE REGISTRO\tVincular la asignación de tema/categoría de un registro al valor de un tesauro del trámite externo"
+  },
+  {
+   "topic": 1370,
+   "title": "4322 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tEn caso de utilizar el mismo tesauro en dos section/condicionales distintas, uno con editable false y otro no, la section sin editable false se comporta como false cuando no debería"
+  },
+  {
+   "topic": 1368,
+   "title": "2719 # 08 - configuración\t08.06 - catálogo de actividades\tse pueda realizar auditoría sobre trámites externos para ver quién hace modificaciones en los mismos; fecha publicación/despublicación; etc"
+  },
+  {
+   "topic": 1366,
+   "title": "4446 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tNuevas dato/función en markdown: caja con el expone, el solicita y el información adicional del trámite externo. Tanto si tiene tesauros, como si es texto libre"
+  },
+  {
+   "topic": 1365,
+   "title": "4445 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tMejora en la funcionalidad markdown columns:block para añadir márgenes; saltos de línea; etc. Problemática editor word/libreoffice"
+  },
+  {
+   "topic": 1363,
+   "title": "4439 # 08 - CONFIGURACIÓN\t08.08 - CIRCUITOS DE TRAMITACIÓN\tEn el caso de tareas regladas manuales, poder informar del cambio de estado por lanzarla. Por ejemplo, tarea de informe, que cambie estado a \"pendiente de informe\""
+  },
+  {
+   "topic": 1362,
+   "title": "4438 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tQue en la configuración de la tramitación reglada que sea más visual saber si está asignada a una persona, grupo, rol, tesauro usuario, etc"
+  },
+  {
+   "topic": 1360,
+   "title": "4416 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tAtributo en markdown para obtener representaciones de tipo texto de tesauros de tipo numérico, moneda, fecha, etc"
+  },
+  {
+   "topic": 1358,
+   "title": "4411 # 08 - CONFIGURACIÓN\t08.08 - CIRCUITOS DE TRAMITACIÓN\tPoder definir como firmante en un circuito de tramitación al dato de un tesauro de tipo selector de usuario"
+  },
+  {
+   "topic": 1357,
+   "title": "4408 # 08 - CONFIGURACIÓN\t08.01 - USUARIOS\tDividir el permiso \"eliminar tareas\", en todo y limitado. Ahora sólo es limitado"
+  },
+  {
+   "topic": 1356,
+   "title": "4407 # 08 - CONFIGURACIÓN\t08.10 - INTEGRACIONES\tDisponer en la configuración en la integración con TEU BOE de un campo con el que rellenar el correo electrónico de origen que se use"
+  },
+  {
+   "topic": 1354,
+   "title": "4400 # 08 - CONFIGURACIÓN\t08.15 - SEDE ELECTRÓNICA\tPoder definir fecha y hora de publicación y despublicación del banner de avisos de la sede electrónica"
+  },
+  {
+   "topic": 1352,
+   "title": "4397 # 08 - CONFIGURACIÓN\t08.08 - CIRCUITOS DE TRAMITACIÓN\tIncluir en la funcionalidad de roles de firma de los circuitos de tramitación al resto de órganos unipersonales (sólo salen los 4 que surgen de la ratificación). Usarlo también en la validación"
+  },
+  {
+   "topic": 1350,
+   "title": "4390 # 08 - CONFIGURACIÓN\t08.01 - USUARIOS\tPermiso de usuario independiente para la funcionalidad de restringir acceso a los documentos"
+  },
+  {
+   "topic": 1348,
+   "title": "4387 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tPoder vincular la documentación a presentar en la OAMR con tesauros de tipo sí/no, de cara a heredar en el procedimiento la información de si se presentó o no, y poderlo usar en la tramitación regl"
+  },
+  {
+   "topic": 1345,
+   "title": "4354 # 08 - configuración\t08.08 - circuitos de tramitación\tposibilidad de configurar en el circuito de tramitación con envío a un libro, la inserción de tesauros en el extracto"
+  },
+  {
+   "topic": 1344,
+   "title": "4338 # 08 - configuración\t08.06 - catálogo de actividades\tañadir tooltips de ayuda en las opciones de configuración del catálogo, tramitación reglada, circuitos de resolución"
+  },
+  {
+   "topic": 1339,
+   "title": "4303 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tPoder configurar que en el nombre de la tarea reglada se añadan valores de tesauro y/o datos/función"
+  },
+  {
+   "topic": 1338,
+   "title": "4302 # 08 - CONFIGURACIÓN\t08.01 - USUARIOS\tPermiso \"eliminar tareas (todas)\" diferente del actual \"eliminar tarea\" que está limitado a ser unidad gestora/responsable del expediente"
+  },
+  {
+   "topic": 1334,
+   "title": "4158 # 08 - CONFIGURACIÓN\t08.07 - CIRCUITOS DE RESOLUCIÓN\tAñadir en la búsqueda avanzada de configuración CR: Visibilidad. Además, en con fiscalización: Régimen de fiscalización, procedimiento vinculado, personalizado sí/no, fecha sincronización HL"
+  },
+  {
+   "topic": 1329,
+   "title": "4104 # 08 - CONFIGURACIÓN 08.09 - TESAURO Poder vincular tesauros a una actividad de manera masiva"
+  },
+  {
+   "topic": 1327,
+   "title": "4064 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tPoder predefinir en un procedimiento que cada vez que se cree un nuevo expediente, se creen siempre con unas carpetas definidas de antemano"
+  },
+  {
+   "topic": 1326,
+   "title": "4026 # 09 - ÁREA PERSONAL DEL USUARIO\t09.01 - MI ÁREA\tEstablecer confirmar más de un mail y teléfono en la configuración del usuario. Uno para esfirma y otro para avisos de Gestiona"
+  },
+  {
+   "topic": 1324,
+   "title": "3949 # 08 - CONFIGURACIÓN\t08.07 - CIRCUITOS DE RESOLUCIÓN\tCambios de estado en actos plurales desde CSV con expediente en Gestiona (sólo está en opción de selector de expedientes)"
+  },
+  {
+   "topic": 1322,
+   "title": "3851 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tPoder crear tareas regladas genéricas que se puedan utilizar desde cualquier procedimiento"
+  },
+  {
+   "topic": 1321,
+   "title": "3845 # 08 - CONFIGURACIÓN\t08.09 - TESAURO\tTesauro de tipo tabla, que pueda añadirse \"n\" filas (por ejemplo, tabla con los miembros de una unidad familiar)"
+  },
+  {
+   "topic": 1320,
+   "title": "3841 # 08 - CONFIGURACIÓN\t08.09 - TESAURO\tPoder duplicar tesauros"
+  },
+  {
+   "topic": 1319,
+   "title": "3836 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tMejoras markdown: subrayados, tamaños/tipos letra, pegar imágenes, pegar tablas, justificar, saltos de linea, tabulados, los apóstrofes se cortan, estilos tablas (borde, color, grosor, espaciado) e"
+  },
+  {
+   "topic": 1317,
+   "title": "3804 # 08 - configuración\t08.06 - catálogo de actividades\testablecer niveles de identificación y firma por cada trámite externo. aprovechar el dato ens del trámite. incluso nivel 0 para presentar sin identificación"
+  },
+  {
+   "topic": 1316,
+   "title": "3779 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tPoder incluir en el markdown de las tareas regladas, CRs, oocc, y trámite externo todos los datos/funciones de la actividad (datos básicos), así como datos de contratación. Tb móvil de interesado"
+  },
+  {
+   "topic": 1315,
+   "title": "3742 # 08 - configuración\t08.07 - circuitos de resolución\tauditoría en la configuración de circuitos de resolución y tramitación"
+  },
+  {
+   "topic": 1312,
+   "title": "3714 # 02 - atención ciudadana\t02.01 - oficina de asistencia\tque el nombre y metadatos de los documentos escaneados en la oamr y/o aportados en sede se tomen de la configuración del trámite externo"
+  },
+  {
+   "topic": 1311,
+   "title": "3684 # 08 - CONFIGURACIÓN\t08.09 - TESAURO\tQue los tesauros tipados de tipo NIF/CIF/DIR3 estén enganchados a la base de terceros. Poder crear nuevos terceros. Poder corregir desde el tesauro sus datos en caso de ya existir"
+  },
+  {
+   "topic": 1308,
+   "title": "3556 # 08 - configuración\t08.09 - tesauro\ttesauro multilínea y texto enriquecido (que admita negritas, salto de línea, cursivas, subrayados, etc"
+  },
+  {
+   "topic": 1304,
+   "title": "3431 # 08 - configuración\t08.06 - catálogo de actividades\ta la hora de configurar la documentación de un trámite externo, que se pueda añadir mas de una condición de aportación. (and / or de tesauros) que admita selector multiple i18n"
+  },
+  {
+   "topic": 1303,
+   "title": "3340 # 08 - configuración\t08.08 - circuitos de tramitación\tal igual que se puede seleccionar el cargo del firmante, se pueda seleccionar en el validador"
+  },
+  {
+   "topic": 1302,
+   "title": "3327 # 08 - configuración\t08.01 - usuarios\tusuarios con caducidad: incorporar fechas de vigencia del usuario, en formato de fecha de inicio y fecha final llegada la fecha final desactivarse automáticamente"
+  },
+  {
+   "topic": 1296,
+   "title": "2327 # 08 - configuración\t08.06 - catálogo de actividades\ttarea trámite externo sujeto a notificación: activar en sede/oarm asociado a la recepción de notificación por un plazo; asociar tema registro; incorporarse automáticamente al expediente la entrada"
+  },
+  {
+   "topic": 1281,
+   "title": "18 # 08 - configuración\t08.01 - usuarios\tpermisos independientes sobre oficinas de registro. x ej. restringir acceso a oficina auxiliar, o que no se pueda utilizar"
+  },
+  {
+   "topic": 687,
+   "title": "Mejoras en circuitos de resolución (Configuración)"
+  },
+  {
+   "topic": 456,
+   "title": "4129 # 08 - CONFIGURACIÓN\t08.09 - TESAURO\tTras V9, en la sede, ha dejado de mostrarse el nombre del tesauro y ahora pone \"Escribir\" y/o \"Seleccionar\". Tener un check a nivel de entidad para decidir mostrar como antes"
+  },
+  {
+   "topic": 451,
+   "title": "4104 # 08 - CONFIGURACIÓN\t08.09 - TESAURO\tPoder vincular tesauros a una actividad de manera masiva"
+  },
+  {
+   "topic": 464,
+   "title": "4193 # 08 - CONFIGURACIÓN\t08.01 - USUARIOS\tNuevo rol/permiso para la edición de tesauros a nivel de entidad"
+  },
+  {
+   "topic": 459,
+   "title": "4142 # 08 - CONFIGURACIÓN\t08.09 - TESAURO\tPoder definir en el tesauro dirección que no apareciesen determinados campos. Por ejemplo, quitar estado, provincia, etc"
+  },
+  {
+   "topic": 455,
+   "title": "4122 # 08 - CONFIGURACIÓN\t08.11 - DATOS DE LA ENTIDAD\tQue haya un check a activar a nivel entidad donde se pregunte si se quiere que el tipo documental por defecto sea \"otros\" o no"
+  },
+  {
+   "topic": 453,
+   "title": "4110 # 08 - CONFIGURACIÓN\t08.13 - SEDE ELECTRÓNICA\tAl configurar el Banner de avisos de la Sede Electrónica, que sean opcionales los campos \"Subtítulo\" e \"Información de contacto\". En el momento que lo rellenas ya no deja dejarlo en blanco"
+  },
+  {
+   "topic": 447,
+   "title": "4076 # 08 - CONFIGURACIÓN\t08.09 - TESAURO\tTras la versión 9, poder fusionar tesauros repetidos en varias actividades para tener una única referencia"
+  }
+ ],
+ "tramitación": [
+  {
+   "topic": 2287,
+   "title": "🔍 Consulta sobre tramitación reglada: Subvenciones, Convenios y Registro de Entidades"
+  },
+  {
+   "topic": 1113,
+   "title": "La tramitación electrónica de las sesiones de los Órganos Colegiados del Ayuntamiento de Castelló de la Plana en el Congreso NovaGob 2024"
+  },
+  {
+   "topic": 908,
+   "title": "Analítica de datos en la Tramitación conjunta de facturas (TCF). ¿Usuario firmante?"
+  },
+  {
+   "topic": 2519,
+   "title": "WEBINAR: Trucos para agilizar la tramitación administrativa con Gestiona"
+  },
+  {
+   "topic": 1230,
+   "title": "SEMINARIO: Tramitación y automatización de los procesos selectivos"
+  },
+  {
+   "topic": 1395,
+   "title": "4367 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tPermitir subir mediante la funcionalidad \"Arrastre a este área documentos a cargar\": carpetas, ficheros grandes (>50Mbs), determinadas extensiones (dwg), etc"
+  },
+  {
+   "topic": 1421,
+   "title": "4461 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.03 - LIBROS OFICIALES\tPoder obtener en la relación extractada las resoluciones que hayan sido anuladas. Que venga el motivo de la anulación"
+  },
+  {
+   "topic": 1372,
+   "title": "3919 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tAl comunicar en acto plural, poder decidir si queremos que salga el anexo como en la resolución. Actualmente no muestra el anexo plural. Idem con tablón y transparencia"
+  },
+  {
+   "topic": 1371,
+   "title": "3089 # 04 - tramitación administrativa\t04.01 - expedientes\tpoder cambiar el procedimiento una vez abierto el expediente"
+  },
+  {
+   "topic": 1363,
+   "title": "4439 # 08 - CONFIGURACIÓN\t08.08 - CIRCUITOS DE TRAMITACIÓN\tEn el caso de tareas regladas manuales, poder informar del cambio de estado por lanzarla. Por ejemplo, tarea de informe, que cambie estado a \"pendiente de informe\""
+  },
+  {
+   "topic": 1362,
+   "title": "4438 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tQue en la configuración de la tramitación reglada que sea más visual saber si está asignada a una persona, grupo, rol, tesauro usuario, etc"
+  },
+  {
+   "topic": 1361,
+   "title": "4435 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tNo permitir lanzar tarea reglada manual asignada a un tesauro usuario si éste no está informado en el expediente"
+  },
+  {
+   "topic": 1358,
+   "title": "4411 # 08 - CONFIGURACIÓN\t08.08 - CIRCUITOS DE TRAMITACIÓN\tPoder definir como firmante en un circuito de tramitación al dato de un tesauro de tipo selector de usuario"
+  },
+  {
+   "topic": 1355,
+   "title": "4404 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tAl incorporar un grupo de terceros a un expediente, que salga un aviso: \"se van a incorporar N terceros al expediente ¿está usted seguro?\""
+  },
+  {
+   "topic": 1353,
+   "title": "4398 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tOpción dependencia de origen en el circuito de tramitación, que por defecto sea \"unidad gestora\" en vez de \"usuario que lanza el circuito\""
+  },
+  {
+   "topic": 1352,
+   "title": "4397 # 08 - CONFIGURACIÓN\t08.08 - CIRCUITOS DE TRAMITACIÓN\tIncluir en la funcionalidad de roles de firma de los circuitos de tramitación al resto de órganos unipersonales (sólo salen los 4 que surgen de la ratificación). Usarlo también en la validación"
+  },
+  {
+   "topic": 1348,
+   "title": "4387 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tPoder vincular la documentación a presentar en la OAMR con tesauros de tipo sí/no, de cara a heredar en el procedimiento la información de si se presentó o no, y poderlo usar en la tramitación regl"
+  },
+  {
+   "topic": 1345,
+   "title": "4354 # 08 - configuración\t08.08 - circuitos de tramitación\tposibilidad de configurar en el circuito de tramitación con envío a un libro, la inserción de tesauros en el extracto"
+  },
+  {
+   "topic": 1344,
+   "title": "4338 # 08 - configuración\t08.06 - catálogo de actividades\tañadir tooltips de ayuda en las opciones de configuración del catálogo, tramitación reglada, circuitos de resolución"
+  },
+  {
+   "topic": 1343,
+   "title": "4337 # 04 - tramitación administrativa\t04.01 - expedientes\tcrear un nuevo rol en el expediente para poder asignar usuarios o grupos sólo de consulta (independiente de que el usuario tenga permiso de edición)"
+  },
+  {
+   "topic": 1337,
+   "title": "4301 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tEn la opción \"Abrir expediente relacionado\", que se trasladen funciones/dato y terceros. No sólo tesauros"
+  },
+  {
+   "topic": 1323,
+   "title": "3853 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tPoder marcar nivel de prioridad a la firma de un documento. Que los validadores puedan editarlo. Que salga en primer lugar en el listado"
+  },
+  {
+   "topic": 1318,
+   "title": "3807 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tLa funcionalidad de avisar de la resolución del circuito de resolución debería dar opción de descargar el documento. Ahora recibe aviso, pero no puede descargarlo"
+  },
+  {
+   "topic": 1315,
+   "title": "3742 # 08 - configuración\t08.07 - circuitos de resolución\tauditoría en la configuración de circuitos de resolución y tramitación"
+  },
+  {
+   "topic": 1310,
+   "title": "3633 # 04 - tramitación administrativa\t04.01 - expedientes\tque si se modifica un tesauro, que sea visible en los expedientes ya existentes. sólo se ven los cambios en los expedientes que se crean después del cambio"
+  },
+  {
+   "topic": 1309,
+   "title": "3558 # 04 - tramitación administrativa\t04.01 - expedientes\tpoder anexar a las notificaciones de acto plural, documentos individualizados por tercero (por ejemplo, a cada uno, carta de pago personalizada)"
+  },
+  {
+   "topic": 1306,
+   "title": "3510 # 04 - tramitación administrativa\t04.01 - expedientes\tmetadatos: poder hacer una búsqueda del tipo/subtipo de forma fácil"
+  },
+  {
+   "topic": 1305,
+   "title": "3472 # 04 - tramitación administrativa\t04.01 - expedientes\tpoder guardar datos en una propuesta circuito de resolución. permitiría heredar valores del tesauro de los antecedentes a la parte dispositiva"
+  },
+  {
+   "topic": 1303,
+   "title": "3340 # 08 - configuración\t08.08 - circuitos de tramitación\tal igual que se puede seleccionar el cargo del firmante, se pueda seleccionar en el validador"
+  },
+  {
+   "topic": 1301,
+   "title": "3077 # 04 - tramitación administrativa\t04.01 - expedientes\tcuando un tercero incorpora documentación en el expediente (sede) o es desde registro, se cree/incorpore a carpeta con nombre/nif, y no en el directorio raíz. subvenciones, procesos selectivos"
+  },
+  {
+   "topic": 1300,
+   "title": "2854 # 04 - tramitación administrativa\t04.01 - expedientes\tdetectar los documentos firmados fuera de gestiona. que se valide la firma está ok. que no dé la opción de tramitarlos y permita notificarlos"
+  },
+  {
+   "topic": 1294,
+   "title": "2135 # 04 - tramitación administrativa\t04.03 - libros oficiales\tque el rol \"ver libros limitado\" vaya vinculado a la unidad gestora del expediente/cr. para que los usuarios de dicho grupo vean todos los producidos por el resto de usuarios de su grupo"
+  },
+  {
+   "topic": 1292,
+   "title": "2038 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tEdición: Posibilidad de anonimizar o esconder datos de un PDF para exponerlo en tablón de anuncios y transparencia o RS. Copia parcial electrónica firmada con sello de órgano"
+  },
+  {
+   "topic": 1290,
+   "title": "1991 # 04 - tramitación administrativa\t04.01 - expedientes\tfirmar documentos en horizontal y vertical (en el mismo documento) y distintos tamaños a3,a4. o que se reajusten al firmar a vertical todos"
+  },
+  {
+   "topic": 1286,
+   "title": "1339 # 04 - tramitación administrativa\t04.01 - expedientes\tvisibilidad: otro icono que permita ver a primera vista que es visible para todos los interesados del expediente, diferente al de las cabecitas/muñecos/muñequitos"
+  },
+  {
+   "topic": 1285,
+   "title": "997 # 04 - tramitación administrativa\t04.01 - expedientes\tvisibilidad: en la visibilidad de documentos con expedientes de varios terceros que no tengan visibilidad todos, solamente el tercero que lo haya solicitado o el que seleccionemos. icono distinto"
+  },
+  {
+   "topic": 1283,
+   "title": "470 # 04 - tramitación administrativa\t04.01 - expedientes\tasignar/desasignar: al \"enviar a\" sólo genere alerta a los que se añaden y/o se retiran/desasignen del expediente, con independencia de que mantengan alertas previas"
+  },
+  {
+   "topic": 665,
+   "title": "Editor de textos en plantilles en blanco y formularios de tramitación reglada"
+  },
+  {
+   "topic": 450,
+   "title": "4103 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tTras V9 se está ocultando el campo \"Descripción\" de la tarea reglada. Hay que hacer clic en “mas información” para ver esta información de la tarea. Poder definir que sea visible por defecto"
+  },
+  {
+   "topic": 462,
+   "title": "4178 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.06 - LIBROS OFICIALES\tQue la relación extractada funcione también con libros de certificados de acuerdos de órganos colegiados para acuerdos emanados de circuitos de resolución"
+  },
+  {
+   "topic": 448,
+   "title": "4098 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tQue el comportamiento del metadato tipo documento por defecto en documento en blanco sea igual que cuando cargas un documento. En v9 viene sin rellenar en blanco, pero es \"Otros\" al cargar"
+  },
+  {
+   "topic": 389,
+   "title": "Sugerencia de Mejora: Incluir opción \"Anexar documentos del expedediente de apoyo a la firma\" en los Circuitos de Tramitación"
+  }
+ ],
+ "expedientes": [
+  {
+   "topic": 517,
+   "title": "Expedientes: evolución de la búsqueda avanzada (Analiza)"
+  },
+  {
+   "topic": 1499,
+   "title": "SEMINARIO: Expedientes con gasto. La función interventora"
+  },
+  {
+   "topic": 2426,
+   "title": "Necesidad de que funcione la descarga de expedientes ENI"
+  },
+  {
+   "topic": 2270,
+   "title": "Índice expedientes"
+  },
+  {
+   "topic": 1395,
+   "title": "4367 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tPermitir subir mediante la funcionalidad \"Arrastre a este área documentos a cargar\": carpetas, ficheros grandes (>50Mbs), determinadas extensiones (dwg), etc"
+  },
+  {
+   "topic": 1372,
+   "title": "3919 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tAl comunicar en acto plural, poder decidir si queremos que salga el anexo como en la resolución. Actualmente no muestra el anexo plural. Idem con tablón y transparencia"
+  },
+  {
+   "topic": 1371,
+   "title": "3089 # 04 - tramitación administrativa\t04.01 - expedientes\tpoder cambiar el procedimiento una vez abierto el expediente"
+  },
+  {
+   "topic": 1364,
+   "title": "4440 # 03 - REGISTRO ELECTRÓNICO\t03.02 - REGISTRO DE ENTRADA\tQue no deje poner notificación electrónica cuando el tercero tenga de NIF de tipo \"otros\". Que obligue a rellenar dirección postal. Tanto en Sede, OAMR, Registro y Expedientes"
+  },
+  {
+   "topic": 1361,
+   "title": "4435 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tNo permitir lanzar tarea reglada manual asignada a un tesauro usuario si éste no está informado en el expediente"
+  },
+  {
+   "topic": 1355,
+   "title": "4404 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tAl incorporar un grupo de terceros a un expediente, que salga un aviso: \"se van a incorporar N terceros al expediente ¿está usted seguro?\""
+  },
+  {
+   "topic": 1353,
+   "title": "4398 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tOpción dependencia de origen en el circuito de tramitación, que por defecto sea \"unidad gestora\" en vez de \"usuario que lanza el circuito\""
+  },
+  {
+   "topic": 1343,
+   "title": "4337 # 04 - tramitación administrativa\t04.01 - expedientes\tcrear un nuevo rol en el expediente para poder asignar usuarios o grupos sólo de consulta (independiente de que el usuario tenga permiso de edición)"
+  },
+  {
+   "topic": 1340,
+   "title": "4311 # 07 - analítica de datos\t07.02 - búsquedas avanzadas\tpoder filtrar por expedientes marcados como favoritos"
+  },
+  {
+   "topic": 1337,
+   "title": "4301 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tEn la opción \"Abrir expediente relacionado\", que se trasladen funciones/dato y terceros. No sólo tesauros"
+  },
+  {
+   "topic": 1324,
+   "title": "3949 # 08 - CONFIGURACIÓN\t08.07 - CIRCUITOS DE RESOLUCIÓN\tCambios de estado en actos plurales desde CSV con expediente en Gestiona (sólo está en opción de selector de expedientes)"
+  },
+  {
+   "topic": 1323,
+   "title": "3853 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tPoder marcar nivel de prioridad a la firma de un documento. Que los validadores puedan editarlo. Que salga en primer lugar en el listado"
+  },
+  {
+   "topic": 1318,
+   "title": "3807 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tLa funcionalidad de avisar de la resolución del circuito de resolución debería dar opción de descargar el documento. Ahora recibe aviso, pero no puede descargarlo"
+  },
+  {
+   "topic": 1310,
+   "title": "3633 # 04 - tramitación administrativa\t04.01 - expedientes\tque si se modifica un tesauro, que sea visible en los expedientes ya existentes. sólo se ven los cambios en los expedientes que se crean después del cambio"
+  },
+  {
+   "topic": 1309,
+   "title": "3558 # 04 - tramitación administrativa\t04.01 - expedientes\tpoder anexar a las notificaciones de acto plural, documentos individualizados por tercero (por ejemplo, a cada uno, carta de pago personalizada)"
+  },
+  {
+   "topic": 1307,
+   "title": "3526 # 01 - inicio\t01.02 - avisos y alertas\tasignar/desasignar: que en las alertas de asignación de expedientes o tareas, junto al número de expediente aparezca también el asunto para identificar el expediente"
+  },
+  {
+   "topic": 1306,
+   "title": "3510 # 04 - tramitación administrativa\t04.01 - expedientes\tmetadatos: poder hacer una búsqueda del tipo/subtipo de forma fácil"
+  },
+  {
+   "topic": 1305,
+   "title": "3472 # 04 - tramitación administrativa\t04.01 - expedientes\tpoder guardar datos en una propuesta circuito de resolución. permitiría heredar valores del tesauro de los antecedentes a la parte dispositiva"
+  },
+  {
+   "topic": 1301,
+   "title": "3077 # 04 - tramitación administrativa\t04.01 - expedientes\tcuando un tercero incorpora documentación en el expediente (sede) o es desde registro, se cree/incorpore a carpeta con nombre/nif, y no en el directorio raíz. subvenciones, procesos selectivos"
+  },
+  {
+   "topic": 1300,
+   "title": "2854 # 04 - tramitación administrativa\t04.01 - expedientes\tdetectar los documentos firmados fuera de gestiona. que se valide la firma está ok. que no dé la opción de tramitarlos y permita notificarlos"
+  },
+  {
+   "topic": 1292,
+   "title": "2038 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tEdición: Posibilidad de anonimizar o esconder datos de un PDF para exponerlo en tablón de anuncios y transparencia o RS. Copia parcial electrónica firmada con sello de órgano"
+  },
+  {
+   "topic": 1291,
+   "title": "1993 # 03 - registro electrónico\t03.02 - registro de entrada\tque los usuarios puedan ver los miembros de los grupos sin ser administrador, es decir que desde registro/expedientes sea posible consultar que usuarios componen para asignar"
+  },
+  {
+   "topic": 1290,
+   "title": "1991 # 04 - tramitación administrativa\t04.01 - expedientes\tfirmar documentos en horizontal y vertical (en el mismo documento) y distintos tamaños a3,a4. o que se reajusten al firmar a vertical todos"
+  },
+  {
+   "topic": 1286,
+   "title": "1339 # 04 - tramitación administrativa\t04.01 - expedientes\tvisibilidad: otro icono que permita ver a primera vista que es visible para todos los interesados del expediente, diferente al de las cabecitas/muñecos/muñequitos"
+  },
+  {
+   "topic": 1285,
+   "title": "997 # 04 - tramitación administrativa\t04.01 - expedientes\tvisibilidad: en la visibilidad de documentos con expedientes de varios terceros que no tengan visibilidad todos, solamente el tercero que lo haya solicitado o el que seleccionemos. icono distinto"
+  },
+  {
+   "topic": 1284,
+   "title": "621 # 10 - sede electrónica\t10.04 - consulta de expedientes\tbuscador y posibilidad de ordenar documentos de en la consulta de expedientes y registros de la carpeta ciudadana. y quitar el botón \"mostrar más\""
+  },
+  {
+   "topic": 1283,
+   "title": "470 # 04 - tramitación administrativa\t04.01 - expedientes\tasignar/desasignar: al \"enviar a\" sólo genere alerta a los que se añaden y/o se retiran/desasignen del expediente, con independencia de que mantengan alertas previas"
+  },
+  {
+   "topic": 1106,
+   "title": "Procedimiento genérico de subsanación de deficiencias en expedientes"
+  },
+  {
+   "topic": 450,
+   "title": "4103 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tTras V9 se está ocultando el campo \"Descripción\" de la tarea reglada. Hay que hacer clic en “mas información” para ver esta información de la tarea. Poder definir que sea visible por defecto"
+  },
+  {
+   "topic": 448,
+   "title": "4098 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tQue el comportamiento del metadato tipo documento por defecto en documento en blanco sea igual que cuando cargas un documento. En v9 viene sin rellenar en blanco, pero es \"Otros\" al cargar"
+  },
+  {
+   "topic": 2333,
+   "title": "Expedientes solo asignadas a un usuario / Varios usuarios / Varios grupos / Usuarios + Grupos"
+  },
+  {
+   "topic": 2347,
+   "title": "8. Uso de If y Wildmatch. Filtrado de expedientes de factura"
+  },
+  {
+   "topic": 2348,
+   "title": "7. Uso de IF y Wildmatch. Agrupación de fases de Abierto en expedientes"
+  },
+  {
+   "topic": 2351,
+   "title": "4. Excluir expedientes anulados con IF"
+  },
+  {
+   "topic": 2367,
+   "title": "Hoja 1: Media apertura expedientes (Días)"
+  }
+ ],
+ "registro": [
+  {
+   "topic": 2287,
+   "title": "🔍 Consulta sobre tramitación reglada: Subvenciones, Convenios y Registro de Entidades"
+  },
+  {
+   "topic": 882,
+   "title": "Acceso al Registro por parte de los miembros de la oposición"
+  },
+  {
+   "topic": 1708,
+   "title": "Reasignación de registros de forma rápida"
+  },
+  {
+   "topic": 1973,
+   "title": "Truco del mes newsletter 10 – ¿Se puede restringir la edición de asignaciones de un registro?"
+  },
+  {
+   "topic": 2439,
+   "title": "Pensamientos en voz alta... 💥 ¡Y una propuesta para el registro de ideas!"
+  },
+  {
+   "topic": 2427,
+   "title": "Avisos notificaciones de un registro de salida"
+  },
+  {
+   "topic": 2033,
+   "title": "Consulta sobre el estado del Registro Electrónico de Apoderamientos (REA)"
+  },
+  {
+   "topic": 1411,
+   "title": "3842 # 08 - CONFIGURACIÓN\t08.09 - TESAURO\tMás tesauros tipados: email, teléfono, código postal, matrícula, aplicación presupuestaria, núm expediente, núm registro, cuenta bancaria SEPA, mes/año (como tarjetas), hipervínculo, etc"
+  },
+  {
+   "topic": 1374,
+   "title": "3846 # 08 - CONFIGURACIÓN\t08.23 - CATEGORÍAS DE REGISTRO\tVincular la asignación de tema/categoría de un registro al valor de un tesauro del trámite externo"
+  },
+  {
+   "topic": 1364,
+   "title": "4440 # 03 - REGISTRO ELECTRÓNICO\t03.02 - REGISTRO DE ENTRADA\tQue no deje poner notificación electrónica cuando el tercero tenga de NIF de tipo \"otros\". Que obligue a rellenar dirección postal. Tanto en Sede, OAMR, Registro y Expedientes"
+  },
+  {
+   "topic": 1351,
+   "title": "4394 # 03 - REGISTRO ELECTRÓNICO\t03.04 - SERVICIO IMPRESIÓN Y ENSOBRADO\tPoder definir un lapso de tiempo de espera antes de que se entregue al CIEs las anotaciones. Evitar que se impriman aquellas que se recojan en sede en las primeras horas"
+  },
+  {
+   "topic": 1336,
+   "title": "4264 # 03 - registro electrónico\t03.02 - registro de entrada\tlector de códigos csv que permita validar e incluir un documento aportado por el ciudadano en el registro de forma automática. integración csv broker"
+  },
+  {
+   "topic": 1333,
+   "title": "4127 # 03 - REGISTRO ELECTRÓNICO\t03.02 - REGISTRO DE ENTRADA\tPoder cargar un documento en registro simplemente cumplimentando el CSV del mismo. Reutilizar documentos que ya existen en Gestiona. Art. 28 ley 39/2015"
+  },
+  {
+   "topic": 1330,
+   "title": "4107 # 03 - REGISTRO ELECTRÓNICO\t03.02 - REGISTRO DE ENTRADA\tPoder trasladar tesauros y funciones/dato del trámite externo al expediente cuando se usa la funcionalidad de \"incorporar expediente\". Sólo lo hace cuando se abre nuevo. N solicitudes = Tesauro"
+  },
+  {
+   "topic": 1328,
+   "title": "4095 # 03 - REGISTRO ELECTRÓNICO\t03.03 - REGISTRO DE SALIDA\tQue al seleccionar modo de entrega comparecencia espontánea, salga por defecto la fecha y hora actual. Ahora hay que rellenarlo a mano"
+  },
+  {
+   "topic": 1325,
+   "title": "4022 # 03 - registro electrónico\t03.04 - servicio impresión y ensobrado\tpoder seleccionar que por defecto aparezca la opción de \"envío postal de manera manual\" en lugar de \"utilizar el servicio de impresión y ensobrado\" cies; o que no venga relleno"
+  },
+  {
+   "topic": 1314,
+   "title": "3723 # 01 - INICIO\t01.02 - AVISOS Y ALERTAS\tQue el uso de la funcionalidad \"Avisar a\" otorgue acceso al registro (al menos a la vista rápida de los documentos). Ahora sale alerta, pero no deja acceder, salvo que tengas ver registro todo"
+  },
+  {
+   "topic": 1313,
+   "title": "3716 # 03 - registro electrónico\t03.01 - bandeja sir\tpoder duplicar una ventanilla única . por ejemplo: aporta muchos documentos / muchos ciudadanos presentando lo mismo (oposiciones) / etc"
+  },
+  {
+   "topic": 1301,
+   "title": "3077 # 04 - tramitación administrativa\t04.01 - expedientes\tcuando un tercero incorpora documentación en el expediente (sede) o es desde registro, se cree/incorpore a carpeta con nombre/nif, y no en el directorio raíz. subvenciones, procesos selectivos"
+  },
+  {
+   "topic": 1297,
+   "title": "2585 # 03 - registro electrónico\t03.01 - bandeja sir\ten ventanilla única, que se pueda seleccionar el interesado de la pestaña de terceros que tienen creado en lugar de tener que crearlo cada vez. y admita pasaporte"
+  },
+  {
+   "topic": 1296,
+   "title": "2327 # 08 - configuración\t08.06 - catálogo de actividades\ttarea trámite externo sujeto a notificación: activar en sede/oarm asociado a la recepción de notificación por un plazo; asociar tema registro; incorporarse automáticamente al expediente la entrada"
+  },
+  {
+   "topic": 1295,
+   "title": "2144 # 03 - registro electrónico\t03.02 - registro de entrada\tpoder predefinir metadatos tipo/subtipo cuando se indique que es una factura"
+  },
+  {
+   "topic": 1293,
+   "title": "2125 # 03 - registro electrónico\t03.02 - registro de entrada\tmetadato: buscador para indicar el tipo/ subtipo"
+  },
+  {
+   "topic": 1291,
+   "title": "1993 # 03 - registro electrónico\t03.02 - registro de entrada\tque los usuarios puedan ver los miembros de los grupos sin ser administrador, es decir que desde registro/expedientes sea posible consultar que usuarios componen para asignar"
+  },
+  {
+   "topic": 1284,
+   "title": "621 # 10 - sede electrónica\t10.04 - consulta de expedientes\tbuscador y posibilidad de ordenar documentos de en la consulta de expedientes y registros de la carpeta ciudadana. y quitar el botón \"mostrar más\""
+  },
+  {
+   "topic": 1281,
+   "title": "18 # 08 - configuración\t08.01 - usuarios\tpermisos independientes sobre oficinas de registro. x ej. restringir acceso a oficina auxiliar, o que no se pueda utilizar"
+  },
+  {
+   "topic": 677,
+   "title": "Sugerencia en documentos de registro de entrada y salida"
+  },
+  {
+   "topic": 556,
+   "title": "Mejoras en el registro de salidas y Integración de correos"
+  },
+  {
+   "topic": 2365,
+   "title": "Hoja 1: Tabla básica de datos de registro de entrada"
+  },
+  {
+   "topic": 2366,
+   "title": "Hoja 1: Distribución de anotaciones por horas de registro"
+  }
+ ],
+ "fechas": [
+  {
+   "topic": 777,
+   "title": "Cálculos Let con fechas"
+  },
+  {
+   "topic": 374,
+   "title": "Tareas de sistema sin intervención humana con fecha de activación"
+  },
+  {
+   "topic": 1389,
+   "title": "3680 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tPoder realizar campos calculados (let) en más tipos de tesauros: Fecha (por ejemplo \"hoy\"), Selector i18N, tipado NIF/CIF, etc"
+  },
+  {
+   "topic": 1368,
+   "title": "2719 # 08 - configuración\t08.06 - catálogo de actividades\tse pueda realizar auditoría sobre trámites externos para ver quién hace modificaciones en los mismos; fecha publicación/despublicación; etc"
+  },
+  {
+   "topic": 1360,
+   "title": "4416 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tAtributo en markdown para obtener representaciones de tipo texto de tesauros de tipo numérico, moneda, fecha, etc"
+  },
+  {
+   "topic": 1354,
+   "title": "4400 # 08 - CONFIGURACIÓN\t08.15 - SEDE ELECTRÓNICA\tPoder definir fecha y hora de publicación y despublicación del banner de avisos de la sede electrónica"
+  },
+  {
+   "topic": 1342,
+   "title": "4330 # 07 - ANALÍTICA DE DATOS\t07.01 - CUADRO DE MANDO\tAñadir búsquedas avanzadas en la app de certificados electrónicos. Por ejemplo para poder filtrar por fecha de validez de las tarjetas"
+  },
+  {
+   "topic": 1334,
+   "title": "4158 # 08 - CONFIGURACIÓN\t08.07 - CIRCUITOS DE RESOLUCIÓN\tAñadir en la búsqueda avanzada de configuración CR: Visibilidad. Además, en con fiscalización: Régimen de fiscalización, procedimiento vinculado, personalizado sí/no, fecha sincronización HL"
+  },
+  {
+   "topic": 1328,
+   "title": "4095 # 03 - REGISTRO ELECTRÓNICO\t03.03 - REGISTRO DE SALIDA\tQue al seleccionar modo de entrega comparecencia espontánea, salga por defecto la fecha y hora actual. Ahora hay que rellenarlo a mano"
+  },
+  {
+   "topic": 1302,
+   "title": "3327 # 08 - configuración\t08.01 - usuarios\tusuarios con caducidad: incorporar fechas de vigencia del usuario, en formato de fecha de inicio y fecha final llegada la fecha final desactivarse automáticamente"
+  },
+  {
+   "topic": 1288,
+   "title": "1812 # 09 - área personal del usuario\t09.01 - mi área\tpoder reordenar las delegaciones por fecha, por nombre, etc"
+  },
+  {
+   "topic": 458,
+   "title": "4136 # 09 - SEDE ELECTRÓNICA\t09.14 - CITA PREVIA\tProblemática en v9 las agendas a las que no le quedan fechas abiertas no aparecen en la sede. Sería poder ver la agenda y que ponga texto que está completa"
+  },
+  {
+   "topic": 2319,
+   "title": "Resaltar valores de fecha del año en curso (gráfico con comparativa de años)"
+  },
+  {
+   "topic": 2321,
+   "title": "Obtener primera fecha (o última) de firma de un tipo de documento concreto"
+  },
+  {
+   "topic": 2323,
+   "title": "Evolución hasta fecha actual del año en curso comparada con fecha actual del año anterior"
+  },
+  {
+   "topic": 2324,
+   "title": "Mostrar solo valores anteriores a una fecha VARIABLE"
+  },
+  {
+   "topic": 2326,
+   "title": "Formatear valor de tesauro tipo Fecha"
+  },
+  {
+   "topic": 2330,
+   "title": "Obtener la fecha de ExpedienteEstadoTramitacion cuando el estado es informado en variables"
+  },
+  {
+   "topic": 2331,
+   "title": "Obtener la fecha de ExpedienteEstadoTramitacion cuando el expediente estuvo en ese estado"
+  },
+  {
+   "topic": 2339,
+   "title": "6. Uso de variable en slider para mostrar evolución respecto a una fecha"
+  },
+  {
+   "topic": 2352,
+   "title": "3. Lapso de días transcurridos entre HOY y la fecha de finalización de la última tarea (Operaciones con fechas)"
+  },
+  {
+   "topic": 2353,
+   "title": "2. Lapso de días transcurridos entre HOY y la fecha de creación de la tarea (Operaciones con fechas)"
+  },
+  {
+   "topic": 2354,
+   "title": "1. Lapso entre la fecha de apertura y cierre del Expediente (Operaciones con fechas)"
+  }
+ ],
+ "tareas": [
+  {
+   "topic": 374,
+   "title": "Tareas de sistema sin intervención humana con fecha de activación"
+  },
+  {
+   "topic": 487,
+   "title": "Informes Analiza - Tareas (Bandeja personal) - Hoja 3: Tareas abiertas última semana/últimos 30 días"
+  },
+  {
+   "topic": 486,
+   "title": "Informes Analiza - Tareas (Bandeja personal) - Hoja 2: Informe general tareas abiertas"
+  },
+  {
+   "topic": 394,
+   "title": "Informes Bandeja personal de Tareas - Ideas y sugerencias"
+  },
+  {
+   "topic": 485,
+   "title": "Informes Analiza - Tareas (Bandeja personal) - Hoja 1: Informe general"
+  },
+  {
+   "topic": 1715,
+   "title": "Truco del mes newsletter 08 – Control de finalización de varias tareas regladas simultaneas"
+  },
+  {
+   "topic": 2425,
+   "title": "Vista previa en las tareas tipo formulario"
+  },
+  {
+   "topic": 1363,
+   "title": "4439 # 08 - CONFIGURACIÓN\t08.08 - CIRCUITOS DE TRAMITACIÓN\tEn el caso de tareas regladas manuales, poder informar del cambio de estado por lanzarla. Por ejemplo, tarea de informe, que cambie estado a \"pendiente de informe\""
+  },
+  {
+   "topic": 1361,
+   "title": "4435 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tNo permitir lanzar tarea reglada manual asignada a un tesauro usuario si éste no está informado en el expediente"
+  },
+  {
+   "topic": 1357,
+   "title": "4408 # 08 - CONFIGURACIÓN\t08.01 - USUARIOS\tDividir el permiso \"eliminar tareas\", en todo y limitado. Ahora sólo es limitado"
+  },
+  {
+   "topic": 1339,
+   "title": "4303 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tPoder configurar que en el nombre de la tarea reglada se añadan valores de tesauro y/o datos/función"
+  },
+  {
+   "topic": 1338,
+   "title": "4302 # 08 - CONFIGURACIÓN\t08.01 - USUARIOS\tPermiso \"eliminar tareas (todas)\" diferente del actual \"eliminar tarea\" que está limitado a ser unidad gestora/responsable del expediente"
+  },
+  {
+   "topic": 1322,
+   "title": "3851 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tPoder crear tareas regladas genéricas que se puedan utilizar desde cualquier procedimiento"
+  },
+  {
+   "topic": 1316,
+   "title": "3779 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tPoder incluir en el markdown de las tareas regladas, CRs, oocc, y trámite externo todos los datos/funciones de la actividad (datos básicos), así como datos de contratación. Tb móvil de interesado"
+  },
+  {
+   "topic": 1307,
+   "title": "3526 # 01 - inicio\t01.02 - avisos y alertas\tasignar/desasignar: que en las alertas de asignación de expedientes o tareas, junto al número de expediente aparezca también el asunto para identificar el expediente"
+  },
+  {
+   "topic": 1296,
+   "title": "2327 # 08 - configuración\t08.06 - catálogo de actividades\ttarea trámite externo sujeto a notificación: activar en sede/oarm asociado a la recepción de notificación por un plazo; asociar tema registro; incorporarse automáticamente al expediente la entrada"
+  },
+  {
+   "topic": 1289,
+   "title": "1883 # 01 - inicio\t01.03 - tareas\tbandeja de tareas: añadir en el listado de tareas de la bandeja de tareas más información (asunto/datos básicos del expediente, nombre y cargo del solicitante...). idem en el mail de aviso"
+  },
+  {
+   "topic": 1282,
+   "title": "358 # 01 - inicio\t01.02 - avisos y alertas\tpoder saber en la página de inicio si la alerta / tarea ha sido enviada a un grupo (y cual) o es nominal al usuario. y poder filtrar por ello"
+  },
+  {
+   "topic": 450,
+   "title": "4103 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tTras V9 se está ocultando el campo \"Descripción\" de la tarea reglada. Hay que hacer clic en “mas información” para ver esta información de la tarea. Poder definir que sea visible por defecto"
+  },
+  {
+   "topic": 2334,
+   "title": "Tareas solo asignadas a un usuario / Varios usuarios / Varios grupos / Usuarios + Grupos"
+  },
+  {
+   "topic": 2352,
+   "title": "3. Lapso de días transcurridos entre HOY y la fecha de finalización de la última tarea (Operaciones con fechas)"
+  },
+  {
+   "topic": 2353,
+   "title": "2. Lapso de días transcurridos entre HOY y la fecha de creación de la tarea (Operaciones con fechas)"
+  }
+ ],
+ "sede-electrónica": [
+  {
+   "topic": 1904,
+   "title": "Paginas informativas y páginas de información de tramites en sede electrónica"
+  },
+  {
+   "topic": 1364,
+   "title": "4440 # 03 - REGISTRO ELECTRÓNICO\t03.02 - REGISTRO DE ENTRADA\tQue no deje poner notificación electrónica cuando el tercero tenga de NIF de tipo \"otros\". Que obligue a rellenar dirección postal. Tanto en Sede, OAMR, Registro y Expedientes"
+  },
+  {
+   "topic": 1359,
+   "title": "4414 # 10 - SEDE ELECTRÓNICA\t10.02 - TRÁMITES\tPoder detectar documentación presentada que sea incoherente/inconsistente o en blanco ¿mediante IA? poder requerir subsanación o impedir presentar"
+  },
+  {
+   "topic": 1354,
+   "title": "4400 # 08 - CONFIGURACIÓN\t08.15 - SEDE ELECTRÓNICA\tPoder definir fecha y hora de publicación y despublicación del banner de avisos de la sede electrónica"
+  },
+  {
+   "topic": 1346,
+   "title": "4379 # 10 - SEDE ELECTRÓNICA\t10.15 - TABLÓN DE ANUNCIOS\tContar con URL estática de los documentos publicados en el tablón de anuncios. Idem con portal de transparencia"
+  },
+  {
+   "topic": 1331,
+   "title": "4111 # 10 - SEDE ELECTRÓNICA\t10.02 - TRÁMITES\tQue en la ficha informativa del trámite externo quede más clara la documentación requerida/obligatoria para cada caso en función de un valor de tesauro"
+  },
+  {
+   "topic": 1284,
+   "title": "621 # 10 - sede electrónica\t10.04 - consulta de expedientes\tbuscador y posibilidad de ordenar documentos de en la consulta de expedientes y registros de la carpeta ciudadana. y quitar el botón \"mostrar más\""
+  },
+  {
+   "topic": 365,
+   "title": "Sede Electrónica. Trámites. Documentación Obligatoria (Condicionada)"
+  },
+  {
+   "topic": 433,
+   "title": "Error en hoja de estilo de la sede electronica"
+  },
+  {
+   "topic": 692,
+   "title": "4218 # 09 - sede electrónica 09.02 - trámites cuando un tercero aporta un documento en el trámite que está configurado por la entidad, el mismo debería tener el nombre del documento configurado en el trámite externo"
+  },
+  {
+   "topic": 446,
+   "title": "4072 # 09 - SEDE ELECTRÓNICA\t09.01 - INICIO\tCon V9 los banners en la sede electrónica solo aparecen en la pestaña de inicio. Poder elegir que sean visibles en todas las pestañas de navegación de la sede"
+  },
+  {
+   "topic": 449,
+   "title": "4100 # 09 - SEDE ELECTRÓNICA\t09.06 - SOLICITUDES EN BORRADOR\tPoder guardar un paso a medias sin finalizar. Por ejemplo, paso 2 formulario, puede ser largo con muchos tesauros y si no pasan al paso 3 documentación, no se almacena lo cumplimentado"
+  },
+  {
+   "topic": 460,
+   "title": "4148 # 09 - SEDE ELECTRÓNICA\t09.02 - TRÁMITES\tCuando un trámite externo tiene el check de \"Enlace externo\", que le salga un aviso al ciudadano de que van a ser redirigidos a otra página"
+  },
+  {
+   "topic": 461,
+   "title": "4176 # 09 - SEDE ELECTRÓNICA\t09.02 - TRÁMITES\tEn tesauro de tipo \"Dirección postal\", generar un aviso indicando la relación de valores que son obligatorios si no están cumplimentados"
+  },
+  {
+   "topic": 458,
+   "title": "4136 # 09 - SEDE ELECTRÓNICA\t09.14 - CITA PREVIA\tProblemática en v9 las agendas a las que no le quedan fechas abiertas no aparecen en la sede. Sería poder ver la agenda y que ponga texto que está completa"
+  },
+  {
+   "topic": 457,
+   "title": "4130 # 09 - SEDE ELECTRÓNICA\t09.02 - TRÁMITES\tEn un trámite externo sujeto a plazo no se está mostrando en la sede electrónica el dato de cuándo finaliza"
+  },
+  {
+   "topic": 453,
+   "title": "4110 # 08 - CONFIGURACIÓN\t08.13 - SEDE ELECTRÓNICA\tAl configurar el Banner de avisos de la Sede Electrónica, que sean opcionales los campos \"Subtítulo\" e \"Información de contacto\". En el momento que lo rellenas ya no deja dejarlo en blanco"
+  }
+ ],
+ "firma": [
+  {
+   "topic": 360,
+   "title": "Datos asociados a la firma de documentos disponibles en ANALIZA"
+  },
+  {
+   "topic": 2480,
+   "title": "Rechazar firma por delegación"
+  },
+  {
+   "topic": 2407,
+   "title": "Firma de las comunicaciones: automatizadas/secretario"
+  },
+  {
+   "topic": 1761,
+   "title": "Eliminar las firmas de espacio de \"Avisos y alertas\""
+  },
+  {
+   "topic": 1427,
+   "title": "Sugerencia: Informar de la causa del error de conversión o envio de documento a firma"
+  },
+  {
+   "topic": 1352,
+   "title": "4397 # 08 - CONFIGURACIÓN\t08.08 - CIRCUITOS DE TRAMITACIÓN\tIncluir en la funcionalidad de roles de firma de los circuitos de tramitación al resto de órganos unipersonales (sólo salen los 4 que surgen de la ratificación). Usarlo también en la validación"
+  },
+  {
+   "topic": 1323,
+   "title": "3853 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tPoder marcar nivel de prioridad a la firma de un documento. Que los validadores puedan editarlo. Que salga en primer lugar en el listado"
+  },
+  {
+   "topic": 1317,
+   "title": "3804 # 08 - configuración\t08.06 - catálogo de actividades\testablecer niveles de identificación y firma por cada trámite externo. aprovechar el dato ens del trámite. incluso nivel 0 para presentar sin identificación"
+  },
+  {
+   "topic": 1300,
+   "title": "2854 # 04 - tramitación administrativa\t04.01 - expedientes\tdetectar los documentos firmados fuera de gestiona. que se valide la firma está ok. que no dé la opción de tramitarlos y permita notificarlos"
+  },
+  {
+   "topic": 573,
+   "title": "Tarjeta virtual de Firma"
+  },
+  {
+   "topic": 389,
+   "title": "Sugerencia de Mejora: Incluir opción \"Anexar documentos del expedediente de apoyo a la firma\" en los Circuitos de Tramitación"
+  },
+  {
+   "topic": 2321,
+   "title": "Obtener primera fecha (o última) de firma de un tipo de documento concreto"
+  },
+  {
+   "topic": 2322,
+   "title": "Lapso hasta la firma de un documento concreto"
+  },
+  {
+   "topic": 2359,
+   "title": "Hoja 3: Conjunto de KPIS de firma de documentos"
+  },
+  {
+   "topic": 2364,
+   "title": "Hoja 2: Tabla de control de firmas"
+  }
+ ],
+ "terceros": [
+  {
+   "topic": 2533,
+   "title": "Ordenación de interesados en datos básicos/terceros"
+  },
+  {
+   "topic": 2409,
+   "title": "Modificación de visibilidad de los documentos. Elección de terceros"
+  },
+  {
+   "topic": 1415,
+   "title": "4324 # 11 - PERIFÉRICO\t11.03 - GESTIONA ENVÍA\tDesde Gestiona Envía, poder asignar firmante de un documento a un tercero. Sólo salen usuarios"
+  },
+  {
+   "topic": 1364,
+   "title": "4440 # 03 - REGISTRO ELECTRÓNICO\t03.02 - REGISTRO DE ENTRADA\tQue no deje poner notificación electrónica cuando el tercero tenga de NIF de tipo \"otros\". Que obligue a rellenar dirección postal. Tanto en Sede, OAMR, Registro y Expedientes"
+  },
+  {
+   "topic": 1355,
+   "title": "4404 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tAl incorporar un grupo de terceros a un expediente, que salga un aviso: \"se van a incorporar N terceros al expediente ¿está usted seguro?\""
+  },
+  {
+   "topic": 1337,
+   "title": "4301 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tEn la opción \"Abrir expediente relacionado\", que se trasladen funciones/dato y terceros. No sólo tesauros"
+  },
+  {
+   "topic": 1311,
+   "title": "3684 # 08 - CONFIGURACIÓN\t08.09 - TESAURO\tQue los tesauros tipados de tipo NIF/CIF/DIR3 estén enganchados a la base de terceros. Poder crear nuevos terceros. Poder corregir desde el tesauro sus datos en caso de ya existir"
+  },
+  {
+   "topic": 1309,
+   "title": "3558 # 04 - tramitación administrativa\t04.01 - expedientes\tpoder anexar a las notificaciones de acto plural, documentos individualizados por tercero (por ejemplo, a cada uno, carta de pago personalizada)"
+  },
+  {
+   "topic": 1301,
+   "title": "3077 # 04 - tramitación administrativa\t04.01 - expedientes\tcuando un tercero incorpora documentación en el expediente (sede) o es desde registro, se cree/incorpore a carpeta con nombre/nif, y no en el directorio raíz. subvenciones, procesos selectivos"
+  },
+  {
+   "topic": 1297,
+   "title": "2585 # 03 - registro electrónico\t03.01 - bandeja sir\ten ventanilla única, que se pueda seleccionar el interesado de la pestaña de terceros que tienen creado en lugar de tener que crearlo cada vez. y admita pasaporte"
+  },
+  {
+   "topic": 1285,
+   "title": "997 # 04 - tramitación administrativa\t04.01 - expedientes\tvisibilidad: en la visibilidad de documentos con expedientes de varios terceros que no tengan visibilidad todos, solamente el tercero que lo haya solicitado o el que seleccionemos. icono distinto"
+  },
+  {
+   "topic": 692,
+   "title": "4218 # 09 - sede electrónica 09.02 - trámites cuando un tercero aporta un documento en el trámite que está configurado por la entidad, el mismo debería tener el nombre del documento configurado en el trámite externo"
+  },
+  {
+   "topic": 2342,
+   "title": "3. Mapa básico de gráfico: Tipo de tercero por provincia"
+  },
+  {
+   "topic": 2343,
+   "title": "2. Mapa básico de puntos: Provincia del tercero"
+  },
+  {
+   "topic": 2344,
+   "title": "1. Mapa básico de área: Código postal del tercero"
+  }
+ ],
+ "procedimientos": [
+  {
+   "topic": 910,
+   "title": "Modelo ficha de procedimientos"
+  },
+  {
+   "topic": 905,
+   "title": "Procedimiento plural de aprobación de facturas"
+  },
+  {
+   "topic": 1391,
+   "title": "Categorias multiples en Procedimientos"
+  },
+  {
+   "topic": 1371,
+   "title": "3089 # 04 - tramitación administrativa\t04.01 - expedientes\tpoder cambiar el procedimiento una vez abierto el expediente"
+  },
+  {
+   "topic": 1348,
+   "title": "4387 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tPoder vincular la documentación a presentar en la OAMR con tesauros de tipo sí/no, de cara a heredar en el procedimiento la información de si se presentó o no, y poderlo usar en la tramitación regl"
+  },
+  {
+   "topic": 1334,
+   "title": "4158 # 08 - CONFIGURACIÓN\t08.07 - CIRCUITOS DE RESOLUCIÓN\tAñadir en la búsqueda avanzada de configuración CR: Visibilidad. Además, en con fiscalización: Régimen de fiscalización, procedimiento vinculado, personalizado sí/no, fecha sincronización HL"
+  },
+  {
+   "topic": 1332,
+   "title": "4113 # 07 - ANALÍTICA DE DATOS\t07.02 - BÚSQUEDAS AVANZADAS\tBúsqueda avanzada de tesauros. Poder filtrar no sólo tesauros creados en v9 sino también anteriores. Saber en qué actividades/procedimientos se usan. Explotable también en Analiza"
+  },
+  {
+   "topic": 1327,
+   "title": "4064 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tPoder predefinir en un procedimiento que cada vez que se cree un nuevo expediente, se creen siempre con unas carpetas definidas de antemano"
+  },
+  {
+   "topic": 1322,
+   "title": "3851 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tPoder crear tareas regladas genéricas que se puedan utilizar desde cualquier procedimiento"
+  },
+  {
+   "topic": 1106,
+   "title": "Procedimiento genérico de subsanación de deficiencias en expedientes"
+  },
+  {
+   "topic": 631,
+   "title": "Error en formulario de observaciones de la creación de un procedimiento"
+  },
+  {
+   "topic": 454,
+   "title": "4113 # 06 - ANALÍTICA DE DATOS\t06.02 - BÚSQUEDAS AVANZADAS\tBúsqueda avanzada de tesauros. Poder filtrar no sólo tesauros creados en v9 sino también anteriores. Saber en qué actividades/procedimientos se usan. Explotable también en Analiza"
+  }
+ ],
+ "circuitos-tramitacion": [
+  {
+   "topic": 1363,
+   "title": "4439 # 08 - CONFIGURACIÓN\t08.08 - CIRCUITOS DE TRAMITACIÓN\tEn el caso de tareas regladas manuales, poder informar del cambio de estado por lanzarla. Por ejemplo, tarea de informe, que cambie estado a \"pendiente de informe\""
+  },
+  {
+   "topic": 1358,
+   "title": "4411 # 08 - CONFIGURACIÓN\t08.08 - CIRCUITOS DE TRAMITACIÓN\tPoder definir como firmante en un circuito de tramitación al dato de un tesauro de tipo selector de usuario"
+  },
+  {
+   "topic": 1353,
+   "title": "4398 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tOpción dependencia de origen en el circuito de tramitación, que por defecto sea \"unidad gestora\" en vez de \"usuario que lanza el circuito\""
+  },
+  {
+   "topic": 1352,
+   "title": "4397 # 08 - CONFIGURACIÓN\t08.08 - CIRCUITOS DE TRAMITACIÓN\tIncluir en la funcionalidad de roles de firma de los circuitos de tramitación al resto de órganos unipersonales (sólo salen los 4 que surgen de la ratificación). Usarlo también en la validación"
+  },
+  {
+   "topic": 1345,
+   "title": "4354 # 08 - configuración\t08.08 - circuitos de tramitación\tposibilidad de configurar en el circuito de tramitación con envío a un libro, la inserción de tesauros en el extracto"
+  },
+  {
+   "topic": 1344,
+   "title": "4338 # 08 - configuración\t08.06 - catálogo de actividades\tañadir tooltips de ayuda en las opciones de configuración del catálogo, tramitación reglada, circuitos de resolución"
+  },
+  {
+   "topic": 1318,
+   "title": "3807 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tLa funcionalidad de avisar de la resolución del circuito de resolución debería dar opción de descargar el documento. Ahora recibe aviso, pero no puede descargarlo"
+  },
+  {
+   "topic": 1315,
+   "title": "3742 # 08 - configuración\t08.07 - circuitos de resolución\tauditoría en la configuración de circuitos de resolución y tramitación"
+  },
+  {
+   "topic": 1305,
+   "title": "3472 # 04 - tramitación administrativa\t04.01 - expedientes\tpoder guardar datos en una propuesta circuito de resolución. permitiría heredar valores del tesauro de los antecedentes a la parte dispositiva"
+  },
+  {
+   "topic": 1303,
+   "title": "3340 # 08 - configuración\t08.08 - circuitos de tramitación\tal igual que se puede seleccionar el cargo del firmante, se pueda seleccionar en el validador"
+  },
+  {
+   "topic": 462,
+   "title": "4178 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.06 - LIBROS OFICIALES\tQue la relación extractada funcione también con libros de certificados de acuerdos de órganos colegiados para acuerdos emanados de circuitos de resolución"
+  },
+  {
+   "topic": 389,
+   "title": "Sugerencia de Mejora: Incluir opción \"Anexar documentos del expedediente de apoyo a la firma\" en los Circuitos de Tramitación"
+  }
+ ],
+ "analítica": [
+  {
+   "topic": 169,
+   "title": "07. Expertos grupo esPublico - Analítica de datos"
+  },
+  {
+   "topic": 2450,
+   "title": "📊 Nuevo espacio de recursos - Certificación Analítica de Datos"
+  },
+  {
+   "topic": 1110,
+   "title": "Nueva certificación Analítica de datos"
+  },
+  {
+   "topic": 908,
+   "title": "Analítica de datos en la Tramitación conjunta de facturas (TCF). ¿Usuario firmante?"
+  },
+  {
+   "topic": 1448,
+   "title": "Plataforma de formación - Curso básico Analítica de datos"
+  },
+  {
+   "topic": 1342,
+   "title": "4330 # 07 - ANALÍTICA DE DATOS\t07.01 - CUADRO DE MANDO\tAñadir búsquedas avanzadas en la app de certificados electrónicos. Por ejemplo para poder filtrar por fecha de validez de las tarjetas"
+  },
+  {
+   "topic": 1340,
+   "title": "4311 # 07 - analítica de datos\t07.02 - búsquedas avanzadas\tpoder filtrar por expedientes marcados como favoritos"
+  },
+  {
+   "topic": 1332,
+   "title": "4113 # 07 - ANALÍTICA DE DATOS\t07.02 - BÚSQUEDAS AVANZADAS\tBúsqueda avanzada de tesauros. Poder filtrar no sólo tesauros creados en v9 sino también anteriores. Saber en qué actividades/procedimientos se usan. Explotable también en Analiza"
+  },
+  {
+   "topic": 454,
+   "title": "4113 # 06 - ANALÍTICA DE DATOS\t06.02 - BÚSQUEDAS AVANZADAS\tBúsqueda avanzada de tesauros. Poder filtrar no sólo tesauros creados en v9 sino también anteriores. Saber en qué actividades/procedimientos se usan. Explotable también en Analiza"
+  },
+  {
+   "topic": 2168,
+   "title": "Recursos certificación analítica de datos"
+  }
+ ],
+ "circuitos-resolucion": [
+  {
+   "topic": 385,
+   "title": "Notificación en circuitos de resolución plural"
+  },
+  {
+   "topic": 1344,
+   "title": "4338 # 08 - configuración\t08.06 - catálogo de actividades\tañadir tooltips de ayuda en las opciones de configuración del catálogo, tramitación reglada, circuitos de resolución"
+  },
+  {
+   "topic": 1334,
+   "title": "4158 # 08 - CONFIGURACIÓN\t08.07 - CIRCUITOS DE RESOLUCIÓN\tAñadir en la búsqueda avanzada de configuración CR: Visibilidad. Además, en con fiscalización: Régimen de fiscalización, procedimiento vinculado, personalizado sí/no, fecha sincronización HL"
+  },
+  {
+   "topic": 1324,
+   "title": "3949 # 08 - CONFIGURACIÓN\t08.07 - CIRCUITOS DE RESOLUCIÓN\tCambios de estado en actos plurales desde CSV con expediente en Gestiona (sólo está en opción de selector de expedientes)"
+  },
+  {
+   "topic": 1318,
+   "title": "3807 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tLa funcionalidad de avisar de la resolución del circuito de resolución debería dar opción de descargar el documento. Ahora recibe aviso, pero no puede descargarlo"
+  },
+  {
+   "topic": 1315,
+   "title": "3742 # 08 - configuración\t08.07 - circuitos de resolución\tauditoría en la configuración de circuitos de resolución y tramitación"
+  },
+  {
+   "topic": 1305,
+   "title": "3472 # 04 - tramitación administrativa\t04.01 - expedientes\tpoder guardar datos en una propuesta circuito de resolución. permitiría heredar valores del tesauro de los antecedentes a la parte dispositiva"
+  },
+  {
+   "topic": 687,
+   "title": "Mejoras en circuitos de resolución (Configuración)"
+  },
+  {
+   "topic": 462,
+   "title": "4178 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.06 - LIBROS OFICIALES\tQue la relación extractada funcione también con libros de certificados de acuerdos de órganos colegiados para acuerdos emanados de circuitos de resolución"
+  },
+  {
+   "topic": 2350,
+   "title": "5. Uso de operador \"diferente a\" <>. Transformación de valores de estado del Circuito de Resolución"
+  }
+ ],
+ "cita-previa": [
+  {
+   "topic": 364,
+   "title": "Informe Cita Previa - Colaboración para perfeccionamiento de informes"
+  },
+  {
+   "topic": 269,
+   "title": "Informes Analiza - Cita Previa - Hoja 1: Visión general"
+  },
+  {
+   "topic": 286,
+   "title": "Informes Analiza - Cita Previa - Hoja 3: Semana Próxima"
+  },
+  {
+   "topic": 285,
+   "title": "Informes Analiza - Cita Previa - Hoja 2: Semana Actual"
+  },
+  {
+   "topic": 1634,
+   "title": "Mejoras en Cita previa"
+  },
+  {
+   "topic": 1299,
+   "title": "2819 # 02 - atención ciudadana\t02.07 - cita previa\ten un mismo servicio poder poner distintos tipos de citas, cada una de ellas con una duración"
+  },
+  {
+   "topic": 1298,
+   "title": "2782 # 02 - atención ciudadana\t02.07 - cita previa\tconfigurar agendas en las que las citas se confirmen automáticamente y se muestre el justificante de confirmación en el mismo momento de la solicitud"
+  },
+  {
+   "topic": 458,
+   "title": "4136 # 09 - SEDE ELECTRÓNICA\t09.14 - CITA PREVIA\tProblemática en v9 las agendas a las que no le quedan fechas abiertas no aparecen en la sede. Sería poder ver la agenda y que ponga texto que está completa"
+  }
+ ],
+ "markdown": [
+  {
+   "topic": 2271,
+   "title": "Formatos Markdown"
+  },
+  {
+   "topic": 1384,
+   "title": "4453 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tAtributo markdown en los tesauros para ocultarlos (x ej: visible:false) y que se guarden datos. Útil tras un LET"
+  },
+  {
+   "topic": 1366,
+   "title": "4446 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tNuevas dato/función en markdown: caja con el expone, el solicita y el información adicional del trámite externo. Tanto si tiene tesauros, como si es texto libre"
+  },
+  {
+   "topic": 1365,
+   "title": "4445 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tMejora en la funcionalidad markdown columns:block para añadir márgenes; saltos de línea; etc. Problemática editor word/libreoffice"
+  },
+  {
+   "topic": 1360,
+   "title": "4416 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tAtributo en markdown para obtener representaciones de tipo texto de tesauros de tipo numérico, moneda, fecha, etc"
+  },
+  {
+   "topic": 1319,
+   "title": "3836 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tMejoras markdown: subrayados, tamaños/tipos letra, pegar imágenes, pegar tablas, justificar, saltos de linea, tabulados, los apóstrofes se cortan, estilos tablas (borde, color, grosor, espaciado) e"
+  },
+  {
+   "topic": 1316,
+   "title": "3779 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tPoder incluir en el markdown de las tareas regladas, CRs, oocc, y trámite externo todos los datos/funciones de la actividad (datos básicos), así como datos de contratación. Tb móvil de interesado"
+  },
+  {
+   "topic": 1081,
+   "title": "Traslado de Tesauros datos básicos a Markdown"
+  }
+ ],
+ "tramitación-reglada": [
+  {
+   "topic": 2287,
+   "title": "🔍 Consulta sobre tramitación reglada: Subvenciones, Convenios y Registro de Entidades"
+  },
+  {
+   "topic": 1363,
+   "title": "4439 # 08 - CONFIGURACIÓN\t08.08 - CIRCUITOS DE TRAMITACIÓN\tEn el caso de tareas regladas manuales, poder informar del cambio de estado por lanzarla. Por ejemplo, tarea de informe, que cambie estado a \"pendiente de informe\""
+  },
+  {
+   "topic": 1362,
+   "title": "4438 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tQue en la configuración de la tramitación reglada que sea más visual saber si está asignada a una persona, grupo, rol, tesauro usuario, etc"
+  },
+  {
+   "topic": 1361,
+   "title": "4435 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tNo permitir lanzar tarea reglada manual asignada a un tesauro usuario si éste no está informado en el expediente"
+  },
+  {
+   "topic": 1344,
+   "title": "4338 # 08 - configuración\t08.06 - catálogo de actividades\tañadir tooltips de ayuda en las opciones de configuración del catálogo, tramitación reglada, circuitos de resolución"
+  },
+  {
+   "topic": 665,
+   "title": "Editor de textos en plantilles en blanco y formularios de tramitación reglada"
+  },
+  {
+   "topic": 450,
+   "title": "4103 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tTras V9 se está ocultando el campo \"Descripción\" de la tarea reglada. Hay que hacer clic en “mas información” para ver esta información de la tarea. Poder definir que sea visible por defecto"
+  }
+ ],
+ "asignaciones": [
+  {
+   "topic": 1388,
+   "title": "Asignación de un valor a un Tesauro tipo Selector I18N"
+  },
+  {
+   "topic": 1973,
+   "title": "Truco del mes newsletter 10 – ¿Se puede restringir la edición de asignaciones de un registro?"
+  },
+  {
+   "topic": 1374,
+   "title": "3846 # 08 - CONFIGURACIÓN\t08.23 - CATEGORÍAS DE REGISTRO\tVincular la asignación de tema/categoría de un registro al valor de un tesauro del trámite externo"
+  },
+  {
+   "topic": 1369,
+   "title": "2543 # 01 - inicio\t01.02 - avisos y alertas\tque genere alerta en la asignación temporal a expediente (opción al crear nuevo expediente)"
+  },
+  {
+   "topic": 1307,
+   "title": "3526 # 01 - inicio\t01.02 - avisos y alertas\tasignar/desasignar: que en las alertas de asignación de expedientes o tareas, junto al número de expediente aparezca también el asunto para identificar el expediente"
+  },
+  {
+   "topic": 415,
+   "title": "Tesauro informado en solicitud mediante asignación LET si no se muestra en formulario solicitud, pierde su valor en expediente"
+  },
+  {
+   "topic": 2335,
+   "title": "📊 Agrupar valores en función del número de modos de asignación"
+  }
+ ],
+ "busquedas-avanzadas": [
+  {
+   "topic": 517,
+   "title": "Expedientes: evolución de la búsqueda avanzada (Analiza)"
+  },
+  {
+   "topic": 1342,
+   "title": "4330 # 07 - ANALÍTICA DE DATOS\t07.01 - CUADRO DE MANDO\tAñadir búsquedas avanzadas en la app de certificados electrónicos. Por ejemplo para poder filtrar por fecha de validez de las tarjetas"
+  },
+  {
+   "topic": 1340,
+   "title": "4311 # 07 - analítica de datos\t07.02 - búsquedas avanzadas\tpoder filtrar por expedientes marcados como favoritos"
+  },
+  {
+   "topic": 1334,
+   "title": "4158 # 08 - CONFIGURACIÓN\t08.07 - CIRCUITOS DE RESOLUCIÓN\tAñadir en la búsqueda avanzada de configuración CR: Visibilidad. Además, en con fiscalización: Régimen de fiscalización, procedimiento vinculado, personalizado sí/no, fecha sincronización HL"
+  },
+  {
+   "topic": 1332,
+   "title": "4113 # 07 - ANALÍTICA DE DATOS\t07.02 - BÚSQUEDAS AVANZADAS\tBúsqueda avanzada de tesauros. Poder filtrar no sólo tesauros creados en v9 sino también anteriores. Saber en qué actividades/procedimientos se usan. Explotable también en Analiza"
+  },
+  {
+   "topic": 945,
+   "title": "App para búsquedas avanzadas de campos Tesauro"
+  },
+  {
+   "topic": 454,
+   "title": "4113 # 06 - ANALÍTICA DE DATOS\t06.02 - BÚSQUEDAS AVANZADAS\tBúsqueda avanzada de tesauros. Poder filtrar no sólo tesauros creados en v9 sino también anteriores. Saber en qué actividades/procedimientos se usan. Explotable también en Analiza"
+  }
+ ],
+ "tareas-regladas": [
+  {
+   "topic": 1715,
+   "title": "Truco del mes newsletter 08 – Control de finalización de varias tareas regladas simultaneas"
+  },
+  {
+   "topic": 1363,
+   "title": "4439 # 08 - CONFIGURACIÓN\t08.08 - CIRCUITOS DE TRAMITACIÓN\tEn el caso de tareas regladas manuales, poder informar del cambio de estado por lanzarla. Por ejemplo, tarea de informe, que cambie estado a \"pendiente de informe\""
+  },
+  {
+   "topic": 1361,
+   "title": "4435 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tNo permitir lanzar tarea reglada manual asignada a un tesauro usuario si éste no está informado en el expediente"
+  },
+  {
+   "topic": 1339,
+   "title": "4303 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tPoder configurar que en el nombre de la tarea reglada se añadan valores de tesauro y/o datos/función"
+  },
+  {
+   "topic": 1322,
+   "title": "3851 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tPoder crear tareas regladas genéricas que se puedan utilizar desde cualquier procedimiento"
+  },
+  {
+   "topic": 1316,
+   "title": "3779 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tPoder incluir en el markdown de las tareas regladas, CRs, oocc, y trámite externo todos los datos/funciones de la actividad (datos básicos), así como datos de contratación. Tb móvil de interesado"
+  },
+  {
+   "topic": 450,
+   "title": "4103 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tTras V9 se está ocultando el campo \"Descripción\" de la tarea reglada. Hay que hacer clic en “mas información” para ver esta información de la tarea. Poder definir que sea visible por defecto"
+  }
+ ],
+ "facturas": [
+  {
+   "topic": 905,
+   "title": "Procedimiento plural de aprobación de facturas"
+  },
+  {
+   "topic": 1227,
+   "title": "Aplicacion de facturas"
+  },
+  {
+   "topic": 908,
+   "title": "Analítica de datos en la Tramitación conjunta de facturas (TCF). ¿Usuario firmante?"
+  },
+  {
+   "topic": 1295,
+   "title": "2144 # 03 - registro electrónico\t03.02 - registro de entrada\tpoder predefinir metadatos tipo/subtipo cuando se indique que es una factura"
+  },
+  {
+   "topic": 1064,
+   "title": "App de aprobacions de facturas"
+  },
+  {
+   "topic": 2347,
+   "title": "8. Uso de If y Wildmatch. Filtrado de expedientes de factura"
+  }
+ ],
+ "tramites-externos": [
+  {
+   "topic": 1387,
+   "title": "3188 # 08 - configuración\t08.01 - usuarios\tcon el permiso editar catálogo limitado que se pueda publicar un trámite externo o que exista un permiso exclusivo para publicar trámites"
+  },
+  {
+   "topic": 1368,
+   "title": "2719 # 08 - configuración\t08.06 - catálogo de actividades\tse pueda realizar auditoría sobre trámites externos para ver quién hace modificaciones en los mismos; fecha publicación/despublicación; etc"
+  },
+  {
+   "topic": 1331,
+   "title": "4111 # 10 - SEDE ELECTRÓNICA\t10.02 - TRÁMITES\tQue en la ficha informativa del trámite externo quede más clara la documentación requerida/obligatoria para cada caso en función de un valor de tesauro"
+  },
+  {
+   "topic": 692,
+   "title": "4218 # 09 - sede electrónica 09.02 - trámites cuando un tercero aporta un documento en el trámite que está configurado por la entidad, el mismo debería tener el nombre del documento configurado en el trámite externo"
+  },
+  {
+   "topic": 460,
+   "title": "4148 # 09 - SEDE ELECTRÓNICA\t09.02 - TRÁMITES\tCuando un trámite externo tiene el check de \"Enlace externo\", que le salga un aviso al ciudadano de que van a ser redirigidos a otra página"
+  },
+  {
+   "topic": 457,
+   "title": "4130 # 09 - SEDE ELECTRÓNICA\t09.02 - TRÁMITES\tEn un trámite externo sujeto a plazo no se está mostrando en la sede electrónica el dato de cuándo finaliza"
+  }
+ ],
+ "integraciones": [
+  {
+   "topic": 168,
+   "title": "09. Expertos grupo esPublico - Integración contable para el Control Interno"
+  },
+  {
+   "topic": 1356,
+   "title": "4407 # 08 - CONFIGURACIÓN\t08.10 - INTEGRACIONES\tDisponer en la configuración en la integración con TEU BOE de un campo con el que rellenar el correo electrónico de origen que se use"
+  },
+  {
+   "topic": 1336,
+   "title": "4264 # 03 - registro electrónico\t03.02 - registro de entrada\tlector de códigos csv que permita validar e incluir un documento aportado por el ciudadano en el registro de forma automática. integración csv broker"
+  },
+  {
+   "topic": 556,
+   "title": "Mejoras en el registro de salidas y Integración de correos"
+  }
+ ],
+ "tareas-personal": [
+  {
+   "topic": 487,
+   "title": "Informes Analiza - Tareas (Bandeja personal) - Hoja 3: Tareas abiertas última semana/últimos 30 días"
+  },
+  {
+   "topic": 486,
+   "title": "Informes Analiza - Tareas (Bandeja personal) - Hoja 2: Informe general tareas abiertas"
+  },
+  {
+   "topic": 394,
+   "title": "Informes Bandeja personal de Tareas - Ideas y sugerencias"
+  },
+  {
+   "topic": 485,
+   "title": "Informes Analiza - Tareas (Bandeja personal) - Hoja 1: Informe general"
+  }
+ ],
+ "interesados": [
+  {
+   "topic": 2533,
+   "title": "Ordenación de interesados en datos básicos/terceros"
+  },
+  {
+   "topic": 1316,
+   "title": "3779 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tPoder incluir en el markdown de las tareas regladas, CRs, oocc, y trámite externo todos los datos/funciones de la actividad (datos básicos), así como datos de contratación. Tb móvil de interesado"
+  },
+  {
+   "topic": 1297,
+   "title": "2585 # 03 - registro electrónico\t03.01 - bandeja sir\ten ventanilla única, que se pueda seleccionar el interesado de la pestaña de terceros que tienen creado en lugar de tener que crearlo cada vez. y admita pasaporte"
+  },
+  {
+   "topic": 1286,
+   "title": "1339 # 04 - tramitación administrativa\t04.01 - expedientes\tvisibilidad: otro icono que permita ver a primera vista que es visible para todos los interesados del expediente, diferente al de las cabecitas/muñecos/muñequitos"
+  }
+ ],
+ "transparencia": [
+  {
+   "topic": 2248,
+   "title": "Buscador en Transparencia"
+  },
+  {
+   "topic": 1372,
+   "title": "3919 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tAl comunicar en acto plural, poder decidir si queremos que salga el anexo como en la resolución. Actualmente no muestra el anexo plural. Idem con tablón y transparencia"
+  },
+  {
+   "topic": 1346,
+   "title": "4379 # 10 - SEDE ELECTRÓNICA\t10.15 - TABLÓN DE ANUNCIOS\tContar con URL estática de los documentos publicados en el tablón de anuncios. Idem con portal de transparencia"
+  },
+  {
+   "topic": 1292,
+   "title": "2038 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tEdición: Posibilidad de anonimizar o esconder datos de un PDF para exponerlo en tablón de anuncios y transparencia o RS. Copia parcial electrónica firmada con sello de órgano"
+  }
+ ],
+ "plazos": [
+  {
+   "topic": 1335,
+   "title": "4181 # 02 - ATENCIÓN CIUDADANA\t02.01 - OFICINA DE ASISTENCIA\tUn trámite externo con periodicidad sujeto a anuncio general y convocatoria que no esté en plazo no debería ser tramitable desde la OAMR, igual que en sede. Debería salir aviso de fin de plazo"
+  },
+  {
+   "topic": 1296,
+   "title": "2327 # 08 - configuración\t08.06 - catálogo de actividades\ttarea trámite externo sujeto a notificación: activar en sede/oarm asociado a la recepción de notificación por un plazo; asociar tema registro; incorporarse automáticamente al expediente la entrada"
+  },
+  {
+   "topic": 463,
+   "title": "4181 # 02 - ATENCIÓN CIUDADANA\t02.01 - OFICINA DE ASISTENCIA\tUn trámite externo con periodicidad sujeto a anuncio general y convocatoria que no esté en plazo no debería ser tramitable desde la OAMR, igual que en sede"
+  },
+  {
+   "topic": 457,
+   "title": "4130 # 09 - SEDE ELECTRÓNICA\t09.02 - TRÁMITES\tEn un trámite externo sujeto a plazo no se está mostrando en la sede electrónica el dato de cuándo finaliza"
+  }
+ ],
+ "órganos-colegiados": [
+  {
+   "topic": 1113,
+   "title": "La tramitación electrónica de las sesiones de los Órganos Colegiados del Ayuntamiento de Castelló de la Plana en el Congreso NovaGob 2024"
+  },
+  {
+   "topic": 1958,
+   "title": "Actualización Módulo de Órganos Colegiados"
+  },
+  {
+   "topic": 462,
+   "title": "4178 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.06 - LIBROS OFICIALES\tQue la relación extractada funcione también con libros de certificados de acuerdos de órganos colegiados para acuerdos emanados de circuitos de resolución"
+  }
+ ],
+ "paginas-informativas": [
+  {
+   "topic": 1904,
+   "title": "Paginas informativas y páginas de información de tramites en sede electrónica"
+  },
+  {
+   "topic": 1349,
+   "title": "4388 # 02 - ATENCIÓN CIUDADANA\t02.04 - PÁGINAS INFORMATIVAS\tPoder reordenar los contenidos de la página informativa. También poder reordenar los documentos subidos (apartado \"contenido relacionado\")"
+  },
+  {
+   "topic": 1347,
+   "title": "4384 # 02 - ATENCIÓN CIUDADANA\t02.04 - PÁGINAS INFORMATIVAS\tMejora al enlazar webs y emails desde el editor de páginas informativas"
+  }
+ ],
+ "auditoria": [
+  {
+   "topic": 1786,
+   "title": "Desfase de un dia en la auditoria del usuario"
+  },
+  {
+   "topic": 1368,
+   "title": "2719 # 08 - configuración\t08.06 - catálogo de actividades\tse pueda realizar auditoría sobre trámites externos para ver quién hace modificaciones en los mismos; fecha publicación/despublicación; etc"
+  },
+  {
+   "topic": 1315,
+   "title": "3742 # 08 - configuración\t08.07 - circuitos de resolución\tauditoría en la configuración de circuitos de resolución y tramitación"
+  }
+ ],
+ "tablón-anuncios": [
+  {
+   "topic": 1346,
+   "title": "4379 # 10 - SEDE ELECTRÓNICA\t10.15 - TABLÓN DE ANUNCIOS\tContar con URL estática de los documentos publicados en el tablón de anuncios. Idem con portal de transparencia"
+  },
+  {
+   "topic": 1341,
+   "title": "4318 # 02 - ATENCIÓN CIUDADANA\t02.02 - TABLÓN DE ANUNCIOS\tPoder crear más materias del tablón. Ahora sólo se pueden renombrar las 8 que viene por defecto. También crear subcategorías dentro de cada materia"
+  },
+  {
+   "topic": 1292,
+   "title": "2038 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tEdición: Posibilidad de anonimizar o esconder datos de un PDF para exponerlo en tablón de anuncios y transparencia o RS. Copia parcial electrónica firmada con sello de órgano"
+  }
+ ],
+ "subvenciones": [
+  {
+   "topic": 2287,
+   "title": "🔍 Consulta sobre tramitación reglada: Subvenciones, Convenios y Registro de Entidades"
+  },
+  {
+   "topic": 1301,
+   "title": "3077 # 04 - tramitación administrativa\t04.01 - expedientes\tcuando un tercero incorpora documentación en el expediente (sede) o es desde registro, se cree/incorpore a carpeta con nombre/nif, y no en el directorio raíz. subvenciones, procesos selectivos"
+  }
+ ],
+ "gestiona-envia": [
+  {
+   "topic": 1415,
+   "title": "4324 # 11 - PERIFÉRICO\t11.03 - GESTIONA ENVÍA\tDesde Gestiona Envía, poder asignar firmante de un documento a un tercero. Sólo salen usuarios"
+  },
+  {
+   "topic": 1287,
+   "title": "1689 # 11 - periférico\t11.03 - gestiona envía\tpoder añadir márgenes al enviar un documento desde gestiona envía"
+  }
+ ],
+ "relacionados": [
+  {
+   "topic": 1349,
+   "title": "4388 # 02 - ATENCIÓN CIUDADANA\t02.04 - PÁGINAS INFORMATIVAS\tPoder reordenar los contenidos de la página informativa. También poder reordenar los documentos subidos (apartado \"contenido relacionado\")"
+  },
+  {
+   "topic": 1337,
+   "title": "4301 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tEn la opción \"Abrir expediente relacionado\", que se trasladen funciones/dato y terceros. No sólo tesauros"
+  }
+ ],
+ "ayudas": [
+  {
+   "topic": 1344,
+   "title": "4338 # 08 - configuración\t08.06 - catálogo de actividades\tañadir tooltips de ayuda en las opciones de configuración del catálogo, tramitación reglada, circuitos de resolución"
+  },
+  {
+   "topic": 2568,
+   "title": "Herramientas de ayuda en la definición de objetivos de análisis y EVF"
+  }
+ ],
+ "ventanilla-única": [
+  {
+   "topic": 1313,
+   "title": "3716 # 03 - registro electrónico\t03.01 - bandeja sir\tpoder duplicar una ventanilla única . por ejemplo: aporta muchos documentos / muchos ciudadanos presentando lo mismo (oposiciones) / etc"
+  },
+  {
+   "topic": 1297,
+   "title": "2585 # 03 - registro electrónico\t03.01 - bandeja sir\ten ventanilla única, que se pueda seleccionar el interesado de la pestaña de terceros que tienen creado en lugar de tener que crearlo cada vez. y admita pasaporte"
+  }
+ ],
+ "contratación": [
+  {
+   "topic": 1316,
+   "title": "3779 # 08 - CONFIGURACIÓN\t08.06 - CATÁLOGO DE ACTIVIDADES\tPoder incluir en el markdown de las tareas regladas, CRs, oocc, y trámite externo todos los datos/funciones de la actividad (datos básicos), así como datos de contratación. Tb móvil de interesado"
+  }
+ ],
+ "sello-de-organo": [
+  {
+   "topic": 1292,
+   "title": "2038 # 04 - TRAMITACIÓN ADMINISTRATIVA\t04.01 - EXPEDIENTES\tEdición: Posibilidad de anonimizar o esconder datos de un PDF para exponerlo en tablón de anuncios y transparencia o RS. Copia parcial electrónica firmada con sello de órgano"
+  }
+ ],
+ "carpeta-ciudadana": [
+  {
+   "topic": 1284,
+   "title": "621 # 10 - sede electrónica\t10.04 - consulta de expedientes\tbuscador y posibilidad de ordenar documentos de en la consulta de expedientes y registros de la carpeta ciudadana. y quitar el botón \"mostrar más\""
+  }
+ ],
+ "plantillas": [
+  {
+   "topic": 790,
+   "title": "Plantilla con ****123** en el campo DNI en publicación de listados"
+  }
+ ],
+ "canal-denuncias": [
+  {
+   "topic": 362,
+   "title": "Canal de denuncias"
+  }
+ ],
+ "expedientes-apertura": [
+  {
+   "topic": 2367,
+   "title": "Hoja 1: Media apertura expedientes (Días)"
+  }
+ ]
+}

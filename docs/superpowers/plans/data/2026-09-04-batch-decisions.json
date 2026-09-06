@@ -1,0 +1,249 @@
+{
+ "tesauro": {
+  "decision": "approve",
+  "excluded": []
+ },
+ "configuración": {
+  "decision": "approve",
+  "excluded": [
+   1326
+  ]
+ },
+ "tramitación": {
+  "decision": "approve",
+  "excluded": [
+   908
+  ]
+ },
+ "expedientes": {
+  "decision": "approve",
+  "excluded": []
+ },
+ "registro": {
+  "decision": "approve",
+  "excluded": [
+   1281,
+   1284,
+   1296,
+   1314,
+   2287
+  ]
+ },
+ "fechas": {
+  "decision": "reject",
+  "excluded": [
+   374,
+   458,
+   777,
+   1288,
+   1302,
+   1328,
+   1334,
+   1342,
+   1354,
+   1360,
+   1368,
+   1389,
+   2319,
+   2321,
+   2323,
+   2324,
+   2326,
+   2330,
+   2331,
+   2339,
+   2352,
+   2353,
+   2354
+  ]
+ },
+ "tareas": {
+  "decision": "approve",
+  "excluded": []
+ },
+ "sede-electrónica": {
+  "decision": "approve",
+  "excluded": [
+   1364
+  ]
+ },
+ "firma": {
+  "decision": "approve",
+  "excluded": []
+ },
+ "terceros": {
+  "decision": "approve",
+  "excluded": [
+   2342,
+   2343,
+   2344,
+   2409,
+   2533
+  ]
+ },
+ "procedimientos": {
+  "decision": "approve",
+  "excluded": []
+ },
+ "circuitos-tramitacion": {
+  "decision": "approve",
+  "excluded": []
+ },
+ "analítica": {
+  "decision": "approve",
+  "excluded": []
+ },
+ "circuitos-resolucion": {
+  "decision": "approve",
+  "excluded": []
+ },
+ "cita-previa": {
+  "decision": "approve",
+  "excluded": []
+ },
+ "markdown": {
+  "decision": "approve",
+  "excluded": []
+ },
+ "tramitación-reglada": {
+  "decision": "approve",
+  "excluded": []
+ },
+ "asignaciones": {
+  "decision": "approve",
+  "excluded": []
+ },
+ "busquedas-avanzadas": {
+  "decision": "approve",
+  "excluded": []
+ },
+ "tareas-regladas": {
+  "decision": "approve",
+  "excluded": []
+ },
+ "facturas": {
+  "decision": "approve",
+  "excluded": []
+ },
+ "tramites-externos": {
+  "decision": "approve",
+  "excluded": []
+ },
+ "integraciones": {
+  "decision": "approve",
+  "excluded": [
+   168
+  ]
+ },
+ "tareas-personal": {
+  "decision": "approve",
+  "excluded": []
+ },
+ "interesados": {
+  "decision": "reject",
+  "excluded": [
+   1286,
+   1297,
+   1316,
+   2533
+  ]
+ },
+ "transparencia": {
+  "decision": "approve",
+  "excluded": []
+ },
+ "plazos": {
+  "decision": "approve",
+  "excluded": []
+ },
+ "órganos-colegiados": {
+  "decision": "approve",
+  "excluded": []
+ },
+ "paginas-informativas": {
+  "decision": "approve",
+  "excluded": []
+ },
+ "auditoria": {
+  "decision": "reject",
+  "excluded": [
+   1315,
+   1368,
+   1786
+  ]
+ },
+ "tablón-anuncios": {
+  "decision": "reject",
+  "excluded": [
+   1292,
+   1341,
+   1346
+  ]
+ },
+ "subvenciones": {
+  "decision": "reject",
+  "excluded": [
+   1301,
+   2287
+  ]
+ },
+ "gestiona-envia": {
+  "decision": "approve",
+  "excluded": []
+ },
+ "relacionados": {
+  "decision": "reject",
+  "excluded": [
+   1337,
+   1349
+  ]
+ },
+ "ayudas": {
+  "decision": "reject",
+  "excluded": [
+   1344,
+   2568
+  ]
+ },
+ "ventanilla-única": {
+  "decision": "reject",
+  "excluded": [
+   1297,
+   1313
+  ]
+ },
+ "contratación": {
+  "decision": "reject",
+  "excluded": [
+   1316
+  ]
+ },
+ "sello-de-organo": {
+  "decision": "reject",
+  "excluded": [
+   1292
+  ]
+ },
+ "carpeta-ciudadana": {
+  "decision": "reject",
+  "excluded": [
+   1284
+  ]
+ },
+ "plantillas": {
+  "decision": "reject",
+  "excluded": [
+   790
+  ]
+ },
+ "canal-denuncias": {
+  "decision": "approve",
+  "excluded": []
+ },
+ "expedientes-apertura": {
+  "decision": "reject",
+  "excluded": [
+   2367
+  ]
+ }
+}
