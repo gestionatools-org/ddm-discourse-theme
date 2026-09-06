@@ -494,3 +494,51 @@ PASS — 8 groups, 3 deletions, 2 renames
 
 No tags, groups, deletions or renames were touched by this task — only the two topics' tag
 assignments.
+
+## As executed (Task 6, 2026-09-06)
+
+Step 1 (batch validation) had already been done before this task started: Ricardo validated
+all 42 batches and the controller recorded the decisions in
+`docs/superpowers/plans/data/2026-09-04-batch-decisions.json` — 29 batches `approve` (14 of
+them with individual exclusions), 13 batches `reject` outright (`fechas`, `interesados`,
+`auditoria`, `tablón-anuncios`, `subvenciones`, `relacionados`, `ayudas`, `ventanilla-única`,
+`contratación`, `sello-de-organo`, `carpeta-ciudadana`, `plantillas`, `expedientes-apertura`).
+Of 455 proposed (tag, topic) pairs, 60 were excluded (46 from the rejected batches wholesale,
+14 from individual exclusions inside approved batches), leaving **395 pairs across 208 distinct
+topics** to write.
+
+Step 2 grouped the 395 pairs by topic (per the brief's script) and, for each of the 208 topics,
+read its current tags before resending the union with `PUT /t/-/<id>.json`:
+
+```
+topics to write: 208
+  /t/1361 SKIPPED: 2 tags + 6 exceeds max 7
+  /t/1363 SKIPPED: 2 tags + 6 exceeds max 7
+applied=206 skipped=2 failed=0
+```
+
+- **206 applied**, 0 non-200 responses on any read or write.
+- **2 skipped at the 7-tag ceiling**, neither truncated:
+  - `/t/1361` — existing `administracion-avanzada`, `ideas-2025`; would-add `expedientes`,
+    `tareas`, `tareas-regladas`, `tesauro`, `tramitación`, `tramitación-reglada` (6 tags, 8
+    total).
+  - `/t/1363` — existing `administracion-avanzada`, `ideas-2025`; would-add
+    `circuitos-tramitacion`, `configuración`, `tareas`, `tareas-regladas`, `tramitación`,
+    `tramitación-reglada` (6 tags, 8 total).
+- **0 topics** were already fully tagged going in (no `skip-already-tagged` case fired).
+- **0 failed** reads or writes.
+
+Step 3 (coverage re-measurement) did **not complete**. The full paginated crawl (17
+categories) hit `HTTP 429` partway on the first attempt; a second attempt with backoff added
+was still in flight when Ricardo reported hitting `429` himself probing the same instance, and
+was stopped rather than risk a second partial crawl competing for the same rate-limit budget.
+**Post-write subject coverage is therefore unmeasured as of this commit.** The pre-write
+baseline, from Task 5's Step 1, was **48.5%** (612/1261). Ricardo (or a later, uncontended run
+of the brief's Step 3 script) can measure the actual post-write figure once the rate limit
+clears; expected, per the brief, is roughly 65% — a little under the design's 66% target
+because 60 of the 455 proposed pairs were excluded.
+
+`./bin/tags-verify` was **not** re-run after the writes, for the same rate-limit reason. No
+tags, groups, deletions or renames were touched by this task — only topic tag assignments —
+so there is no structural reason to expect it to fail; it stands unverified rather than
+verified-and-passing as of this commit.
