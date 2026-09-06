@@ -324,3 +324,70 @@ FAIL — 8 assertion(s)
   ✗ group missing: Analítica de datos
   ✗ group missing: Aplicaciones y servicios
 ```
+
+## As executed (Task 3, 2026-09-06)
+
+Step 1 reproduced the expected red state exactly: 8 assertions, all `group missing:`, no more
+and no fewer — confirming Task 2's five operations (three deletions, two renames with synonyms
+restored) left nothing else outstanding for the verifier.
+
+Step 2 created all eight groups in one pass, `POST /tag_groups.json` with no `permissions`
+parameter (confirmed: that field 500s). Every group came back `200` with the tag count matching
+the request exactly — no group reported extra or missing tags, so no tag was invented:
+
+| # | Group | Requested | Returned | Status |
+|---|---|---|---|---|
+| 1 | Tramitación administrativa | 16 | 16 | OK — 200 |
+| 2 | Configuración | 6 | 6 | OK — 200 |
+| 3 | Atención a la ciudadanía | 11 | 11 | OK — 200 |
+| 4 | Registro electrónico | 3 | 3 | OK — 200 |
+| 5 | Inicio | 9 | 9 | OK — 200 |
+| 6 | Gestión económica | 7 | 7 | OK — 200 |
+| 7 | Analítica de datos | 3 | 3 | OK — 200 |
+| 8 | Aplicaciones y servicios | 4 | 4 | OK — 200 |
+
+`tesauro` and `markdown` each landed in both Tramitación administrativa and Configuración, as
+the mapping intends — the axis is deliberately not a partition.
+
+Step 3 verifier: `PASS — 8 groups, 3 deletions, 2 renames`, exit 0.
+
+Step 4 — **`/tag_groups.json` carries no `slug` field for a tag group at all** (checked the raw
+response: a group object is only `id`, `name`, `tags`, `parent_tag`, `one_per_topic`,
+`permissions`). So there is no stored "real slug" to read back and correct the brief's guesses
+against. What was verified instead: the brief's own guessed slugs — the group name, accents
+stripped, lowercased, spaces to hyphens — are exactly what `#<slug>` resolves against, computed
+on the fly by the search parser rather than persisted. All eight returned non-zero, none needed
+correcting:
+
+| Group | Guessed slug | Count | Note |
+|---|---|---|---|
+| Tramitación administrativa | `tramitacion-administrativa` | 50 | at the search-page cap |
+| Configuración | `configuracion` | 37 | |
+| Atención a la ciudadanía | `atencion-a-la-ciudadania` | 50 | at the cap |
+| Registro electrónico | `registro-electronico` | 50 | at the cap |
+| Inicio | `inicio` | 50 | at the cap |
+| Gestión económica | `gestion-economica` | 50 | at the cap |
+| Analítica de datos | `analitica-de-datos` | 36 | |
+| Aplicaciones y servicios | `aplicaciones-y-servicios` | 26 | |
+
+Spot-checked the smallest group (Aplicaciones y servicios, 4 tags: `padrón`, `urbanismo`,
+`facturas`, `sello-de-organo`) against all 26 returned topics: every one carries at least one of
+those four tags, zero full-text false positives. So `#<group-slug>` is a genuine OR across the
+group's own tags, not a fallback to plain text search landing on a coincidental non-zero count.
+
+Verifier, before this task vs. after:
+
+```
+FAIL — 8 assertion(s)
+  ✗ group missing: Tramitación administrativa
+  ✗ group missing: Configuración
+  ✗ group missing: Atención a la ciudadanía
+  ✗ group missing: Registro electrónico
+  ✗ group missing: Inicio
+  ✗ group missing: Gestión económica
+  ✗ group missing: Analítica de datos
+  ✗ group missing: Aplicaciones y servicios
+```
+```
+PASS — 8 groups, 3 deletions, 2 renames
+```
