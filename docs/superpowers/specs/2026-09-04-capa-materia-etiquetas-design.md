@@ -255,13 +255,20 @@ Five operations on PRE, split across two sessions with no overlap in what each o
 | 6 | Recreate `pid` as a synonym of `integracion-pid` | done — HTTP 200, `{"success":"OK"}` |
 | 7 | Recreate `seriesdocumentales` as a synonym of `serie-documental` | done — HTTP 200, `{"success":"OK"}` |
 
-**Operations 1–5 had already executed before this session opened them.** The staff action log
-(`/admin/logs/staff_action_logs.json`) shows all five at 2026-09-06T07:48:11Z–07:49:35Z, actor
-`RicardoPG` (the Global key's attributed user) — a prior, uncommitted run of this same Step 3
-that got through the deletes and both renames and then stopped: no synonym-creation attempt is
-logged, `synonyms: []` on both renamed tags, and neither a git commit nor a task-2-report existed
-for it. This session verified that state (read-only), recognised operations 6–7 as the exact,
-already-authorised remainder of Step 3 — not new scope — and completed them, since leaving it
+**Operations 1–5 had already executed before this session opened them.** What is established,
+and no more than this: this session's first read (`/tags.json`) already showed the three tags
+deleted and both renames done, with `synonyms: []` on both renamed tags — so the mutation
+predates this session's own calls. The staff action log shows the five operations at
+2026-09-06T07:48:11Z–07:49:35Z, actor `RicardoPG` — but that attribution is **not diagnostic**:
+`RicardoPG` is this project's own API-key username, so every call made with that key is logged
+under it regardless of who or what session issued it. It does not distinguish an earlier agent
+run from a human acting in admin from anything else holding the key. The log entries are also
+**8–38 seconds apart**, while the brief's Step 3 script sleeps 1.3s between calls — a pacing that
+does not match that script, which argues against "an earlier run of this exact script" as the
+specific mechanism, whatever the actual source was. No stronger claim than "already mutated,
+by something other than this session's own calls" is supported. This session verified the
+resulting state (read-only), recognised the missing synonym-recreation as the exact,
+already-authorised remainder of Step 3 — not new scope — and completed it, since leaving it
 half-done meant `#pid` and `#seriesdocumentales` were silently degraded to full-text search in
 production.
 
@@ -276,9 +283,14 @@ rename) vs. after this session's fix:
 The `7` for `#pid` is not the failure signature (`0` or `50`) the brief warns about: all 7
 `search.json` hits carry the `integracion-pid` tag with zero full-text false positives, and the
 direct listing endpoint `/tag/integracion-pid.json` returns the full **9**, matching the tag's
-own `topic_count`. The `search.json` result cap is a quirk of that endpoint, not evidence the
-synonym failed — the synonym's own presence is what the verifier asserts, and it is what the
-direct tag-info and tag-listing endpoints confirm.
+own `topic_count`. **Verified cause of the 9-vs-7 gap:** the two topics missing from the search
+result, `/t/176` and `/t/177` (both "Integraciones - PID Consulta de inexistencia…"), are
+`visible: false` (unlisted) — confirmed directly against `/t/176.json` and `/t/177.json`. `#tag`
+search excludes unlisted topics; a tag's `topic_count` and its `/tag/<name>/l/latest.json`
+listing both include them. `#integracion-pid` itself also returns 7, so the gap has nothing to do
+with the synonym — it is the documented asymmetry already recorded above under *"A tag's
+`topic_count` counts unlisted topics; `#tag` search does not"* (measured there on
+`nueva-version-gestiona`/`/t/176`), now reproduced on a second tag.
 
 The three deletion candidates, captured at this session's Step 1 (after the prior session had
 already deleted them, so these are post-deletion full-text noise, not tag-filtered counts):
