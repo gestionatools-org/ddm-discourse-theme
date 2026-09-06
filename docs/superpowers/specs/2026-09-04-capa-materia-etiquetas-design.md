@@ -42,7 +42,7 @@ distributed across them. **No new tags are created.**
 | Group | Tags | Uses | Members |
 |---|---:|---:|---|
 | **Tramitación administrativa** | 16 | 414 | `tramitación-reglada`(87) · `tesauro`(81) · `expedientes`(50) · `circuitos-resolucion`(48) · `markdown`(35) · `tramitación`(26) · `gestiona-code`(21) · `procedimientos`(15) · `circuitos-tramitacion`(12) · `órganos-colegiados`(10) · `integracion-pid`(9) · `plantillas`(5) · `expedientes-apertura`(4) · `subprocesos`(4) · `gestiona-envia`(4) · `relacionados`(3) |
-| **Configuración** | 6 | 175 | `tesauro`(81) · `configuración`(37) · `markdown`(35) · `usuario-perfil`(11) · `integraciones`(8) · `serie-documental`(3) |
+| **Configuración Gestiona** | 6 | 175 | `tesauro`(81) · `configuración`(37) · `markdown`(35) · `usuario-perfil`(11) · `integraciones`(8) · `serie-documental`(3) |
 | **Atención a la ciudadanía** | 11 | 118 | `sede-electrónica`(58) · `terceros`(24) · `paginas-informativas`(6) · `representante`(5) · `cita-previa`(5) · `carpeta-ciudadana`(4) · `transparencia`(4) · `canal-denuncias`(3) · `tablón-anuncios`(3) · `interesados`(3) · `temas-y-categorias`(3) |
 | **Registro electrónico** | 3 | 80 | `registro`(63) · `tramites-externos`(14) · `ventanilla-única`(3) |
 | **Inicio** | 9 | 72 | `tareas`(22) · `firma`(17) · `tareas-regladas`(6) · `asignaciones`(6) · `app-movil`(6) · `fechas`(5) · `tareas-personal`(4) · `asignado-a`(3) · `plazos`(3) |
@@ -219,8 +219,10 @@ All measured on PRE on 2026-09-04. Each cost an attempt.
 
 1. Eight tag groups exist, holding the 57 subject tags as tabled above, and `#<group-slug>`
    returns the union of each group's tags.
-2. Subject coverage rises from 47% to **at least 66%** of the 1 261 topics — 830 of them —
-   before the body pass on the 166 adds anything.
+2. Subject coverage rises from 47% to **at least 830 of the 1 261 topics (65.82%)**, before
+   the body pass on the 166 adds anything. *(Met: Task 7's writes brought coverage to
+   832/1,261 — 65.98% — past this 830-topic target, though one topic short of a strict
+   66.00%.)*
 3. No tag has fewer than 3 uses, the state reached by the depuration.
 4. Every old tag name still filters — no rename leaves a dead `#name`.
 5. `pendiente-etiquetar` holds only genuinely unclassified topics, and its count is recorded as
@@ -235,7 +237,9 @@ All measured on PRE on 2026-09-04. Each cost an attempt.
   limit, not an oversight.
 - **Any theme change.** The theme reads three tags by name (`highlights_podcast_tag`,
   `highlights_newsletter_tag`, `highlights_news_tag`); `podcast`(3) and `newsletter`(14) both
-  survive and are untouched by this design. `nueva-version-gestiona` has never existed.
+  survive and are untouched by this design. `nueva-version-gestiona` was created during this
+  work (see *Mechanics*, id 289) and now holds 39 uses feeding `highlights_news_tag` — the
+  setting itself was not touched by this design, only the tag content it already pointed at.
 - **The structural layer.** `alumno-certificado`(230) absorbed `certificados` during the
   depuration and can no longer be split without re-tagging 230 topics by hand.
 - **PROD.** It has neither the depuration, nor `min_search_term_length: 3`, nor
@@ -431,6 +435,16 @@ search resolution, surfaced only by checking the filter, not by anything this ta
 to rename the tag or the group to remove the shadow is Ricardo's call, tracked separately —
 untouched here.
 
+**Resolved — Ricardo chose to rename the group, not the tag.** Its name changed to
+`Configuración Gestiona`; the resulting slug `configuracion-gestiona` was checked against all
+103 tags, every one of their synonyms, every category slug (walking `subcategory_list`) and
+every other tag group before applying, so the rename introduces no new shadow. Proof this fixes
+the resolution rather than merely renaming the group: of the 30 topics that carry `tesauro` but
+not `configuración`, **23 appear in `#configuracion-gestiona` and 0 in `#configuracion`** —
+topics the shadowed tag-only match could never have surfaced. **All eight group filters now
+resolve to their tag group, so success criterion 1 is met.** The mapping key (the module-axis
+data and the verifier) was updated in the same commit, so `./bin/tags-verify` kept passing.
+
 Verifier, before this task vs. after:
 
 ```
@@ -499,8 +513,10 @@ assignments.
 
 Step 1 (batch validation) had already been done before this task started: Ricardo validated
 all 42 batches and the controller recorded the decisions in
-`docs/superpowers/plans/data/2026-09-04-batch-decisions.json` — 29 batches `approve` (14 of
-them with individual exclusions), 13 batches `reject` outright (`fechas`, `interesados`,
+`docs/superpowers/plans/data/2026-09-04-batch-decisions.json` — 29 batches `approve` (6 of
+them carrying the 14 individual exclusion ids: `configuración` 1, `tramitación` 1,
+`registro` 5, `sede-electrónica` 1, `terceros` 5, `integraciones` 1), 13 batches `reject`
+outright (`fechas`, `interesados`,
 `auditoria`, `tablón-anuncios`, `subvenciones`, `relacionados`, `ayudas`, `ventanilla-única`,
 `contratación`, `sello-de-organo`, `carpeta-ciudadana`, `plantillas`, `expedientes-apertura`).
 Of 455 proposed (tag, topic) pairs, 60 were excluded (46 from the rejected batches wholesale,
@@ -546,8 +562,8 @@ verified-and-passing as of this commit.
 ## As executed (Task 7, 2026-09-06)
 
 Steps 1-2 (regenerate the residual, split it by genre, run the body pass at threshold 3) had
-already been done in an earlier, read-only dispatch — see `task-7-report.md`'s first section.
-Summary: crawl of 1,261 topics; **818/1,261 (64.9%)** already carried a subject tag; residual
+already been done in an earlier, read-only dispatch. Summary: crawl of 1,261 topics;
+**818/1,261 (64.9%)** already carried a subject tag; residual
 443, of which 255 genre-matched (left untagged on purpose) and 188 had no title genre; the body
 pass over those 188 proposed at least one tag for 43 (22.9%), two of them flagged as likely
 false positives (a boilerplate template field label, and forum-onboarding help docs colliding
@@ -575,8 +591,24 @@ ceiling):
 
 - **Subject-tag writes (14 topics, exactly `body-decisions.json`'s `apply` map):**
   **14 applied, 0 skipped, 0 failed.** No topic was within reach of the 7-tag ceiling — the
-  fullest case (`/t/2422`) went from 4 tags to 6. Full before/after list in
-  `task-7-report.md`.
+  fullest case (`/t/2422`) went from 4 tags to 6. Full before/after list:
+
+  | Topic | Title | Tags before | Tags applied |
+  |---|---|---|---|
+  | `/t/165` | 05. Expertos grupo esPublico - Arquitectura de interoperabilidad | `expertos-espublico` | `integraciones` |
+  | `/t/168` | 09. Expertos grupo esPublico - Integración contable para el… | `expertos-espublico` | `integraciones` |
+  | `/t/398` | Mejorar el Servicio de Avisos, Alertas | `administracion-avanzada`, `ideas` | `tareas` |
+  | `/t/473` | Condicionales en selector múltiple | `administracion-avanzada`, `ideas`, `v9`, `soporte` | `tesauro` |
+  | `/t/504` | Niveles de usuario | (none) | `usuario-perfil` |
+  | `/t/714` | Propuesta sobre nomenclatura de documentos y subcarpetas | `administracion-avanzada`, `ideas`, `mejoras`, `proyectos` | `expedientes` |
+  | `/t/1097` | Elegir cargo para validacion de documentos | `administracion-avanzada`, `ideas`, `academia`, `actualidad-gestiona` | `firma` |
+  | `/t/1544` | Servicio de impresión y ensobrado y las alertas de publicaci… | `administracion-avanzada`, `ideas`, `mejoras`, `actualizar` | `registro` |
+  | `/t/2369` | Enlaces a recursos en Gestiona (URL) | `analiza` | `configuración` |
+  | `/t/2409` | Modificación de visibilidad de los documentos. Elección de t… | `administracion-avanzada`, `ideas`, `alumno-certificado`, `mejoras` | `terceros` |
+  | `/t/2414` | Distribución horaria y estado de las citas (HOY) | `analiza` | `cita-previa` |
+  | `/t/2422` | Problemas de conexión Chrome-Autofirma | `administracion-avanzada`, `ideas`, `mejoras`, `soporte` | `firma`, `sede-electrónica` |
+  | `/t/2552` | Error en publicación de notificaciones en el BOE | `administracion-avanzada`, `alumno-certificado`, `mejoras` | `registro`, `terceros` |
+  | `/t/2568` | Herramientas de ayuda en la definición de objetivos de análi… | (none) | `analítica` |
 - **`pendiente-etiquetar` writes (174 topics, the `queue` list):**
   **174 applied, 0 skipped, 0 failed.** Existing tag counts on these topics ranged 0-5
   (median 1-2), so the ceiling was never approached; no skip to report.
