@@ -391,3 +391,50 @@ FAIL — 8 assertion(s)
 ```
 PASS — 8 groups, 3 deletions, 2 renames
 ```
+
+## As executed (Task 4, 2026-09-06)
+
+Step 1 confirmed the two `cies` topic ids from the committed capture, exactly as expected — no
+divergence, so no BLOCKED path was needed:
+
+```
+1498 SEMINARIO: Los servicios de impresión, ensobrado y envío de SMS
+1458 Nuevo curso en la Academia: Servicios de impresión, ensobrado y envío de SMS
+```
+
+Step 2 read each topic's current tags before writing anything:
+
+| Topic | Tags before | `image_url` before |
+|---|---|---|
+| `/t/1498` | `webinars` | `None` (already no list thumbnail) |
+| `/t/1458` | `academia` | `None` (already no list thumbnail) |
+
+Neither was near the 7-tag cap, so no skip was needed.
+
+Step 3 resent each topic's existing tag together with `registro`, via `PUT /t/-/<id>.json`:
+
+| Topic | Sent | HTTP status |
+|---|---|---|
+| `/t/1498` | `webinars`, `registro` | 200 |
+| `/t/1458` | `academia`, `registro` | 200 |
+
+Step 4 re-read both topics and confirmed nothing was lost:
+
+| Topic | Tags after | Has `registro` | `image_url` after |
+|---|---|---|---|
+| `/t/1498` | `registro`, `webinars` | yes | `None` (unchanged — was already `None` before this write) |
+| `/t/1458` | `academia`, `registro` | yes | `None` (unchanged — was already `None` before this write) |
+
+Both topics' `image_url` was already `None` before this task touched them, so the known
+"a write clears the list thumbnail" effect had nothing left to clear here — neither topic had
+one to lose.
+
+Verifier, run once before the writes and once after, byte-identical output both times, exit 0
+both times:
+
+```
+PASS — 8 groups, 3 deletions, 2 renames
+```
+
+No tags, groups, deletions or renames were touched by this task — only the two topics' tag
+assignments.
