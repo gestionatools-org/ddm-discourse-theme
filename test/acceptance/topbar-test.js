@@ -20,10 +20,15 @@ function clearLinkSettings() {
   settings.first_steps_url = "";
 }
 
+// Every figure carries a different number so a mis-pairing in TOTALS or PERIOD
+// shows up as a visibly wrong count against a label rather than an
+// indistinguishable one. `likes_30_days` is still served here on purpose: the
+// band must ignore a stat it no longer displays, not render it.
 const ABOUT = {
   about: {
     stats: {
       users_count: 1240,
+      topics_count: 1297,
       posts_30_days: 3480,
       likes_30_days: 890,
       active_users_30_days: 120,
@@ -41,39 +46,45 @@ function failAbout(server, helper) {
   );
 }
 
-// Only the lifetime total survives: the whole 30-day group has to disappear,
-// lead-in and divider included.
+// Only one lifetime total survives: the whole 30-day group has to disappear,
+// lead-in and divider included, and the second total has to be filtered out
+// rather than render as "NaN topics".
 const TOTAL_ONLY_ABOUT = { about: { stats: { users_count: 1240 } } };
 
-// The mirror image: no total, so the group has to stand on its own.
+// The mirror image: no totals, so the group has to stand on its own.
 const PERIOD_ONLY_ABOUT = {
   about: {
     stats: {
       posts_30_days: 3480,
-      likes_30_days: 890,
       active_users_30_days: 120,
     },
   },
 };
+
+function textsOf(selector) {
+  return [...document.querySelectorAll(selector)].map((el) =>
+    el.textContent.replace(/\s+/g, " ").trim()
+  );
+}
 
 acceptance("Topbar - figures", function (needs) {
   needs.user();
   needs.pretender(stubAbout);
   needs.hooks.beforeEach(clearLinkSettings);
 
-  test("separates the lifetime total from the 30-day group", async function (assert) {
+  test("separates the lifetime totals from the 30-day group", async function (assert) {
     await visit("/latest");
 
     assert.dom(".topbar-stats__figure").exists({ count: 4 });
     assert
       .dom(".topbar-stats__figure.--total")
-      .exists({ count: 1 }, "exactly one figure is the lifetime total");
+      .exists({ count: 2 }, "members and topics are both lifetime totals");
     assert
       .dom(".topbar-stats__period .topbar-stats__figure.--total")
-      .doesNotExist("the total sits outside the period group, not within it");
+      .doesNotExist("the totals sit outside the period group, not within it");
     assert
       .dom(".topbar-stats__period .topbar-stats__figure")
-      .exists({ count: 3 }, "the three 30-day windows are grouped together");
+      .exists({ count: 2 }, "the two 30-day windows are grouped together");
   });
 
   test("states the period once, in front of the group", async function (assert) {
@@ -83,33 +94,43 @@ acceptance("Topbar - figures", function (needs) {
     assert.dom(".topbar-stats__period-label").hasText("This month:");
     assert
       .dom(".topbar-stats__figure.--total")
-      .hasText("1,240 members", "the total carries no period of its own");
+      .hasText("1,240 members", "a total carries no period of its own");
   });
 
-  test("formats the total with a thousands separator", async function (assert) {
+  test("formats the totals with a thousands separator", async function (assert) {
     await visit("/latest");
 
-    assert
-      .dom(".topbar-stats__figure.--total .topbar-stats__value")
-      .hasText("1,240", "not abbreviated to 1.2k");
+    assert.deepEqual(
+      textsOf(".topbar-stats__figure.--total .topbar-stats__value"),
+      ["1,240", "1,297"],
+      "neither is abbreviated to 1.2k"
+    );
   });
 
   test("pairs each label with its own stat key", async function (assert) {
     await visit("/latest");
 
-    // Each of the three windows carries a different number in the fixture, so
-    // a mis-pairing in PERIOD puts a visibly wrong count against the label
-    // rather than an indistinguishable one.
-    const figures = [
-      ...document.querySelectorAll(
-        ".topbar-stats__period .topbar-stats__figure"
-      ),
-    ].map((el) => el.textContent.replace(/\s+/g, " ").trim());
-
     assert.deepEqual(
-      figures,
-      ["120 active users", "3,480 messages", "890 likes"],
+      textsOf(".topbar-stats__figure.--total"),
+      ["1,240 members", "1,297 topics"],
+      "members leads the totals, so it is the one that survives on a phone"
+    );
+    assert.deepEqual(
+      textsOf(".topbar-stats__period .topbar-stats__figure"),
+      ["120 active users", "3,480 messages"],
       "active users leads the group, so it is the one that survives on a phone"
+    );
+  });
+
+  test("ignores a stat it no longer displays", async function (assert) {
+    await visit("/latest");
+
+    // `likes_30_days` is in the fixture. Dropping a definition from PERIOD is
+    // what removes the figure; nothing keys off the payload, so a stat core
+    // keeps serializing must not reappear.
+    assert.false(
+      textsOf(".topbar-stats__figure").some((t) => t.includes("890")),
+      "likes_30_days is served and not rendered"
     );
   });
 
@@ -118,15 +139,15 @@ acceptance("Topbar - figures", function (needs) {
 
     // The media query itself is not observable here, but the class that drives
     // it is, and getting the wrong figures marked is the failure this guards:
-    // it would leave the phone showing volume and appreciation while hiding
-    // size and reach.
+    // it would leave the phone showing volume while hiding size and reach.
+    // Asserting the survivors by text, rather than the marked ones by
+    // position, is what makes this readable as the phone's actual band.
     assert.dom(".topbar-stats__figure.--secondary").exists({ count: 2 });
-    assert
-      .dom(".topbar-stats__figure.--total")
-      .doesNotHaveClass("--secondary", "members survives on a phone");
-    assert
-      .dom(".topbar-stats__period .topbar-stats__figure:first-child")
-      .doesNotHaveClass("--secondary", "active users survives on a phone");
+    assert.deepEqual(
+      textsOf(".topbar-stats__figure:not(.--secondary)"),
+      ["1,240 members", "120 active users"],
+      "the phone keeps exactly what it kept before topics was added"
+    );
   });
 
   test("carries the figures and nothing else", async function (assert) {
@@ -211,7 +232,7 @@ acceptance("Topbar - only the 30-day group is served", function (needs) {
     assert.dom(".topbar-stats__period-label").exists();
     assert
       .dom(".topbar-stats__period .topbar-stats__figure")
-      .exists({ count: 3 });
+      .exists({ count: 2 });
   });
 });
 

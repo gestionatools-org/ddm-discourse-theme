@@ -41,10 +41,14 @@
 // take --primary, everything around them stays at the muted step.
 //
 // Two kinds of number live here and the layout is what separates them. The
-// lifetime total stands on its own; the three 30-day windows sit behind a
+// two lifetime totals stand on their own; the two 30-day windows sit behind a
 // rule and a shared "Este mes:" lead-in. Nothing is emphasised further — the
-// divider does the work, and giving the total extra weight on top of it would
+// divider does the work, and giving a total extra weight on top of it would
 // start competing with the logotype in the header below.
+//
+// The totals need no container of their own: they are flex children of this
+// row, so the same `gap` that spaces the group from the divider spaces them
+// from each other, and one declaration governs both sides of the rule.
 .topbar-stats {
   display: flex;
   align-items: baseline;
@@ -79,9 +83,10 @@
     white-space: nowrap;
 
     // Below lg the band carries nothing but these figures, so they cannot
-    // borrow space from anywhere. Which two stand down is decided in
-    // topbar-stats.gjs, not here — and the survivor leads the group there, so
-    // hiding these two leaves no gap after the lead-in.
+    // borrow space from anywhere. Which ones stand down is decided in
+    // topbar-stats.gjs, not here. One is a total and one is a window, and each
+    // is the last of its pair, so hiding them leaves neither a gap after the
+    // lead-in nor a dangling gap before the divider.
     &.--secondary {
       @include viewport.until(lg) {
         display: none;
