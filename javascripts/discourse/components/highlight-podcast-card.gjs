@@ -76,11 +76,11 @@ export default class HighlightPodcastCard extends Component {
         {{/if}}
       </div>
 
+      {{! Title and CTA only. The "PODCAST" label the content cards wear is
+          redundant here — the play button over a 16:9 thumbnail already says
+          what this is — and dropping it is height the card does not spend.
+          `podcast.label` is still the iframe's accessible title above. }}
       <div class="highlight-card__body">
-        <div class="highlight-card__label">
-          {{dIcon "podcast"}}
-          {{i18n (themePrefix "homepage.highlights.podcast.label")}}
-        </div>
         <h3 class="highlight-card__title">
           <a href={{@topic.url}}>{{trustHTML @topic.fancy_title}}</a>
         </h3>
