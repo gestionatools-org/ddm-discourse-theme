@@ -6,8 +6,10 @@ import {
   extractPdfUrl,
   extractVideoId,
   loadLatestTaggedTopic,
+  MEMBER_PERIODS,
   memberHasActivity,
   paragraphsFromCooked,
+  periodChain,
   rankTopMember,
   uploadRefFromShortUrl,
   WEIGHTS,
@@ -317,6 +319,23 @@ module("Espublico Theme | Unit | highlights | rankTopMember", function () {
       first,
       "the earlier of two equal items"
     );
+  });
+});
+
+module("Espublico Theme | Unit | highlights | periodChain", function () {
+  test("starts at the configured window and widens from there", function (assert) {
+    assert.deepEqual(periodChain("monthly"), [
+      "monthly",
+      "quarterly",
+      "yearly",
+      "all",
+    ]);
+    assert.deepEqual(periodChain("yearly"), ["yearly", "all"]);
+    assert.deepEqual(periodChain("all"), ["all"], "nothing wider to try");
+  });
+
+  test("honours an unknown window first, then widens through all of them", function (assert) {
+    assert.deepEqual(periodChain("weekly"), ["weekly", ...MEMBER_PERIODS]);
   });
 });
 

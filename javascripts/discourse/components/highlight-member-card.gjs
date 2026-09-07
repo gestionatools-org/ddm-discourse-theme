@@ -4,14 +4,30 @@ import dAvatar from "discourse/ui-kit/helpers/d-avatar";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
 
+const BADGE_PERIODS = ["monthly", "quarterly", "yearly", "all"];
+
 // The bottom-right twin card. Presentational: the block hands down the ranked
-// directory item, or nothing. With a member it is an avatar, the raw figures
-// that earned the spot, and a "member of the month" badge. With nobody eligible
-// — a quiet month, or the directory switched off — it is a nudge to take part,
-// which also stops the bento grid growing a hole.
+// directory item and the window it was ranked over, or nothing. With a member
+// it is an avatar, their cargo, the raw figures that earned the spot and a
+// badge naming that window. With nobody eligible in any window — or the
+// directory switched off — it is a nudge to take part, which also stops the
+// bento grid growing a hole.
 export default class HighlightMemberCard extends Component {
   get user() {
     return this.args.member?.user;
+  }
+
+  // The badge names the window the member actually won, because the block
+  // widens that window when a quieter one has nobody — and "miembro del mes"
+  // over the quarter's figures would be a lie the reader cannot check. An
+  // unrecognised period falls to the period-neutral string rather than to a
+  // missing translation.
+  get badgeKey() {
+    const period = BADGE_PERIODS.includes(this.args.period)
+      ? this.args.period
+      : "all";
+
+    return `homepage.highlights.member.badge.${period}`;
   }
 
   get displayName() {
@@ -40,7 +56,7 @@ export default class HighlightMemberCard extends Component {
         <div class="highlight-card__body">
           <div class="highlight-card__label">
             {{dIcon "star"}}
-            {{i18n (themePrefix "homepage.highlights.member.badge")}}
+            {{i18n (themePrefix this.badgeKey)}}
           </div>
           <h3 class="highlight-card__title">
             <a href={{this.profileUrl}}>{{this.displayName}}</a>

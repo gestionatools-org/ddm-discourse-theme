@@ -100,7 +100,11 @@ en:
         label: "The latest from Gestiona"
         cta: "See what's new"
       member:
-        badge: "Member of the month"
+        badge:
+          monthly: "Member of the month"
+          quarterly: "Member of the quarter"
+          yearly: "Member of the year"
+          all: "Community member"
         posts:
           one: "%{count} post"
           other: "%{count} posts"
