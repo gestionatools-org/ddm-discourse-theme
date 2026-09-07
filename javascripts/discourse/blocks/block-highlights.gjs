@@ -4,7 +4,7 @@ import { trustHTML } from "@ember/template";
 import { block } from "discourse/blocks";
 import { ajax } from "discourse/lib/ajax";
 import { bind } from "discourse/lib/decorators";
-import { eq } from "discourse/truth-helpers";
+import { eq, or } from "discourse/truth-helpers";
 import DAsyncContent from "discourse/ui-kit/d-async-content";
 import DButton from "discourse/ui-kit/d-button";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
@@ -12,6 +12,9 @@ import { i18n } from "discourse-i18n";
 import HighlightMemberCard from "../components/highlight-member-card";
 import HighlightPodcastCard from "../components/highlight-podcast-card";
 import {
+  excerptFromCooked,
+  extractCoverImage,
+  extractPdfUrl,
   extractVideoId,
   loadLatestTaggedTopic,
   memberHasActivity,
@@ -19,19 +22,31 @@ import {
   WEIGHTS,
 } from "../lib/highlights";
 
+// How much of the newsletter's own post the tall card shows. It is a theme-side
+// dial precisely because the alternative — raising `topic_excerpt_maxlength`,
+// which caps `topic.excerpt` at 220 — is a site setting that would lengthen
+// every listing on the forum. Paired with the `--tall` line clamp in
+// `block-highlights.scss`: the clamp decides how many lines fit, this decides
+// there is enough text to fill them.
+const NEWSLETTER_EXCERPT_MAX = 420;
+
 // A content card for the newsletter and novedad cells: an optional cover image
 // (or a branded placeholder), a label, the topic title and a CTA. `fancy_title`
-// is already cooked HTML — `trustHTML`, as everywhere else in these blocks. The
-// excerpt shows only on the tall variant; `serialize_topic_excerpts` (about.json)
-// is what serialises it.
+// is already cooked HTML — `trustHTML`, as everywhere else in these blocks.
+//
+// `@image`, `@text` and `@ctaHref` are the newsletter cell's overrides, read
+// from its post rather than from the topic list; each falls back to what the
+// topic list carries, which is all the novedad cell passes. `@ctaHref` leaving
+// the forum (it points at a PDF) is why the CTA opens in a new tab whenever it
+// is set — DButton renders an `<a>` for `@href` and forwards `...attributes`.
 const ContentCard = <template>
   <article class="highlight-card highlight-content --{{@variant}}">
     {{#unless (eq @variant "compact")}}
       {{! The compact novedad card has no image — the media slot would only
           carry a placeholder icon that the label already shows. }}
       <div class="highlight-card__media">
-        {{#if @topic.image_url}}
-          <img src={{@topic.image_url}} alt="" loading="lazy" />
+        {{#if (or @image @topic.image_url)}}
+          <img src={{or @image @topic.image_url}} alt="" loading="lazy" />
         {{else}}
           <span class="highlight-card__placeholder">{{dIcon @icon}}</span>
         {{/if}}
@@ -43,16 +58,28 @@ const ContentCard = <template>
         {{i18n (themePrefix @label)}}
       </div>
       <h3 class="highlight-card__title">
+        {{! The title always goes to the topic, even when the CTA does not: the
+            conversation is where a reader replies, and the PDF is a dead end. }}
         <a href={{@topic.url}}>{{trustHTML @topic.fancy_title}}</a>
       </h3>
       {{#if (eq @variant "tall")}}
-        <p class="highlight-card__excerpt">{{@topic.excerpt}}</p>
+        <p class="highlight-card__excerpt">{{or @text @topic.excerpt}}</p>
       {{/if}}
-      <DButton
-        class="btn-flat highlight-card__cta"
-        @href={{@topic.url}}
-        @translatedLabel={{i18n (themePrefix @cta)}}
-      />
+      {{#if @ctaHref}}
+        <DButton
+          class="btn-flat highlight-card__cta"
+          target="_blank"
+          rel="noopener"
+          @href={{@ctaHref}}
+          @translatedLabel={{i18n (themePrefix @cta)}}
+        />
+      {{else}}
+        <DButton
+          class="btn-flat highlight-card__cta"
+          @href={{@topic.url}}
+          @translatedLabel={{i18n (themePrefix @cta)}}
+        />
+      {{/if}}
     </div>
   </article>
 </template>;
@@ -114,8 +141,33 @@ export default class BlockHighlights extends Component {
   }
 
   @bind
-  fetchNewsletter() {
-    return loadLatestTaggedTopic(this.store, this.args.newsletterTag);
+  async fetchNewsletter() {
+    const topic = await loadLatestTaggedTopic(
+      this.store,
+      this.args.newsletterTag
+    );
+    if (!topic) {
+      return null;
+    }
+    // The same second hop the podcast cell makes, for three things the topic
+    // list does not carry. Measured on PRE 2026-09-07: all 14 newsletters have
+    // `image_url: null` — the cover is an `<img>` inside the post, and the
+    // magazine itself is a PDF attachment, so without this hop the card is a
+    // placeholder icon over a 220-character excerpt with a link to the thread.
+    let cooked = null;
+    try {
+      const full = await ajax(`/t/${topic.id}.json`);
+      cooked = full?.post_stream?.posts?.[0]?.cooked ?? null;
+    } catch {
+      // no reachable first post: every field below is null and the card falls
+      // back to what the topic list gave it
+    }
+    return {
+      topic,
+      image: extractCoverImage(cooked),
+      pdfUrl: extractPdfUrl(cooked),
+      excerpt: excerptFromCooked(cooked, NEWSLETTER_EXCERPT_MAX),
+    };
   }
 
   @bind
@@ -177,9 +229,12 @@ export default class BlockHighlights extends Component {
             <div class="block-highlights__cell --news">
               <DAsyncContent @asyncData={{this.fetchNewsletter}}>
                 <:loading><CellLoading /></:loading>
-                <:content as |topic|>
+                <:content as |data|>
                   <ContentCard
-                    @topic={{topic}}
+                    @topic={{data.topic}}
+                    @image={{data.image}}
+                    @text={{data.excerpt}}
+                    @ctaHref={{data.pdfUrl}}
                     @variant="tall"
                     @icon="envelope"
                     @label="homepage.highlights.newsletter.label"

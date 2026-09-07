@@ -77,6 +77,144 @@ export function youtubeThumbnail(id) {
 }
 
 /**
+ * Parse cooked post HTML into a detached document, or null for nothing.
+ *
+ * `DOMParser` fetches nothing — no image, stylesheet or script in the parsed
+ * markup is loaded — so this is a cheap, inert read of someone else's HTML. The
+ * three extractors below share it; `extractVideoId` stays on regexes because it
+ * reads an attribute value rather than the tree.
+ *
+ * @param {String} cooked - post HTML
+ * @returns {Document|null}
+ */
+function parseCooked(cooked) {
+  if (!cooked) {
+    return null;
+  }
+
+  return new DOMParser().parseFromString(cooked, "text/html");
+}
+
+/**
+ * The src of the first non-emoji image in a cooked post, or null.
+ *
+ * Position is no signal: the newsletter's cover is the *last* image in the
+ * post, wrapped in the anchor that points at the PDF. So the discriminator is
+ * "not an emoji" — checked both by `class="emoji"`, which is what core writes
+ * on the tag, and by the `/images/emoji/` path it serves them from.
+ *
+ * The src is returned exactly as written, which for an upload is
+ * protocol-relative (`//cdck-file-uploads-…`). That is a valid `src`; resolving
+ * it would only risk rewriting it against the wrong origin.
+ *
+ * @param {String} cooked - post HTML
+ * @returns {String|null}
+ */
+export function extractCoverImage(cooked) {
+  const doc = parseCooked(cooked);
+  if (!doc) {
+    return null;
+  }
+
+  for (const img of doc.querySelectorAll("img")) {
+    const src = img.getAttribute("src");
+    if (
+      src &&
+      !img.classList.contains("emoji") &&
+      !src.includes("/images/emoji/")
+    ) {
+      return src;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * The URL of the first PDF linked from a cooked post, or null.
+ *
+ * `/uploads/short-url/…` is preferred over the raw storage URL: it is the link
+ * core rewrites when an upload moves, and it is same-origin. It is matched by
+ * href pattern rather than by `class="attachment"` — measured across three
+ * newsletters on PRE, two carried the class and one did not.
+ *
+ * `getAttribute` rather than `.href`, so a relative href stays relative instead
+ * of being resolved against whatever page did the parsing.
+ *
+ * @param {String} cooked - post HTML
+ * @returns {String|null}
+ */
+export function extractPdfUrl(cooked) {
+  const doc = parseCooked(cooked);
+  if (!doc) {
+    return null;
+  }
+
+  const isPdf = (href) => href.split(/[?#]/)[0].toLowerCase().endsWith(".pdf");
+
+  const hrefs = Array.from(doc.querySelectorAll("a[href]"), (a) =>
+    a.getAttribute("href")
+  ).filter((href) => href && isPdf(href));
+
+  return (
+    hrefs.find((href) => href.includes("/uploads/short-url/")) ??
+    hrefs[0] ??
+    null
+  );
+}
+
+/**
+ * A plain-text summary of a cooked post, at most `maxLength` characters, or
+ * null when the post has no text.
+ *
+ * This exists because `topic.excerpt` is capped at `topic_excerpt_maxlength`
+ * (220 on this instance) — a site setting, so raising it would move every
+ * listing on the forum to make one card longer. Reading the post gives the
+ * theme its own dial.
+ *
+ * Only the body's top-level blocks are read: `querySelectorAll("p")` would
+ * repeat the text of a paragraph nested in a quote or an aside. Emoji images
+ * contribute no text and so drop out on their own.
+ *
+ * @param {String} cooked - post HTML
+ * @param {Number} maxLength - character budget, ellipsis excluded
+ * @returns {String|null}
+ */
+export function excerptFromCooked(cooked, maxLength) {
+  const doc = parseCooked(cooked);
+  if (!doc) {
+    return null;
+  }
+
+  const blocks = Array.from(doc.body.children, (el) =>
+    el.textContent.trim()
+  ).filter(Boolean);
+
+  const text = (blocks.length ? blocks.join(" ") : doc.body.textContent)
+    .replace(/\s+/g, " ")
+    .trim();
+
+  if (!text) {
+    return null;
+  }
+
+  if (text.length <= maxLength) {
+    return text;
+  }
+
+  // Cut on a word boundary, then strip the punctuation the cut can leave
+  // stranded before the ellipsis. One character past the budget is read so that
+  // a word ending exactly on it survives instead of being thrown away; a text
+  // with no space in reach falls back to a hard cut.
+  const cut = text.slice(0, maxLength + 1);
+  const lastSpace = cut.lastIndexOf(" ");
+  const kept =
+    lastSpace > 0 ? cut.slice(0, lastSpace) : text.slice(0, maxLength);
+
+  return `${kept.replace(/[\s.,;:¡¿—–-]+$/, "")}…`;
+}
+
+/**
  * The directory item with the highest weighted-composite activity, or null for
  * an empty list.
  *
