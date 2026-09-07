@@ -99,11 +99,41 @@
       }
     }
 
+    // 0.7fr, not the 0.95fr this started at, and the reason is the cover rather
+    // than the composition. The newsletter cover is `aspect-ratio: 3/4`, so the
+    // column's width *is* the card's height: at 0.95fr the column was 348px and
+    // the cover 464px, which alone was most of a 600px card. At 0.7fr it is
+    // 277px and 370px — and since the covers measured are 280×375, that is the
+    // image at its own size instead of upscaled 24%. Sharper and shorter for
+    // the same crop, which is none.
     @container homepage-blocks (width > 56rem) {
-      grid-template-columns: 0.95fr 1.35fr 1fr;
+      grid-template-columns: 0.7fr 1.35fr 1fr;
       grid-template-areas:
         "news podcast podcast"
         "news novedad miembro";
+
+      // The newsletter card spans both rows here, and that is what let it
+      // stretch the whole section: an `auto` row grows to its content's
+      // max-content height, and `flex-grow` on the excerpt only ever
+      // *distributes* surplus space — it never limits. 900 characters of copy
+      // therefore added ~135px to the section instead of being clipped.
+      //
+      // Taking the card out of flow fixes it at the source: an absolutely
+      // positioned box contributes nothing to track sizing, so the two rows are
+      // sized by the right-hand column alone and the card is handed exactly
+      // that height. The excerpt then grows into whatever the cover and the
+      // title leave and clips the rest, which is what it was written to do.
+      //
+      // Only here. Below this the card occupies a single cell and sizing the
+      // row by its content is correct — there the cap further down does the job.
+      .block-highlights__cell.--news {
+        position: relative;
+
+        .highlight-card {
+          position: absolute;
+          inset: 0;
+        }
+      }
     }
   }
 }
@@ -242,10 +272,13 @@
     );
   }
 
-  // Single column: nothing stretches the card, so `flex-grow` has no free space
-  // to absorb and the budget alone would decide the height — 900 characters of
-  // it. Cap it at roughly six lines. Same 40rem step the grid itself takes.
-  @container homepage-blocks (width < 40rem) {
+  // Below the three-column layout the card is one cell of the grid, so nothing
+  // stretches it, `flex-grow` has no free space to absorb, and the budget alone
+  // would decide the height — 900 characters of it. Cap it at roughly six lines.
+  // The threshold is 56rem, not 40rem: the two-column layout has the same
+  // problem as the single-column one, and only the spanning layout above has
+  // space to hand the excerpt.
+  @container homepage-blocks (width < 56rem) {
     .highlight-card__excerpt {
       max-height: calc(6 * var(--line-height-medium) * 1em);
     }
@@ -260,9 +293,17 @@
 
 // The podcast card: a 16:9 frame that swaps thumbnail for player in place.
 .highlight-podcast {
+  // 16:9 is the right ratio for video and stays the rule — but this frame spans
+  // two of the three columns, so at a 1240px container it is ~947px wide and
+  // 16:9 makes it 533px tall on its own. `max-height` caps that without
+  // introducing a second ratio: the box is min(width × 9/16, 24rem), so it is a
+  // true 16:9 at every width the cap does not reach and only the widest
+  // containers crop — and there the crop lands on `hqdefault`'s letterbox bars
+  // before it reaches the frame, since YouTube serves that thumbnail 4:3.
   &__frame {
     position: relative;
     aspect-ratio: 16 / 9;
+    max-height: 24rem;
     background: var(--ga-muted);
   }
 

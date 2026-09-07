@@ -113,6 +113,30 @@ module(
         .dom(".highlight-card__title")
         .includesText("Episodio 7 — Contratación con IA");
     });
+
+    test("below the thumbnail there is only the title and the CTA", async function (assert) {
+      await render(
+        <template>
+          <HighlightPodcastCard @topic={{topic}} @videoId="1qH2Ye8IJrE" />
+        </template>
+      );
+
+      assert
+        .dom(".highlight-podcast .highlight-card__label")
+        .doesNotExist(
+          "no PODCAST label — the play button over a 16:9 frame already says it"
+        );
+      assert
+        .dom(".highlight-podcast .highlight-card__body > *")
+        .exists({ count: 2 }, "the title and the CTA, nothing else");
+      assert
+        .dom(".highlight-podcast .highlight-card__cta")
+        .hasAttribute("href", "/t/episodio-7/2597");
+      // The label's locale key stays in use as the player's accessible title.
+      assert
+        .dom(".highlight-podcast__play")
+        .hasAttribute("aria-label", "Play the episode");
+    });
   }
 );
 
