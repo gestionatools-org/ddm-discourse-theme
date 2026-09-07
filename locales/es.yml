@@ -100,7 +100,11 @@ es:
         label: "Lo último de Gestiona"
         cta: "Ver la novedad"
       member:
-        badge: "Miembro del mes"
+        badge:
+          monthly: "Miembro del mes"
+          quarterly: "Miembro del trimestre"
+          yearly: "Miembro del año"
+          all: "Miembro de la comunidad"
         posts:
           one: "%{count} publicación"
           other: "%{count} publicaciones"

@@ -19,6 +19,7 @@ import {
   loadLatestTaggedTopic,
   memberHasActivity,
   paragraphsFromCooked,
+  periodChain,
   rankTopMember,
   uploadRefFromShortUrl,
   WEIGHTS,
@@ -280,20 +281,32 @@ export default class BlockHighlights extends Component {
 
   @bind
   async fetchMember() {
+    // Widen the window until somebody has actually taken part, and report which
+    // window that was so the badge can say so rather than claim the month.
+    // Measured on PRE 2026-09-07: the 30-day directory returns 50 people and
+    // none has a post or a like, so the configured period alone leaves this card
+    // permanently on its take-part nudge. It stops at the first window that
+    // qualifies — the quarter, here — so a busy instance never makes the second
+    // request at all.
+    //
     // A directory that is switched off or unreachable is the same as nobody
-    // qualifying: the card falls to its take-part nudge. Any `order` works —
-    // rankTopMember re-ranks — so the directory's own default is fine.
-    let member = null;
-    try {
-      const { directory_items } = await ajax(
-        `/directory_items.json?period=${this.args.memberPeriod}&order=likes_received&limit=50`
-      );
-      const top = rankTopMember(directory_items, WEIGHTS);
-      member = memberHasActivity(top) ? top : null;
-    } catch {
-      // directory switched off or unreachable: nobody qualifies, show the CTA
+    // qualifying, and widening will not help, so it stops rather than retrying
+    // three more times. Any `order` works — rankTopMember re-ranks — so the
+    // directory's own default is fine.
+    for (const period of periodChain(this.args.memberPeriod)) {
+      try {
+        const { directory_items } = await ajax(
+          `/directory_items.json?period=${period}&order=likes_received&limit=50`
+        );
+        const top = rankTopMember(directory_items, WEIGHTS);
+        if (memberHasActivity(top)) {
+          return { member: top, period };
+        }
+      } catch {
+        break;
+      }
     }
-    return { member };
+    return { member: null, period: null };
   }
 
   <template>
@@ -376,7 +389,10 @@ export default class BlockHighlights extends Component {
             <DAsyncContent @asyncData={{this.fetchMember}}>
               <:loading><CellLoading /></:loading>
               <:content as |data|>
-                <HighlightMemberCard @member={{data.member}} />
+                <HighlightMemberCard
+                  @member={{data.member}}
+                  @period={{data.period}}
+                />
               </:content>
             </DAsyncContent>
           </div>

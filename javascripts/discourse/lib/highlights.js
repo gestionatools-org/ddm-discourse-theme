@@ -309,3 +309,27 @@ export function rankTopMember(items, weights) {
 export function memberHasActivity(item) {
   return Boolean(item && (item.post_count > 0 || item.likes_received > 0));
 }
+
+/** Discourse's directory windows the member card uses, narrowest first. */
+export const MEMBER_PERIODS = ["monthly", "quarterly", "yearly", "all"];
+
+/**
+ * The windows to try, in order, starting from `start` and widening.
+ *
+ * The member card walks this until one of them has somebody with real
+ * activity. Measured on PRE 2026-09-07: the 30-day directory returns 50 people
+ * and **none of them has a post or a like**, so without widening the card is
+ * permanently the take-part nudge — the quarter has 51 with activity.
+ *
+ * A `start` outside the known list is honoured first and then widened through
+ * all of them, so an unexpected setting value still resolves to something.
+ *
+ * @param {String} start
+ * @returns {Array<String>}
+ */
+export function periodChain(start) {
+  const index = MEMBER_PERIODS.indexOf(start);
+  return index === -1
+    ? [start, ...MEMBER_PERIODS]
+    : MEMBER_PERIODS.slice(index);
+}
