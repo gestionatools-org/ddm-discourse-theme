@@ -76,15 +76,21 @@ export default class HighlightPodcastCard extends Component {
         {{/if}}
       </div>
 
-      {{! No "PODCAST" label: the play button over a 16:9 thumbnail already says
-          what this is, and the content cards' label would only cost height.
-          `podcast.label` is still the iframe's accessible title above.
+      {{! The heading the other three cards wear, so the bento reads as one set.
+          It was dropped for one release, when this card was shorter than its
+          neighbour and every row of height mattered; now that the excerpt
+          absorbs the difference instead, it costs nothing to name the section.
+          `podcast.label` doubles as the iframe's accessible title above.
 
           The excerpt box renders whether or not the post has copy. It is what
           absorbs the difference between this card and the taller newsletter
           card beside it — empty, it holds the two apart; with text, it fills
           the gap and fades out at the foot exactly as the newsletter's does. }}
       <div class="highlight-card__body">
+        <div class="highlight-card__label">
+          {{dIcon "podcast"}}
+          {{i18n (themePrefix "homepage.highlights.podcast.label")}}
+        </div>
         <h3 class="highlight-card__title">
           <a href={{@topic.url}}>{{trustHTML @topic.fancy_title}}</a>
         </h3>

@@ -167,10 +167,14 @@
     padding: var(--space-3);
   }
 
+  // `--space-2` (8px), not the `--space-half` (2px) this started at: at 2px the
+  // icon read as stuck to the first letter. Deliberately not matched to the
+  // lanes' own icon gaps in `block-events`/`block-forum`, which sit at
+  // `--space-half` inside dense list rows rather than under a card heading.
   &__label {
     display: flex;
     align-items: center;
-    gap: var(--space-half);
+    gap: var(--space-2);
     color: var(--tertiary);
     font-size: var(--font-down-2);
     font-weight: 700;
@@ -240,30 +244,14 @@
     }
   }
 
-  // The foot of a content card: the byline and the link, kept together at the
-  // bottom of the body. `margin-top: auto` lives here rather than on the CTA —
-  // on the CTA it would push only the button down and leave the byline stranded
-  // at the end of the text.
+  // Who wrote it: a small avatar and a name on one line, sitting above the
+  // title. `align-items: center` rather than a baseline, because the avatar is a
+  // box and the name a single line — a baseline would sit the picture low.
   //
-  // Stacked, not side by side. The novedad card spans two columns of row 2 and
-  // has the width for one line, but the same card is a single narrow column
-  // below 56rem, and a byline that wraps under its own button reads worse than
-  // one that was never beside it.
-  &__foot {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--space-2);
-    margin-top: auto;
-
-    .highlight-card__cta {
-      margin-top: 0; // the foot owns the push now
-    }
-  }
-
-  // Who wrote it: a small avatar and a name on one line.
-  // `align-items: center` rather than a baseline, because the avatar is a box
-  // and the name a single line — a baseline would sit the picture low.
+  // No wrapper around it and the CTA any more. One release put the two together
+  // in a `__foot` carrying `margin-top: auto`; with the byline back at the top
+  // of the body the CTA is again the only thing pushed to the bottom, which the
+  // base `__cta` rule already does.
   &__byline {
     display: flex;
     align-items: center;

@@ -114,7 +114,7 @@ module(
         .includesText("Episodio 7 — Contratación con IA");
     });
 
-    test("below the thumbnail there is the title, the excerpt and the CTA", async function (assert) {
+    test("below the thumbnail there is the heading, the title, the excerpt and the CTA", async function (assert) {
       await render(
         <template>
           <HighlightPodcastCard @topic={{topic}} @videoId="1qH2Ye8IJrE" />
@@ -123,12 +123,13 @@ module(
 
       assert
         .dom(".highlight-podcast .highlight-card__label")
-        .doesNotExist(
-          "no PODCAST label — the play button over a 16:9 frame already says it"
-        );
+        .includesText("Podcast", "the heading the other three cards wear");
+      assert
+        .dom(".highlight-podcast .highlight-card__label .d-icon-podcast")
+        .exists("with its icon");
       assert
         .dom(".highlight-podcast .highlight-card__body > *")
-        .exists({ count: 3 }, "title, excerpt and CTA, nothing else");
+        .exists({ count: 4 }, "heading, title, excerpt and CTA, nothing else");
       assert
         .dom(".highlight-podcast .highlight-card__cta")
         .hasAttribute("href", "/t/episodio-7/2597");
@@ -332,11 +333,13 @@ module(
       assert
         .dom(".block-highlights__cell.--novedad .highlight-card__byline")
         .includesText("Raul Argente", "who published the release note");
+      // Order matters and is the point of the last two rounds on this card:
+      // heading, then who wrote it, then the headline it belongs to.
       assert
         .dom(
-          ".block-highlights__cell.--novedad .highlight-card__foot .highlight-card__byline"
+          ".block-highlights__cell.--novedad .highlight-card__byline + .highlight-card__title"
         )
-        .exists("the byline travels with the link, at the foot of the card");
+        .exists("the byline sits immediately above the title");
       assert
         .dom(".block-highlights__cell.--novedad .highlight-card__media")
         .doesNotExist("compact still means no media slot");
