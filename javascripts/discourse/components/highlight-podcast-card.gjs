@@ -76,14 +76,23 @@ export default class HighlightPodcastCard extends Component {
         {{/if}}
       </div>
 
-      {{! Title and CTA only. The "PODCAST" label the content cards wear is
-          redundant here — the play button over a 16:9 thumbnail already says
-          what this is — and dropping it is height the card does not spend.
-          `podcast.label` is still the iframe's accessible title above. }}
+      {{! No "PODCAST" label: the play button over a 16:9 thumbnail already says
+          what this is, and the content cards' label would only cost height.
+          `podcast.label` is still the iframe's accessible title above.
+
+          The excerpt box renders whether or not the post has copy. It is what
+          absorbs the difference between this card and the taller newsletter
+          card beside it — empty, it holds the two apart; with text, it fills
+          the gap and fades out at the foot exactly as the newsletter's does. }}
       <div class="highlight-card__body">
         <h3 class="highlight-card__title">
           <a href={{@topic.url}}>{{trustHTML @topic.fancy_title}}</a>
         </h3>
+        <div class="highlight-card__excerpt">
+          {{#each @paragraphs as |paragraph|}}
+            <p>{{paragraph}}</p>
+          {{/each}}
+        </div>
         <DButton
           class="btn-flat highlight-card__cta"
           @href={{@topic.url}}
