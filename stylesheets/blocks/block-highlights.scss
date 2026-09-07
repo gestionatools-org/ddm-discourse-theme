@@ -240,9 +240,30 @@
     }
   }
 
-  // Who wrote it: a small avatar and a name, on one line between the title and
-  // the text. `align-items: center` rather than a baseline, because the avatar
-  // is a box and the name a single line — a baseline would sit the picture low.
+  // The foot of a content card: the byline and the link, kept together at the
+  // bottom of the body. `margin-top: auto` lives here rather than on the CTA —
+  // on the CTA it would push only the button down and leave the byline stranded
+  // at the end of the text.
+  //
+  // Stacked, not side by side. The novedad card spans two columns of row 2 and
+  // has the width for one line, but the same card is a single narrow column
+  // below 56rem, and a byline that wraps under its own button reads worse than
+  // one that was never beside it.
+  &__foot {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+    margin-top: auto;
+
+    .highlight-card__cta {
+      margin-top: 0; // the foot owns the push now
+    }
+  }
+
+  // Who wrote it: a small avatar and a name on one line.
+  // `align-items: center` rather than a baseline, because the avatar is a box
+  // and the name a single line — a baseline would sit the picture low.
   &__byline {
     display: flex;
     align-items: center;

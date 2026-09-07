@@ -69,14 +69,6 @@ const ContentCard = <template>
             conversation is where a reader replies, and the PDF is a dead end. }}
         <a href={{@topic.url}}>{{trustHTML @topic.fancy_title}}</a>
       </h3>
-      {{#if @author}}
-        {{! Who wrote it, read before the text rather than after it. Decorative
-            avatar beside a name that is already text, so it takes no alt. }}
-        <p class="highlight-card__byline">
-          {{dAvatar @author imageSize="small"}}
-          <span>{{or @author.name @author.username}}</span>
-        </p>
-      {{/if}}
       <div class="highlight-card__excerpt">
         {{#if @paragraphs}}
           {{#each @paragraphs as |paragraph|}}
@@ -86,21 +78,34 @@ const ContentCard = <template>
           <p>{{@topic.excerpt}}</p>
         {{/if}}
       </div>
-      {{#if @ctaHref}}
-        <DButton
-          class="btn-flat highlight-card__cta"
-          target="_blank"
-          rel="noopener"
-          @href={{@ctaHref}}
-          @translatedLabel={{i18n (themePrefix @cta)}}
-        />
-      {{else}}
-        <DButton
-          class="btn-flat highlight-card__cta"
-          @href={{@topic.url}}
-          @translatedLabel={{i18n (themePrefix @cta)}}
-        />
-      {{/if}}
+      {{! The foot: who wrote it, then the link. It is the foot rather than the
+          CTA alone that is pushed to the bottom of the body, so the byline
+          travels with the link instead of being left behind at the end of the
+          text. The avatar is decorative beside a name that is already text, so
+          it takes no alt. }}
+      <div class="highlight-card__foot">
+        {{#if @author}}
+          <p class="highlight-card__byline">
+            {{dAvatar @author imageSize="small"}}
+            <span>{{or @author.name @author.username}}</span>
+          </p>
+        {{/if}}
+        {{#if @ctaHref}}
+          <DButton
+            class="btn-flat highlight-card__cta"
+            target="_blank"
+            rel="noopener"
+            @href={{@ctaHref}}
+            @translatedLabel={{i18n (themePrefix @cta)}}
+          />
+        {{else}}
+          <DButton
+            class="btn-flat highlight-card__cta"
+            @href={{@topic.url}}
+            @translatedLabel={{i18n (themePrefix @cta)}}
+          />
+        {{/if}}
+      </div>
     </div>
   </article>
 </template>;
