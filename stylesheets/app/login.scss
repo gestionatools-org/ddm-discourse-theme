@@ -19,3 +19,39 @@
     display: none;
   }
 }
+
+// ---------------------------------------------------------------------------
+// PROVISIONAL — passkeys, hidden rather than disabled.
+//
+// The real fix is the site setting `enable_passkeys: false`. It cannot be made
+// from here: the setting is `hidden: true` in core, and Discourse refuses to
+// change hidden settings through the admin API — `PUT
+// /admin/site_settings/enable_passkeys` answers 422 "No tienes permiso para
+// cambiar los ajustes ocultos". It needs a Rails console, so it is a request to
+// Discourse Cloud. **Delete this block once they have flipped it.**
+//
+// Be clear about what this does and does not do. It removes the button from the
+// page. It does NOT disable passkey authentication: `#login-account-name` still
+// carries `autocomplete="username webauthn"`, so a browser may still offer a
+// registered passkey from the username field's own dropdown, and the server
+// still accepts one. Stripping that attribute would take JS and would still
+// leave the server accepting it, so the line is drawn here.
+// The condition sits on the container, not on the column: a hidden element is
+// still a child, so `.login-left-side:only-child` would never have matched.
+// `:has()` makes the whole block self-limiting — add a social login later and
+// the column comes back on its own, rather than staying hidden by a rule
+// written for a different reason.
+.login-body.has-alt-auth:not(
+    :has(.login-right-side .btn:not(.passkey-login-button))
+  ) {
+  .login-right-side {
+    display: none;
+  }
+
+  // With the column gone the form is alone in the flex row, so it has to be
+  // told to take the width the divider used to share.
+  .login-left-side {
+    flex: 1 1 auto;
+    border-inline-end: 0;
+  }
+}
