@@ -6,10 +6,8 @@ import {
   extractPdfUrl,
   extractVideoId,
   loadLatestTaggedTopic,
-  MEMBER_PERIODS,
   memberHasActivity,
   paragraphsFromCooked,
-  periodChain,
   rankTopMember,
   uploadRefFromShortUrl,
   WEIGHTS,
@@ -322,32 +320,24 @@ module("Espublico Theme | Unit | highlights | rankTopMember", function () {
   });
 });
 
-module("Espublico Theme | Unit | highlights | periodChain", function () {
-  test("starts at the configured window and widens from there", function (assert) {
-    assert.deepEqual(periodChain("monthly"), [
-      "monthly",
-      "quarterly",
-      "yearly",
-      "all",
-    ]);
-    assert.deepEqual(periodChain("yearly"), ["yearly", "all"]);
-    assert.deepEqual(periodChain("all"), ["all"], "nothing wider to try");
-  });
-
-  test("honours an unknown window first, then widens through all of them", function (assert) {
-    assert.deepEqual(periodChain("weekly"), ["weekly", ...MEMBER_PERIODS]);
-  });
-});
-
 module("Espublico Theme | Unit | highlights | memberHasActivity", function () {
   test("true when there are posts or likes", function (assert) {
     assert.true(memberHasActivity({ post_count: 1, likes_received: 0 }));
     assert.true(memberHasActivity({ post_count: 0, likes_received: 4 }));
   });
 
-  test("false for a zero-activity item or nothing", function (assert) {
-    assert.false(
+  test("true for a member who only turned up", function (assert) {
+    // The case that matters here: PRE's 30-day directory has 50 people and not
+    // one post or like between them, only visits. Requiring a post left the
+    // card permanently empty.
+    assert.true(
       memberHasActivity({ post_count: 0, likes_received: 0, days_visited: 20 })
+    );
+  });
+
+  test("false for a genuinely absent member or nothing", function (assert) {
+    assert.false(
+      memberHasActivity({ post_count: 0, likes_received: 0, days_visited: 0 })
     );
     assert.false(memberHasActivity(null));
     assert.false(memberHasActivity(undefined));

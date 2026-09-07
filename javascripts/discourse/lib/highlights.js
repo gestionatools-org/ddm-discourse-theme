@@ -299,37 +299,24 @@ export function rankTopMember(items, weights) {
 }
 
 /**
- * Whether a directory item represents real participation this period. The
- * guard for a quiet instance, where the ranking would otherwise crown someone
- * with no posts and no likes (PRE's 30-day directory is all zeros today).
+ * Whether a directory item represents any participation in the window.
+ *
+ * Turning up counts, not just posting. It used to require a post or a like,
+ * which on this instance meant nobody ever qualified: measured 2026-09-07, the
+ * 30-day directory returns 50 people and **not one has a post or a like**,
+ * only visits. That left the card permanently on its take-part nudge. Counting
+ * `days_visited` keeps the card on the month — the window whose figures it
+ * shows — instead of reaching into a wider one to find somebody.
+ *
+ * It still refuses a genuinely absent member, which is what stops the ranking
+ * crowning row zero of an all-zero directory.
  *
  * @param {Object|null} item
  * @returns {Boolean}
  */
 export function memberHasActivity(item) {
-  return Boolean(item && (item.post_count > 0 || item.likes_received > 0));
-}
-
-/** Discourse's directory windows the member card uses, narrowest first. */
-export const MEMBER_PERIODS = ["monthly", "quarterly", "yearly", "all"];
-
-/**
- * The windows to try, in order, starting from `start` and widening.
- *
- * The member card walks this until one of them has somebody with real
- * activity. Measured on PRE 2026-09-07: the 30-day directory returns 50 people
- * and **none of them has a post or a like**, so without widening the card is
- * permanently the take-part nudge — the quarter has 51 with activity.
- *
- * A `start` outside the known list is honoured first and then widened through
- * all of them, so an unexpected setting value still resolves to something.
- *
- * @param {String} start
- * @returns {Array<String>}
- */
-export function periodChain(start) {
-  const index = MEMBER_PERIODS.indexOf(start);
-  return index === -1
-    ? [start, ...MEMBER_PERIODS]
-    : MEMBER_PERIODS.slice(index);
+  return Boolean(
+    item &&
+    (item.post_count > 0 || item.likes_received > 0 || item.days_visited > 0)
+  );
 }
