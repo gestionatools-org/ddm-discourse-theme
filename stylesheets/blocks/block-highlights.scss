@@ -405,6 +405,33 @@
     -webkit-box-orient: vertical;
   }
 
+  // Where they are and where they work, on the line under the cargo. The dot is
+  // a separator only when both halves are present, which `:not(:first-child)`
+  // gets right without the template having to know.
+  &__where {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1);
+    margin: 0;
+    color: var(--ga-muted-fg);
+    font-size: var(--font-down-1);
+
+    > *:not(:first-child)::before {
+      margin-inline-end: var(--space-1);
+      content: "·";
+    }
+  }
+
+  // The organisation and the job title, read from the two configured user
+  // fields. Two rules rather than one shared class: they are different facts,
+  // and a later change to one should not silently move the other.
+  &__entity,
+  &__role {
+    margin: 0;
+    color: var(--primary-medium);
+    font-size: var(--font-down-1);
+  }
+
   &__figures {
     display: flex;
     flex-wrap: wrap;
@@ -413,6 +440,13 @@
     color: var(--ga-muted-fg);
     font-size: var(--font-down-1);
     font-variant-numeric: tabular-nums;
+  }
+
+  // The join date, quietest line on the card — it is context, not a figure.
+  &__since {
+    margin: 0;
+    color: var(--ga-muted-fg);
+    font-size: var(--font-down-2);
   }
 
   &__empty {

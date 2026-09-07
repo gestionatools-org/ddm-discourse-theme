@@ -7,7 +7,9 @@ import {
   extractVideoId,
   loadLatestTaggedTopic,
   memberHasActivity,
+  monthAndYear,
   paragraphsFromCooked,
+  profileDetails,
   rankTopMember,
   uploadRefFromShortUrl,
   WEIGHTS,
@@ -269,6 +271,89 @@ module(
     });
   }
 );
+
+module("Espublico Theme | Unit | highlights | profileDetails", function () {
+  // Jorge Redondo's real payload, trimmed. Fields 1 and 3 are a NIF and a CIF
+  // carrying show_on_profile:false — a member's session never receives them,
+  // an administrator's does, which is exactly why they are here.
+  const user = {
+    location: "Cuéllar",
+    website: "http://www.dipsegovia.es",
+    website_name: "dipsegovia.es",
+    created_at: "2024-02-14T14:25:34.718Z",
+    user_fields: {
+      1: "03460654M",
+      2: "Diputación de Segovia",
+      3: "P4000000B",
+      4: "Técnico Auxiliar de Informática",
+    },
+  };
+
+  test("reads only the two configured fields, never the rest", function (assert) {
+    const details = profileDetails(user, { entityFieldId: 2, roleFieldId: 4 });
+
+    assert.strictEqual(details.entity, "Diputación de Segovia");
+    assert.strictEqual(details.role, "Técnico Auxiliar de Informática");
+    assert.false(
+      JSON.stringify(details).includes("03460654M"),
+      "nor anywhere in the returned object"
+    );
+    assert.false(
+      JSON.stringify(details).includes("P4000000B"),
+      "and neither is the CIF"
+    );
+  });
+
+  test("carries location, website and the join date", function (assert) {
+    const details = profileDetails(user, { entityFieldId: 2, roleFieldId: 4 });
+
+    assert.strictEqual(details.location, "Cuéllar");
+    assert.strictEqual(details.websiteName, "dipsegovia.es");
+    assert.strictEqual(details.websiteUrl, "http://www.dipsegovia.es");
+    assert.strictEqual(details.memberSince, "2024-02-14T14:25:34.718Z");
+  });
+
+  test("a field id of 0 reads as absent", function (assert) {
+    const details = profileDetails(user, { entityFieldId: 0, roleFieldId: 0 });
+    assert.strictEqual(details.entity, null);
+    assert.strictEqual(details.role, null);
+  });
+
+  test("a member missing a field gets null, not undefined", function (assert) {
+    // Ricardo Penalver's shape: everything but the job title.
+    const details = profileDetails(
+      { location: "Zaragoza", user_fields: { 2: "Espublico Gestiona" } },
+      { entityFieldId: 2, roleFieldId: 4 }
+    );
+    assert.strictEqual(details.role, null);
+    assert.strictEqual(details.websiteName, null);
+    assert.strictEqual(details.entity, "Espublico Gestiona");
+  });
+
+  test("returns null for no user at all", function (assert) {
+    assert.strictEqual(profileDetails(null, {}), null);
+    assert.strictEqual(profileDetails(undefined), null);
+  });
+});
+
+module("Espublico Theme | Unit | highlights | monthAndYear", function () {
+  test("formats an ISO timestamp as month and year", function (assert) {
+    assert.strictEqual(
+      monthAndYear("2024-02-14T14:25:34.718Z", "es"),
+      "febrero de 2024"
+    );
+    assert.strictEqual(
+      monthAndYear("2024-01-15T11:31:49.027Z", "en"),
+      "January 2024"
+    );
+  });
+
+  test("returns null for anything unparseable", function (assert) {
+    assert.strictEqual(monthAndYear(null, "es"), null);
+    assert.strictEqual(monthAndYear("", "es"), null);
+    assert.strictEqual(monthAndYear("not a date", "es"), null);
+  });
+});
 
 module("Espublico Theme | Unit | highlights | rankTopMember", function () {
   test("returns null for an empty list", function (assert) {

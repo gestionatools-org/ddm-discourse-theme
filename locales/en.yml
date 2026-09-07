@@ -15,6 +15,8 @@ en:
       highlights_newsletter_tag: "Tag whose most recent topic fills the newsletter card. Matched by slug. Empty hides the card."
       highlights_news_tag: "Tag whose most recent topic fills the 'What's new in Gestiona' card. Matched by slug. Empty hides the card."
       highlights_member_period: "Window for the most-active-member ranking. 'monthly' is the last 30 days — Discourse has no calendar-month option."
+      highlights_member_entity_field_id: "Numeric id of the user field holding the member's organisation, shown on the member card. 0 hides the line. Ids are per-instance — check them before installing on another site."
+      highlights_member_role_field_id: "Numeric id of the user field holding the member's job title, shown on the member card. 0 hides the line. Never widen this to read every user field: some carry identity documents that only administrators receive."
 
   header:
     links:
@@ -111,5 +113,6 @@ en:
           one: "%{count} active day"
           other: "%{count} active days"
         profile: "View profile"
+        since: "Member since %{date}"
         cta_empty: "Post and take part this month to show up here"
         cta_empty_button: "Write a post"
