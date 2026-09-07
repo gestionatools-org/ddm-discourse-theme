@@ -210,6 +210,28 @@ module(
         .hasAttribute("href", "/u/msanz/summary");
     });
 
+    test("shows the user's title as their cargo, and nothing when they have none", async function (assert) {
+      const titled = {
+        ...member,
+        user: { ...member.user, title: "Directora de Organización" },
+      };
+      await render(
+        <template><HighlightMemberCard @member={{titled}} /></template>
+      );
+      assert
+        .dom(".highlight-member__cargo")
+        .hasText("Directora de Organización");
+      // The figures stay: they are what justifies the badge.
+      assert.dom(".highlight-member__figures").includesText("40 posts");
+
+      await render(
+        <template><HighlightMemberCard @member={{member}} /></template>
+      );
+      assert
+        .dom(".highlight-member__cargo")
+        .doesNotExist("no line at all for a member without a title");
+    });
+
     test("falls back to the username when the member has no display name", async function (assert) {
       const noName = { ...member, user: { ...member.user, name: null } };
       await render(
@@ -250,11 +272,25 @@ module(
     });
 
     test("renders the heading and the newsletter and novedad cards", async function (assert) {
-      // The newsletter cell reads the topic's first post, so every test whose
-      // newsletter tag resolves to a topic has to answer that request too.
+      // The newsletter and novedad cells both read their topic's first post, so
+      // every test whose tags resolve to a topic has to answer those requests.
       pretender.get("/t/900101.json", () =>
         response({
           post_stream: { posts: [{ cooked: `<p>Resumen de julio.</p>` }] },
+        })
+      );
+      pretender.get("/t/900102.json", () =>
+        response({
+          post_stream: {
+            posts: [
+              {
+                cooked: `<p>Firma en lote.</p>`,
+                username: "rargente",
+                name: "Raul Argente",
+                avatar_template: "/letter_avatar/rargente/{size}/1.png",
+              },
+            ],
+          },
         })
       );
       stubStore(this.owner, {
@@ -290,10 +326,45 @@ module(
       assert
         .dom(".block-highlights__cell.--novedad .highlight-card__title")
         .includesText("Gestiona V9.3");
-      // novedad is the compact variant — no excerpt
       assert
         .dom(".block-highlights__cell.--novedad .highlight-card__excerpt")
+        .hasText("Firma en lote.", "the post's text, like the other cards");
+      assert
+        .dom(".block-highlights__cell.--novedad .highlight-card__byline")
+        .includesText("Raul Argente", "who published the release note");
+      assert
+        .dom(".block-highlights__cell.--novedad .highlight-card__media")
+        .doesNotExist("compact still means no media slot");
+    });
+
+    test("the novedad byline falls away when the post is unreachable", async function (assert) {
+      pretender.get("/t/900102.json", () =>
+        response(403, { errors: ["forbidden"] })
+      );
+      stubStore(this.owner, {
+        "tag/nueva-version-gestiona/l/latest": [
+          {
+            id: 900102,
+            fancy_title: "Gestiona V9.3",
+            url: "/t/v93/900102",
+            excerpt: "Recorte del listado.",
+            image_url: null,
+          },
+        ],
+      });
+
+      await renderHighlights({
+        ...DEFAULT_ARGS,
+        podcastTag: "",
+        newsletterTag: "",
+      });
+
+      assert
+        .dom(".block-highlights__cell.--novedad .highlight-card__byline")
         .doesNotExist();
+      assert
+        .dom(".block-highlights__cell.--novedad .highlight-card__excerpt")
+        .hasText("Recorte del listado.", "back to the topic list's excerpt");
     });
 
     test("a content card with no topic shows the coming-soon placeholder", async function (assert) {

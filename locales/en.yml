@@ -97,7 +97,7 @@ en:
         label: "Newsletter"
         cta: "Read the newsletter"
       news:
-        label: "What's new in Gestiona"
+        label: "The latest from Gestiona"
         cta: "See what's new"
       member:
         badge: "Member of the month"

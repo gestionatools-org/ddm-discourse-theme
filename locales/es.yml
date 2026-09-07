@@ -97,7 +97,7 @@ es:
         label: "Newsletter"
         cta: "Leer la newsletter"
       news:
-        label: "Novedad de Gestiona"
+        label: "Lo último de Gestiona"
         cta: "Ver la novedad"
       member:
         badge: "Miembro del mes"

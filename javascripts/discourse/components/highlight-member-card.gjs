@@ -45,6 +45,14 @@ export default class HighlightMemberCard extends Component {
           <h3 class="highlight-card__title">
             <a href={{this.profileUrl}}>{{this.displayName}}</a>
           </h3>
+          {{! The user's title — "cargo" — which the directory serialises
+              already, so it costs no request. 17 of the top 20 members carry
+              one; the rest simply render no line. The bio is deliberately not
+              here: it is empty for 7 of 10 and would have cost a hop per
+              render to show nothing. }}
+          {{#if this.user.title}}
+            <p class="highlight-member__cargo">{{this.user.title}}</p>
+          {{/if}}
           <p class="highlight-member__figures">
             <span>{{i18n
                 (themePrefix "homepage.highlights.member.posts")
