@@ -189,6 +189,13 @@ module(
     });
 
     test("renders the heading and the newsletter and novedad cards", async function (assert) {
+      // The newsletter cell reads the topic's first post, so every test whose
+      // newsletter tag resolves to a topic has to answer that request too.
+      pretender.get("/t/900101.json", () =>
+        response({
+          post_stream: { posts: [{ cooked: `<p>Resumen de julio.</p>` }] },
+        })
+      );
       stubStore(this.owner, {
         "tag/newsletter/l/latest": [
           {
@@ -240,6 +247,11 @@ module(
     });
 
     test("a content card with a topic but no image shows the placeholder icon, not a broken img", async function (assert) {
+      pretender.get("/t/900103.json", () =>
+        response({
+          post_stream: { posts: [{ cooked: `<p>Sin portada.</p>` }] },
+        })
+      );
       stubStore(this.owner, {
         "tag/newsletter/l/latest": [
           {
@@ -358,6 +370,121 @@ module(
       assert
         .dom(".block-highlights__cell.--podcast .highlight-podcast__link")
         .exists();
+    });
+
+    // The newsletter cell, whose whole point is that the topic list carries
+    // none of what the card shows: `image_url` is null on all 14 newsletters,
+    // the magazine is a PDF attachment, and `topic.excerpt` stops at 220
+    // characters. Everything below comes out of the first post instead.
+    const NEWSLETTER_TOPIC = {
+      id: 2592,
+      fancy_title: "Newsletter 14",
+      url: "/t/nl-14/2592",
+      excerpt: "Recorte de 220 caracteres.",
+      image_url: null,
+    };
+
+    function stubNewsletter(owner, cooked, status = 200) {
+      stubStore(owner, { "tag/newsletter/l/latest": [NEWSLETTER_TOPIC] });
+      pretender.get("/t/2592.json", () =>
+        status === 200
+          ? response({ post_stream: { posts: [{ cooked }] } })
+          : response(status, { errors: ["forbidden"] })
+      );
+    }
+
+    const NEWSLETTER_ARGS = {
+      ...DEFAULT_ARGS,
+      podcastTag: "",
+      newsTag: "",
+    };
+
+    test("the newsletter cell shows the cover from the post and points the CTA at the PDF", async function (assert) {
+      stubNewsletter(
+        this.owner,
+        `<p>Con el verano recién estrenado llega un nuevo número.</p>
+         <p><a href="https://cdck.example.com/original/2X/3/398f.pdf"><img src="//cdck.example.com/original/2X/d/d180.jpeg" alt="Revista 14"></a></p>
+         <p><a class="attachment" href="/uploads/short-url/8dcc.pdf">Revista 14</a></p>`
+      );
+
+      await renderHighlights(NEWSLETTER_ARGS);
+
+      assert
+        .dom(".block-highlights__cell.--news .highlight-card__media img")
+        .hasAttribute(
+          "src",
+          "//cdck.example.com/original/2X/d/d180.jpeg",
+          "the cover, not the null image_url the topic list carries"
+        );
+      assert
+        .dom(".block-highlights__cell.--news .highlight-card__placeholder")
+        .doesNotExist("no placeholder icon once there is a cover");
+
+      assert
+        .dom(".block-highlights__cell.--news .highlight-card__cta")
+        .hasAttribute(
+          "href",
+          "/uploads/short-url/8dcc.pdf",
+          "the short-url attachment, preferred over the storage URL"
+        );
+      assert
+        .dom(".block-highlights__cell.--news .highlight-card__cta")
+        .hasAttribute("target", "_blank", "the PDF leaves the forum");
+
+      assert
+        .dom(".block-highlights__cell.--news .highlight-card__title a")
+        .hasAttribute(
+          "href",
+          "/t/nl-14/2592",
+          "the title still goes to the conversation"
+        );
+      assert
+        .dom(".block-highlights__cell.--news .highlight-card__excerpt")
+        .hasText(
+          "Con el verano recién estrenado llega un nuevo número. Revista 14",
+          "the post's own text, not the 220-character topic excerpt"
+        );
+    });
+
+    test("the newsletter CTA falls back to the topic when the post links no PDF", async function (assert) {
+      stubNewsletter(
+        this.owner,
+        `<p>Un número sin adjunto.</p><p><img src="/uploads/cover.png"></p>`
+      );
+
+      await renderHighlights(NEWSLETTER_ARGS);
+
+      assert
+        .dom(".block-highlights__cell.--news .highlight-card__cta")
+        .hasAttribute("href", "/t/nl-14/2592");
+      assert
+        .dom(".block-highlights__cell.--news .highlight-card__cta")
+        .doesNotHaveAttribute(
+          "target",
+          "an internal link stays in the same tab"
+        );
+      assert
+        .dom(".block-highlights__cell.--news .highlight-card__media img")
+        .hasAttribute("src", "/uploads/cover.png", "the cover still resolves");
+    });
+
+    test("the newsletter cell falls back to the topic list when the post is unreachable", async function (assert) {
+      stubNewsletter(this.owner, null, 403);
+
+      await renderHighlights(NEWSLETTER_ARGS);
+
+      assert
+        .dom(".block-highlights__cell.--news .highlight-card__title")
+        .includesText("Newsletter 14", "the card still renders");
+      assert
+        .dom(".block-highlights__cell.--news .highlight-card__excerpt")
+        .hasText("Recorte de 220 caracteres.", "back to topic.excerpt");
+      assert
+        .dom(".block-highlights__cell.--news .highlight-card__cta")
+        .hasAttribute("href", "/t/nl-14/2592", "back to the topic link");
+      assert
+        .dom(".block-highlights__cell.--news .highlight-card__placeholder")
+        .exists("and back to the placeholder icon");
     });
 
     test("the member cell crowns the highest composite and shows the figures", async function (assert) {

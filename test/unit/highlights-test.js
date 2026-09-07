@@ -2,6 +2,9 @@ import { module, test } from "qunit";
 import { acceptance } from "discourse/tests/helpers/qunit-helpers";
 import { definitionTopicIds } from "../../discourse/lib/category-topics";
 import {
+  excerptFromCooked,
+  extractCoverImage,
+  extractPdfUrl,
   extractVideoId,
   loadLatestTaggedTopic,
   memberHasActivity,
@@ -9,6 +12,19 @@ import {
   WEIGHTS,
   youtubeThumbnail,
 } from "../../discourse/lib/highlights";
+
+// The shape every newsletter on PRE has, trimmed: paragraphs of copy, then the
+// cover image wrapped in an anchor to the PDF on storage, then the short-url
+// attachment link, then a run of emoji. Both the cover and the PDF are last,
+// not first, which is why neither extractor can key on position.
+const EMOJI_IMG = `<img src="https://example.com/images/emoji/apple/up_arrow.png?v=15" title=":up_arrow:" class="emoji" alt=":up_arrow:">`;
+const NEWSLETTER_COOKED = `
+<p>Buenos días <a class="mention-group notify" href="/groups/certificaci%C3%B3n">@Certificación</a></p>
+<p>Con el verano recién estrenado llega un nuevo número de nuestra revista.</p>
+<p><a href="https://cdck-file-uploads.example.com/original/2X/3/398f.pdf"><img src="//cdck-file-uploads.example.com/original/2X/d/d180.jpeg" alt="Revista 14" width="280" height="375"></a></p>
+<p><a class="attachment" href="/uploads/short-url/8dccSWOMxhvIuYP1rQiiyh8KKmi.pdf">Revista 14</a></p>
+<p>${EMOJI_IMG} ${EMOJI_IMG}</p>
+`;
 
 module("Espublico Theme | Unit | highlights | extractVideoId", function () {
   test("reads Discourse's lazy-video container", function (assert) {
@@ -59,6 +75,120 @@ module("Espublico Theme | Unit | highlights | youtubeThumbnail", function () {
       youtubeThumbnail("1qH2Ye8IJrE"),
       "https://i.ytimg.com/vi/1qH2Ye8IJrE/hqdefault.jpg"
     );
+  });
+});
+
+module("Espublico Theme | Unit | highlights | extractCoverImage", function () {
+  test("returns the cover of a real newsletter post", function (assert) {
+    assert.strictEqual(
+      extractCoverImage(NEWSLETTER_COOKED),
+      "//cdck-file-uploads.example.com/original/2X/d/d180.jpeg",
+      "the protocol-relative src, unresolved"
+    );
+  });
+
+  test("skips emoji that come before the cover", function (assert) {
+    const cooked = `<p>${EMOJI_IMG}</p><p><img src="/uploads/cover.png"></p>`;
+    assert.strictEqual(extractCoverImage(cooked), "/uploads/cover.png");
+  });
+
+  test("skips an emoji served from /images/emoji/ without the class", function (assert) {
+    const cooked = `<p><img src="/images/emoji/apple/wave.png?v=15" alt=":wave:"></p><p><img src="/uploads/cover.png"></p>`;
+    assert.strictEqual(extractCoverImage(cooked), "/uploads/cover.png");
+  });
+
+  test("returns null when the post has only emoji, no images, or nothing", function (assert) {
+    assert.strictEqual(extractCoverImage(`<p>${EMOJI_IMG}</p>`), null);
+    assert.strictEqual(extractCoverImage(`<p>Solo texto.</p>`), null);
+    assert.strictEqual(extractCoverImage(""), null);
+    assert.strictEqual(extractCoverImage(null), null);
+  });
+});
+
+module("Espublico Theme | Unit | highlights | extractPdfUrl", function () {
+  test("prefers the short-url attachment over the storage URL", function (assert) {
+    assert.strictEqual(
+      extractPdfUrl(NEWSLETTER_COOKED),
+      "/uploads/short-url/8dccSWOMxhvIuYP1rQiiyh8KKmi.pdf",
+      "even though the storage URL appears first in the post"
+    );
+  });
+
+  test("matches an attachment anchor that carries no class", function (assert) {
+    // Measured on PRE: /t/2177's attachment anchor has no class="attachment",
+    // so the class cannot be the discriminator.
+    const cooked = `<p><a href="/uploads/short-url/9BUfTFfwTe0o0jB5KhlxNhYazPo.pdf">Revista 12</a></p>`;
+    assert.strictEqual(
+      extractPdfUrl(cooked),
+      "/uploads/short-url/9BUfTFfwTe0o0jB5KhlxNhYazPo.pdf"
+    );
+  });
+
+  test("falls back to the storage URL when there is no short-url link", function (assert) {
+    const cooked = `<p><a href="https://cdck.example.com/original/2X/3/398f.pdf">Revista</a></p>`;
+    assert.strictEqual(
+      extractPdfUrl(cooked),
+      "https://cdck.example.com/original/2X/3/398f.pdf"
+    );
+  });
+
+  test("ignores a query string or fragment when matching the extension", function (assert) {
+    const cooked = `<p><a href="/uploads/short-url/abc.pdf?dl=1#page=3">Revista</a></p>`;
+    assert.strictEqual(
+      extractPdfUrl(cooked),
+      "/uploads/short-url/abc.pdf?dl=1#page=3",
+      "the href is returned whole, only the match ignores the suffix"
+    );
+  });
+
+  test("returns null when nothing links to a PDF", function (assert) {
+    const cooked = `<p><a href="/t/otro-tema/42">Un tema</a><a href="/uploads/x.png">Imagen</a></p>`;
+    assert.strictEqual(extractPdfUrl(cooked), null);
+    assert.strictEqual(extractPdfUrl(""), null);
+    assert.strictEqual(extractPdfUrl(null), null);
+  });
+});
+
+module("Espublico Theme | Unit | highlights | excerptFromCooked", function () {
+  test("joins the post's top-level blocks into one line of text", function (assert) {
+    assert.strictEqual(
+      excerptFromCooked(NEWSLETTER_COOKED, 400),
+      "Buenos días @Certificación Con el verano recién estrenado llega un nuevo número de nuestra revista. Revista 14",
+      "the greeting is kept — a rule that skipped it would be one more thing to maintain"
+    );
+  });
+
+  test("reads a paragraph inside a quote once, not twice", function (assert) {
+    const cooked = `<blockquote><p>Citado.</p></blockquote><p>Propio.</p>`;
+    assert.strictEqual(excerptFromCooked(cooked, 400), "Citado. Propio.");
+  });
+
+  test("truncates on a word boundary and appends an ellipsis", function (assert) {
+    const cooked = `<p>uno dos tres cuatro cinco</p>`;
+    assert.strictEqual(
+      excerptFromCooked(cooked, 12),
+      "uno dos tres…",
+      "cuts at the space before the budget, not mid-word"
+    );
+  });
+
+  test("strips punctuation stranded by the cut", function (assert) {
+    const cooked = `<p>uno dos, tres cuatro</p>`;
+    assert.strictEqual(excerptFromCooked(cooked, 9), "uno dos…");
+  });
+
+  test("returns the whole text when it fits", function (assert) {
+    assert.strictEqual(
+      excerptFromCooked(`<p>Corto.</p>`, 400),
+      "Corto.",
+      "no ellipsis"
+    );
+  });
+
+  test("returns null for a post with no text", function (assert) {
+    assert.strictEqual(excerptFromCooked(`<p>${EMOJI_IMG}</p>`, 400), null);
+    assert.strictEqual(excerptFromCooked("", 400), null);
+    assert.strictEqual(excerptFromCooked(null, 400), null);
   });
 });
 

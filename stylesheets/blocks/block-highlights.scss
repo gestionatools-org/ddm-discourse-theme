@@ -196,10 +196,36 @@
   }
 }
 
-// The newsletter card leads with a tall portrait image. The compact novedad
-// card renders no media slot at all (see `ContentCard`), so it needs no rule.
-.highlight-content.--tall .highlight-card__media {
-  aspect-ratio: 3 / 4;
+// The newsletter card leads with a tall portrait image — the magazine cover,
+// read out of the post by `extractCoverImage`, since every newsletter topic
+// serialises `image_url: null`. 3/4 is the covers' own ratio (280×375 on the
+// ones measured), so `object-fit: cover` crops nothing.
+//
+// It is also the one card the grid stretches: in the three-column layout it
+// spans both rows, so the two-line clamp the other cards wear left a wide gap
+// above the CTA. This clamp is the dial that closes it — paired with
+// `NEWSLETTER_EXCERPT_MAX` in `block-highlights.gjs`, which is what guarantees
+// there is enough text to fill the lines.
+//
+// The compact novedad card renders no media slot at all (see `ContentCard`) and
+// shows no excerpt, so it needs neither rule.
+.highlight-content.--tall {
+  .highlight-card__media {
+    aspect-ratio: 3 / 4;
+  }
+
+  .highlight-card__excerpt {
+    -webkit-line-clamp: 8;
+  }
+
+  // Single column: nothing stretches the card any more, so eight lines stop
+  // filling a gap and start pushing the CTA off the fold. Same 40rem step the
+  // grid itself takes.
+  @container homepage-blocks (width < 40rem) {
+    .highlight-card__excerpt {
+      -webkit-line-clamp: 4;
+    }
+  }
 }
 
 .highlight-content.--empty .highlight-card__body {
