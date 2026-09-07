@@ -64,6 +64,15 @@ const ContentCard = <template>
         {{dIcon @icon}}
         {{i18n (themePrefix @label)}}
       </div>
+      {{! Who wrote it, above the title: the attribution is read before the
+          headline it belongs to, the way a byline works in print. The avatar is
+          decorative beside a name that is already text, so it takes no alt. }}
+      {{#if @author}}
+        <p class="highlight-card__byline">
+          {{dAvatar @author imageSize="small"}}
+          <span>{{or @author.name @author.username}}</span>
+        </p>
+      {{/if}}
       <h3 class="highlight-card__title">
         {{! The title always goes to the topic, even when the CTA does not: the
             conversation is where a reader replies, and the PDF is a dead end. }}
@@ -78,34 +87,21 @@ const ContentCard = <template>
           <p>{{@topic.excerpt}}</p>
         {{/if}}
       </div>
-      {{! The foot: who wrote it, then the link. It is the foot rather than the
-          CTA alone that is pushed to the bottom of the body, so the byline
-          travels with the link instead of being left behind at the end of the
-          text. The avatar is decorative beside a name that is already text, so
-          it takes no alt. }}
-      <div class="highlight-card__foot">
-        {{#if @author}}
-          <p class="highlight-card__byline">
-            {{dAvatar @author imageSize="small"}}
-            <span>{{or @author.name @author.username}}</span>
-          </p>
-        {{/if}}
-        {{#if @ctaHref}}
-          <DButton
-            class="btn-flat highlight-card__cta"
-            target="_blank"
-            rel="noopener"
-            @href={{@ctaHref}}
-            @translatedLabel={{i18n (themePrefix @cta)}}
-          />
-        {{else}}
-          <DButton
-            class="btn-flat highlight-card__cta"
-            @href={{@topic.url}}
-            @translatedLabel={{i18n (themePrefix @cta)}}
-          />
-        {{/if}}
-      </div>
+      {{#if @ctaHref}}
+        <DButton
+          class="btn-flat highlight-card__cta"
+          target="_blank"
+          rel="noopener"
+          @href={{@ctaHref}}
+          @translatedLabel={{i18n (themePrefix @cta)}}
+        />
+      {{else}}
+        <DButton
+          class="btn-flat highlight-card__cta"
+          @href={{@topic.url}}
+          @translatedLabel={{i18n (themePrefix @cta)}}
+        />
+      {{/if}}
     </div>
   </article>
 </template>;
