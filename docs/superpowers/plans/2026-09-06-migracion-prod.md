@@ -25,6 +25,29 @@
 - **PROD is being tagged by someone else.** Re-measure immediately before each task; never rely on a count from the spec, from the August document, or from an earlier task in this plan.
 - **`main` is protected.** Work on a branch, open a PR, let the four required CI checks go green.
 
+## Before the window: the one thing Ricardo must do first
+
+**A Global-scope API key on PROD does not exist yet.** Measured 2026-09-07: `.env.local` holds
+`PROD_DISCOURSE_API_KEY`, `PROD_DISCOURSE_API_USERNAME` and `PROD_DISCOURSE_URL` and nothing
+else for PROD, and the read-only key answers **403** on `/sidebar_sections.json` and
+`/tags.json` and **404** on `/admin/site_settings.json`.
+
+So Task 1 Step 1 stops on its first command, and every task after it depends on Task 1. This is
+not a step an agent can perform — creating an API key needs the admin UI.
+
+**What is needed, before anything else runs:**
+
+1. Create a **Global-scope** API key on `gestionaavanza.espublico.com`, under an admin user.
+2. Add it to `.env.local` as **`PROD_DISCOURSE_GLOBAL_API_KEY`** — that exact name, on its own
+   line, appearing **once**. `.env.local` has twice had duplicate names silently shadow each
+   other, and `source` takes the last.
+3. Do not remove `PROD_DISCOURSE_API_KEY`. Task 1 Step 1 probes both and expects the read-only
+   one to answer 403; a pair that behaves identically means one of them is not what its name
+   says.
+
+The key is revoked and its line deleted in Task 10 Step 4. It exists for the window and no
+longer.
+
 ## File Structure
 
 | File | Responsibility |
@@ -48,7 +71,7 @@ Runs **before** the window opens, with the existing read-only key where possible
 
 **Interfaces:**
 - Consumes: nothing.
-- Produces: the capture file, shape `{"tags": {"<name>": <count>}, "topics": {"<id>": {"cat": <int>, "title": "<str>", "tags": ["<name>", ...]}}, "categories": [{"id": <int>, "name": "<str>", "slug": "<str>", "parent": <int|null>}], "settings": {"<name>": "<value>"}}`.
+- Produces: the capture file, shape `{"tags": {"<name>": <count>}, "topics": {"<id>": {"cat": <int>, "title": "<str>", "tags": ["<name>", ...]}}, "categories": [{"id": <int>, "name": "<str>", "slug": "<str>", "parent": <int|null>}], "settings": {"<name>": "<value>"}, "sidebar_sections": [{...}]}`.
 
 - [ ] **Step 1: Confirm the Global key exists and works**
 
@@ -131,13 +154,38 @@ for c in sorted(x["id"] for x in cats):
 time.sleep(1.2)
 tags = {t["name"]: t["count"] for t in get("/tags.json")["tags"]}
 settings = {s["setting"]: s["value"] for s in get("/admin/site_settings.json")["site_settings"]}
+time.sleep(1.2)
+sidebar = get("/sidebar_sections.json").get("sidebar_sections", [])
 
-out = {"tags": tags, "topics": topics, "categories": cats, "settings": settings}
+out = {"tags": tags, "topics": topics, "categories": cats, "settings": settings,
+       "sidebar_sections": sidebar}
 json.dump(out, open("docs/superpowers/plans/data/2026-09-06-prod-capture.json", "w"), ensure_ascii=False)
-print(f"captured {len(tags)} tags, {len(topics)} topics, {len(cats)} categories, {len(settings)} settings")
+print(f"captured {len(tags)} tags, {len(topics)} topics, {len(cats)} categories, "
+      f"{len(settings)} settings, {len(sidebar)} sidebar sections")
+for s in sidebar:
+    print(f"  section {s['id']:3} {'public' if s['public'] else 'private'} "
+          f"{s.get('section_type') or 'custom':10} {s['title']}")
+    for l in s["links"]:
+        print(f"      -> {l['name']}  {l['value']}")
 ```
 
 Expected, within drift: about **218 tags, 1 297 topics, 35 categories**. A materially different figure means PROD moved again — record the new numbers and carry them forward rather than the spec's.
+
+**The sidebar sections are captured because the theme now reorders them.** #103 (`theme_version`
+0.40.0) moves every custom section below Categorías and Etiquetas, keyed off *not* being the
+`community` section — so it acts on whatever PROD happens to have, and PROD's rail has never been
+read: `/sidebar_sections.json` answers 403 to the read-only key. Two things to look for in the
+printout, neither of which changes a step here but both of which Task 11 Step 5 has to check:
+
+- **A section whose links point at `read_restricted` categories.** Core does not permission-filter
+  the links of a custom section — they are arbitrary URLs, not category section links — so a
+  *public* section advertises destinations that most members cannot open. On PRE this was accepted
+  deliberately for `Recursos de apoyo`; on PROD it is an unread question.
+- **A private section.** `public: false` means the section belongs to one user, and
+  `/sidebar_sections.json` returns only sections that are public or the caller's own. So this
+  capture shows **`PROD_DISCOURSE_API_USERNAME`'s rail, not everyone's** — a private section
+  belonging to somebody else is invisible here and will still be reordered for its owner. Do not
+  report this list as "PROD's sidebar".
 
 - [ ] **Step 4: Commit the capture**
 
@@ -810,6 +858,8 @@ Identify them by title, split announcements from training-about-the-release (the
 - [ ] **Step 5: Preview, then make it the default theme**
 
 Check the homepage's three lanes and the highlights cards against real data before switching the default. This is the first time the theme meets PROD's content.
+
+**Check the rail in the same pass**, against Task 1's `sidebar_sections` capture. Since 0.40.0 the theme moves every non-`community` section below Categorías and Etiquetas, so the order changes on PROD whether or not anyone asked for it. Confirm: Community on top, then Categorías, then Etiquetas, then whatever custom sections exist; the hairline under Etiquetas and none under the last section. If a public custom section turns out to link to `read_restricted` categories, put that to Ricardo before the theme becomes the default — it is his call, as it was on PRE, but it should be a decision rather than a discovery.
 
 - [ ] **Step 6: Open the PR and let CI go green**
 
