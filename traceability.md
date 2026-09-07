@@ -1825,3 +1825,61 @@ from the running summary instead of recounted from the file, which is the same f
 "eight absolute links" that were 361 and the sample that read 14 alive as 14 dead. All three
 were arithmetic or parsing done once and then quoted, never re-derived. **Quote a figure only
 from the command that produced it, in the message that produces it.**
+
+## 2026-09-07 — Custom sidebar sections below Categories and Tags (#103)
+
+**Goal.** Move "Recursos de apoyo" to the end of the rail, after Categorías and Etiquetas.
+
+**The order is not configurable, and three separate places had to be read to be sure of it.**
+Core hardcodes it in `frontend/discourse/app/components/sidebar/user/sections.gjs`: the whole
+`.sidebar-custom-sections` wrapper — the Community section *and* every user-made one — renders
+before `<CategoriesSection>` and `<TagsSection>`. `SidebarSectionsController#index` orders
+`section_type IS NOT NULL DESC, public DESC, title ASC`, which only orders custom sections among
+themselves. And the rail's drag-and-drop is link-level: `dDragAndDropTarget accepts="sidebar-link"`,
+with no section-level target anywhere. So this is CSS or it is nothing.
+
+**`display: contents` is what makes it reachable.** `.sidebar-sections` is `display: flex;
+flex-direction: column` (core `common/base/sidebar.scss`), but the custom sections are one level
+down inside a wrapper, so they are not flex items and cannot take an `order`. Dropping the
+wrapper's box promotes them. Nothing is lost with it: core's `sidebar-custom-section.scss` is
+descendant selectors only — no padding, no border, no gap — and every one still matches, because
+`display: contents` removes a box, not a node.
+
+**The selector keys off `:not([data-section-name="community"])`, not the slug.** Community is
+core's own navigation (Latest, Groups, Users, Admin) and belongs on top; everything else is a
+shortcut list and goes below the forum's own index. A section renamed, added or deleted later
+needs no change here. `data-section-name` is `section.slug` for a custom section
+(`sidebar/common/custom-section.gjs`), which is exactly the value that would have made a
+slug-keyed rule fragile.
+
+**A border had to move with it.** Core zeroes the hairline under
+`.sidebar-sections > .sidebar-section-wrapper:last-child`. That is a DOM selector and `order` is
+visual, so the moved section — now the last one seen — would draw a rule under the final row of
+the rail, and the section it displaced would have none. Corrected in both directions, with a
+`:has()` guard so a user whose only custom section is Community keeps core's behaviour untouched.
+Specificity is (0,6,0) against core's (0,3,0), so it wins outright rather than relying on the
+theme sheet being last — which is the safer of the two, per the cascade note in `CLAUDE.md`.
+
+**The section was `public: false` and only Ricardo could see it.** `/sidebar_sections.json`
+filters `where("public OR user_id = ?", current_user.id)`, so the reorder would have been visible
+to exactly one account. Made public at his instruction with
+`PUT /sidebar_sections/3.json`, sending `title`, `public` and **the full `links` array with ids**:
+`SidebarSectionUpdater` assigns `sidebar_urls_attributes` from whatever arrives and re-derives
+link order from that array, so an omitted link would have jumped to the front. `public` is
+permitted for admins only. Reversible with a single `public: false`.
+
+**What making it public costs, recorded because it is not obvious.** Its two links point at
+categories **73** and **75**, both `read_restricted`. Core does **not** permission-filter the
+links of a custom section — they are arbitrary URLs, not category section links — so every user
+on PRE now sees both rótulos and anyone outside those groups gets an access error on click. Put
+to Ricardo with the alternative (move the two destinations into the Categorías section, which
+does filter); his call was to leave it: *"PRE está a salvo"*.
+
+**The pull was forced, not assumed.** A remote theme does not pull on merge. After #103 landed,
+`PUT /admin/themes/15.json` with `remote_update: true`, then re-read the record:
+`local_version` = `remote_version` = `dc75ad7`, `remote_compat_ref: None`, and — the field that
+actually settles it — `updated_at` **after** the merge. `commits_behind: 0` on its own would have
+said the same thing before the pull and meant nothing.
+
+**Verified by eye on PRE**, which is the only net there is: `core_features_spec.rb` does not cover
+the rail. `theme_version` 0.39.0 → 0.40.0.
