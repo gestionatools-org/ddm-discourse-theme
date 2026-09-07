@@ -114,6 +114,64 @@
   z-index: 1;
 }
 
+// Custom sections go last, after Categories and Tags.
+//
+// Core hardcodes the order in `sidebar/user/sections.gjs`: the whole
+// `.sidebar-custom-sections` wrapper — the Community section *and* every
+// user-made one — renders before `<CategoriesSection>` and `<TagsSection>`,
+// and nothing in the admin UI or the API moves it. `/sidebar_sections.json`
+// only orders custom sections among themselves
+// (`section_type IS NOT NULL DESC, public DESC, title ASC`), and there is no
+// section-level drag in the rail — only links drag between sections. So this
+// is a CSS job or it is nothing.
+//
+// The reason to want it: a custom section is a list of shortcuts somebody
+// assembled, while the category and tag trees are the forum's own index. The
+// index is what a reader scans first; the shortcuts are what they already know
+// the name of.
+//
+// `display: contents` on the wrapper is what makes the order reachable at all.
+// It drops the wrapper as a box, so its children become flex items of
+// `.sidebar-sections` — flex column, core's `common/base/sidebar.scss` — and
+// can take an `order`. Nothing is lost with the box: core's
+// `sidebar-custom-section.scss` is descendant selectors only, no padding, no
+// border, no gap, and every one of those selectors still matches, because
+// `display: contents` removes a box and not a node.
+//
+// Community is exempt. It is core's own navigation (Latest, Groups, Users,
+// Admin), not a shortcut list, and it belongs at the top. Keying off *not
+// being community* rather than off a slug means a section renamed, added or
+// deleted later needs no change here.
+.sidebar-custom-sections {
+  display: contents;
+}
+
+.sidebar-custom-sections
+  > .sidebar-section-wrapper:not([data-section-name="community"]) {
+  order: 1;
+
+  // Core zeroes the rule under `.sidebar-sections > :last-child`. That is a
+  // DOM selector and `order` is visual, so the moved section — now visually
+  // last — would draw a hairline under the final row of the rail.
+  @include viewport.from(sm) {
+    border-bottom: 0;
+  }
+}
+
+// …and the section it displaced is no longer visually last, so it needs the
+// hairline core took off it. Guarded by `:has()` so it only applies when there
+// is in fact a moved section below it: a user whose only custom section is
+// Community must keep core's behaviour untouched.
+.sidebar-sections:has(
+    .sidebar-custom-sections
+      > .sidebar-section-wrapper:not([data-section-name="community"])
+  )
+  > .sidebar-section-wrapper:last-child {
+  @include viewport.from(sm) {
+    border-bottom: 1px solid var(--d-sidebar-section-border-color);
+  }
+}
+
 // The filo. Applied to the link rather than the row so it aligns with the text
 // box, and drawn as an inset shadow rather than a border so it never shifts the
 // row's contents. --ga-edge rather than a cyan of its own: the edge's colour is
