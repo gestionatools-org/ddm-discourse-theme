@@ -19,7 +19,6 @@ import {
   loadLatestTaggedTopic,
   memberHasActivity,
   paragraphsFromCooked,
-  periodChain,
   rankTopMember,
   uploadRefFromShortUrl,
   WEIGHTS,
@@ -281,32 +280,25 @@ export default class BlockHighlights extends Component {
 
   @bind
   async fetchMember() {
-    // Widen the window until somebody has actually taken part, and report which
-    // window that was so the badge can say so rather than claim the month.
-    // Measured on PRE 2026-09-07: the 30-day directory returns 50 people and
-    // none has a post or a like, so the configured period alone leaves this card
-    // permanently on its take-part nudge. It stops at the first window that
-    // qualifies — the quarter, here — so a busy instance never makes the second
-    // request at all.
+    // One window, the configured one, and its own figures — the card shows the
+    // month's activity, so it ranks on the month's activity. `memberHasActivity`
+    // counting a visit is what keeps that possible on a quiet instance; without
+    // it nobody here qualifies and the card is permanently its take-part nudge.
     //
     // A directory that is switched off or unreachable is the same as nobody
-    // qualifying, and widening will not help, so it stops rather than retrying
-    // three more times. Any `order` works — rankTopMember re-ranks — so the
+    // qualifying. Any `order` works — rankTopMember re-ranks — so the
     // directory's own default is fine.
-    for (const period of periodChain(this.args.memberPeriod)) {
-      try {
-        const { directory_items } = await ajax(
-          `/directory_items.json?period=${period}&order=likes_received&limit=50`
-        );
-        const top = rankTopMember(directory_items, WEIGHTS);
-        if (memberHasActivity(top)) {
-          return { member: top, period };
-        }
-      } catch {
-        break;
-      }
+    let member = null;
+    try {
+      const { directory_items } = await ajax(
+        `/directory_items.json?period=${this.args.memberPeriod}&order=likes_received&limit=50`
+      );
+      const top = rankTopMember(directory_items, WEIGHTS);
+      member = memberHasActivity(top) ? top : null;
+    } catch {
+      // directory switched off or unreachable: nobody qualifies, show the CTA
     }
-    return { member: null, period: null };
+    return { member };
   }
 
   <template>
@@ -389,10 +381,7 @@ export default class BlockHighlights extends Component {
             <DAsyncContent @asyncData={{this.fetchMember}}>
               <:loading><CellLoading /></:loading>
               <:content as |data|>
-                <HighlightMemberCard
-                  @member={{data.member}}
-                  @period={{data.period}}
-                />
+                <HighlightMemberCard @member={{data.member}} />
               </:content>
             </DAsyncContent>
           </div>

@@ -100,11 +100,7 @@ es:
         label: "Lo último de Gestiona"
         cta: "Ver la novedad"
       member:
-        badge:
-          monthly: "Certificado del mes"
-          quarterly: "Certificado del trimestre"
-          yearly: "Certificado del año"
-          all: "Certificado de la comunidad"
+        badge: "Certificado destacado"
         posts:
           one: "%{count} publicación"
           other: "%{count} publicaciones"

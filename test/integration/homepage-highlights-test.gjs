@@ -196,14 +196,10 @@ module(
 
     test("shows the badge, the figures and a profile link", async function (assert) {
       await render(
-        <template>
-          <HighlightMemberCard @member={{member}} @period="monthly" />
-        </template>
+        <template><HighlightMemberCard @member={{member}} /></template>
       );
 
-      assert
-        .dom(".highlight-member")
-        .includesText("Certified member of the month");
+      assert.dom(".highlight-member").includesText("Featured certified member");
       assert.dom(".highlight-member__figures").includesText("40 posts");
       assert.dom(".highlight-member__figures").includesText("96 likes");
       assert.dom(".highlight-member__figures").includesText("12 active days");
@@ -241,42 +237,6 @@ module(
       assert
         .dom(".highlight-member__cargo")
         .doesNotExist("no line at all for a member without a title");
-    });
-
-    test("the badge names the window the member actually won", async function (assert) {
-      // The block widens the window when a narrower one has nobody, so the
-      // badge must not keep claiming the month over the quarter's figures.
-      await render(
-        <template>
-          <HighlightMemberCard @member={{member}} @period="quarterly" />
-        </template>
-      );
-      assert
-        .dom(".highlight-member")
-        .includesText("Certified member of the quarter");
-
-      await render(
-        <template>
-          <HighlightMemberCard @member={{member}} @period="all" />
-        </template>
-      );
-      assert
-        .dom(".highlight-member")
-        .includesText("Certified community member");
-    });
-
-    test("an unrecognised window falls to the period-neutral badge", async function (assert) {
-      await render(
-        <template>
-          <HighlightMemberCard @member={{member}} @period="fortnightly" />
-        </template>
-      );
-      assert
-        .dom(".highlight-member")
-        .includesText(
-          "Certified community member",
-          "not a missing-translation key"
-        );
     });
 
     test("falls back to the username when the member has no display name", async function (assert) {
@@ -820,68 +780,7 @@ module(
         .includesText("40 posts");
     });
 
-    test("the member cell widens the window when the month has nobody", async function (assert) {
-      // PRE's own shape, measured 2026-09-07: the 30-day directory returns
-      // people but none with a post or a like, while the quarter has plenty.
-      stubStore(this.owner, {});
-      const asked = [];
-      pretender.get("/directory_items.json", (request) => {
-        asked.push(request.queryParams.period);
-        if (request.queryParams.period === "monthly") {
-          return response({
-            directory_items: [
-              {
-                post_count: 0,
-                likes_received: 0,
-                days_visited: 23,
-                user: {
-                  username: "quiet",
-                  name: "Q",
-                  avatar_template: "/q.png",
-                },
-              },
-            ],
-          });
-        }
-        return response({
-          directory_items: [
-            {
-              post_count: 36,
-              likes_received: 34,
-              days_visited: 48,
-              user: {
-                username: "jredondo",
-                name: "Jorge Redondo",
-                avatar_template: "/j.png",
-              },
-            },
-          ],
-        });
-      });
-
-      await renderHighlights({
-        ...DEFAULT_ARGS,
-        podcastTag: "",
-        newsletterTag: "",
-      });
-
-      assert.deepEqual(
-        asked,
-        ["monthly", "quarterly"],
-        "it stops at the first window that qualifies"
-      );
-      assert
-        .dom(".block-highlights__cell.--miembro .highlight-card__title")
-        .hasText("Jorge Redondo");
-      assert
-        .dom(".block-highlights__cell.--miembro .highlight-card__label")
-        .includesText(
-          "Certified member of the quarter",
-          "the badge names the window, not the month"
-        );
-    });
-
-    test("the member cell falls to the CTA when the directory is all zeros", async function (assert) {
+    test("the member cell falls to the CTA when nobody even turned up", async function (assert) {
       stubStore(this.owner, {});
       pretender.get("/directory_items.json", () =>
         response({
@@ -889,7 +788,7 @@ module(
             {
               post_count: 0,
               likes_received: 0,
-              days_visited: 9,
+              days_visited: 0,
               user: {
                 username: "z",
                 name: "Z",
