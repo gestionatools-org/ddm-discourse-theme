@@ -239,7 +239,11 @@ module(
         .hasAttribute("href", "https://ricardopenalver.es");
       assert
         .dom(".highlight-member__where a")
-        .hasAttribute("rel", "noopener nofollow ugc", "an outside link");
+        .hasAttribute(
+          "rel",
+          "noopener noreferrer",
+          "written by the template-lint autofixer, not by hand"
+        );
       assert.dom(".highlight-member__entity").hasText("Espublico Gestiona");
       assert
         .dom(".highlight-member__role")

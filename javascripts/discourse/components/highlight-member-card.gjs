@@ -77,10 +77,18 @@ export default class HighlightMemberCard extends Component {
                     <span>{{@profile.location}}</span>
                   {{/if}}
                   {{#if @profile.websiteName}}
+                    {{! No `rel` written by hand. `ember-template-lint`'s
+                        autofixer supplies one for `target="_blank"`, and it
+                        mangled the "noopener nofollow ugc" that was here into
+                        the single invalid token "nofollowugc" — so neither
+                        `nofollow` nor `ugc` applied, and CI caught it. Its own
+                        `noopener noreferrer` carries the security property;
+                        `nofollow` means nothing on a `login_required` instance
+                        no crawler can reach anyway. }}
                     <a
                       href={{@profile.websiteUrl}}
                       target="_blank"
-                      rel="nofollowugc noopener noreferrer"
+                      rel="noopener noreferrer"
                     >{{@profile.websiteName}}</a>
                   {{/if}}
                 </p>
