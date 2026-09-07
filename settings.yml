@@ -164,3 +164,21 @@ highlights_member_period:
     - quarterly
     - yearly
     - all
+
+# Which user field carries the member's organisation and which carries their job
+# title, by numeric id. They are ids rather than names because that is what
+# `/u/<username>.json` keys `user_fields` by, and they are settings rather than
+# constants because the ids are per-instance — PRE's are 2 and 4, and PROD's are
+# unread. Set either to 0 to drop that line from the member card.
+#
+# NEVER render `user_fields` wholesale to cover these: on PRE, fields 1 and 3 are
+# a NIF and a CIF with `show_on_profile: false`, and an administrator's session
+# receives them anyway. Reading the two ids explicitly is what keeps a national
+# ID off the homepage.
+highlights_member_entity_field_id:
+  type: integer
+  default: 2
+
+highlights_member_role_field_id:
+  type: integer
+  default: 4

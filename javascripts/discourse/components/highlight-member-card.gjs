@@ -1,8 +1,10 @@
 import Component from "@glimmer/component";
+import { or } from "discourse/truth-helpers";
 import DButton from "discourse/ui-kit/d-button";
 import dAvatar from "discourse/ui-kit/helpers/d-avatar";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
+import { monthAndYear } from "../lib/highlights";
 
 // The bottom-right twin card. Presentational: the block hands down the ranked
 // directory item, or nothing. With a member it is an avatar, their cargo and
@@ -20,6 +22,16 @@ export default class HighlightMemberCard extends Component {
 
   get profileUrl() {
     return `/u/${this.user.username}/summary`;
+  }
+
+  // The site's own locale, off `<html lang>`, which Discourse sets. Reading the
+  // document rather than importing an i18n internal keeps this to a documented
+  // surface; an empty value falls through to the runtime's default.
+  get memberSince() {
+    return monthAndYear(
+      this.args.profile?.memberSince,
+      document.documentElement.lang || undefined
+    );
   }
 
   <template>
@@ -59,8 +71,36 @@ export default class HighlightMemberCard extends Component {
               {{#if this.user.title}}
                 <p class="highlight-member__cargo">{{this.user.title}}</p>
               {{/if}}
+              {{#if (or @profile.location @profile.websiteName)}}
+                <p class="highlight-member__where">
+                  {{#if @profile.location}}
+                    <span>{{@profile.location}}</span>
+                  {{/if}}
+                  {{#if @profile.websiteName}}
+                    {{! No `rel` written by hand. `ember-template-lint`'s
+                        autofixer supplies one for `target="_blank"`, and it
+                        mangled the "noopener nofollow ugc" that was here into
+                        the single invalid token "nofollowugc" — so neither
+                        `nofollow` nor `ugc` applied, and CI caught it. Its own
+                        `noopener noreferrer` carries the security property;
+                        `nofollow` means nothing on a `login_required` instance
+                        no crawler can reach anyway. }}
+                    <a
+                      href={{@profile.websiteUrl}}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >{{@profile.websiteName}}</a>
+                  {{/if}}
+                </p>
+              {{/if}}
             </div>
           </div>
+          {{#if @profile.entity}}
+            <p class="highlight-member__entity">{{@profile.entity}}</p>
+          {{/if}}
+          {{#if @profile.role}}
+            <p class="highlight-member__role">{{@profile.role}}</p>
+          {{/if}}
           <p class="highlight-member__figures">
             <span>{{i18n
                 (themePrefix "homepage.highlights.member.posts")
@@ -75,6 +115,12 @@ export default class HighlightMemberCard extends Component {
                 count=@member.days_visited
               }}</span>
           </p>
+          {{#if this.memberSince}}
+            <p class="highlight-member__since">{{i18n
+                (themePrefix "homepage.highlights.member.since")
+                date=this.memberSince
+              }}</p>
+          {{/if}}
           <DButton
             class="btn-flat highlight-card__cta"
             @href={{this.profileUrl}}

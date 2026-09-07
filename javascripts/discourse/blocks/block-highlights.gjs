@@ -19,6 +19,7 @@ import {
   loadLatestTaggedTopic,
   memberHasActivity,
   paragraphsFromCooked,
+  profileDetails,
   rankTopMember,
   uploadRefFromShortUrl,
   WEIGHTS,
@@ -140,6 +141,8 @@ const CellLoading = <template>
     newsletterTag: { type: "string", default: "" },
     newsTag: { type: "string", default: "" },
     memberPeriod: { type: "string", default: "monthly" },
+    entityFieldId: { type: "number", default: 0 },
+    roleFieldId: { type: "number", default: 0 },
   },
 })
 export default class BlockHighlights extends Component {
@@ -298,7 +301,26 @@ export default class BlockHighlights extends Component {
     } catch {
       // directory switched off or unreachable: nobody qualifies, show the CTA
     }
-    return { member };
+    if (!member) {
+      return { member: null, profile: null };
+    }
+    // A second hop, for the six details the directory does not serialise:
+    // location, website, the two configured user fields, and the join date.
+    // It was skipped once, when the only thing wanted from here was the bio and
+    // 7 of 10 members have none; six fields for one request is a different
+    // trade. The card renders without it, so a failure costs detail, not the
+    // member.
+    let profile = null;
+    try {
+      const { user } = await ajax(`/u/${member.user.username}.json`);
+      profile = profileDetails(user, {
+        entityFieldId: this.args.entityFieldId,
+        roleFieldId: this.args.roleFieldId,
+      });
+    } catch {
+      // profile unreadable: the card shows what the directory already gave it
+    }
+    return { member, profile };
   }
 
   <template>
@@ -381,7 +403,10 @@ export default class BlockHighlights extends Component {
             <DAsyncContent @asyncData={{this.fetchMember}}>
               <:loading><CellLoading /></:loading>
               <:content as |data|>
-                <HighlightMemberCard @member={{data.member}} />
+                <HighlightMemberCard
+                  @member={{data.member}}
+                  @profile={{data.profile}}
+                />
               </:content>
             </DAsyncContent>
           </div>

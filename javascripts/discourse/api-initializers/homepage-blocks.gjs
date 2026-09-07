@@ -111,6 +111,8 @@ export default apiInitializer((api) => {
         newsletterTag: settings.highlights_newsletter_tag,
         newsTag: settings.highlights_news_tag,
         memberPeriod: settings.highlights_member_period,
+        entityFieldId: settings.highlights_member_entity_field_id,
+        roleFieldId: settings.highlights_member_role_field_id,
       },
     },
   ]);

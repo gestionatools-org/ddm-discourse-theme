@@ -320,3 +320,62 @@ export function memberHasActivity(item) {
     (item.post_count > 0 || item.likes_received > 0 || item.days_visited > 0)
   );
 }
+
+/**
+ * The handful of profile details the member card shows, or null.
+ *
+ * **Only the two configured field ids are read, never `user_fields` as a
+ * whole.** On PRE, fields 1 and 3 are a NIF and a CIF carrying
+ * `show_on_profile: false` — a member's own session does not receive them, but
+ * an administrator's does, so a generic loop over the object would put a
+ * national ID on the homepage for exactly the people most likely to be looking
+ * at it. Naming the ids is what prevents that, and it is the reason they are
+ * settings rather than a spread.
+ *
+ * A field id of 0 (the setting's "off") reads as absent, and every value is
+ * normalised to null so the template can test one way.
+ *
+ * @param {Object|null} user - the payload of /u/<username>.json
+ * @param {{entityFieldId:Number, roleFieldId:Number}} fields
+ * @returns {Object|null}
+ */
+export function profileDetails(user, { entityFieldId, roleFieldId } = {}) {
+  if (!user) {
+    return null;
+  }
+
+  const field = (id) => (id ? user.user_fields?.[String(id)] || null : null);
+
+  return {
+    location: user.location || null,
+    websiteName: user.website_name || null,
+    websiteUrl: user.website || null,
+    entity: field(entityFieldId),
+    role: field(roleFieldId),
+    memberSince: user.created_at || null,
+  };
+}
+
+/**
+ * An ISO timestamp as a month and year in `locale`, or null for anything
+ * unparseable — a missing `created_at`, or a string Date rejects.
+ *
+ * @param {String|null} iso
+ * @param {String} [locale] - falls back to the runtime's own default
+ * @returns {String|null}
+ */
+export function monthAndYear(iso, locale) {
+  if (!iso) {
+    return null;
+  }
+
+  const date = new Date(iso);
+  if (Number.isNaN(date.valueOf())) {
+    return null;
+  }
+
+  return new Intl.DateTimeFormat(locale || undefined, {
+    month: "long",
+    year: "numeric",
+  }).format(date);
+}

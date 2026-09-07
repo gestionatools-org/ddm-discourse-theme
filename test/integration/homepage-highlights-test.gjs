@@ -217,6 +217,53 @@ module(
         .exists("and the pair sits directly under the badge");
     });
 
+    test("renders the profile details, and no line for the ones absent", async function (assert) {
+      // Ricardo Penalver's real shape: everything but the job title.
+      const profile = {
+        location: "Zaragoza",
+        websiteName: "ricardopenalver.es",
+        websiteUrl: "https://ricardopenalver.es",
+        entity: "Espublico Gestiona",
+        role: null,
+        memberSince: "2024-01-15T11:31:49.027Z",
+      };
+      await render(
+        <template>
+          <HighlightMemberCard @member={{member}} @profile={{profile}} />
+        </template>
+      );
+
+      assert.dom(".highlight-member__where").includesText("Zaragoza");
+      assert
+        .dom(".highlight-member__where a")
+        .hasAttribute("href", "https://ricardopenalver.es");
+      assert
+        .dom(".highlight-member__where a")
+        .hasAttribute(
+          "rel",
+          "noopener noreferrer",
+          "written by the template-lint autofixer, not by hand"
+        );
+      assert.dom(".highlight-member__entity").hasText("Espublico Gestiona");
+      assert
+        .dom(".highlight-member__role")
+        .doesNotExist("no empty line for a job title they have not set");
+      assert.dom(".highlight-member__since").includesText("2024");
+    });
+
+    test("renders no profile lines at all when the profile could not be read", async function (assert) {
+      await render(
+        <template><HighlightMemberCard @member={{member}} /></template>
+      );
+
+      assert.dom(".highlight-member__where").doesNotExist();
+      assert.dom(".highlight-member__entity").doesNotExist();
+      assert.dom(".highlight-member__since").doesNotExist();
+      assert
+        .dom(".highlight-member__figures")
+        .exists("the directory's own figures still render");
+    });
+
     test("shows the user's title as their cargo, and nothing when they have none", async function (assert) {
       const titled = {
         ...member,
@@ -276,6 +323,10 @@ module(
       pretender.get("/directory_items.json", () =>
         response({ directory_items: [] })
       );
+      // A qualifying member sends the block on to that member's profile, so the
+      // same reasoning applies: answer it by default and let the tests that care
+      // override it.
+      pretender.get("/u/:username.json", () => response({ user: {} }));
     });
 
     test("renders the heading and the newsletter and novedad cards", async function (assert) {
@@ -778,6 +829,89 @@ module(
       assert
         .dom(".block-highlights__cell.--miembro .highlight-member__figures")
         .includesText("40 posts");
+    });
+
+    test("the member cell reads the winner's profile for its extra detail", async function (assert) {
+      stubStore(this.owner, {});
+      pretender.get("/directory_items.json", () =>
+        response({
+          directory_items: [
+            {
+              post_count: 0,
+              likes_received: 0,
+              days_visited: 23,
+              user: {
+                username: "RicardoPG",
+                name: "Ricardo Penalver",
+                avatar_template: "/r/{size}.png",
+              },
+            },
+          ],
+        })
+      );
+      pretender.get("/u/RicardoPG.json", () =>
+        response({
+          user: {
+            location: "Zaragoza",
+            website: "https://ricardopenalver.es",
+            website_name: "ricardopenalver.es",
+            created_at: "2024-01-15T11:31:49.027Z",
+            // Field 1 is the NIF, which an administrator's session receives.
+            user_fields: { 1: "03460654M", 2: "Espublico Gestiona" },
+          },
+        })
+      );
+
+      await renderHighlights({
+        ...DEFAULT_ARGS,
+        podcastTag: "",
+        newsletterTag: "",
+        entityFieldId: 2,
+        roleFieldId: 4,
+      });
+
+      assert
+        .dom(".block-highlights__cell.--miembro .highlight-member__entity")
+        .hasText("Espublico Gestiona");
+      assert
+        .dom(".block-highlights__cell.--miembro")
+        .doesNotIncludeText("03460654M", "the NIF never reaches the page");
+    });
+
+    test("an unreadable profile costs the detail, not the member", async function (assert) {
+      stubStore(this.owner, {});
+      pretender.get("/directory_items.json", () =>
+        response({
+          directory_items: [
+            {
+              post_count: 4,
+              likes_received: 2,
+              days_visited: 9,
+              user: {
+                username: "RicardoPG",
+                name: "Ricardo Penalver",
+                avatar_template: "/r/{size}.png",
+              },
+            },
+          ],
+        })
+      );
+      pretender.get("/u/RicardoPG.json", () =>
+        response(403, { errors: ["forbidden"] })
+      );
+
+      await renderHighlights({
+        ...DEFAULT_ARGS,
+        podcastTag: "",
+        newsletterTag: "",
+      });
+
+      assert
+        .dom(".block-highlights__cell.--miembro .highlight-card__title")
+        .hasText("Ricardo Penalver", "the card still names them");
+      assert
+        .dom(".block-highlights__cell.--miembro .highlight-member__entity")
+        .doesNotExist();
     });
 
     test("the member cell falls to the CTA when nobody even turned up", async function (assert) {

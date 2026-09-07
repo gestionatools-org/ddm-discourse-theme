@@ -15,6 +15,8 @@ es:
       highlights_newsletter_tag: "Etiqueta cuyo tema más reciente ocupa la tarjeta de newsletter. Se compara por slug. Vacío oculta la tarjeta."
       highlights_news_tag: "Etiqueta cuyo tema más reciente ocupa la tarjeta «Novedad de Gestiona». Se compara por slug. Vacío oculta la tarjeta."
       highlights_member_period: "Ventana para el ranking del miembro más activo. «monthly» son los últimos 30 días — Discourse no ofrece mes natural."
+      highlights_member_entity_field_id: "Id numérico del campo de usuario que guarda la entidad del miembro, mostrado en su tarjeta. 0 oculta la línea. Los ids son propios de cada instancia: compruébalos antes de instalar en otro sitio."
+      highlights_member_role_field_id: "Id numérico del campo de usuario que guarda el cargo del miembro, mostrado en su tarjeta. 0 oculta la línea. Nunca amplíes esto a leer todos los campos de usuario: algunos guardan documentos de identidad que solo reciben los administradores."
 
   header:
     links:
@@ -111,5 +113,6 @@ es:
           one: "%{count} día activo"
           other: "%{count} días activos"
         profile: "Ver perfil"
+        since: "Miembro desde %{date}"
         cta_empty: "Publica y participa este mes para aparecer aquí"
         cta_empty_button: "Escribir una publicación"
