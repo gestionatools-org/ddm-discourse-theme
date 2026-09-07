@@ -333,6 +333,11 @@ module(
         .dom(".block-highlights__cell.--novedad .highlight-card__byline")
         .includesText("Raul Argente", "who published the release note");
       assert
+        .dom(
+          ".block-highlights__cell.--novedad .highlight-card__foot .highlight-card__byline"
+        )
+        .exists("the byline travels with the link, at the foot of the card");
+      assert
         .dom(".block-highlights__cell.--novedad .highlight-card__media")
         .doesNotExist("compact still means no media slot");
     });
