@@ -16,6 +16,7 @@ import { i18n } from "discourse-i18n";
 export default class PageHero extends Component {
   @service composer;
   @service currentUser;
+  @service site;
 
   // Exactly one of `title` / `titleKey` is ever set — see the HeroContent
   // typedef. A category supplies a literal name; everything else a locale key.
@@ -94,9 +95,36 @@ export default class PageHero extends Component {
     return category.permission === PermissionType.FULL;
   }
 
+  // Where the button lands when the page itself names no category — the
+  // homepage and every generic listing (/latest, /top, /unread).
+  //
+  // Opening the composer with `category: null` does not mean "let the user
+  // pick": core falls back to `default_composer_category`, and failing that to
+  // the first category the user may write in, which on this instance is
+  // Noticias — an announcements category, not where a member's first thread
+  // belongs. The band's call to action is a general "start a thread", so it
+  // names the discussion category itself.
+  //
+  // Guarded by the same `PermissionType.FULL` rule as `canCreateTopic`, and
+  // for the same reason: core writes `permission` only when the user may
+  // create there, so absence reads as no. A user who cannot write in the
+  // configured category gets `null` — today's behaviour — rather than a
+  // composer preloaded with a category that will refuse the post.
+  get defaultCategory() {
+    const id = settings.hero_default_category_id;
+    if (!id) {
+      return null;
+    }
+
+    const category = this.site.categories?.find((c) => c.id === id);
+    return category?.permission === PermissionType.FULL ? category : null;
+  }
+
   @action
   openComposer() {
-    this.composer.openNewTopic({ category: this.args.content.category });
+    this.composer.openNewTopic({
+      category: this.args.content.category ?? this.defaultCategory,
+    });
   }
 
   <template>

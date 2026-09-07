@@ -21,6 +21,23 @@
 # Discourse has no single-category setting type, so these are plain integers
 # (same as discourse-theme-skills' `sidebar_category_id`). 0 disables the lane.
 
+# --- The hero band's "New post" button ---------------------------------------
+# Which category the composer opens on when the page names none of its own —
+# the homepage and the generic listings. A category page always wins over this.
+#
+# Not a cosmetic default: with no category core falls back to
+# `default_composer_category` and then to the first category the user may write
+# in, which here is 4 "Noticias". The band invites a member to start a thread,
+# and that belongs in 5 "Foro del certificado".
+#
+# Same three silent failure modes as the lane IDs above, plus one of its own: a
+# user without create permission in this category falls back to no
+# preselection, so a mis-set ID looks like nothing happened rather than like an
+# error. 0 restores core's own default.
+hero_default_category_id:
+  type: integer
+  default: 5
+
 # --- Section 1: the latest list ---------------------------------------------
 # Site-wide `latest`, with no category setting at all. It used to be keyed on
 # category 4, which made it 57% arrival announcements because 4's listing

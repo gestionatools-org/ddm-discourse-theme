@@ -25,8 +25,31 @@ function stubCurrentUser(owner, user) {
   owner.register("service:current-user", user, { instantiate: false });
 }
 
+// The band resolves `hero_default_category_id` against the site's category
+// list, so a test that exercises the fallback has to supply one. Mutating the
+// real service rather than replacing it: only `categories` is read here, and a
+// stub would also have to answer whatever core's DButton asks of it.
+function stubCategories(owner, categories) {
+  owner.lookup("service:site").categories = categories;
+}
+
+const HOME_CONTENT = {
+  title: null,
+  titleKey: "hero.home.title",
+  titleArgs: null,
+  subtitle: null,
+  subtitleKey: "hero.home.subtitle",
+  category: null,
+};
+
 module("Espublico Theme | Integration | page hero", function (hooks) {
   setupRenderingTest(hooks);
+
+  // `settings` is a shared global across the whole QUnit run, so every test
+  // here states the value it needs rather than inheriting the previous one's.
+  hooks.beforeEach(function () {
+    settings.hero_default_category_id = 0;
+  });
 
   test("renders a category's own name and description", async function (assert) {
     stubComposer(this.owner);
@@ -84,17 +107,51 @@ module("Espublico Theme | Integration | page hero", function (hooks) {
     assert.strictEqual(calls[0].category, category, "on this category");
   });
 
-  test("opens the composer with no category on a generic listing", async function (assert) {
+  test("opens the composer on the configured category when the page names none", async function (assert) {
     const calls = stubComposer(this.owner);
     stubCurrentUser(this.owner, { can_create_topic: true });
-    const content = {
-      title: null,
-      titleKey: "hero.home.title",
-      titleArgs: null,
-      subtitle: null,
-      subtitleKey: "hero.home.subtitle",
-      category: null,
-    };
+    const forum = { id: 5, name: "Foro del Certificado", permission: 1 };
+    stubCategories(this.owner, [
+      { id: 4, name: "Noticias", permission: 1 },
+      forum,
+    ]);
+    settings.hero_default_category_id = 5;
+    const content = HOME_CONTENT;
+
+    await render(<template><PageHero @content={{content}} /></template>);
+    await click(".page-hero__button");
+
+    assert.strictEqual(
+      calls[0].category,
+      forum,
+      "not core's own first-writable-category default"
+    );
+  });
+
+  // Absence of `permission` is core's way of saying no — see `canCreateTopic`.
+  // Preselecting anyway would hand the user a composer that refuses the post,
+  // so the fallback drops out and the composer decides, as it did before the
+  // setting existed.
+  test("preselects nothing when the user cannot create in the configured category", async function (assert) {
+    const calls = stubComposer(this.owner);
+    stubCurrentUser(this.owner, { can_create_topic: true });
+    stubCategories(this.owner, [{ id: 5, name: "Foro del Certificado" }]);
+    settings.hero_default_category_id = 5;
+    const content = HOME_CONTENT;
+
+    await render(<template><PageHero @content={{content}} /></template>);
+    await click(".page-hero__button");
+
+    assert.strictEqual(calls[0].category, null, "core's default takes over");
+  });
+
+  test("opens the composer with no category when the setting is 0", async function (assert) {
+    const calls = stubComposer(this.owner);
+    stubCurrentUser(this.owner, { can_create_topic: true });
+    stubCategories(this.owner, [
+      { id: 5, name: "Foro del Certificado", permission: 1 },
+    ]);
+    const content = HOME_CONTENT;
 
     await render(<template><PageHero @content={{content}} /></template>);
     await click(".page-hero__button");
@@ -104,6 +161,31 @@ module("Espublico Theme | Integration | page hero", function (hooks) {
       null,
       "user picks it in the composer"
     );
+  });
+
+  // A category page still wins: the setting is the fallback for pages that
+  // name none, not an override.
+  test("a category in scope wins over the configured default", async function (assert) {
+    const calls = stubComposer(this.owner);
+    stubCurrentUser(this.owner, { can_create_topic: true });
+    stubCategories(this.owner, [
+      { id: 5, name: "Foro del Certificado", permission: 1 },
+    ]);
+    settings.hero_default_category_id = 5;
+    const category = { id: 59, name: "Eventos", permission: 1 };
+    const content = {
+      title: "Eventos",
+      titleKey: null,
+      titleArgs: null,
+      subtitle: null,
+      subtitleKey: null,
+      category,
+    };
+
+    await render(<template><PageHero @content={{content}} /></template>);
+    await click(".page-hero__button");
+
+    assert.strictEqual(calls[0].category, category, "the page's own category");
   });
 
   // Core (`app/models/site.rb`) writes `permission` only when the user may
