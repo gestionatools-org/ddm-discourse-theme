@@ -23,16 +23,16 @@ import {
   WEIGHTS,
 } from "../lib/highlights";
 
-// How much of the newsletter's own post the tall card shows. It is a theme-side
-// dial precisely because the alternative — raising `topic_excerpt_maxlength`,
-// which caps `topic.excerpt` at 220 — is a site setting that would lengthen
-// every listing on the forum.
+// How much of its own post a card shows — the newsletter and the podcast, the
+// two cards with room for prose. It is a theme-side dial precisely because the
+// alternative — raising `topic_excerpt_maxlength`, which caps `topic.excerpt` at
+// 220 — is a site setting that would lengthen every listing on the forum.
 //
-// It is deliberately more text than any card is tall. The card's excerpt box
-// grows into whatever space the stretched card leaves above the CTA and clips
-// the surplus (`block-highlights.scss`), so an over-budget makes the text reach
-// the bottom at every card height without a per-breakpoint line count to tune.
-const NEWSLETTER_EXCERPT_MAX = 900;
+// It is deliberately more text than any card is tall. The excerpt box grows into
+// whatever space its row leaves and clips the surplus behind a fade
+// (`block-highlights.scss`), so an over-budget makes the text reach the bottom at
+// every card height without a per-breakpoint line count to tune.
+const CARD_EXCERPT_MAX = 900;
 
 // A content card for the newsletter and novedad cells: an optional cover image
 // (or a branded placeholder), a label, the topic title and a CTA. `fancy_title`
@@ -179,7 +179,7 @@ export default class BlockHighlights extends Component {
       topic,
       image: extractCoverImage(cooked),
       pdfUrl: await this.resolveUploadUrl(extractPdfUrl(cooked)),
-      paragraphs: paragraphsFromCooked(cooked, NEWSLETTER_EXCERPT_MAX),
+      paragraphs: paragraphsFromCooked(cooked, CARD_EXCERPT_MAX),
     };
   }
 
@@ -221,17 +221,25 @@ export default class BlockHighlights extends Component {
     if (!topic) {
       return null;
     }
-    // Cheap second hop: the topic list carries no post bodies, and the video id
-    // lives in the first post's cooked HTML. A removed or access-controlled
-    // topic just means no inline player.
-    let videoId = null;
+    // Cheap second hop: the topic list carries no post bodies, and both the
+    // video id and the copy live in the first post's cooked HTML. A removed or
+    // access-controlled topic just means no inline player and no text.
+    //
+    // The video embed contributes no paragraph of its own — core's
+    // `lazy-video-container` holds a thumbnail and no text, so it drops out of
+    // `paragraphsFromCooked` on the same rule that drops the emoji runs.
+    let cooked = null;
     try {
       const full = await ajax(`/t/${topic.id}.json`);
-      videoId = extractVideoId(full?.post_stream?.posts?.[0]?.cooked);
+      cooked = full?.post_stream?.posts?.[0]?.cooked ?? null;
     } catch {
       // no reachable first post: the card falls back to a plain topic link
     }
-    return { topic, videoId };
+    return {
+      topic,
+      videoId: extractVideoId(cooked),
+      paragraphs: paragraphsFromCooked(cooked, CARD_EXCERPT_MAX),
+    };
   }
 
   @bind
@@ -296,6 +304,7 @@ export default class BlockHighlights extends Component {
                   <HighlightPodcastCard
                     @topic={{data.topic}}
                     @videoId={{data.videoId}}
+                    @paragraphs={{data.paragraphs}}
                   />
                 </:content>
                 <:empty>

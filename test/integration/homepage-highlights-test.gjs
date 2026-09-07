@@ -114,7 +114,7 @@ module(
         .includesText("Episodio 7 — Contratación con IA");
     });
 
-    test("below the thumbnail there is only the title and the CTA", async function (assert) {
+    test("below the thumbnail there is the title, the excerpt and the CTA", async function (assert) {
       await render(
         <template>
           <HighlightPodcastCard @topic={{topic}} @videoId="1qH2Ye8IJrE" />
@@ -128,7 +128,7 @@ module(
         );
       assert
         .dom(".highlight-podcast .highlight-card__body > *")
-        .exists({ count: 2 }, "the title and the CTA, nothing else");
+        .exists({ count: 3 }, "title, excerpt and CTA, nothing else");
       assert
         .dom(".highlight-podcast .highlight-card__cta")
         .hasAttribute("href", "/t/episodio-7/2597");
@@ -136,6 +136,43 @@ module(
       assert
         .dom(".highlight-podcast__play")
         .hasAttribute("aria-label", "Play the episode");
+    });
+
+    test("the excerpt renders the post's paragraphs", async function (assert) {
+      const paragraphs = ["Primer párrafo.", "Segundo párrafo."];
+      await render(
+        <template>
+          <HighlightPodcastCard
+            @topic={{topic}}
+            @videoId="1qH2Ye8IJrE"
+            @paragraphs={{paragraphs}}
+          />
+        </template>
+      );
+
+      assert
+        .dom(".highlight-podcast .highlight-card__excerpt p")
+        .exists({ count: 2 });
+      assert
+        .dom(".highlight-podcast .highlight-card__excerpt")
+        .includesText("Primer párrafo.");
+    });
+
+    test("the excerpt box is rendered even with no paragraphs", async function (assert) {
+      // It is what absorbs the difference between this card and the taller
+      // newsletter card beside it, so the geometry has to be the same either
+      // way — an episode posted without copy still gets a card that fills its
+      // row rather than one with a gap above the CTA.
+      await render(
+        <template>
+          <HighlightPodcastCard @topic={{topic}} @videoId="1qH2Ye8IJrE" />
+        </template>
+      );
+
+      assert.dom(".highlight-podcast .highlight-card__excerpt").exists();
+      assert
+        .dom(".highlight-podcast .highlight-card__excerpt p")
+        .doesNotExist();
     });
   }
 );
@@ -363,6 +400,48 @@ module(
       assert
         .dom(".block-highlights__cell.--podcast .highlight-podcast__play")
         .exists();
+    });
+
+    test("the podcast cell reads its copy out of the same post as the video", async function (assert) {
+      stubStore(this.owner, {
+        "tag/podcast/l/latest": [
+          {
+            id: 2597,
+            fancy_title: "Episodio 7",
+            url: "/t/ep-7/2597",
+            image_url: null,
+          },
+        ],
+      });
+      pretender.get("/t/2597.json", () =>
+        response({
+          post_stream: {
+            posts: [
+              {
+                cooked: `<p>Iniciamos semana hablando de tramitación.</p>
+                  <div class="lazy-video-container" data-video-id="1qH2Ye8IJrE"><a href="#"><img src="/x.jpg"></a></div>
+                  <p>Fátima llegó al Ayuntamiento en 2019.</p>`,
+              },
+            ],
+          },
+        })
+      );
+
+      await renderHighlights({
+        ...DEFAULT_ARGS,
+        newsletterTag: "",
+        newsTag: "",
+      });
+
+      assert
+        .dom(".block-highlights__cell.--podcast .highlight-podcast__play")
+        .exists("the video still resolves");
+      assert
+        .dom(".block-highlights__cell.--podcast .highlight-card__excerpt p")
+        .exists(
+          { count: 2 },
+          "the two paragraphs — the video container contributes none"
+        );
     });
 
     test("the podcast cell degrades to a topic link when the first post has no video", async function (assert) {
