@@ -13,7 +13,16 @@ import I18n, { i18n } from "discourse-i18n";
 // So the total stands alone and the three windows sit behind one shared
 // "Este mes:" lead-in. The period is stated once, and it now governs the
 // active-users figure too.
-const TOTAL = { key: "topbar.stats.members", stat: "users_count" };
+// Two totals, not one. `users_count` says how big the community is;
+// `topics_count` says how much is in it, which for a certification programme's
+// forum is the question a member actually arrives with — "¿está aquí mi
+// problema?" rather than "¿cuánta gente hay?". It is also the honest number:
+// 1 297 on PROD against the 1 261 the subject-layer crawl walked, so it counts
+// the listable topics a reader can reach, not an inflated internal total.
+const TOTALS = [
+  { key: "topbar.stats.members", stat: "users_count" },
+  { key: "topbar.stats.topics", stat: "topics_count", secondary: true },
+];
 
 // `topics_30_days` was here until v0.12.0 and is deliberately gone. It read 9
 // against 114 active members, which invites the reader to do the division and
@@ -28,15 +37,26 @@ const TOTAL = { key: "topbar.stats.members", stat: "users_count" };
 // messages and restricted categories. Hence the label "messages" — "replies"
 // would be a specific claim this number cannot support.
 //
-// Active users leads the group on purpose. `secondary` marks the two that give
-// up their space below lg, and putting the survivor first means the phone
-// renders "Este mes: 113 usuarios activos" as one contiguous run rather than
+// `likes_30_days` was here until v0.41.0 and is deliberately gone. Appreciation
+// is the weakest thing this band can report about a support forum — it says
+// nothing about whether the place will answer your question — and it was
+// already one of the two figures that stood down on a phone, so it was earning
+// its keep on wide viewports alone.
+//
+// Beware of judging it from PRE. PRE is a restored snapshot nobody browses, so
+// its 30-day windows decay to nothing: measured 2026-09-07, PRE reported
+// `likes_30_days` 0 and `active_users_30_days` 3 while PROD reported 154 and
+// 168 the same minute. The band is not broken on PRE, PRE is; never retune a
+// window figure against that instance.
+//
+// Active users leads the group on purpose. `secondary` marks the figures that
+// give up their space below lg, and putting the survivor first means the phone
+// renders "Este mes: 168 usuarios activos" as one contiguous run rather than
 // leaving the lead-in stranded ahead of a gap. Size and reach are what a
-// reader keeps; volume and appreciation are what they can do without.
+// reader keeps; volume is what they can do without.
 const PERIOD = [
   { key: "topbar.stats.active", stat: "active_users_30_days" },
   { key: "topbar.stats.posts", stat: "posts_30_days", secondary: true },
-  { key: "topbar.stats.likes", stat: "likes_30_days", secondary: true },
 ];
 
 // A key core stops serializing degrades to one missing figure rather than to
@@ -63,9 +83,24 @@ export default class TopbarStats extends Component {
     this.siteStats.load();
   }
 
-  get total() {
+  // `topics` is marked secondary rather than `members` so the phone renders
+  // exactly what it rendered before this figure existed — "372 miembros ·
+  // Este mes: 168 usuarios activos", measured correct at 390px on 2026-08-16.
+  // Both additions are wide: the totals are four-digit numbers, and the note
+  // in `CLAUDE.local.md` already flags that "1.240 miembros" is wider than
+  // "374 miembros". Keeping them to wide viewports means no new width has to
+  // be argued from arithmetic, which is how the band's last width claim came
+  // to be wrong. Putting `temas` on a phone instead of `miembros` is a
+  // defensible swap, but it needs a real measurement pass first.
+  get totals() {
     const stats = this.siteStats.stats;
-    return stats ? (buildFigures([TOTAL], stats)[0] ?? null) : null;
+
+    if (!stats) {
+      return null;
+    }
+
+    const figures = buildFigures(TOTALS, stats);
+    return figures.length ? figures : null;
   }
 
   get period() {
@@ -82,7 +117,7 @@ export default class TopbarStats extends Component {
   }
 
   get hasFigures() {
-    return Boolean(this.total || this.period);
+    return Boolean(this.totals || this.period);
   }
 
   <template>
@@ -92,14 +127,20 @@ export default class TopbarStats extends Component {
         role="group"
         aria-label={{i18n (themePrefix "topbar.stats.aria_label")}}
       >
-        {{#if this.total}}
-          <div class="topbar-stats__figure --total">
-            <span class="topbar-stats__value">{{this.total.value}}</span>
+        {{! Siblings of the period group rather than a wrapper of their own:
+            `.topbar-stats` is the flex row and its gap is what spaces them,
+            so a second total needs no layout of its own. }}
+        {{#each this.totals as |figure|}}
+          <div
+            class="topbar-stats__figure --total
+              {{if figure.secondary '--secondary'}}"
+          >
+            <span class="topbar-stats__value">{{figure.value}}</span>
             <span class="topbar-stats__label">
-              {{i18n (themePrefix this.total.key) count=this.total.count}}
+              {{i18n (themePrefix figure.key) count=figure.count}}
             </span>
           </div>
-        {{/if}}
+        {{/each}}
 
         {{#if this.period}}
           <div class="topbar-stats__period">
