@@ -12,33 +12,38 @@ import { i18n } from "discourse-i18n";
 import HighlightMemberCard from "../components/highlight-member-card";
 import HighlightPodcastCard from "../components/highlight-podcast-card";
 import {
-  excerptFromCooked,
   extractCoverImage,
   extractPdfUrl,
   extractVideoId,
   loadLatestTaggedTopic,
   memberHasActivity,
+  paragraphsFromCooked,
   rankTopMember,
+  uploadRefFromShortUrl,
   WEIGHTS,
 } from "../lib/highlights";
 
 // How much of the newsletter's own post the tall card shows. It is a theme-side
 // dial precisely because the alternative — raising `topic_excerpt_maxlength`,
 // which caps `topic.excerpt` at 220 — is a site setting that would lengthen
-// every listing on the forum. Paired with the `--tall` line clamp in
-// `block-highlights.scss`: the clamp decides how many lines fit, this decides
-// there is enough text to fill them.
-const NEWSLETTER_EXCERPT_MAX = 420;
+// every listing on the forum.
+//
+// It is deliberately more text than any card is tall. The card's excerpt box
+// grows into whatever space the stretched card leaves above the CTA and clips
+// the surplus (`block-highlights.scss`), so an over-budget makes the text reach
+// the bottom at every card height without a per-breakpoint line count to tune.
+const NEWSLETTER_EXCERPT_MAX = 900;
 
 // A content card for the newsletter and novedad cells: an optional cover image
 // (or a branded placeholder), a label, the topic title and a CTA. `fancy_title`
 // is already cooked HTML — `trustHTML`, as everywhere else in these blocks.
 //
-// `@image`, `@text` and `@ctaHref` are the newsletter cell's overrides, read
-// from its post rather than from the topic list; each falls back to what the
-// topic list carries, which is all the novedad cell passes. `@ctaHref` leaving
-// the forum (it points at a PDF) is why the CTA opens in a new tab whenever it
-// is set — DButton renders an `<a>` for `@href` and forwards `...attributes`.
+// `@image`, `@paragraphs` and `@ctaHref` are the newsletter cell's overrides,
+// read from its post rather than from the topic list; each falls back to what
+// the topic list carries, which is all the novedad cell passes. `@ctaHref`
+// leaving the forum (it points at the PDF on the upload store) is why the CTA
+// opens in a new tab whenever it is set — DButton renders an `<a>` for `@href`
+// and forwards `...attributes`.
 const ContentCard = <template>
   <article class="highlight-card highlight-content --{{@variant}}">
     {{#unless (eq @variant "compact")}}
@@ -63,7 +68,15 @@ const ContentCard = <template>
         <a href={{@topic.url}}>{{trustHTML @topic.fancy_title}}</a>
       </h3>
       {{#if (eq @variant "tall")}}
-        <p class="highlight-card__excerpt">{{or @text @topic.excerpt}}</p>
+        <div class="highlight-card__excerpt">
+          {{#if @paragraphs}}
+            {{#each @paragraphs as |paragraph|}}
+              <p>{{paragraph}}</p>
+            {{/each}}
+          {{else}}
+            <p>{{@topic.excerpt}}</p>
+          {{/if}}
+        </div>
       {{/if}}
       {{#if @ctaHref}}
         <DButton
@@ -165,9 +178,36 @@ export default class BlockHighlights extends Component {
     return {
       topic,
       image: extractCoverImage(cooked),
-      pdfUrl: extractPdfUrl(cooked),
-      excerpt: excerptFromCooked(cooked, NEWSLETTER_EXCERPT_MAX),
+      pdfUrl: await this.resolveUploadUrl(extractPdfUrl(cooked)),
+      paragraphs: paragraphsFromCooked(cooked, NEWSLETTER_EXCERPT_MAX),
     };
+  }
+
+  // A `/uploads/short-url/…` href is a placeholder, not a location. Core's own
+  // client resolves the ones it tagged with `data-orig-href`; a cooked
+  // attachment anchor carries no such tag, so nothing resolves it and the raw
+  // path reaches the browser — where, on this instance, every same-origin
+  // `/uploads/**` route answers 404 (measured on PRE 2026-09-07; see
+  // `extractPdfUrl`). Dropping it instead is not an option either: 9 of the 14
+  // newsletters link the PDF only that way.
+  //
+  // So resolve it the way core does, through its own endpoint. Returning null
+  // on failure is deliberate: the CTA then falls back to the topic, which is a
+  // link that works, rather than one that is known to 404.
+  async resolveUploadUrl(href) {
+    const ref = uploadRefFromShortUrl(href);
+    if (!ref) {
+      return href;
+    }
+    try {
+      const [upload] = await ajax("/uploads/lookup-urls", {
+        type: "POST",
+        data: { short_urls: [ref] },
+      });
+      return upload?.url ?? null;
+    } catch {
+      return null;
+    }
   }
 
   @bind
@@ -233,7 +273,7 @@ export default class BlockHighlights extends Component {
                   <ContentCard
                     @topic={{data.topic}}
                     @image={{data.image}}
-                    @text={{data.excerpt}}
+                    @paragraphs={{data.paragraphs}}
                     @ctaHref={{data.pdfUrl}}
                     @variant="tall"
                     @icon="envelope"

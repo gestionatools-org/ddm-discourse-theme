@@ -131,15 +131,28 @@ export function extractCoverImage(cooked) {
 }
 
 /**
- * The URL of the first PDF linked from a cooked post, or null.
+ * The href of the first PDF linked from a cooked post, or null.
  *
- * `/uploads/short-url/…` is preferred over the raw storage URL: it is the link
- * core rewrites when an upload moves, and it is same-origin. It is matched by
- * href pattern rather than by `class="attachment"` — measured across three
- * newsletters on PRE, two carried the class and one did not.
+ * An absolute URL is preferred over a `/uploads/short-url/…` path, and that
+ * order is the opposite of what it first looked like it should be. **On this
+ * instance no same-origin `/uploads/**` route serves anything**: measured on
+ * PRE 2026-09-07, the short-url of the PDF, the same short-url without the
+ * extension and with `?dl=1`, the long `/uploads/<site>/original/…` form, and
+ * even the short-url of the cover image that renders perfectly on the homepage
+ * all answer 404, while the storage URL answers 200 `application/pdf`. Uploads
+ * are served from the external store only, which is also why cooked `<img>`
+ * tags carry the absolute URL — the same anchor that renders the cover keeps
+ * the short form only because core never resolves an attachment href it did
+ * not tag with `data-orig-href`.
  *
- * `getAttribute` rather than `.href`, so a relative href stays relative instead
- * of being resolved against whatever page did the parsing.
+ * A short-url still has to be handled rather than dropped: 9 of the 14
+ * newsletters carry no absolute PDF link at all. `uploadRefFromShortUrl` turns
+ * it into the reference core's own `/uploads/lookup-urls` resolves.
+ *
+ * Matched by href pattern rather than by `class="attachment"` — measured across
+ * three newsletters, two carried the class and one did not. `getAttribute`
+ * rather than `.href`, so a relative href stays relative instead of being
+ * resolved against whatever page did the parsing.
  *
  * @param {String} cooked - post HTML
  * @returns {String|null}
@@ -151,67 +164,106 @@ export function extractPdfUrl(cooked) {
   }
 
   const isPdf = (href) => href.split(/[?#]/)[0].toLowerCase().endsWith(".pdf");
+  const isAbsolute = (href) => /^(?:https?:)?\/\//.test(href);
 
   const hrefs = Array.from(doc.querySelectorAll("a[href]"), (a) =>
     a.getAttribute("href")
   ).filter((href) => href && isPdf(href));
 
-  return (
-    hrefs.find((href) => href.includes("/uploads/short-url/")) ??
-    hrefs[0] ??
-    null
-  );
+  return hrefs.find(isAbsolute) ?? hrefs[0] ?? null;
 }
 
 /**
- * A plain-text summary of a cooked post, at most `maxLength` characters, or
- * null when the post has no text.
+ * The `upload://…` reference behind a `/uploads/short-url/…` href, or null for
+ * any other href (including null).
  *
- * This exists because `topic.excerpt` is capped at `topic_excerpt_maxlength`
- * (220 on this instance) — a site setting, so raising it would move every
- * listing on the forum to make one card longer. Reading the post gives the
- * theme its own dial.
+ * This is the form `/uploads/lookup-urls` takes — the endpoint core's own
+ * client posts to when it resolves the short-url placeholders in a post. The
+ * extension is part of the reference and is kept.
  *
- * Only the body's top-level blocks are read: `querySelectorAll("p")` would
- * repeat the text of a paragraph nested in a quote or an aside. Emoji images
- * contribute no text and so drop out on their own.
- *
- * @param {String} cooked - post HTML
- * @param {Number} maxLength - character budget, ellipsis excluded
+ * @param {String|null} href
  * @returns {String|null}
  */
-export function excerptFromCooked(cooked, maxLength) {
-  const doc = parseCooked(cooked);
-  if (!doc) {
-    return null;
-  }
+export function uploadRefFromShortUrl(href) {
+  const match = href?.match(
+    /\/uploads\/short-url\/([a-zA-Z0-9]+)(\.[a-zA-Z0-9]+)?/
+  );
 
-  const blocks = Array.from(doc.body.children, (el) =>
-    el.textContent.trim()
-  ).filter(Boolean);
+  return match ? `upload://${match[1]}${match[2] ?? ""}` : null;
+}
 
-  const text = (blocks.length ? blocks.join(" ") : doc.body.textContent)
-    .replace(/\s+/g, " ")
-    .trim();
+// Below this, a truncated tail is a stranded fragment rather than a sentence,
+// so the budget is spent and the paragraph is dropped instead.
+const MIN_TAIL = 40;
 
-  if (!text) {
-    return null;
-  }
-
-  if (text.length <= maxLength) {
-    return text;
-  }
-
-  // Cut on a word boundary, then strip the punctuation the cut can leave
-  // stranded before the ellipsis. One character past the budget is read so that
-  // a word ending exactly on it survives instead of being thrown away; a text
-  // with no space in reach falls back to a hard cut.
+/**
+ * Cut `text` to `maxLength` on a word boundary, with an ellipsis.
+ *
+ * One character past the budget is read so that a word ending exactly on it
+ * survives instead of being thrown away; a text with no space in reach falls
+ * back to a hard cut. The trailing punctuation the cut can strand is stripped.
+ *
+ * @param {String} text
+ * @param {Number} maxLength - ellipsis excluded
+ * @returns {String}
+ */
+function truncateOnWord(text, maxLength) {
   const cut = text.slice(0, maxLength + 1);
   const lastSpace = cut.lastIndexOf(" ");
   const kept =
     lastSpace > 0 ? cut.slice(0, lastSpace) : text.slice(0, maxLength);
 
   return `${kept.replace(/[\s.,;:¡¿—–-]+$/, "")}…`;
+}
+
+/**
+ * A cooked post's own text as an array of paragraphs, spending at most
+ * `maxLength` characters across all of them, or null when the post has no text.
+ *
+ * Paragraphs rather than one joined string: run together, a newsletter's copy
+ * reads as a wall, and the breaks are the only structure the plain text keeps.
+ *
+ * The budget exists because `topic.excerpt` is capped at
+ * `topic_excerpt_maxlength` (220 on this instance) — a site setting, so raising
+ * it would lengthen every listing on the forum to fill one card. It is set
+ * deliberately larger than any card is tall: the card clips what does not fit
+ * (see `block-highlights.scss`), so the text always reaches the bottom and
+ * there is no gap left above the CTA.
+ *
+ * Only the body's top-level blocks are read: `querySelectorAll("p")` would
+ * repeat the text of a paragraph nested in a quote or an aside. Emoji images
+ * contribute no text and so drop out on their own.
+ *
+ * @param {String} cooked - post HTML
+ * @param {Number} maxLength - character budget across all paragraphs
+ * @returns {Array<String>|null}
+ */
+export function paragraphsFromCooked(cooked, maxLength) {
+  const doc = parseCooked(cooked);
+  if (!doc) {
+    return null;
+  }
+
+  const blocks = Array.from(doc.body.children, (el) =>
+    el.textContent.replace(/\s+/g, " ").trim()
+  ).filter(Boolean);
+
+  const kept = [];
+  let budget = maxLength;
+
+  for (const block of blocks) {
+    if (block.length <= budget) {
+      kept.push(block);
+      budget -= block.length;
+      continue;
+    }
+    if (budget >= MIN_TAIL) {
+      kept.push(truncateOnWord(block, budget));
+    }
+    break;
+  }
+
+  return kept.length ? kept : null;
 }
 
 /**

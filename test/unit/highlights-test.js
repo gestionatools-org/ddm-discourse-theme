@@ -2,13 +2,14 @@ import { module, test } from "qunit";
 import { acceptance } from "discourse/tests/helpers/qunit-helpers";
 import { definitionTopicIds } from "../../discourse/lib/category-topics";
 import {
-  excerptFromCooked,
   extractCoverImage,
   extractPdfUrl,
   extractVideoId,
   loadLatestTaggedTopic,
   memberHasActivity,
+  paragraphsFromCooked,
   rankTopMember,
+  uploadRefFromShortUrl,
   WEIGHTS,
   youtubeThumbnail,
 } from "../../discourse/lib/highlights";
@@ -106,17 +107,28 @@ module("Espublico Theme | Unit | highlights | extractCoverImage", function () {
 });
 
 module("Espublico Theme | Unit | highlights | extractPdfUrl", function () {
-  test("prefers the short-url attachment over the storage URL", function (assert) {
+  test("prefers an absolute URL over the short-url placeholder", function (assert) {
+    // The order that matters, and the opposite of what it first looked like:
+    // measured on PRE, every same-origin /uploads/** route answers 404 while
+    // the storage URL answers 200 application/pdf.
     assert.strictEqual(
       extractPdfUrl(NEWSLETTER_COOKED),
-      "/uploads/short-url/8dccSWOMxhvIuYP1rQiiyh8KKmi.pdf",
-      "even though the storage URL appears first in the post"
+      "https://cdck-file-uploads.example.com/original/2X/3/398f.pdf"
     );
   });
 
-  test("matches an attachment anchor that carries no class", function (assert) {
-    // Measured on PRE: /t/2177's attachment anchor has no class="attachment",
-    // so the class cannot be the discriminator.
+  test("prefers an absolute URL even when the short-url comes first", function (assert) {
+    const cooked = `<p><a href="/uploads/short-url/8dcc.pdf">a</a><a href="//cdck.example.com/original/2X/3/398f.pdf">b</a></p>`;
+    assert.strictEqual(
+      extractPdfUrl(cooked),
+      "//cdck.example.com/original/2X/3/398f.pdf",
+      "protocol-relative counts as absolute"
+    );
+  });
+
+  test("falls back to the short-url when that is the only PDF link", function (assert) {
+    // 9 of the 14 newsletters are this shape, so it cannot simply be dropped —
+    // the block resolves it through /uploads/lookup-urls.
     const cooked = `<p><a href="/uploads/short-url/9BUfTFfwTe0o0jB5KhlxNhYazPo.pdf">Revista 12</a></p>`;
     assert.strictEqual(
       extractPdfUrl(cooked),
@@ -124,19 +136,18 @@ module("Espublico Theme | Unit | highlights | extractPdfUrl", function () {
     );
   });
 
-  test("falls back to the storage URL when there is no short-url link", function (assert) {
-    const cooked = `<p><a href="https://cdck.example.com/original/2X/3/398f.pdf">Revista</a></p>`;
-    assert.strictEqual(
-      extractPdfUrl(cooked),
-      "https://cdck.example.com/original/2X/3/398f.pdf"
-    );
+  test("matches an attachment anchor that carries no class", function (assert) {
+    // Measured on PRE: /t/2177's attachment anchor has no class="attachment",
+    // so the class cannot be the discriminator.
+    const cooked = `<p><a href="/uploads/short-url/9BUf.pdf">Revista 12</a></p>`;
+    assert.strictEqual(extractPdfUrl(cooked), "/uploads/short-url/9BUf.pdf");
   });
 
   test("ignores a query string or fragment when matching the extension", function (assert) {
-    const cooked = `<p><a href="/uploads/short-url/abc.pdf?dl=1#page=3">Revista</a></p>`;
+    const cooked = `<p><a href="https://cdck.example.com/x.pdf?dl=1#page=3">Revista</a></p>`;
     assert.strictEqual(
       extractPdfUrl(cooked),
-      "/uploads/short-url/abc.pdf?dl=1#page=3",
+      "https://cdck.example.com/x.pdf?dl=1#page=3",
       "the href is returned whole, only the match ignores the suffix"
     );
   });
@@ -149,48 +160,115 @@ module("Espublico Theme | Unit | highlights | extractPdfUrl", function () {
   });
 });
 
-module("Espublico Theme | Unit | highlights | excerptFromCooked", function () {
-  test("joins the post's top-level blocks into one line of text", function (assert) {
-    assert.strictEqual(
-      excerptFromCooked(NEWSLETTER_COOKED, 400),
-      "Buenos días @Certificación Con el verano recién estrenado llega un nuevo número de nuestra revista. Revista 14",
-      "the greeting is kept — a rule that skipped it would be one more thing to maintain"
-    );
-  });
+module(
+  "Espublico Theme | Unit | highlights | uploadRefFromShortUrl",
+  function () {
+    test("builds the upload:// reference lookup-urls expects", function (assert) {
+      assert.strictEqual(
+        uploadRefFromShortUrl(
+          "/uploads/short-url/8dccSWOMxhvIuYP1rQiiyh8KKmi.pdf"
+        ),
+        "upload://8dccSWOMxhvIuYP1rQiiyh8KKmi.pdf"
+      );
+    });
 
-  test("reads a paragraph inside a quote once, not twice", function (assert) {
-    const cooked = `<blockquote><p>Citado.</p></blockquote><p>Propio.</p>`;
-    assert.strictEqual(excerptFromCooked(cooked, 400), "Citado. Propio.");
-  });
+    test("keeps working without an extension", function (assert) {
+      assert.strictEqual(
+        uploadRefFromShortUrl("/uploads/short-url/8dcc"),
+        "upload://8dcc"
+      );
+    });
 
-  test("truncates on a word boundary and appends an ellipsis", function (assert) {
-    const cooked = `<p>uno dos tres cuatro cinco</p>`;
-    assert.strictEqual(
-      excerptFromCooked(cooked, 12),
-      "uno dos tres…",
-      "cuts at the space before the budget, not mid-word"
-    );
-  });
+    test("returns null for anything that is not a short-url", function (assert) {
+      assert.strictEqual(
+        uploadRefFromShortUrl(
+          "https://cdck.example.com/original/2X/3/398f.pdf"
+        ),
+        null,
+        "an absolute URL needs no resolving"
+      );
+      assert.strictEqual(uploadRefFromShortUrl("/t/nl-14/2592"), null);
+      assert.strictEqual(uploadRefFromShortUrl(null), null);
+      assert.strictEqual(uploadRefFromShortUrl(undefined), null);
+    });
+  }
+);
 
-  test("strips punctuation stranded by the cut", function (assert) {
-    const cooked = `<p>uno dos, tres cuatro</p>`;
-    assert.strictEqual(excerptFromCooked(cooked, 9), "uno dos…");
-  });
+module(
+  "Espublico Theme | Unit | highlights | paragraphsFromCooked",
+  function () {
+    test("keeps the post's top-level blocks as separate paragraphs", function (assert) {
+      assert.deepEqual(paragraphsFromCooked(NEWSLETTER_COOKED, 400), [
+        "Buenos días @Certificación",
+        "Con el verano recién estrenado llega un nuevo número de nuestra revista.",
+        "Revista 14",
+      ]);
+    });
 
-  test("returns the whole text when it fits", function (assert) {
-    assert.strictEqual(
-      excerptFromCooked(`<p>Corto.</p>`, 400),
-      "Corto.",
-      "no ellipsis"
-    );
-  });
+    test("keeps the greeting line", function (assert) {
+      // Deliberate: a rule that skipped it would be one more thing to maintain,
+      // and the copy of a single post is easier to adjust by hand.
+      assert.strictEqual(
+        paragraphsFromCooked(NEWSLETTER_COOKED, 400)[0],
+        "Buenos días @Certificación"
+      );
+    });
 
-  test("returns null for a post with no text", function (assert) {
-    assert.strictEqual(excerptFromCooked(`<p>${EMOJI_IMG}</p>`, 400), null);
-    assert.strictEqual(excerptFromCooked("", 400), null);
-    assert.strictEqual(excerptFromCooked(null, 400), null);
-  });
-});
+    test("reads a paragraph inside a quote once, not twice", function (assert) {
+      const cooked = `<blockquote><p>Citado.</p></blockquote><p>Propio.</p>`;
+      assert.deepEqual(paragraphsFromCooked(cooked, 400), [
+        "Citado.",
+        "Propio.",
+      ]);
+    });
+
+    test("spends the budget across paragraphs and stops", function (assert) {
+      const cooked = `<p>${"a".repeat(30)}</p><p>${"b".repeat(30)}</p><p>ccc</p>`;
+      assert.deepEqual(
+        paragraphsFromCooked(cooked, 60),
+        ["a".repeat(30), "b".repeat(30)],
+        "the third paragraph has no budget left"
+      );
+    });
+
+    test("truncates the paragraph that overruns, on a word boundary", function (assert) {
+      const cooked = `<p>${"a".repeat(50)}</p><p>uno dos tres cuatro cinco seis siete ocho nueve diez once doce</p>`;
+      const [, tail] = paragraphsFromCooked(cooked, 95);
+      assert.strictEqual(
+        tail,
+        "uno dos tres cuatro cinco seis siete ocho…",
+        "45 characters of budget, cut at the last space that fits"
+      );
+    });
+
+    test("drops a tail too short to read as a sentence", function (assert) {
+      const cooked = `<p>${"a".repeat(50)}</p><p>uno dos tres cuatro cinco</p>`;
+      assert.deepEqual(
+        paragraphsFromCooked(cooked, 60),
+        ["a".repeat(50)],
+        "10 characters left is a fragment, not a paragraph"
+      );
+    });
+
+    test("strips punctuation stranded by the cut", function (assert) {
+      const cooked = `<p>${"uno dos, tres cuatro cinco seis siete ocho nueve diez"}</p>`;
+      assert.strictEqual(
+        paragraphsFromCooked(cooked, 41)[0],
+        "uno dos, tres cuatro cinco seis siete…",
+        "the comma survives mid-text; only a stranded one is stripped"
+      );
+    });
+
+    test("returns null for a post with no text", function (assert) {
+      assert.strictEqual(
+        paragraphsFromCooked(`<p>${EMOJI_IMG}</p>`, 400),
+        null
+      );
+      assert.strictEqual(paragraphsFromCooked("", 400), null);
+      assert.strictEqual(paragraphsFromCooked(null, 400), null);
+    });
+  }
+);
 
 module("Espublico Theme | Unit | highlights | rankTopMember", function () {
   test("returns null for an empty list", function (assert) {

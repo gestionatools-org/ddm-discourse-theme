@@ -393,13 +393,33 @@ module(
       );
     }
 
+    // Core's own resolver for `/uploads/short-url/…` placeholders. The cell has
+    // to go through it because on this instance no same-origin `/uploads/**`
+    // route serves anything — every one of them 404s, so the raw placeholder
+    // would be a dead link.
+    function stubLookupUrls(url) {
+      pretender.post("/uploads/lookup-urls", () =>
+        url === null
+          ? response(403, { errors: ["forbidden"] })
+          : response([
+              {
+                short_url: "upload://8dcc.pdf",
+                url,
+                short_path: "/uploads/short-url/8dcc.pdf",
+              },
+            ])
+      );
+    }
+
     const NEWSLETTER_ARGS = {
       ...DEFAULT_ARGS,
       podcastTag: "",
       newsTag: "",
     };
 
-    test("the newsletter cell shows the cover from the post and points the CTA at the PDF", async function (assert) {
+    test("the newsletter cell shows the cover and points the CTA at the storage URL", async function (assert) {
+      // The shape of the five newest newsletters: the cover wrapped in an
+      // anchor to the PDF on storage, then the short-url attachment link.
       stubNewsletter(
         this.owner,
         `<p>Con el verano recién estrenado llega un nuevo número.</p>
@@ -424,8 +444,8 @@ module(
         .dom(".block-highlights__cell.--news .highlight-card__cta")
         .hasAttribute(
           "href",
-          "/uploads/short-url/8dcc.pdf",
-          "the short-url attachment, preferred over the storage URL"
+          "https://cdck.example.com/original/2X/3/398f.pdf",
+          "the absolute URL, never the /uploads/short-url/ placeholder"
         );
       assert
         .dom(".block-highlights__cell.--news .highlight-card__cta")
@@ -439,10 +459,56 @@ module(
           "the title still goes to the conversation"
         );
       assert
+        .dom(".block-highlights__cell.--news .highlight-card__excerpt p")
+        .exists(
+          { count: 2 },
+          "separate paragraphs, and the image-only block contributes none"
+        );
+      assert
         .dom(".block-highlights__cell.--news .highlight-card__excerpt")
-        .hasText(
-          "Con el verano recién estrenado llega un nuevo número. Revista 14",
+        .includesText(
+          "Con el verano recién estrenado llega un nuevo número.",
           "the post's own text, not the 220-character topic excerpt"
+        );
+    });
+
+    test("a short-url-only PDF is resolved through core's lookup endpoint", async function (assert) {
+      // 9 of the 14 newsletters are this shape: no absolute PDF link anywhere
+      // in the post, only the placeholder — which 404s if rendered raw.
+      stubNewsletter(
+        this.owner,
+        `<p>Un número antiguo.</p><p><a class="attachment" href="/uploads/short-url/8dcc.pdf">Revista 01</a></p>`
+      );
+      stubLookupUrls("//cdck.example.com/original/2X/9/9c1a.pdf");
+
+      await renderHighlights(NEWSLETTER_ARGS);
+
+      assert
+        .dom(".block-highlights__cell.--news .highlight-card__cta")
+        .hasAttribute(
+          "href",
+          "//cdck.example.com/original/2X/9/9c1a.pdf",
+          "the resolved URL, not the placeholder that was in the post"
+        );
+    });
+
+    test("an unresolvable short-url falls back to the topic rather than a dead link", async function (assert) {
+      stubNewsletter(
+        this.owner,
+        `<p>Un número antiguo.</p><p><a class="attachment" href="/uploads/short-url/8dcc.pdf">Revista 01</a></p>`
+      );
+      stubLookupUrls(null); // the lookup itself fails
+
+      await renderHighlights(NEWSLETTER_ARGS);
+
+      assert
+        .dom(".block-highlights__cell.--news .highlight-card__cta")
+        .hasAttribute("href", "/t/nl-14/2592");
+      assert
+        .dom(".block-highlights__cell.--news .highlight-card__cta")
+        .doesNotHaveAttribute(
+          "target",
+          "an internal link stays in the same tab"
         );
     });
 
@@ -457,12 +523,6 @@ module(
       assert
         .dom(".block-highlights__cell.--news .highlight-card__cta")
         .hasAttribute("href", "/t/nl-14/2592");
-      assert
-        .dom(".block-highlights__cell.--news .highlight-card__cta")
-        .doesNotHaveAttribute(
-          "target",
-          "an internal link stays in the same tab"
-        );
       assert
         .dom(".block-highlights__cell.--news .highlight-card__media img")
         .hasAttribute("src", "/uploads/cover.png", "the cover still resolves");
