@@ -101,10 +101,10 @@ es:
         cta: "Ver la novedad"
       member:
         badge:
-          monthly: "Miembro del mes"
-          quarterly: "Miembro del trimestre"
-          yearly: "Miembro del año"
-          all: "Miembro de la comunidad"
+          monthly: "Certificado del mes"
+          quarterly: "Certificado del trimestre"
+          yearly: "Certificado del año"
+          all: "Certificado de la comunidad"
         posts:
           one: "%{count} publicación"
           other: "%{count} publicaciones"

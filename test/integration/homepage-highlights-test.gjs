@@ -201,7 +201,9 @@ module(
         </template>
       );
 
-      assert.dom(".highlight-member").includesText("Member of the month");
+      assert
+        .dom(".highlight-member")
+        .includesText("Certified member of the month");
       assert.dom(".highlight-member__figures").includesText("40 posts");
       assert.dom(".highlight-member__figures").includesText("96 likes");
       assert.dom(".highlight-member__figures").includesText("12 active days");
@@ -211,6 +213,12 @@ module(
       assert
         .dom(".highlight-member__avatar")
         .hasAttribute("href", "/u/msanz/summary");
+      assert
+        .dom(".highlight-member__identity .highlight-member__avatar")
+        .exists("the avatar sits beside the name, not above the card body");
+      assert
+        .dom(".highlight-card__label + .highlight-member__identity")
+        .exists("and the pair sits directly under the badge");
     });
 
     test("shows the user's title as their cargo, and nothing when they have none", async function (assert) {
@@ -243,14 +251,18 @@ module(
           <HighlightMemberCard @member={{member}} @period="quarterly" />
         </template>
       );
-      assert.dom(".highlight-member").includesText("Member of the quarter");
+      assert
+        .dom(".highlight-member")
+        .includesText("Certified member of the quarter");
 
       await render(
         <template>
           <HighlightMemberCard @member={{member}} @period="all" />
         </template>
       );
-      assert.dom(".highlight-member").includesText("Community member");
+      assert
+        .dom(".highlight-member")
+        .includesText("Certified community member");
     });
 
     test("an unrecognised window falls to the period-neutral badge", async function (assert) {
@@ -261,7 +273,10 @@ module(
       );
       assert
         .dom(".highlight-member")
-        .includesText("Community member", "not a missing-translation key");
+        .includesText(
+          "Certified community member",
+          "not a missing-translation key"
+        );
     });
 
     test("falls back to the username when the member has no display name", async function (assert) {
@@ -861,7 +876,7 @@ module(
       assert
         .dom(".block-highlights__cell.--miembro .highlight-card__label")
         .includesText(
-          "Member of the quarter",
+          "Certified member of the quarter",
           "the badge names the window, not the month"
         );
     });

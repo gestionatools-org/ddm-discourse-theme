@@ -101,10 +101,10 @@ en:
         cta: "See what's new"
       member:
         badge:
-          monthly: "Member of the month"
-          quarterly: "Member of the quarter"
-          yearly: "Member of the year"
-          all: "Community member"
+          monthly: "Certified member of the month"
+          quarterly: "Certified member of the quarter"
+          yearly: "Certified member of the year"
+          all: "Certified community member"
         posts:
           one: "%{count} post"
           other: "%{count} posts"

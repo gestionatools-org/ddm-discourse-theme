@@ -360,11 +360,32 @@
 
 // The member card: avatar, then the figures that earned the spot.
 .highlight-member {
+  // Avatar, then name over cargo. It used to be a band across the top of the
+  // card, above the body; beside the name it identifies the person at the size
+  // the other three cards give their own metadata, and it costs the card the
+  // height that band took.
+  &__identity {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    min-width: 0;
+  }
+
+  // `min-width: 0` on both this and its parent: without it a long name refuses
+  // to shrink below its content and the cargo's clamp never gets to fire.
+  &__who {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-half);
+    min-width: 0;
+  }
+
   &__avatar {
     display: block;
-    padding: var(--space-3) var(--space-3) 0;
+    flex: none;
 
     img {
+      display: block;
       border-radius: 50%;
     }
   }
