@@ -1,0 +1,21 @@
+// The login-required splash — the only page an anonymous visitor ever reaches
+// on this instance, since `login_required` is on. Core renders it from
+// `frontend/discourse/app/templates/discovery/login-required.gjs`, whose whole
+// content is `{{trustHTML @controller.model.html}}`: logo, then a
+// `.login-welcome__title` block the server composes from two different sources.
+//
+// Its heading and its subtitle are NOT the theme's to set — a theme's locale
+// keys resolve under `theme_translations.{themeId}.*` and cannot override core.
+// Both live in the site text `login_required.welcome_message`, which is markdown
+// and therefore holds the heading and the paragraph under it. The button is the
+// client key `js.log_in`. Change the copy there, not here.
+.login-welcome {
+  // The one thing that does belong here. The server appends `site_description`
+  // as a second paragraph, which duplicates the subtitle now that
+  // `login_required.welcome_message` carries one of its own. Hiding it keeps
+  // `site_description` free to go on describing the site to `/about` and to the
+  // meta tags, which is what it is for.
+  &__description {
+    display: none;
+  }
+}
