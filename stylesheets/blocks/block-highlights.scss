@@ -198,9 +198,10 @@
     }
   }
 
-  // The newsletter and podcast cards render this; the compact novedad card and
-  // the member card do not. Paragraphs, not one run of text: the breaks are the
-  // only structure plain text keeps out of a cooked post.
+  // Every card that carries prose renders this — newsletter, podcast and
+  // novedad; the member card shows figures instead. Paragraphs, not one run of
+  // text: the breaks are the only structure plain text keeps out of a cooked
+  // post.
   //
   // **This is the one elastic part of a card, and `flex-basis: 0` is the whole
   // trick.** With a basis of `auto` the box's own text sets the card's natural
@@ -239,6 +240,23 @@
     }
   }
 
+  // Who wrote it: a small avatar and a name, on one line between the title and
+  // the text. `align-items: center` rather than a baseline, because the avatar
+  // is a box and the name a single line — a baseline would sit the picture low.
+  &__byline {
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+    margin: 0;
+    color: var(--ga-muted-fg);
+    font-size: var(--font-down-1);
+
+    img {
+      flex: none;
+      border-radius: 50%;
+    }
+  }
+
   &__cta {
     align-self: flex-start;
     margin-top: auto;
@@ -256,8 +274,8 @@
 // is specific to this card: the elastic behaviour lives on `__excerpt` above,
 // where both cards inherit it.
 //
-// The compact novedad card renders no media slot at all (see `ContentCard`) and
-// shows no excerpt, so it needs none of this.
+// The compact novedad card renders no media slot at all (see `ContentCard`), so
+// it needs none of this; it does carry an excerpt, off the shared rule above.
 .highlight-content.--tall {
   .highlight-card__media {
     aspect-ratio: 3 / 4;
@@ -340,6 +358,21 @@
     img {
       border-radius: 50%;
     }
+  }
+
+  // The user's own title, straight under their name. It is free-text the member
+  // set themselves, so it is clamped to two lines rather than trusted to be
+  // short — "Director programa certificación Gestiona" already wraps at this
+  // card's width.
+  &__cargo {
+    display: -webkit-box;
+    overflow: hidden;
+    margin: 0;
+    color: var(--tertiary);
+    font-size: var(--font-down-1);
+    font-weight: 700;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
   }
 
   &__figures {

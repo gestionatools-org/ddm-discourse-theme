@@ -7,6 +7,7 @@ import { bind } from "discourse/lib/decorators";
 import { eq, or } from "discourse/truth-helpers";
 import DAsyncContent from "discourse/ui-kit/d-async-content";
 import DButton from "discourse/ui-kit/d-button";
+import dAvatar from "discourse/ui-kit/helpers/d-avatar";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
 import HighlightMemberCard from "../components/highlight-member-card";
@@ -35,15 +36,16 @@ import {
 const CARD_EXCERPT_MAX = 900;
 
 // A content card for the newsletter and novedad cells: an optional cover image
-// (or a branded placeholder), a label, the topic title and a CTA. `fancy_title`
-// is already cooked HTML — `trustHTML`, as everywhere else in these blocks.
+// (or a branded placeholder), a label, the topic title, an optional byline, the
+// post's own text and a CTA. `fancy_title` is already cooked HTML — `trustHTML`,
+// as everywhere else in these blocks.
 //
-// `@image`, `@paragraphs` and `@ctaHref` are the newsletter cell's overrides,
-// read from its post rather than from the topic list; each falls back to what
-// the topic list carries, which is all the novedad cell passes. `@ctaHref`
-// leaving the forum (it points at the PDF on the upload store) is why the CTA
-// opens in a new tab whenever it is set — DButton renders an `<a>` for `@href`
-// and forwards `...attributes`.
+// Both cells read `@paragraphs` from their post rather than from the topic list,
+// and both fall back to `topic.excerpt` when the post is unreachable.
+// `@image`/`@ctaHref` are the newsletter's alone; `@author` is the novedad's.
+// `@ctaHref` leaving the forum (it points at the PDF on the upload store) is why
+// the CTA opens in a new tab whenever it is set — DButton renders an `<a>` for
+// `@href` and forwards `...attributes`.
 const ContentCard = <template>
   <article class="highlight-card highlight-content --{{@variant}}">
     {{#unless (eq @variant "compact")}}
@@ -67,17 +69,23 @@ const ContentCard = <template>
             conversation is where a reader replies, and the PDF is a dead end. }}
         <a href={{@topic.url}}>{{trustHTML @topic.fancy_title}}</a>
       </h3>
-      {{#if (eq @variant "tall")}}
-        <div class="highlight-card__excerpt">
-          {{#if @paragraphs}}
-            {{#each @paragraphs as |paragraph|}}
-              <p>{{paragraph}}</p>
-            {{/each}}
-          {{else}}
-            <p>{{@topic.excerpt}}</p>
-          {{/if}}
-        </div>
+      {{#if @author}}
+        {{! Who wrote it, read before the text rather than after it. Decorative
+            avatar beside a name that is already text, so it takes no alt. }}
+        <p class="highlight-card__byline">
+          {{dAvatar @author imageSize="small"}}
+          <span>{{or @author.name @author.username}}</span>
+        </p>
       {{/if}}
+      <div class="highlight-card__excerpt">
+        {{#if @paragraphs}}
+          {{#each @paragraphs as |paragraph|}}
+            <p>{{paragraph}}</p>
+          {{/each}}
+        {{else}}
+          <p>{{@topic.excerpt}}</p>
+        {{/if}}
+      </div>
       {{#if @ctaHref}}
         <DButton
           class="btn-flat highlight-card__cta"
@@ -211,8 +219,35 @@ export default class BlockHighlights extends Component {
   }
 
   @bind
-  fetchNews() {
-    return loadLatestTaggedTopic(this.store, this.args.newsTag);
+  async fetchNews() {
+    const topic = await loadLatestTaggedTopic(this.store, this.args.newsTag);
+    if (!topic) {
+      return null;
+    }
+    // The third cell to make this hop, and for the same reason as the other
+    // two: the topic list carries neither the post's text nor who wrote it.
+    // `posters` on the list item would name the author, but it is the *last*
+    // poster as often as the first, and a release note is worth attributing to
+    // whoever published it.
+    let post = null;
+    try {
+      const full = await ajax(`/t/${topic.id}.json`);
+      post = full?.post_stream?.posts?.[0] ?? null;
+    } catch {
+      // no reachable first post: no byline and no text, and the card falls back
+      // to the topic list's own excerpt
+    }
+    return {
+      topic,
+      paragraphs: paragraphsFromCooked(post?.cooked, CARD_EXCERPT_MAX),
+      author: post?.username
+        ? {
+            username: post.username,
+            name: post.name,
+            avatar_template: post.avatar_template,
+          }
+        : null,
+    };
   }
 
   @bind
@@ -318,9 +353,11 @@ export default class BlockHighlights extends Component {
             <div class="block-highlights__cell --novedad">
               <DAsyncContent @asyncData={{this.fetchNews}}>
                 <:loading><CellLoading /></:loading>
-                <:content as |topic|>
+                <:content as |data|>
                   <ContentCard
-                    @topic={{topic}}
+                    @topic={{data.topic}}
+                    @paragraphs={{data.paragraphs}}
+                    @author={{data.author}}
                     @variant="compact"
                     @icon="rocket"
                     @label="homepage.highlights.news.label"
