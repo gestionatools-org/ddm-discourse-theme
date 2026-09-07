@@ -245,18 +245,23 @@
   // on the CTA it would push only the button down and leave the byline stranded
   // at the end of the text.
   //
-  // Stacked, not side by side. The novedad card spans two columns of row 2 and
-  // has the width for one line, but the same card is a single narrow column
-  // below 56rem, and a byline that wraps under its own button reads worse than
-  // one that was never beside it.
+  // One line: byline at the left edge, link at the right. `space-between` is
+  // also what keeps a card with no byline unchanged — a lone CTA is the first
+  // item and stays where it has always been, at the left.
+  //
+  // `flex-wrap` is the concession to the narrow layouts: the novedad card spans
+  // two columns of row 2 and has room for one line there, but the same card is a
+  // single column below 56rem, where the two stack rather than squash.
   &__foot {
     display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
     gap: var(--space-2);
     margin-top: auto;
 
     .highlight-card__cta {
+      align-self: auto; // let the row's `align-items: center` apply
       margin-top: 0; // the foot owns the push now
     }
   }
