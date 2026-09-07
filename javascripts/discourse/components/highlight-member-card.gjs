@@ -41,34 +41,42 @@ export default class HighlightMemberCard extends Component {
   <template>
     <article class="highlight-card highlight-member">
       {{#if @member}}
-        {{! The third link to the same profile — the title and the "Ver perfil"
-            button already carry text. It wraps only a decorative avatar, so
-            hide it from assistive tech and skip it in the tab order rather than
-            expose a nameless duplicate link. }}
-        <a
-          href={{this.profileUrl}}
-          class="highlight-member__avatar"
-          aria-hidden="true"
-          tabindex="-1"
-        >
-          {{dAvatar this.user imageSize="large"}}
-        </a>
         <div class="highlight-card__body">
           <div class="highlight-card__label">
             {{dIcon "star"}}
             {{i18n (themePrefix this.badgeKey)}}
           </div>
-          <h3 class="highlight-card__title">
-            <a href={{this.profileUrl}}>{{this.displayName}}</a>
-          </h3>
-          {{! The user's title — "cargo" — which the directory serialises
-              already, so it costs no request. 17 of the top 20 members carry
-              one; the rest simply render no line. The bio is deliberately not
-              here: it is empty for 7 of 10 and would have cost a hop per
-              render to show nothing. }}
-          {{#if this.user.title}}
-            <p class="highlight-member__cargo">{{this.user.title}}</p>
-          {{/if}}
+          {{! Avatar beside the name, under the badge, rather than a band across
+              the top of the card. The name and the cargo are grouped together
+              beside it so the cargo lines up under the name instead of under
+              the picture. }}
+          <div class="highlight-member__identity">
+            {{! The third link to the same profile — the name and the "Ver
+                perfil" button already carry text. It wraps only a decorative
+                avatar, so hide it from assistive tech and skip it in the tab
+                order rather than expose a nameless duplicate link. }}
+            <a
+              href={{this.profileUrl}}
+              class="highlight-member__avatar"
+              aria-hidden="true"
+              tabindex="-1"
+            >
+              {{dAvatar this.user imageSize="large"}}
+            </a>
+            <div class="highlight-member__who">
+              <h3 class="highlight-card__title">
+                <a href={{this.profileUrl}}>{{this.displayName}}</a>
+              </h3>
+              {{! The user's title — "cargo" — which the directory serialises
+                  already, so it costs no request. 17 of the top 20 members
+                  carry one; the rest simply render no line. The bio is
+                  deliberately not here: it is empty for 7 of 10 and would have
+                  cost a hop per render to show nothing. }}
+              {{#if this.user.title}}
+                <p class="highlight-member__cargo">{{this.user.title}}</p>
+              {{/if}}
+            </div>
+          </div>
           <p class="highlight-member__figures">
             <span>{{i18n
                 (themePrefix "homepage.highlights.member.posts")
