@@ -63,7 +63,7 @@
   }
 
   &__cell {
-    display: flex; // the card fills the cell — matters where `news` spans two rows
+    display: flex; // the card fills the cell, so a stretched row stretches it
     min-width: 0;
   }
 
@@ -99,6 +99,18 @@
       }
     }
 
+    // No cell spans two rows. The newsletter card used to hold column 1 across
+    // both, which made it the tallest thing on the page by construction — its
+    // height was row 1 + row 2 whatever it contained — and needed an
+    // out-of-flow hack to stop it sizing the tracks. Sharing row 1 with the
+    // podcast puts the two at the same height by the grid's own doing, and the
+    // cap on the excerpt is then the only limiter the card needs.
+    //
+    // The wide cell of row 2 is the novedad card on purpose: it carries a title
+    // and a link and reads as a band at 827px. The member card is the one whose
+    // content is stacked — avatar over name over figures — so a wide column
+    // would leave it mostly empty; it keeps the narrow one.
+    //
     // 0.7fr, not the 0.95fr this started at, and the reason is the cover rather
     // than the composition. The newsletter cover is `aspect-ratio: 3/4`, so the
     // column's width *is* the card's height: at 0.95fr the column was 348px and
@@ -109,31 +121,8 @@
     @container homepage-blocks (width > 56rem) {
       grid-template-columns: 0.7fr 1.35fr 1fr;
       grid-template-areas:
-        "news podcast podcast"
-        "news novedad miembro";
-
-      // The newsletter card spans both rows here, and that is what let it
-      // stretch the whole section: an `auto` row grows to its content's
-      // max-content height, and `flex-grow` on the excerpt only ever
-      // *distributes* surplus space — it never limits. 900 characters of copy
-      // therefore added ~135px to the section instead of being clipped.
-      //
-      // Taking the card out of flow fixes it at the source: an absolutely
-      // positioned box contributes nothing to track sizing, so the two rows are
-      // sized by the right-hand column alone and the card is handed exactly
-      // that height. The excerpt then grows into whatever the cover and the
-      // title leave and clips the rest, which is what it was written to do.
-      //
-      // Only here. Below this the card occupies a single cell and sizing the
-      // row by its content is correct — there the cap further down does the job.
-      .block-highlights__cell.--news {
-        position: relative;
-
-        .highlight-card {
-          position: absolute;
-          inset: 0;
-        }
-      }
+        "news    podcast podcast"
+        "novedad novedad miembro";
     }
   }
 }
@@ -238,21 +227,22 @@
 // serialises `image_url: null`. 3/4 is the covers' own ratio (280×375 on the
 // ones measured), so `object-fit: cover` crops nothing.
 //
-// It is also the one card the grid stretches: in the three-column layout it
-// spans both rows, so its body is taller than its content and something has to
-// fill the difference. A fixed line count cannot — the difference depends on how
-// tall the neighbouring column happens to be, which changes with the container
-// and with the member card's own content.
+// The excerpt is the card's only elastic part, and it works two ways at once,
+// which is why both rules are needed rather than one.
 //
-// So the excerpt box takes the free space instead of a line count.
-// `flex-grow: 1` against `flex-basis: auto` means it keeps its content height
-// and then absorbs whatever the stretch left over, `min-height: 0` is what lets
-// a flex item scroll-clip at all, and `NEWSLETTER_EXCERPT_MAX` deliberately
-// supplies more text than any card is tall — so the text always reaches the
-// bottom and the gap above the CTA closes at every card height.
+// The cap is what decides the card's height, and with it the section's: no cell
+// spans two rows any more, this is the taller card of row 1, and the podcast
+// beside it is elastic — so the whole section's height reduces to the cover plus
+// these lines. Three of them, and it is the one dial to turn. Its pair is
+// `NEWSLETTER_EXCERPT_MAX` in `block-highlights.gjs`, deliberately far more text
+// than three lines hold, so the last line is always full.
 //
-// The mask is what makes the cut readable: the surplus fades out over the last
-// line instead of being chopped through the middle of one.
+// `flex-grow` closes any gap the row still leaves — it can only grow as far as
+// the cap, so it fills a small surplus and not a large one — and `min-height: 0`
+// is what lets a flex item clip at all.
+//
+// The mask makes the cut readable: the surplus fades out over the last line
+// instead of being chopped through the middle of one.
 //
 // The compact novedad card renders no media slot at all (see `ContentCard`) and
 // shows no excerpt, so it needs none of this.
@@ -264,24 +254,13 @@
   .highlight-card__excerpt {
     flex-grow: 1;
     min-height: 0;
+    max-height: calc(3 * var(--line-height-medium) * 1em);
     overflow: hidden;
     mask-image: linear-gradient(
       to bottom,
       #000 calc(100% - 1.5rem),
       transparent
     );
-  }
-
-  // Below the three-column layout the card is one cell of the grid, so nothing
-  // stretches it, `flex-grow` has no free space to absorb, and the budget alone
-  // would decide the height — 900 characters of it. Cap it at roughly six lines.
-  // The threshold is 56rem, not 40rem: the two-column layout has the same
-  // problem as the single-column one, and only the spanning layout above has
-  // space to hand the excerpt.
-  @container homepage-blocks (width < 56rem) {
-    .highlight-card__excerpt {
-      max-height: calc(6 * var(--line-height-medium) * 1em);
-    }
   }
 }
 
@@ -293,17 +272,23 @@
 
 // The podcast card: a 16:9 frame that swaps thumbnail for player in place.
 .highlight-podcast {
-  // 16:9 is the right ratio for video and stays the rule — but this frame spans
-  // two of the three columns, so at a 1240px container it is ~947px wide and
-  // 16:9 makes it 533px tall on its own. `max-height` caps that without
-  // introducing a second ratio: the box is min(width × 9/16, 24rem), so it is a
-  // true 16:9 at every width the cap does not reach and only the widest
-  // containers crop — and there the crop lands on `hqdefault`'s letterbox bars
-  // before it reaches the frame, since YouTube serves that thumbnail 4:3.
+  // 16:9 is the frame's natural size, and it is elastic around it. The card
+  // shares row 1 with the newsletter card, which is the taller of the two, so
+  // without this the surplus would land between the title and the CTA —
+  // `margin-top: auto` parks the CTA at the bottom — which is the gap this card
+  // was asked not to have. Growing the frame instead spends the surplus on the
+  // thumbnail, so the card always fills its row exactly and the title and the
+  // link stay together under it.
+  //
+  // At a 1240px container the frame is ~947px wide, so 16:9 wants 533px and the
+  // row gives it ~469px: it shrinks, and the crop lands on `hqdefault`'s
+  // letterbox bars before it reaches the picture, since YouTube serves that
+  // thumbnail 4:3. `min-height: 0` is what permits the shrink at all.
   &__frame {
     position: relative;
+    flex-grow: 1;
+    min-height: 0;
     aspect-ratio: 16 / 9;
-    max-height: 24rem;
     background: var(--ga-muted);
   }
 
