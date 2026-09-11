@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+"""Dump the recoverable prior state before the first write. This is the only rollback
+for the moves: a category move is reversible only while the source category still
+exists, and nothing else records where each topic came from."""
+import json
+import pathlib
+import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import _discourse as d  # noqa: E402
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+OUT = ROOT / "docs/superpowers/plans/data/2026-09-11-prior-state.json"
+SOURCES = [4, 5, 18]
+ALL_CATEGORIES = [3, 4, 5, 14, 18, 59, 73, 75, 78, 85]
+
+
+def main():
+    categories = {}
+    for cid in ALL_CATEGORIES:
+        c = d.category(cid)
+        categories[str(cid)] = {
+            "name": c["name"],
+            "read_restricted": c["read_restricted"],
+            # `topic_count` excludes unlisted topics AND the definition topic, so it never
+            # equals the length of a crawl. Both are captured so later checks can say
+            # which number they mean.
+            "topic_count": c["topic_count"],
+            "definition_topic_id": d.definition_topic_id(cid),
+            "minimum_required_tags": c.get("minimum_required_tags"),
+            "auto_close_hours": c.get("auto_close_hours"),
+            "topic_template": c.get("topic_template") or "",
+            "permissions": {
+                g["group_name"]: g["permission_type"] for g in (c.get("group_permissions") or [])
+            },
+        }
+
+    topics = {}
+    for cid in SOURCES:
+        for tid, t in d.crawl_category(cid).items():
+            topics[str(tid)] = {
+                "category_id": t["category_id"],
+                "title": t["title"],
+                "tags": d.tag_names(t),
+                "author": t["_author"],
+                "created_at": t["created_at"],
+                "image_url": t.get("image_url"),
+                # Unlisted topics are invisible in every listing but still crawl and still
+                # move. Recorded so a decision about one is taken knowingly.
+                "visible": t.get("visible", True),
+            }
+
+    OUT.write_text(
+        json.dumps({"categories": categories, "topics": topics}, ensure_ascii=False, indent=1)
+    )
+    print(f"captured {len(categories)} categories and {len(topics)} topics -> {OUT}")
+
+
+if __name__ == "__main__":
+    main()
