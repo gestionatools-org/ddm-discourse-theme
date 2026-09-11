@@ -16,6 +16,7 @@ import json
 import pathlib
 import re
 import sys
+import unicodedata
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import _discourse as d  # noqa: E402
@@ -146,6 +147,34 @@ def main():
             check(
                 c.get("minimum_required_tags") == was["minimum_required_tags"],
                 f"category {cid} minimum_required_tags changed (out of scope)",
+            )
+
+    # A new category must not shadow a tag or a tag group on the `#` filter.
+    #
+    # Discourse resolves `#foo` as category slug -> exact tag name -> tag group slug, so a
+    # category wins and the filter silently returns a different, plausible set. Creating
+    # these two rooms did exactly that on 2026-09-11: `#administracion-avanzada` stopped
+    # reaching the 700-topic tag and returned category 89's 241, and `#analitica-de-datos`
+    # stopped reaching the subject-layer group and returned a single definition topic.
+    # Both were fixed by giving the rooms a `foro-` slug; this keeps them fixed.
+    #
+    # bin/tags-verify checks the same collision but only for the eight module groups, so a
+    # tag shadowed by a category passes there. Category 59 already shadows the tag
+    # `eventos` and has for its whole life — a known, accepted, pre-existing condition —
+    # which is why this asserts only the categories this work created.
+    if rooms:
+        def slugify(text):
+            text = unicodedata.normalize("NFKD", text.lower())
+            text = "".join(c for c in text if not unicodedata.combining(c))
+            return re.sub(r"[^a-z0-9]+", "-", text).strip("-")
+
+        taken = {slugify(t["name"]) for t in d.get("/tags.json", elevated=True)["tags"]}
+        taken |= {slugify(g["name"]) for g in d.get("/tag_groups.json", elevated=True)["tag_groups"]}
+        for key in ROOM_GROUPS:
+            room_slug = d.category(rooms[key])["slug"]
+            check(
+                room_slug not in taken,
+                f"room {key} slug #{room_slug} shadows a tag or tag group on the # filter",
             )
 
     # Nothing but arrival announcements and the approved exceptions may remain in the plaza.
