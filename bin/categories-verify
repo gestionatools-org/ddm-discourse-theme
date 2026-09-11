@@ -56,6 +56,34 @@ ROOM_GROUPS = {
 # 49 people, not the 62 the raw sum suggests — 13 repeat a promotion.
 DEVELOPER_COHORTS = ("Developers01", "Developers02", "Developers03", "Developers04")
 
+# Since 2026-09-11 the three rooms are subcategories of the certificate's forum. Core
+# refuses a child whose groups are absent from its parent (at any level), so the
+# programme groups hold read-only there; and the forum's own listing shows only its
+# announcements, not the rooms' topics.
+# Deliberate changes made after the prior-state capture, each confirmed by Ricardo. The
+# capture stays the oracle for everything else; these replace only the fields named.
+# 2026-09-11 17:30-17:34 UTC, in admin: 73's tree opened to `Analiza` at full access and
+# closed to `AdminAnaliza`, `AdminDevelopers` and `administradores` — which also fixes
+# the fault recorded that morning, `Analiza` holding only read on its own resources —
+# and 83 moved under 85. Found because the red step of the header-rooms work flagged
+# 73 as drifted; the staff action log showed the edits, and he confirmed them.
+ACCEPTED_SINCE_CAPTURE = {"73": {"permissions": {"Analiza": 1}}}
+
+# The resource tree as it stands after those edits: child -> (parent, permissions).
+# Nothing asserted the children before, which is why only the parent's drift showed.
+RESOURCE_TREE = {
+    79: (73, {"Analiza": 1}),
+    80: (73, {"Analiza": 1}),
+    81: (73, {"Analiza": 1}),
+    82: (73, {"Analiza": 1}),
+    84: (73, {"Analiza": 1}),
+    88: (73, {"Analiza": 1}),
+    83: (85, {"administradores": 1}),
+}
+
+FORUM = 5
+FORUM_READERS = ("Analiza", "Developers", "AdminDevelopers")
+
 failures = []
 
 
@@ -179,7 +207,7 @@ def main():
     if prior:
         for cid in UNTOUCHED:
             c = d.category(int(cid))
-            was = prior["categories"][cid]
+            was = {**prior["categories"][cid], **ACCEPTED_SINCE_CAPTURE.get(cid, {})}
             perms = {
                 g["group_name"]: g["permission_type"] for g in (c.get("group_permissions") or [])
             }
@@ -219,6 +247,35 @@ def main():
                 room_slug not in taken,
                 f"room {key} slug #{room_slug} shadows a tag or tag group on the # filter",
             )
+
+    for cid, (parent, want) in RESOURCE_TREE.items():
+        c = d.category(cid)
+        perms = {g["group_name"]: g["permission_type"] for g in (c.get("group_permissions") or [])}
+        check(
+            c.get("parent_category_id") == parent,
+            f"category {cid}: parent {c.get('parent_category_id')}, expected {parent}",
+        )
+        check(perms == want, f"category {cid}: permissions {perms}, expected {want}")
+
+    if rooms:
+        for key in ROOM_GROUPS:
+            if key in rooms:
+                parent = d.category(rooms[key]).get("parent_category_id")
+                check(parent == FORUM, f"room {key}: parent {parent}, expected {FORUM}")
+    forum = d.category(FORUM)
+    check(
+        forum.get("default_list_filter") == "none",
+        f"category {FORUM}: default_list_filter {forum.get('default_list_filter')!r},"
+        f" expected 'none' — the plaza would list every room's topics",
+    )
+    forum_perms = {
+        g["group_name"]: g["permission_type"] for g in (forum.get("group_permissions") or [])
+    }
+    for group in FORUM_READERS:
+        check(
+            forum_perms.get(group) == 3,
+            f"category {FORUM}: {group} holds {forum_perms.get(group)}, expected 3 (read-only)",
+        )
 
     # `Developers` must be exactly the union of the four cohorts, and must not be
     # self-service — a member who could leave it would silently lose the room while still
