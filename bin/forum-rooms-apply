@@ -1,0 +1,146 @@
+#!/usr/bin/env python3
+"""Hang the three programme rooms under category 5 and reshape the chrome around them.
+
+PRE instance state only — none of this travels with the theme. Idempotent: every step
+reads first and writes only what differs, so a re-run after a partial failure is safe.
+
+Order is load-bearing between steps 1 and 2: core's
+`Category#check_permissions_compatibility` refuses a child whose groups are absent from
+its parent, so the programme groups must be on 5 before any room moves under it.
+"""
+import json
+import pathlib
+import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import _discourse as d  # noqa: E402
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+ROOMS = json.loads((ROOT / "docs/superpowers/plans/data/2026-09-11-rooms.json").read_text())
+
+FORUM = 5
+FORUM_READERS = {"Analiza": 3, "Developers": 3, "AdminDevelopers": 3}
+
+SECTION = 3
+RENAMES = {16: "Recursos Analítica", 19: "Recursos Developers"}
+# academy_url and demo_url as the theme held them on PRE, read 2026-09-11 before the
+# theme dropped the settings. first_steps_url held an absolute PRE URL, which would not
+# have survived PROD; the relative path does. Icons come from core's default subset,
+# because SvgSprite.all_icons never reads sidebar links: anything else renders blank.
+NEW_LINKS = [
+    {"name": "Academy", "value": "https://espublico.gestiona.academy", "icon": "book-open"},
+    {"name": "Demo Gestiona", "value": "https://demo-a.gestiona.espublico.com", "icon": "desktop"},
+    {"name": "Primeros pasos", "value": "/c/primeros-pasos/78", "icon": "flag"},
+]
+
+# (value, backfill existing users). The sidebar default only seeds new accounts unless
+# backfilled: core creates each user's sidebar links once, at signup.
+#
+# `search_experience` is NOT here. It was, and `PUT /admin/site_settings/search_experience`
+# answered 422: it is a *themeable* site setting, owned per theme through
+# ThemeSiteSettingManager rather than instance-wide. So the magnifier is set on the
+# theme, not by this script — which also means it travels to PROD with the theme.
+SITE_SETTINGS = {
+    "default_navigation_menu_categories": ("4|5|14|18|89|90|91", True),
+}
+
+
+def perms_of(category):
+    return {g["group_name"]: g["permission_type"] for g in (category.get("group_permissions") or [])}
+
+
+def forum():
+    c = d.category(FORUM)
+    changes = {} if c.get("default_list_filter") == "none" else {"default_list_filter": "none"}
+    missing = {g: level for g, level in FORUM_READERS.items() if g not in perms_of(c)}
+    if not changes and not missing:
+        print(f"forum {FORUM}: already set")
+        return
+    after = d.update_category(FORUM, changes, add_permissions=missing)
+    print(f"forum {FORUM}: default_list_filter={after.get('default_list_filter')} perms={perms_of(after)}")
+
+
+def rooms():
+    for key, cid in ROOMS.items():
+        if d.category(cid).get("parent_category_id") == FORUM:
+            print(f"room {key} ({cid}): already under {FORUM}")
+            continue
+        after = d.update_category(cid, {"parent_category_id": FORUM})
+        if after.get("parent_category_id") != FORUM:
+            raise SystemExit(f"FAIL: room {key} parent is {after.get('parent_category_id')}")
+        print(f"room {key} ({cid}): now under {FORUM}, slug {after['slug']!r}, perms {perms_of(after)}")
+
+
+def sidebar_section():
+    return next(
+        s for s in d.get("/sidebar_sections.json", elevated=True)["sidebar_sections"] if s["id"] == SECTION
+    )
+
+
+def sidebar():
+    section = sidebar_section()
+    links = [
+        {
+            "id": link["id"],
+            "name": RENAMES.get(link["id"], link["name"]),
+            "value": link["value"],
+            "icon": link["icon"],
+            "segment": link.get("segment") or "primary",
+        }
+        for link in section["links"]
+    ]
+    present = {link["value"] for link in links}
+    links += [{**link, "segment": "primary"} for link in NEW_LINKS if link["value"] not in present]
+    before = [(link["name"], link["value"], link["icon"]) for link in section["links"]]
+    wanted = [(link["name"], link["value"], link["icon"]) for link in links]
+    if before == wanted:
+        print(f"sidebar section {SECTION}: already set")
+        return
+    # The whole array goes, ids included: the updater re-derives order from it, and an
+    # omitted link would be dropped or jump. `name` leads every element because Rails
+    # splits `links[][...]` into a new hash when a key repeats, and new links carry no id.
+    payload = [("title", section["title"]), ("public", "true")]
+    for link in links:
+        payload += [
+            ("links[][name]", link["name"]),
+            ("links[][value]", link["value"]),
+            ("links[][icon]", link["icon"]),
+            ("links[][segment]", link["segment"]),
+        ]
+        if "id" in link:
+            payload.append(("links[][id]", link["id"]))
+    d.request("PUT", f"/sidebar_sections/{SECTION}.json", data=payload, elevated=True)
+    after = [(link["name"], link["value"], link["icon"]) for link in sidebar_section()["links"]]
+    print(f"sidebar section {SECTION}: {after}")
+    if after != wanted:
+        raise SystemExit(f"FAIL: sidebar section {SECTION} reads back {after}, expected {wanted}")
+
+
+def site_settings():
+    def current():
+        return {x["setting"]: x["value"] for x in d.get("/admin/site_settings.json", elevated=True)["site_settings"]}
+
+    now = current()
+    for name, (value, backfill) in SITE_SETTINGS.items():
+        if now.get(name) == value:
+            print(f"{name}: already {value!r}")
+            continue
+        data = [(name, value)] + ([("update_existing_user", "true")] if backfill else [])
+        d.request("PUT", f"/admin/site_settings/{name}", data=data, elevated=True)
+    after = current()
+    for name, (value, _) in SITE_SETTINGS.items():
+        print(f"{name} = {after.get(name)!r}")
+        if after.get(name) != value:
+            raise SystemExit(f"FAIL: {name} reads back {after.get(name)!r}, expected {value!r}")
+
+
+def main():
+    forum()
+    rooms()
+    sidebar()
+    site_settings()
+    print("OK: forum rooms applied")
+
+
+if __name__ == "__main__":
+    main()
