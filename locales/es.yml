@@ -8,9 +8,7 @@ es:
       events_count: "Cuántos eventos mostrar en la franja del panel."
       ideas_category_id: "Categoría que se muestra en el panel, junto a las últimas publicaciones. Incluye sus subcategorías. 0 lo oculta."
       panel_ideas_count: "Cuántas ideas mostrar en el panel."
-      academy_url: "Adónde apunta el enlace Academy de la cabecera. Los destinos externos deben llevar el esquema — https://ejemplo.com, no ejemplo.com, que el navegador resuelve como una ruta de este sitio. Empieza por / para una página de este foro. Vacío oculta el enlace."
-      demo_url: "Adónde apunta el enlace Demo Gestiona de la cabecera. Los destinos externos deben llevar el esquema — https://ejemplo.com, no ejemplo.com, que el navegador resuelve como una ruta de este sitio. Empieza por / para una página de este foro. Vacío oculta el enlace."
-      first_steps_url: "Adónde apunta el enlace de primeros pasos de la cabecera. Los destinos externos deben llevar el esquema — https://ejemplo.com, no ejemplo.com, que el navegador resuelve como una ruta de este sitio. Empieza por / para una página de este foro. Vacío oculta el enlace."
+      header_room_category_ids: "Salas de los programas enlazadas desde la cabecera, en orden. Cada enlace solo lo ve quien puede ver esa categoría, y lleva su nombre. Vacío oculta los enlaces."
       highlights_podcast_tag: "Etiqueta cuyo tema más reciente ocupa la tarjeta de podcast. Se compara por slug. Vacío oculta la tarjeta."
       highlights_newsletter_tag: "Etiqueta cuyo tema más reciente ocupa la tarjeta de newsletter. Se compara por slug. Vacío oculta la tarjeta."
       highlights_news_tag: "Etiqueta cuyo tema más reciente ocupa la tarjeta «Novedad de Gestiona». Se compara por slug. Vacío oculta la tarjeta."
@@ -20,10 +18,7 @@ es:
 
   header:
     links:
-      aria_label: "Enlaces destacados"
-      academy: "Academy"
-      demo: "Demo Gestiona"
-      first_steps: "Primeros pasos"
+      aria_label: "Foros de las certificaciones"
 
   topbar:
     stats:

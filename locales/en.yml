@@ -8,9 +8,7 @@ en:
       events_count: "How many events to show in the panel lane."
       ideas_category_id: "Category shown in the panel beside the latest list. Its subcategories are included. 0 hides it."
       panel_ideas_count: "How many ideas to show in the panel beside the latest list."
-      academy_url: "Where the Academy item in the site header points. External destinations must include the scheme — https://example.com, not example.com, which the browser resolves as a path on this site. Start with / for a page on this forum. Empty hides the item."
-      demo_url: "Where the Demo Gestiona item in the site header points. External destinations must include the scheme — https://example.com, not example.com, which the browser resolves as a path on this site. Start with / for a page on this forum. Empty hides the item."
-      first_steps_url: "Where the first steps item in the site header points. External destinations must include the scheme — https://example.com, not example.com, which the browser resolves as a path on this site. Start with / for a page on this forum. Empty hides the item."
+      header_room_category_ids: "Programme rooms linked from the site header, in order. Each link shows only to members who can see that category, and is labelled with the category's name. Empty hides the links."
       highlights_podcast_tag: "Tag whose most recent topic fills the podcast card. Matched by slug. Empty hides the card."
       highlights_newsletter_tag: "Tag whose most recent topic fills the newsletter card. Matched by slug. Empty hides the card."
       highlights_news_tag: "Tag whose most recent topic fills the 'What's new in Gestiona' card. Matched by slug. Empty hides the card."
@@ -20,10 +18,7 @@ en:
 
   header:
     links:
-      aria_label: "Featured links"
-      academy: "Academy"
-      demo: "Demo Gestiona"
-      first_steps: "First steps"
+      aria_label: "Certification forums"
 
   topbar:
     stats:

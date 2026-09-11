@@ -38,8 +38,8 @@
 // observer and writes `--header-offset`, so the sticky sidebar, the topic
 // timeline and the composer all move with it.
 .d-header {
-  // Below sm the header holds the logo, the search field and the user icons
-  // with no destination links to give up, and there is no room to spend: 72px
+  // Below sm the header holds the logo and the user icons, search included,
+  // with no room links to give up, and there is no room to spend: 72px
   // of header over the strip's 41px would take 113px off an 844px phone. Core's
   // 52px is the right height there.
   @include viewport.from(sm) {
@@ -69,18 +69,16 @@
   }
 }
 
-// Destination links, rendered into `before-header-panel` — between the search
-// field and the user icons.
+// Links to the programme rooms, rendered into `before-header-panel`.
 .header-links {
   display: flex;
   align-items: center;
   gap: var(--space-4);
   margin-inline: var(--space-4);
 
-  // Below lg the header is already carrying a logo, a search field and the user
-  // icons; three more labels push the search down to nothing. They stay
-  // reachable from the sidebar, which is where navigation lives on narrow
-  // viewports.
+  // Below lg three room names do not fit beside the logo and the icons. The
+  // rooms are in the default sidebar, which is where navigation lives on
+  // narrow viewports.
   @include viewport.until(lg) {
     display: none;
   }
@@ -98,6 +96,26 @@
     &:focus-visible {
       color: var(--tertiary);
     }
+  }
+}
+
+// The links sit on the right, beside the search icon.
+//
+// With `search_experience: search_icon` the search slot between the logo and
+// this outlet is empty, and core gives `.panel` `margin-left: auto`, so the
+// links would hug the logo. An auto start margin on the outlet alone is not
+// enough: with two auto margins on one flex line the free space is split and
+// the links float in the middle. So the outlet takes the auto margin and the
+// panel gives its own up — only while links render, which `:has()` keeps
+// self-limiting.
+//
+// (0,3,0) against core's `.d-header .panel` at (0,2,0): this outranks core
+// rather than tying it, per the cascade note in CLAUDE.md.
+.before-header-panel-outlet:has(.header-links) {
+  margin-inline-start: auto;
+
+  + .panel {
+    margin-inline-start: 0;
   }
 }
 

@@ -7,9 +7,9 @@ Reparenting is one of the three things that does NOT issue or retire a category 
 rename and slug change are the others — so it is safe for every ID-keyed theme setting.
 It does not move topics either.
 
-`PUT /categories/<id>.json` replaces the record, so this reads the category first and
-sends it back with only `parent_category_id` changed, permissions included. A field not
-resent can revert to a default.
+The read-and-resend lives in `_discourse.update_category`. `description` is not resent —
+an earlier version sent `description_excerpt` back, which would have overwritten a
+definition topic with its own excerpt; it never ran against a category that has one.
 
 **Three levels need `max_category_nesting`, which is hidden.** Core's default is 2 (max 3),
 and Discourse refuses to change a hidden setting through the admin API — so if the target
@@ -24,33 +24,17 @@ import _discourse as d  # noqa: E402
 
 
 def main(cid, parent):
-    c = d.category(cid)
-    was = c.get("parent_category_id")
-    print(f"cat {cid} {c['name']!r}: parent {was} -> {parent or None}")
-
-    payload = [
-        ("name", c["name"]),
-        ("slug", c["slug"]),
-        ("color", c["color"]),
-        ("text_color", c["text_color"]),
-        ("parent_category_id", parent),
-        ("auto_close_hours", c.get("auto_close_hours") or ""),
-        ("auto_close_based_on_last_post", str(bool(c.get("auto_close_based_on_last_post"))).lower()),
-        ("minimum_required_tags", c.get("minimum_required_tags") or 0),
-        ("topic_template", c.get("topic_template") or ""),
-        ("description", c.get("description_excerpt") or ""),
-    ]
-    for g in c.get("group_permissions") or []:
-        payload.append((f"permissions[{g['group_name']}]", g["permission_type"]))
-
-    d.request("PUT", f"/categories/{cid}.json", data=payload, elevated=True)
-
-    after = d.category(cid)
-    now = after.get("parent_category_id")
+    was = d.category(cid)
+    target = parent or None
+    print(f"cat {cid} {was['name']!r}: parent {was.get('parent_category_id')} -> {target}")
+    if was.get("parent_category_id") == target:
+        print("  already there")
+        return
+    after = d.update_category(cid, {"parent_category_id": parent or ""})
     perms = {g["group_name"]: g["permission_type"] for g in (after.get("group_permissions") or [])}
-    print(f"  now: parent={now} slug={after['slug']!r} perms={perms}")
-    if now != (parent or None):
-        raise SystemExit(f"FAIL: parent is {now}, expected {parent or None}")
+    print(f"  now: parent={after.get('parent_category_id')} slug={after['slug']!r} perms={perms}")
+    if after.get("parent_category_id") != target:
+        raise SystemExit(f"FAIL: parent is {after.get('parent_category_id')}, expected {target}")
     print("OK")
 
 

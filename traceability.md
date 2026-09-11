@@ -2001,3 +2001,37 @@ alone on purpose — it would widen who sees the analytics forum with no benefit
 
 It did surface a fourth permission fault, unasked: **`AdminAnaliza`, five people, cannot see
 the forum of the programme they administer.**
+
+## 2026-09-11 — Header links to the three programme rooms (#129)
+
+**The header's Academy / Demo Gestiona / Primeros pasos became the three programme rooms,
+which now hang under category 5 as its subcategories; search collapses behind the
+magnifier.** Spec `docs/superpowers/specs/2026-09-11-cabecera-salas-design.md`, plan
+`docs/superpowers/plans/2026-09-11-cabecera-salas.md`. `theme_version` 0.58.0.
+
+Every decision was Ricardo's, and each rested on a measurement read from core rather than
+remembered: nesting is `height_of_ancestors + 1 + depth_of_descendants <= 2`, so the rooms
+fit under 5 and **73 under 90 no longer can** (four levels) — the `max_category_nesting`
+ask to Discourse Cloud is withdrawn; parent permissions compare group *presence*, not
+level, so the programme groups sit on 5 read-only; `/site.json` carries every category, so
+the header needs no permission logic — a member sees exactly the rooms in their own
+`site.categories`.
+
+Three things measurement changed mid-flight:
+
+- **`search_experience` is a themeable site setting** — the admin API refuses it with 422.
+  It moved from the instance script to `about.json`, which had pinned `search_field` since
+  `8ae817b`. That travels to PROD, but not to PRE: core never overwrites a theme site
+  setting the theme already has, so PRE is set once through the API after the pull.
+- **A sidebar default reaches no current member without the backfill.** Core seeds each
+  user's sidebar once, at signup. Sent with `update_existing_user=true`.
+- **The verifier's red step caught Ricardo's own edits to 73's tree**, made in admin while
+  the spec was being written. The staff log pinned the time and the changes; he confirmed
+  them; 73 is re-baselined and its children now asserted.
+
+And three that reading core caught before they cost anything: the theme's search field
+declaration (above); sidebar link icons never reach the SVG sprite, so the new links use
+icons from core's default subset; and `needs.site` replaces the category list, so the
+acceptance test appends the rooms to core's fixture rather than substituting for it.
+
+TDD through CI: 7 of 173 red — the new header tests and one topbar test — then green.

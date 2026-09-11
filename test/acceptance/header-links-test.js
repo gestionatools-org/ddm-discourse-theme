@@ -1,20 +1,33 @@
 import { visit } from "@ember/test-helpers";
 import { test } from "qunit";
+import { cloneJSON } from "discourse/lib/object";
+import siteFixtures from "discourse/tests/fixtures/site-fixtures";
 import { acceptance } from "discourse/tests/helpers/qunit-helpers";
 
-// Destination links rendered into `before-header-panel`, between the search
-// field and the user icons.
+// Where the nav lands in the booted header. Which rooms render, in what order and
+// with what label, is covered in test/integration/header-links-test.gjs.
 //
-// The theme sets the `custom_homepage` modifier, so "/" is the theme's own
-// homepage and its lanes fetch category topics. These tests visit /latest
-// instead: the header is site-wide, and /latest exercises it without dragging
-// the homepage blocks and their requests into the assertion.
-
-function clearLinkSettings() {
-  settings.academy_url = "";
-  settings.demo_url = "";
-  settings.first_steps_url = "";
-}
+// `needs.site` REPLACES the preloaded category list, and /latest's fixture topics
+// point at core's fixture categories — so the rooms are appended to that list
+// rather than substituted for it.
+const CATEGORIES = [
+  ...cloneJSON(siteFixtures["site.json"].site.categories),
+  {
+    id: 5,
+    name: "Foro del Certificado",
+    slug: "foro-del-certificado",
+    color: "0088CC",
+    text_color: "FFFFFF",
+  },
+  {
+    id: 90,
+    name: "Analítica de datos",
+    slug: "foro-analitica-de-datos",
+    parent_category_id: 5,
+    color: "3AB54A",
+    text_color: "FFFFFF",
+  },
+];
 
 // The band above the header loads this on every route. Stubbed so these tests
 // assert on the header alone and never depend on the figures arriving.
@@ -26,50 +39,45 @@ function stubAbout(server, helper) {
 
 acceptance("Header links", function (needs) {
   needs.user();
+  needs.site({ categories: CATEGORIES });
   needs.pretender(stubAbout);
 
   needs.hooks.beforeEach(function () {
-    settings.academy_url = "https://academy.example.com";
-    settings.demo_url = "";
-    settings.first_steps_url = "/t/primeros-pasos/1";
+    settings.header_room_category_ids = "90";
   });
 
-  needs.hooks.afterEach(clearLinkSettings);
+  needs.hooks.afterEach(function () {
+    settings.header_room_category_ids = "89|90|91";
+  });
 
-  test("renders one link per configured URL", async function (assert) {
+  test("renders in the header, in the slot before the icons panel", async function (assert) {
     await visit("/latest");
 
     assert
-      .dom(".header-links__link")
-      .exists({ count: 2 }, "the blank demo_url contributes no link");
-  });
-
-  test("uses the configured URL as the href", async function (assert) {
-    await visit("/latest");
-
-    assert
-      .dom(".header-links__link")
-      .hasAttribute("href", "https://academy.example.com");
-  });
-
-  test("renders inside the header, not in the band above it", async function (assert) {
-    await visit("/latest");
-
-    assert
-      .dom(".d-header .header-links")
+      .dom(".d-header .before-header-panel-outlet .header-links")
       .exists("the links live in the header itself");
+  });
+
+  test("links the room by its own name and URL", async function (assert) {
+    await visit("/latest");
+
+    assert.dom(".header-links__link").hasText("Analítica de datos");
+    assert.dom(".header-links__link").hasAttribute("href", /\/90$/);
+  });
+
+  test("stays out of the band above the header", async function (assert) {
+    await visit("/latest");
+
     assert
       .dom(".topbar .header-links")
       .doesNotExist("the band carries figures only");
   });
 
-  test("renders no nav at all when every URL is empty", async function (assert) {
-    clearLinkSettings();
+  test("renders no nav when no configured room resolves", async function (assert) {
+    settings.header_room_category_ids = "91";
 
     await visit("/latest");
 
-    assert
-      .dom(".header-links")
-      .doesNotExist("an empty nav would still take header space");
+    assert.dom(".header-links").doesNotExist();
   });
 });

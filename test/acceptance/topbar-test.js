@@ -15,9 +15,7 @@ import { acceptance } from "discourse/tests/helpers/qunit-helpers";
 // `test/integration/homepage-lanes-test.gjs`.
 
 function clearLinkSettings() {
-  settings.academy_url = "";
-  settings.demo_url = "";
-  settings.first_steps_url = "";
+  settings.header_room_category_ids = "";
 }
 
 // Every figure carries a different number so a mis-pairing in TOTALS or PERIOD
@@ -164,7 +162,9 @@ acceptance("Topbar - figures unavailable", function (needs) {
   needs.user();
   needs.pretender(failAbout);
 
-  needs.hooks.afterEach(clearLinkSettings);
+  needs.hooks.afterEach(() => {
+    settings.header_room_category_ids = "89|90|91";
+  });
 
   test("renders no band at all", async function (assert) {
     clearLinkSettings();
@@ -178,7 +178,8 @@ acceptance("Topbar - figures unavailable", function (needs) {
 
   test("renders no band even when header links are configured", async function (assert) {
     clearLinkSettings();
-    settings.academy_url = "https://academy.example.com";
+    // Core's site fixture carries category 3 ("meta"), so exactly one link renders.
+    settings.header_room_category_ids = "3";
 
     await visit("/latest");
 
@@ -240,12 +241,12 @@ acceptance("Topbar - admin routes", function (needs) {
   needs.user({ admin: true });
 
   needs.hooks.beforeEach(function () {
-    settings.academy_url = "https://academy.example.com";
-    settings.demo_url = "";
-    settings.first_steps_url = "";
+    settings.header_room_category_ids = "3";
   });
 
-  needs.hooks.afterEach(clearLinkSettings);
+  needs.hooks.afterEach(() => {
+    settings.header_room_category_ids = "89|90|91";
+  });
 
   test("renders no band on an admin route", async function (assert) {
     await visit("/admin");

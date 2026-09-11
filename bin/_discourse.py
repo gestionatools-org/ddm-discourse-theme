@@ -108,6 +108,38 @@ def category(cid):
     return get(f"/c/{cid}/show.json", elevated=True)["category"]
 
 
+def update_category(cid, changes=None, add_permissions=None):
+    """Read a category and send it back with only `changes` applied.
+
+    `PUT /categories/<id>.json` has always been driven here by read-and-resend rather
+    than by finding out which absent fields revert. `description` is deliberately not
+    resent: the API exposes only `description_excerpt`, a truncated rendering, and
+    sending it back risks replacing the definition topic's text with its own excerpt.
+
+    `add_permissions` adds groups at a level but never lowers or removes a row a group
+    already holds. Returns the category as read back after the write.
+    """
+    c = category(cid)
+    fields = {
+        "name": c["name"],
+        "slug": c["slug"],
+        "color": c["color"],
+        "text_color": c["text_color"],
+        "auto_close_hours": c.get("auto_close_hours") or "",
+        "auto_close_based_on_last_post": str(bool(c.get("auto_close_based_on_last_post"))).lower(),
+        "minimum_required_tags": c.get("minimum_required_tags") or 0,
+        "topic_template": c.get("topic_template") or "",
+        "default_list_filter": c.get("default_list_filter") or "all",
+    }
+    fields.update(changes or {})
+    perms = {g["group_name"]: g["permission_type"] for g in (c.get("group_permissions") or [])}
+    for group, level in (add_permissions or {}).items():
+        perms.setdefault(group, level)
+    payload = list(fields.items()) + [(f"permissions[{g}]", p) for g, p in perms.items()]
+    request("PUT", f"/categories/{cid}.json", data=payload, elevated=True)
+    return category(cid)
+
+
 def definition_topic_id(cid):
     """The category's own "Acerca de la categoría …" topic.
 
