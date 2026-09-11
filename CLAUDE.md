@@ -4,7 +4,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this repo is
 
-A **full Discourse theme** (`"component": false` in `about.json`) for an es|public Discourse **Cloud** instance. It is a *remote theme*: the Discourse instance pulls it from `git@github.com:gestionatools-org/ddm-discourse-theme.git`. There is no build step — Discourse compiles the SCSS/JS itself at install time.
+A **full Discourse theme** (`"component": false` in `about.json`) for an es|public Discourse **Cloud** instance. It is a *remote theme*: the Discourse instance pulls it over **anonymous HTTPS** from `https://github.com/gestionatools-org/ddm-discourse-theme.git`. There is no build step — Discourse compiles the SCSS/JS itself at install time.
+
+**That pull only works while the repository is public, and this was measured the hard way on 2026-09-11.** This line used to claim the instance pulled from `git@github.com:…`; it does not, and `private_key` on the `remote_theme` record is `None`. Flipping the repo to private takes the theme offline from every instance at once: `PUT /admin/themes/15.json` with `remote_update` answers **422, "se deniega el acceso o no se encuentra el repositorio"**, and until someone forces that pull nothing says so — `commits_behind` keeps reporting `0` because it reflects the last *successful* check, whose time is in `updated_at`. Same silent family as the `d-compat` episode below.
+
+Going private is therefore not a one-click decision: it needs a read-only **deploy key** (`POST /admin/themes/generate_key_pair.json`, then `PUT /admin/themes/:id/source` with `remote_url` and `public_key`, within the hour that Discourse keeps the private half in Redis). On 2026-09-11 that path was blocked anyway — **`gestionatools-org` has `deploy_keys_enabled_for_repositories: false`**, an organisation-wide policy, so `gh repo deploy-key add` answers `422 Deploy keys are disabled for this repository`.
+
+**Keep operational captures out of this repo.** Being public is load-bearing for deployment, so anything holding member data must never be committed: `docs/superpowers/plans/data/*-prior-state.json` is gitignored for that reason.
 
 **An instance can stop following `main` without anyone touching anything.** On 2026-08-26 a `d-compat/2026.8` branch was cut automatically at 01:08 UTC and PRE moved onto it by itself, freezing at `0.17.0` while six PRs landed on `main`. The workflow that cut it has been deleted — see *Why this repo no longer cuts compatibility branches* under **CI** — but the lesson outlives it: before concluding that anything merged is live on an instance, read that instance's `remote_theme` record rather than trusting its admin page.
 
