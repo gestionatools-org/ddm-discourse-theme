@@ -1,0 +1,99 @@
+#!/usr/bin/env python3
+"""Create the `Developers` programme group and sync its membership to the union of the
+four cohort groups. Idempotent: re-running it is how the invariant is maintained.
+
+Why the group exists at all. The other two programme rooms are each walled to a single
+programme group — 89 to `Certificación` (374), 90 to `Analiza` (82). Developers had no
+such group: only the cohorts `Developers01`–`04` and the 3-strong `AdminDevelopers`. Five
+permission rows on the category would have worked today and cost a category edit for every
+future promotion, so the umbrella group is the faithful replica of the other two rooms.
+
+**The union is 49 people, not 62.** 16+14+17+15 is the raw sum; 13 of them repeat a
+promotion. CLAUDE.local.md carried 62 as a headcount — that figure is a sum, not a count.
+
+`Developers` is derived, so it is deliberately NOT self-service: public_admission,
+public_exit and allow_membership_requests are all off. A member who could leave it would
+lose the room while still sitting in a cohort, and nothing would say so.
+
+`primary_group` is off, the one deviation from `Certificación`'s shape. All 49 developers
+are already in `Certificación`, which IS primary; a second primary group would rewrite the
+flair and title of every one of them as a side effect of a permissions change.
+
+Usernames are member data: this prints counts, never names, and writes nothing to the repo.
+"""
+import pathlib
+import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import _discourse as d  # noqa: E402
+
+NAME = "Developers"
+COHORTS = ("Developers01", "Developers02", "Developers03", "Developers04")
+
+# Mirrors `Certificación`, the existing umbrella-over-cohorts group, except primary_group.
+SHAPE = [
+    ("group[name]", NAME),
+    ("group[full_name]", "Gestiona for Developers - General"),
+    ("group[bio_raw]", "Usuarios que han participado en el programa de certificación "
+                       "«Gestiona for Developers». Reúne a las promociones Developers01–04 "
+                       "y da acceso al foro del programa."),
+    ("group[visibility_level]", 0),
+    ("group[members_visibility_level]", 0),
+    ("group[mentionable_level]", 3),
+    ("group[messageable_level]", 2),
+    ("group[default_notification_level]", 3),
+    ("group[public_admission]", "false"),
+    ("group[public_exit]", "false"),
+    ("group[allow_membership_requests]", "false"),
+    ("group[primary_group]", "false"),
+]
+
+
+def main():
+    existing = d.group(NAME)
+    if existing:
+        gid = existing["id"]
+        print(f"exists: {NAME} -> {gid}")
+    else:
+        created = d.request("POST", "/admin/groups.json", data=SHAPE, elevated=True)
+        # The create response wraps the record in `basic_group`; read it defensively so a
+        # serializer change surfaces as a named error rather than a KeyError after the
+        # group already exists on the instance.
+        record = created.get("basic_group") or created.get("group") or {}
+        if not record.get("id"):
+            raise SystemExit(f"created {NAME} but could not read its id from {sorted(created)}")
+        gid = record["id"]
+        print(f"created: {NAME} -> {gid}")
+
+    union = {}
+    raw = 0
+    for cohort in COHORTS:
+        members = d.group_members(cohort)
+        union.update(members)
+        raw += len(members)
+        print(f"  {cohort}: {len(members)}")
+    print(f"  cohort union: {len(union)} people (raw sum {raw}; {raw - len(union)} repeat)")
+
+    have = d.group_members(NAME)
+    add = [u for uid, u in union.items() if uid not in have]
+    drop = [u for uid, u in have.items() if uid not in union]
+
+    # Usernames go in the body, never in a log line.
+    if add:
+        d.request("PUT", f"/groups/{gid}/members.json",
+                  data=[("usernames", ",".join(add))], elevated=True)
+    if drop:
+        d.request("DELETE", f"/groups/{gid}/members.json",
+                  data=[("usernames", ",".join(drop))], elevated=True)
+    print(f"  added {len(add)}, removed {len(drop)}")
+
+    after = d.group_members(NAME)
+    if set(after) != set(union):
+        raise SystemExit(
+            f"FAIL: {NAME} has {len(after)} members, expected the union of {len(union)}"
+        )
+    print(f"OK: {NAME} holds exactly the cohort union ({len(after)})")
+
+
+if __name__ == "__main__":
+    main()

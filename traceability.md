@@ -1883,3 +1883,63 @@ said the same thing before the pull and meant nothing.
 
 **Verified by eye on PRE**, which is the only net there is: `core_features_spec.rb` does not cover
 the rail. `theme_version` 0.39.0 → 0.40.0.
+
+## 2026-09-11 — The genre reorganisation merged, and a third programme room (#125, #126)
+
+**#125 merged**: the genre reorganisation as executed on PRE — 17 categories → 19, 259
+topics moved, 0 lost, six new `bin/categories-*` scripts and the spec's *as executed*
+record. Docs and tooling only; `theme_version` stayed at 0.57.0 and no theme file changed,
+so PRE had nothing to recompile. `bin/categories-verify` re-run from merged `main`: green.
+
+Then a third room, on the same logic and the same afternoon.
+
+**Category 91 "Gestiona for Developers"**, `foro-gestiona-for-developers`, walled to
+`Developers` + `AdminDevelopers`, cyan `00b4d2` with black text, born empty because the
+programme has not started posting. Instance state only — again no theme code.
+
+**The wall needed a group that did not exist.** The other two rooms each wall to a single
+programme group; developers had only the cohorts `Developers01`–`04` and the 3-strong
+`AdminDevelopers`. Three options were put to Ricardo and he chose the umbrella group, which
+is what makes the third room a replica rather than a special case — five permission rows
+would have worked today and cost a category edit per future promotion.
+
+**The union is 49 people, not 62.** 16+14+17+15 is a sum of memberships and 13 developers
+repeat a promotion. `CLAUDE.local.md` carried 62 as a headcount, in the sentence recording
+that these people hold no permission on category 75; the fault is real, the figure was a
+sum. Corrected there.
+
+Two measurements removed the remaining doubt: **all 49 are already in `Certificación`**, so
+room 89 changed for nobody, and **all 3 of `AdminDevelopers` are already inside the union**,
+so its permission row is redundant today — asserted anyway, because the team is not the
+student body and a programme manager who never took a promotion would otherwise be locked
+out of the room.
+
+**`Developers` (id 98) is derived, so it is deliberately not self-service** — no
+`public_admission`, `public_exit` or `allow_membership_requests`. A member who could leave
+it would lose the room while still sitting in a cohort, silently.
+**`primary_group` is off**, the one deviation from `Certificación`'s shape: all 49 already
+have that as their primary group, and a second one would rewrite the flair and title of 49
+people as a side effect of a permissions change. Membership is an invariant, not a capture:
+`bin/groups-sync-developers` re-derives it on every run and the verifier asserts equality.
+Both print counts only — usernames never reach a log line or the repo.
+
+**The slug was set at creation, not repaired afterwards**, which is the cheap version of the
+lesson 89 and 90 paid for: there is no window in which the collision exists. For this name
+the `foro-` prefix is convention rather than repair — `gestiona-for-developers` collides
+with nothing — but the bare `developers` would have taken the 15-use tag of that name.
+Measured after creation: `#developers` still returns its 15 topics in categories 4 and 5.
+
+**Red step first, as the script's own docstring prescribes.** The two new assertions were
+watched failing — `room developers has not been created`, `group Developers does not exist`
+— and nothing else, which is also what proved the rest of the target state had not drifted.
+Green after execution.
+
+Two corrections made to my own work before committing: a predicted category id (`91`) was
+written into the spec table before the category existed and was held as a placeholder until
+measured; and an unmeasured claim about how Discourse treats a `permissions[...]` key naming
+a non-existent group was reworded into the guard it justifies, rather than stated as fact.
+
+**Category 75 "Recursos Developers" is untouched** and its permission fault is now adjacent
+rather than fixed: the 49 have full access to their forum and none at all to their own
+resources category. Still Ricardo's call, still listed among the three permission faults.
+**The walls remain unverified from a non-admin account** — now three rooms, one sign-in.

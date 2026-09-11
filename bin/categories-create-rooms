@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
-"""Create the two programme rooms. Idempotent: it refuses to create a room whose name
-already exists, so a re-run after a partial failure cannot produce a duplicate."""
+"""Create the programme rooms. Idempotent: it refuses to create a room whose name already
+exists, so a re-run after a partial failure cannot produce a duplicate.
+
+Two rooms on 2026-09-11, a third the same day: `Gestiona for Developers`, walled to the
+`Developers` group that bin/groups-sync-developers derives from the four cohorts. Run that
+script first: what Discourse does with a `permissions[...]` key naming a group that does
+not exist has not been measured here, and the cheap branch is not to find out on a live
+room — so this refuses to create one until every named group resolves.
+"""
 import json
 import pathlib
 import sys
@@ -13,10 +20,25 @@ OUT = ROOT / "docs/superpowers/plans/data/2026-09-11-rooms.json"
 
 # permission_types: full=1, create_post=2, readonly=3 (CategoryGroup.permission_types).
 # `Certificación` is 374 people — every member — so the AA room is separated from the
-# plaza without anybody losing access relative to today. `Analiza` is 82.
+# plaza without anybody losing access relative to today. `Analiza` is 82, `Developers` 49.
+#
+# The slug is set at creation and is NOT the slugified name. Discourse resolves `#foo` as
+# category slug -> exact tag name -> tag group slug, so a room that takes the obvious slug
+# hijacks a tag: `#administracion-avanzada` stopped reaching its 700-topic tag and
+# `#analitica-de-datos` stopped reaching the subject-layer group, both on creation day.
+# Those two were repaired afterwards; the third is born with a `foro-` slug. For this name
+# the prefix is convention rather than repair — `gestiona-for-developers` collides with
+# nothing, while the bare `developers` would have taken the 15-use tag of that name.
 ROOMS = [
-    ("administracion_avanzada", "Administración Avanzada", "Certificación", "0088CC"),
-    ("analitica", "Analítica de datos", "Analiza", "3AB54A"),
+    ("administracion_avanzada", "Administración Avanzada", ("Certificación",),
+     "0088CC", "FFFFFF", "foro-administracion-avanzada"),
+    ("analitica", "Analítica de datos", ("Analiza",),
+     "3AB54A", "FFFFFF", "foro-analitica-de-datos"),
+    # Cyan is category 75 "Recursos Developers"'s own colour, so the programme's two
+    # surfaces read as one. It fails contrast against white, hence black text — which is
+    # again what 75 already does.
+    ("developers", "Gestiona for Developers", ("Developers", "AdminDevelopers"),
+     "00b4d2", "000000", "foro-gestiona-for-developers"),
 ]
 
 
@@ -34,21 +56,29 @@ def existing_names():
 def main():
     known = existing_names()
     rooms = json.loads(OUT.read_text()) if OUT.exists() else {}
-    for key, name, group, color in ROOMS:
+    for key, name, groups, color, text_color, slug in ROOMS:
         if name in known:
             print(f"exists: {name} -> {known[name]}")
             rooms[key] = known[name]
             continue
+        for group in groups:
+            if d.group(group) is None:
+                raise SystemExit(
+                    f"group {group} does not exist — create it first. A room created with"
+                    f" an unresolvable permission row may well be born with no wall, and"
+                    f" an unwalled room is visible to everyone until somebody notices."
+                )
         payload = [
             ("name", name),
+            ("slug", slug),
             ("color", color),
-            ("text_color", "FFFFFF"),
+            ("text_color", text_color),
             ("minimum_required_tags", 0),
-            (f"permissions[{group}]", 1),
-        ]
+        ] + [(f"permissions[{group}]", 1) for group in groups]
         created = d.request("POST", "/categories.json", data=payload, elevated=True)
         rooms[key] = created["category"]["id"]
-        print(f"created: {name} -> {rooms[key]} ({group} at permission 1)")
+        print(f"created: {name} -> {rooms[key]} (#{created['category']['slug']}, "
+              f"{' + '.join(groups)} at permission 1)")
     OUT.write_text(json.dumps(rooms, ensure_ascii=False, indent=1))
 
 
