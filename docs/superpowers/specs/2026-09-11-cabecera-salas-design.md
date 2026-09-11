@@ -76,7 +76,7 @@ links become the three rooms, acting as the sub-forum menu of each certification
 | Category 5 gains `Analiza`, `Developers`, `AdminDevelopers` at read-only | category update resending the full record; must land **before** the reparenting, or core refuses it |
 | Category 5 → `default_list_filter: none` | same update |
 | "Recursos de apoyo": add Academy, Demo Gestiona (external), Primeros pasos (`/c/primeros-pasos/78`); rename 16 → "Recursos Analítica", 19 → "Recursos Developers" | `PUT /sidebar_sections/3.json` with the **full** links array, ids included — `SidebarSectionUpdater` re-derives order from it and an omitted link jumps to the front |
-| `default_navigation_menu_categories` → `4|5|14|18|89|90|91` | drops the non-existent 30; applies only to members who never customised their sidebar |
+| `default_navigation_menu_categories` → `4|5|14|18|89|90|91`, with `update_existing_user=true` | drops the non-existent 30. **Without the backfill it reaches no current member**: core creates each user's sidebar links once, at signup (`User#set_default_sidebar_section_links`, `after_create`), so the default only seeds new accounts. `SidebarSiteSettingsBackfiller` adds the new ids to every non-staged user's sidebar — customised ones included — and a room a member cannot see never shows, because the sidebar reads `secured_sidebar_category_ids` |
 
 The Academy and Demo URLs are the values the theme settings hold today on PRE
 (`https://espublico.gestiona.academy`, `https://demo-a.gestiona.espublico.com`), read
