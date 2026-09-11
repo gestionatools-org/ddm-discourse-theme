@@ -23,16 +23,17 @@ LOG = DATA / "2026-09-11-move-log.json"
 
 PLAZA = 5
 NEWS = 4
-KEYS = ("to_news", "to_plaza", "to_aa_room_from_4", "to_aa_room_from_5")
+KEYS = ("to_news", "to_plaza", "to_aa_room_from_4", "to_aa_room_from_5", "to_analitica_room")
 
 
 def destination(key):
-    room = json.loads(ROOMS.read_text())["administracion_avanzada"]
+    rooms = json.loads(ROOMS.read_text())
     return {
         "to_news": NEWS,
         "to_plaza": PLAZA,
-        "to_aa_room_from_4": room,
-        "to_aa_room_from_5": room,
+        "to_aa_room_from_4": rooms["administracion_avanzada"],
+        "to_aa_room_from_5": rooms["administracion_avanzada"],
+        "to_analitica_room": rooms["analitica"],
     }[key]
 
 

@@ -65,7 +65,6 @@
       "menor"
     ],
     "Analítica de datos": [
-      "analítica",
       "busquedas-avanzadas",
       "auditoria"
     ],
@@ -79,7 +78,8 @@
   "delete": [
     "interoperabilidad",
     "desarrollo-software",
-    "debate-técnico"
+    "debate-técnico",
+    "analítica"
   ],
   "rename": {
     "pid": "integracion-pid",
