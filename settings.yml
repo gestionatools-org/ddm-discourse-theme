@@ -91,41 +91,21 @@ panel_ideas_count:
   max: 20
 
 # --- Header links -----------------------------------------------------------
-# Destination links shown in the site header, between the search field and the
-# user icons. Labels are NOT here: they live in locales/*.yml under
-# `header.links`, per the settings/strings split.
+# One link per programme room, in the site header beside the search icon. Each
+# id is resolved against the categories the viewer can see (`site.categories`),
+# so a member outside a room's group never gets its link — no permission logic
+# lives in the theme. The label is the category's own name and the href its own
+# URL, so a rename or a slug change in admin reaches the header with no deploy.
 #
-# A link with an empty URL is not rendered, so the header stays clean until a
-# destination is decided. `type: string` rather than a URL type because
-# Discourse has none, and these may be absolute (an external Academy) or
-# relative (a category on this instance).
+# The default is PRE's room ids. The rooms do not exist on PROD yet: set this
+# there once they are created — it is part of the category-id parity check that
+# gates installing the theme on PROD.
 #
-# Below lg the whole nav is hidden: the header already carries a logo, a
-# search field and the user icons, and more labels squeeze the search to
-# nothing. Filling all three URLs tightens the wide layout too — two is what
-# the current design was checked against.
-#
-# That flexibility has a trap, and it has already been sprung once: the value
-# reaches the DOM as `href` after nothing but a trim, so an absolute
-# destination typed without its scheme — `demo-a.example.com` rather than
-# `https://demo-a.example.com` — is not read as a host at all. The browser
-# resolves it against the current page and requests
-# `https://this-forum/demo-a.example.com`, which 404s. The setting descriptions
-# in locales/en.yml say so; there is no validation to lean on, because
-# `validations: { url: true }` exists only for properties inside a
-# `type: objects` schema, and converting these three would discard the values
-# admins have already stored.
-academy_url:
-  type: string
-  default: ""
-
-demo_url:
-  type: string
-  default: ""
-
-first_steps_url:
-  type: string
-  default: ""
+# Below lg the nav is hidden; the rooms are in the default sidebar instead.
+header_room_category_ids:
+  type: list
+  list_type: category
+  default: "89|90|91"
 
 # --- Section 2: community highlights ---------------------------------------
 # Four cards below section 1: latest podcast, latest newsletter, latest Gestiona
