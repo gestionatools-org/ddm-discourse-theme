@@ -34,7 +34,7 @@ def _key(elevated):
     return os.environ["PRE_DISCOURSE_GLOBAL_API_KEY" if elevated else "PRE_DISCOURSE_API_KEY"]
 
 
-def request(method, path, data=None, elevated=False, retries=4):
+def request(method, path, data=None, elevated=False, retries=4, allow_404=False):
     """One API call. `data` is a list of (key, value) pairs, form-encoded.
 
     Rails wants repeated keys for arrays (`topic_ids[]`) and bracketed keys for nested
@@ -45,7 +45,11 @@ def request(method, path, data=None, elevated=False, retries=4):
     if data is not None:
         body = urllib.parse.urlencode(data).encode()
         headers["Content-Type"] = "application/x-www-form-urlencoded"
-    url = _url() + path
+    # Percent-encode the path, because group names on this instance carry accents and
+    # urllib raises UnicodeEncodeError on a non-ASCII request line rather than encoding it
+    # — `/groups/Certificación.json` died that way. `%` is safe, so a caller that already
+    # encoded its path is not double-encoded.
+    url = _url() + urllib.parse.quote(path, safe="/?=&%[]")
     for attempt in range(retries):
         req = urllib.request.Request(url, data=body, headers=headers, method=method)
         try:
@@ -57,12 +61,42 @@ def request(method, path, data=None, elevated=False, retries=4):
             if exc.code == 429 and attempt < retries - 1:
                 time.sleep(PAUSE * 2 ** (attempt + 1))
                 continue
+            if exc.code == 404 and allow_404:
+                # A verifier must be able to ask "does this exist?" and record the answer
+                # as a failure. Raising SystemExit here would kill the run instead.
+                time.sleep(PAUSE)
+                return None
             detail = exc.read()[:300].decode("utf-8", "replace")
             raise SystemExit(f"{method} {path} -> HTTP {exc.code}: {detail}")
 
 
 def get(path, elevated=False):
     return request("GET", path, elevated=elevated)
+
+
+def group(name):
+    """The group record, or None if it does not exist. Needs the Global key."""
+    found = request("GET", f"/groups/{name}.json", elevated=True, allow_404=True)
+    return (found or {}).get("group")
+
+
+def group_members(name):
+    """Every member of a group, paged. Returns {user_id: username}.
+
+    Needs the Global key. Usernames are member data: count them, never commit them —
+    `docs/.../*-prior-state.json` is gitignored for the same reason.
+    """
+    out = {}
+    offset = 0
+    while True:
+        data = get(f"/groups/{name}/members.json?limit=100&offset={offset}", elevated=True)
+        batch = data.get("members") or []
+        if not batch:
+            return out
+        out.update({m["id"]: m["username"] for m in batch})
+        offset += len(batch)
+        if offset >= (data.get("meta") or {}).get("total", offset):
+            return out
 
 
 def category(cid):

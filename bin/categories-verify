@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """Assert the genre-reorganisation target state on PRE. Exit 0 only if it all holds.
 
-Written before any change, so it is expected to FAIL until the plan is executed.
-Re-run it after any category work.
+Written before any change, so it is expected to FAIL until the plan is executed — which is
+how the third room was added on 2026-09-11 too: the two new assertions were watched failing
+first, then the room and its group were created. Re-run it after any category work.
 
 Two blind spots, stated rather than hidden:
 
@@ -39,7 +40,21 @@ CEREMONIAL = re.compile(
 
 CONVERSATIONAL = (4, 5, 14, 18)
 UNTOUCHED = ("73", "75", "85", "59", "78", "3")
-ROOM_GROUPS = {"administracion_avanzada": "Certificación", "analitica": "Analiza"}
+# Each room and the groups that must hold permission 1 on it. One row per programme
+# group; `AdminDevelopers` is redundant today — all 3 of its members are already inside
+# the cohort union — and is asserted anyway, because the team is not the student body and
+# a future programme manager who never took a promotion would otherwise be locked out.
+ROOM_GROUPS = {
+    "administracion_avanzada": ("Certificación",),
+    "analitica": ("Analiza",),
+    "developers": ("Developers", "AdminDevelopers"),
+}
+
+# `Developers` is a derived group: its membership is exactly the union of the four cohort
+# groups, which is why it is not self-service (no public admission, exit or requests) and
+# why this is an invariant rather than a one-off capture. Measured 2026-09-11: the union is
+# 49 people, not the 62 the raw sum suggests — 13 repeat a promotion.
+DEVELOPER_COHORTS = ("Developers01", "Developers02", "Developers03", "Developers04")
 
 failures = []
 
@@ -74,7 +89,7 @@ def main():
     rooms = load(ROOMS)
     check(prior is not None, "prior-state capture missing")
     check(decisions is not None, "move decisions missing")
-    check(rooms is not None, "rooms file missing — the two rooms have not been created")
+    check(rooms is not None, "rooms file missing — no room has been created")
 
     if prior and decisions:
         out5 = set(decisions["to_aa_room_from_5"])
@@ -97,15 +112,28 @@ def main():
 
     if rooms and decisions:
         room_ids = set(decisions["to_aa_room_from_4"]) | set(decisions["to_aa_room_from_5"])
-        expected_rooms = {"administracion_avanzada": room_ids, "analitica": set()}
-        for key, group in ROOM_GROUPS.items():
+        # The developers room is born empty: the programme has not started posting. An
+        # empty expectation is still an assertion — it catches a stray moved in by hand.
+        expected_rooms = {
+            "administracion_avanzada": room_ids,
+            "analitica": set(),
+            "developers": set(),
+        }
+        for key, groups in ROOM_GROUPS.items():
+            check(key in rooms, f"room {key} has not been created")
+            if key not in rooms:
+                continue
             cid = rooms[key]
             c = d.category(cid)
             perms = {
                 g["group_name"]: g["permission_type"] for g in (c.get("group_permissions") or [])
             }
             check(c["read_restricted"], f"room {key} is not read_restricted — the wall did not apply")
-            check(perms.get(group) == 1, f"room {key}: {group} should hold permission 1, has {perms}")
+            for group in groups:
+                check(
+                    perms.get(group) == 1,
+                    f"room {key}: {group} should hold permission 1, has {perms}",
+                )
             check(
                 c.get("minimum_required_tags") == 0,
                 f"room {key}: minimum_required_tags {c.get('minimum_required_tags')}, expected 0",
@@ -171,11 +199,36 @@ def main():
         taken = {slugify(t["name"]) for t in d.get("/tags.json", elevated=True)["tags"]}
         taken |= {slugify(g["name"]) for g in d.get("/tag_groups.json", elevated=True)["tag_groups"]}
         for key in ROOM_GROUPS:
+            if key not in rooms:
+                continue
             room_slug = d.category(rooms[key])["slug"]
             check(
                 room_slug not in taken,
                 f"room {key} slug #{room_slug} shadows a tag or tag group on the # filter",
             )
+
+    # `Developers` must be exactly the union of the four cohorts, and must not be
+    # self-service — a member who could leave it would silently lose the room while still
+    # being in a cohort, which is the drift this group exists to prevent.
+    union = set()
+    for cohort in DEVELOPER_COHORTS:
+        union |= set(d.group_members(cohort))
+    developers = d.group("Developers")
+    check(developers is not None, "group Developers does not exist")
+    if developers:
+        have = set(d.group_members("Developers"))
+        check(
+            have == union,
+            f"group Developers has {len(have)} members, expected the cohort union of"
+            f" {len(union)} (extra {len(have - union)}, missing {len(union - have)})",
+        )
+        for field in ("public_admission", "public_exit", "allow_membership_requests"):
+            check(not developers.get(field), f"group Developers: {field} is on, expected off")
+        check(
+            not developers.get("primary_group"),
+            "group Developers is a primary group — it would overwrite the flair of all"
+            " 49 members, every one of whom is already in Certificación",
+        )
 
     # Nothing but arrival announcements and the approved exceptions may remain in the plaza.
     if decisions:

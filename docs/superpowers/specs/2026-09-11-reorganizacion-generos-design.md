@@ -402,3 +402,76 @@ redacted from the already-public tag-recovery file. Full note in `CLAUDE.md`.
   `Certificación` member without `Analiza` sees room 89 and not room 90.
 - Everything under *Out of scope* above, unchanged — chiefly `auto_close_hours`, the three
   permission faults, and category 5's now-inaccurate name.
+
+## The third room: Gestiona for Developers — 2026-09-11
+
+Asked for the same afternoon, on the same logic as *Analítica de datos*: a walled room for
+the third certification programme, **born empty because the programme has not started
+posting**. Instance state only; no theme code.
+
+| | id | wall | topics |
+|---|---|---|---|
+| **Gestiona for Developers** | **91** | `Developers` (49) + `AdminDevelopers` (3) | 0 |
+
+### The group did not exist, and had to be derived
+
+The other two rooms are each walled to a single programme group — `Certificación` (374) and
+`Analiza` (82). Developers had no equivalent: only the cohorts `Developers01`–`04` and the
+3-strong `AdminDevelopers`. Three options were put up; the chosen one creates the missing
+umbrella group, because it is what makes the third room a replica of the other two rather
+than a special case. Five permission rows on the category would also have worked, and would
+have cost a category edit for every future promotion.
+
+**The union is 49 people, not 62.** 16+14+17+15 = 62 is a *sum*, and 13 developers repeat a
+promotion. `CLAUDE.local.md` carried 62 as a headcount, in the sentence recording that these
+people hold no permission on category 75 — the permission fault is real, the figure was a
+sum. Same family as `topic_count` vs the listing: say which number you mean.
+
+Two measurements settled the rest:
+
+- **All 49 are already in `Certificación`**, so none of them gains or loses anything in room
+  89 as a side effect, and the programme rooms stay independent.
+- **All 3 of `AdminDevelopers` are already inside the cohort union**, so its permission row
+  is redundant today. It is asserted anyway: the team is not the student body, and a future
+  programme manager who never took a promotion would otherwise be locked out of the room.
+
+`Developers` mirrors `Certificación`'s shape with two deliberate deviations, both recorded
+in `bin/groups-sync-developers`:
+
+- **Not self-service.** `public_admission`, `public_exit` and `allow_membership_requests`
+  are all off. The group is *derived*; a member who could leave it would lose the room while
+  still sitting in a cohort, and nothing would say so.
+- **`primary_group` off**, where `Certificación` has it on. All 49 are already in
+  `Certificación`; a second primary group would rewrite the flair and title of every one of
+  them as a side effect of a permissions change.
+
+Membership is an **invariant, not a capture**: `bin/groups-sync-developers` re-derives it
+from the four cohorts on every run, and `bin/categories-verify` asserts equality. Usernames
+are member data — both print counts only, and nothing is written to the repo.
+
+### The slug, where the prefix is convention rather than repair
+
+`foro-gestiona-for-developers`, set at creation rather than repaired afterwards. For this
+name the prefix protects nothing: `gestiona-for-developers` collides with no tag and no tag
+group. **The bare name would have**, though — there is a tag `developers` with 15 uses, and
+a category slug beats an exact tag name in `#` resolution. The prefix is kept for family
+consistency with 89 and 90, and because it distinguishes the programme's forum from
+category 75 `recursos-developers`.
+
+Cyan `00b4d2` is category 75's own colour, so the two surfaces of the programme read as one.
+Black text, not white: that cyan fails contrast against white, which is what 75 already does.
+
+### Category 75 is untouched
+
+"Recursos Developers" keeps its 2 topics and its wall, and is still asserted in the
+verifier's `UNTOUCHED` list. The new room is a forum, not a relocation of those resources.
+**Its permission fault is also untouched and is now adjacent rather than fixed**: the 49
+developers have full access to their forum and still none at all to their own resources
+category, which is walled to `AdminDevelopers` + `AdminAnaliza`. That remains a decision for
+Ricardo, listed under the three permission faults.
+
+### Still open, on top of the list above
+
+- **This room's wall is unverified from a non-admin account too**, for exactly the reason
+  the other two are: `/c/<id>/show.json` answers with the reading key's own permissions, and
+  that key is an administrator. One sign-in checks all three at once.
