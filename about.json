@@ -22,7 +22,7 @@
   },
   "theme_site_settings": {
     "enable_welcome_banner": false,
-    "search_experience": "search_field"
+    "search_experience": "search_icon"
   },
   "color_schemes": {
     "Gestiona Avanza": {
