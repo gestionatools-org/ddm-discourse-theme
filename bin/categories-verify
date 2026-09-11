@@ -1,0 +1,173 @@
+#!/usr/bin/env python3
+"""Assert the genre-reorganisation target state on PRE. Exit 0 only if it all holds.
+
+Written before any change, so it is expected to FAIL until the plan is executed.
+Re-run it after any category work.
+
+Two blind spots, stated rather than hidden:
+
+- It reads with the Global key, and /c/<id>/show.json answers with that user's own
+  permissions. It can assert which group_permissions rows exist; it cannot assert what a
+  member actually sees. That half is checked by signing in — see the plan's last task.
+- Group membership is compared by name, so a room walled to the wrong group passes if the
+  mapping below names that wrong group. The mapping is both the intent and the oracle.
+"""
+import json
+import pathlib
+import re
+import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import _discourse as d  # noqa: E402
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+DATA = ROOT / "docs/superpowers/plans/data"
+PRIOR = DATA / "2026-09-11-prior-state.json"
+DECISIONS = DATA / "2026-09-11-move-decisions.json"
+ROOMS = DATA / "2026-09-11-rooms.json"
+
+# Must stay byte-identical to bin/categories-propose's CEREMONIAL: the two decide the
+# same question from opposite ends, and a divergence would let this pass on a plaza the
+# proposer would have emptied.
+CEREMONIAL = re.compile(
+    r"nuev[oa]s?\s+(?:\w+\s+){0,2}(alumn|compañer|miembr|certificad)"
+    r"|certificad[oa]s?\s*[·\-:]"
+    r"|enhorabuena|bienvenid",
+    re.I,
+)
+
+CONVERSATIONAL = (4, 5, 14, 18)
+UNTOUCHED = ("73", "75", "85", "59", "78", "3")
+ROOM_GROUPS = {"administracion_avanzada": "Certificación", "analitica": "Analiza"}
+
+failures = []
+
+
+def check(condition, message):
+    if not condition:
+        failures.append(message)
+
+
+def load(path):
+    return json.loads(path.read_text()) if path.exists() else None
+
+
+def crawl_ids(cid):
+    """Topic ids in a category, minus its own definition topic — which is in the listing
+    but not in topic_count, and which no rule should ever treat as content."""
+    definition = d.definition_topic_id(cid)
+    return {tid for tid in d.crawl_category(cid) if tid != definition}
+
+
+def prior_ids(prior, cid):
+    return {
+        int(tid)
+        for tid, t in prior["topics"].items()
+        if t["category_id"] == cid and int(tid) != prior["categories"][str(cid)]["definition_topic_id"]
+    }
+
+
+def main():
+    prior = load(PRIOR)
+    decisions = load(DECISIONS)
+    rooms = load(ROOMS)
+    check(prior is not None, "prior-state capture missing")
+    check(decisions is not None, "move decisions missing")
+    check(rooms is not None, "rooms file missing — the two rooms have not been created")
+
+    if prior and decisions:
+        out5 = set(decisions["to_aa_room_from_5"])
+        out4 = set(decisions["to_aa_room_from_4"]) | set(decisions["to_plaza"])
+        news = set(decisions["to_news"])
+        # Counts come from crawled sets, never from topic_count: the two differ by the
+        # unlisted topics and the definition topic, and mixing them silently drifts.
+        expected = {
+            4: (prior_ids(prior, 4) - out4) | news,
+            5: (prior_ids(prior, 5) - out5) | set(decisions["to_plaza"]),
+            18: prior_ids(prior, 18) - news,
+        }
+        for cid, want in expected.items():
+            got = crawl_ids(cid)
+            check(
+                got == want,
+                f"category {cid}: {len(got)} topics, expected {len(want)}"
+                f" (unexpected {sorted(got - want)[:8]}, missing {sorted(want - got)[:8]})",
+            )
+
+    if rooms and decisions:
+        room_ids = set(decisions["to_aa_room_from_4"]) | set(decisions["to_aa_room_from_5"])
+        expected_rooms = {"administracion_avanzada": room_ids, "analitica": set()}
+        for key, group in ROOM_GROUPS.items():
+            cid = rooms[key]
+            c = d.category(cid)
+            perms = {
+                g["group_name"]: g["permission_type"] for g in (c.get("group_permissions") or [])
+            }
+            check(c["read_restricted"], f"room {key} is not read_restricted — the wall did not apply")
+            check(perms.get(group) == 1, f"room {key}: {group} should hold permission 1, has {perms}")
+            check(
+                c.get("minimum_required_tags") == 0,
+                f"room {key}: minimum_required_tags {c.get('minimum_required_tags')}, expected 0",
+            )
+            got = crawl_ids(cid)
+            want = expected_rooms[key]
+            check(
+                got == want,
+                f"room {key}: {len(got)} topics, expected {len(want)}"
+                f" (unexpected {sorted(got - want)[:8]}, missing {sorted(want - got)[:8]})",
+            )
+
+    # The tag toll is gone from every conversational category.
+    for cid in CONVERSATIONAL:
+        got = d.category(cid).get("minimum_required_tags")
+        check(got == 0, f"category {cid}: minimum_required_tags {got}, expected 0")
+
+    # Category 5's topic_template was inherited from the dissolved "Proyectos piloto".
+    check(
+        not (d.category(5).get("topic_template") or "").strip(),
+        "category 5 still has a topic_template",
+    )
+
+    # auto_close is deferred by decision: it must still be exactly where it was.
+    for cid in CONVERSATIONAL:
+        got = d.category(cid).get("auto_close_hours")
+        check(got == 720.0, f"category {cid}: auto_close_hours {got}, expected 720.0 (deferred)")
+
+    # Out-of-scope categories must be exactly as captured, settings and permissions.
+    if prior:
+        for cid in UNTOUCHED:
+            c = d.category(int(cid))
+            was = prior["categories"][cid]
+            perms = {
+                g["group_name"]: g["permission_type"] for g in (c.get("group_permissions") or [])
+            }
+            check(c["name"] == was["name"], f"category {cid} was renamed (out of scope)")
+            check(perms == was["permissions"], f"category {cid} permissions changed (out of scope)")
+            check(
+                c.get("minimum_required_tags") == was["minimum_required_tags"],
+                f"category {cid} minimum_required_tags changed (out of scope)",
+            )
+
+    # Nothing but arrival announcements and the approved exceptions may remain in the plaza.
+    if decisions:
+        allowed = set(decisions["stays_in_plaza"]) | set(decisions["to_plaza"])
+        strays = sorted(
+            t["id"]
+            for tid, t in d.crawl_category(5).items()
+            if tid != d.definition_topic_id(5)
+            and "poster-evf" not in d.tag_names(t)
+            and not CEREMONIAL.search(t["title"])
+            and tid not in allowed
+        )
+        check(not strays, f"unapproved non-ceremonial topics left in the plaza: {strays}")
+
+    if failures:
+        print("FAIL")
+        for f in failures:
+            print("  -", f)
+        sys.exit(1)
+    print("OK: genre reorganisation target state holds")
+
+
+if __name__ == "__main__":
+    main()
