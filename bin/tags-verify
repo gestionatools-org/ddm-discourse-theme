@@ -9,7 +9,10 @@ KEY = os.environ["PRE_DISCOURSE_GLOBAL_API_KEY"]
 USER = os.environ["PRE_DISCOURSE_API_USERNAME"]
 
 # The depuration left nothing below three uses; a tag under it is either a typo that
-# invented an empty tag or a concept that stopped classifying anything.
+# invented an empty tag or a concept that stopped classifying anything. `analítica` became
+# the second kind on 2026-09-11 — its 28 topics moved into category 90, which names the
+# subject, so the tag classified nothing and was deleted with its synonym rather than
+# exempted. That is why the module group "Analítica de datos" now has two members.
 MIN_USES = 3
 # Working queues are counted, not judged: their size is data about what is unclassified.
 USE_EXEMPT = {"pendiente-etiquetar"}

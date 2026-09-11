@@ -273,6 +273,37 @@
   "to_plaza_empty": "The design sent 3 community-life topics from category 4 to the plaza (t/2453, t/2462, t/2465). With the plaza purely ceremonial they have no home there, so they move to the room with the rest. Inferred from the confirmed principle, not asked separately; low stakes because the room is walled to `Certificación`, which is every member.",
   "t5_is_system_authored": "t/5 '¡Te damos la bienvenida!' was opened by `system`; moves to the room by decision.",
   "unlisted": "t/176 and t/177 are unlisted and move with the rest, by decision.",
-  "t1613": "'Curso novedades Versión 10.0.3.317' goes to Noticias with the other 18, not to Aula de formación."
- }
+  "t1613": "'Curso novedades Versión 10.0.3.317' goes to Noticias with the other 18, not to Aula de formación.",
+  "to_analitica_room": "The 28 topics carrying the subject tag `analítica` move to room 90 and lose that tag, on Ricardo's explicit call after being shown the cost. It cuts across the genre principle this same reorganisation established — 11 of the 28 are arrival announcements in the plaza, 5 are ideas in 18, 4 news in 4, 3 training in 14, 1 an archived staff topic in 3 — and it restricts all of them to the 82 people in `Analiza`. He was shown that breakdown and chose the full set. Because every topic carrying the tag moves, 'remove the tag only from the ones that move' is all 28, so `analítica` ends at 0 uses and the module group 'Analítica de datos' drops to two members. No thumbnail is at risk: none of the 28 has one. AS EXECUTED: 27 of the 28 moved. `/t/2168` did not and cannot — it is category 73's definition topic, and `Topic#changed_to_category` returns success without moving one, so the bulk response listed it among the ids it changed while it stayed in 73. The tag was removed from all 28 and then, at 0 uses, deleted along with its synonym `analitica`: the vocabulary rule is nothing below three uses."
+ },
+ "to_analitica_room": [
+  169,
+  454,
+  908,
+  938,
+  1088,
+  1110,
+  1332,
+  1340,
+  1342,
+  1448,
+  1671,
+  1681,
+  1701,
+  1810,
+  1846,
+  1873,
+  1899,
+  1913,
+  2015,
+  2048,
+  2120,
+  2152,
+  2159,
+  2168,
+  2239,
+  2450,
+  2518,
+  2568
+ ]
 }

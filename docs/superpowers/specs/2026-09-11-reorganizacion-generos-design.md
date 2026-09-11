@@ -475,3 +475,73 @@ Ricardo, listed under the three permission faults.
 - **This room's wall is unverified from a non-admin account too**, for exactly the reason
   the other two are: `/c/<id>/show.json` answers with the reading key's own permissions, and
   that key is an administrator. One sign-in checks all three at once.
+
+## The analytics topics, moved by tag — 2026-09-11
+
+**27 topics into room 90, the tag `analítica` deleted, 0 thumbnails lost.** Asked as
+"los post etiquetados como analítica, quita la etiqueta y clasifícalos en Analítica de
+datos", and executed after the cost was put in writing and the full set reaffirmed.
+
+**It cuts across this document's own organising principle, deliberately.** Genre over
+subject is what the rest of this design executes: an idea lives in 18 *even when it is
+about analytics*, an arrival announcement lives in the plaza. The 28 topics carrying the
+subject tag were 11 announcements, 5 ideas, 4 news items, 3 training threads, 1 archived
+staff topic and 4 actual analytics threads. Ricardo was shown that breakdown, and that the
+move restricts all of them to the 82 people in `Analiza`, and chose the full set. Recorded
+here so nobody later reads it as drift.
+
+Because every topic carrying the tag moved, "remove the tag only from the ones that move"
+was all 28, so `analítica` reached 0 uses and was **deleted with its synonym `analitica`** —
+the vocabulary rule is that nothing sits below three uses, and a tag that classifies nothing
+is not an exception to it. Vocabulary 104 → 103; the module group "Analítica de datos" now
+has two members, and `bin/tags-verify` asserts that.
+
+### Two core mechanics measured here, both silent
+
+- **A category's definition topic cannot be moved, and Discourse reports success.**
+  `Topic#changed_to_category` opens with `return true if new_category.blank? ||
+  Category.exists?(topic_id: id)`. So `PUT /topics/bulk.json` returned `/t/2168` among the
+  ids it **changed**, and the topic stayed in category 73. It was caught by counting the
+  destination, not by reading the response — which is the general lesson: the changed-id
+  list is not proof the change happened. This is the same topic class the reorganisation
+  already had to handle, met from a new angle: phase 4 learned that a definition topic
+  *rides along* in a bulk move when its category is being deleted; this one will not move
+  at all while its category exists.
+- **The bulk operation `remove_tags` removes EVERY tag**, not the ones you name:
+  `apply_tag_revision(t, [])`. The operation that subtracts a named tag is `manage_tags`
+  with `remove_tag_ids`, which does `current - remove_ids` and skips topics with nothing to
+  change. Reading core before the first call is the only reason these 28 kept
+  `alumno-certificado`, `administracion-avanzada` and the rest. `bin/tags-remove-from-topics`
+  exists so the next person does not have to re-derive that.
+
+`bin/tags-remove-from-topics` refuses to write if any topic in its list carries a list
+thumbnail, so that permanent cost is always a deliberate `--allow-thumbnail-loss`. Here the
+set had none, measured before the first write, and it verifies by comparing each topic's
+resulting tag set against the prior-state capture minus the removed tag — not by counting
+and not by trusting the changed-id list.
+
+### And the tree that could not be nested under it
+
+Asked right after: make 90 the parent of **73 "Recursos Analítica"** and its seven
+children (65 topics), since the two read as the same thing. `PUT /categories/73.json`
+answers **422**, with two independent reasons, and changes nothing:
+
+- **`No se puede anidar una subcategoría debajo de otra`.** `max_category_nesting` is 2 on
+  PRE — core's default, max 3 — and 73 has children, so it cannot itself become one. **The
+  setting is `hidden: true`**, and Discourse refuses to change a hidden setting through the
+  admin API, so this is a Rails console and therefore a request to Discourse Cloud. Same
+  wall as `enable_passkeys`; it is now the third ask on that ticket.
+- **Every group with access to a subcategory must have access to the parent.**
+  `administradores`, `AdminAnaliza` and `AdminDevelopers` reach 73's children, while 90 is
+  walled to `Analiza` alone. This half is fixable from here and was **deliberately left
+  alone**: it would widen who sees the analytics forum with no benefit until the nesting
+  setting lands.
+
+That second error surfaced something worth its own line: **`AdminAnaliza` cannot see the
+forum of the programme it administers.** Five people, same family as the three permission
+faults already listed.
+
+`bin/categories-reparent` exists and is the one command to run when the setting is raised.
+Reparenting is safe for every ID-keyed theme setting — it is one of the three operations
+that neither issues nor retires a category id, alongside rename and slug change — and it
+moves no topics.

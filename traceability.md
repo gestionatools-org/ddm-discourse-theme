@@ -1943,3 +1943,61 @@ a non-existent group was reworded into the guard it justifies, rather than state
 rather than fixed: the 49 have full access to their forum and none at all to their own
 resources category. Still Ricardo's call, still listed among the three permission faults.
 **The walls remain unverified from a non-admin account** — now three rooms, one sign-in.
+
+## 2026-09-11 — The analytics topics, moved by tag (#128)
+
+**27 topics into room 90, the tag `analítica` deleted, 0 thumbnails lost, both verifiers
+green.** Instance state only; no theme code.
+
+The request was to move every topic tagged `analítica` into category 90 and strip the tag.
+Measuring the set first was what made it a decision rather than an accident: **the tag is a
+subject tag and the 28 topics were mostly other genres talking about analytics** — 11
+arrival announcements in the plaza, 5 ideas, 4 news items, 3 training threads, 1 archived
+staff topic, and 4 actual analytics threads. Moving them inverts the genre-over-subject
+principle the same reorganisation had just executed, and restricts all of them to the 82
+people in `Analiza`. Ricardo was shown that breakdown and the two verifiers it would turn
+red, and chose the full set. Executed, and the verifiers' expectations updated to the new
+approved state rather than worked around.
+
+Two silent core mechanics, both caught before they cost anything:
+
+- **`remove_tags` in `PUT /topics/bulk.json` strips every tag** from every topic in the
+  list, whatever you name — `apply_tag_revision(t, [])`. The operation that subtracts one
+  named tag is `manage_tags` with `remove_tag_ids`. Reading `lib/topics_bulk_action.rb`
+  before the first call is the only reason the 28 kept `alumno-certificado`,
+  `administracion-avanzada` and the rest.
+- **A category's definition topic cannot be moved and the API says it moved.**
+  `Topic#changed_to_category` opens with `return true if ... Category.exists?(topic_id: id)`,
+  so the bulk response listed `/t/2168` among the ids it changed while it stayed in category
+  73. Caught by counting the destination, not by reading the response. **The changed-id list
+  is not proof the change happened** — the same shape as `commits_behind: 0`.
+
+`bin/tags-remove-from-topics` is new and carries both lessons: it refuses to write when any
+topic in the list has a list thumbnail (permanent cost, always deliberate), and it verifies
+by comparing each topic's resulting tag set against the prior-state capture minus the removed
+tag.
+
+Because all 28 moved, "remove the tag only from the ones that move" was all of them, so
+`analítica` hit 0 uses and was deleted with its synonym: the vocabulary rule is nothing below
+three uses, and a tag classifying nothing is not an exception. Vocabulary 104 → 103, module
+group "Analítica de datos" down to two members.
+
+One accent bug in my own measuring, worth not repeating: the first scan for the tag matched
+`anali`/`análi` and **missed `analítica`**, whose accent falls on the í. Normalise before
+matching, or a tag hides in plain sight.
+
+**A follow-up the same session: 90 cannot become 73's parent.** Ricardo asked for
+"Recursos Analítica" to hang under "Analítica de datos". `PUT /categories/73.json` answers
+422 for two independent reasons and changes nothing: `max_category_nesting` is 2 (core
+default; 73 has seven children, so it cannot become one), and every group with access to a
+subcategory must also have access to the parent — `administradores`, `AdminAnaliza` and
+`AdminDevelopers` reach 73's children while 90 is walled to `Analiza` alone.
+
+**The nesting setting is `hidden: true`**, so the admin API cannot reach it, exactly like
+`enable_passkeys`. Ricardo's call was to ask Discourse Cloud for `max_category_nesting = 3`;
+it is now the third ask on that pending ticket, and `bin/categories-reparent 73 90` is the
+single command to run once it lands. The permission half is fixable from here and was left
+alone on purpose — it would widen who sees the analytics forum with no benefit until then.
+
+It did surface a fourth permission fault, unasked: **`AdminAnaliza`, five people, cannot see
+the forum of the programme they administer.**

@@ -95,12 +95,17 @@ def main():
         out5 = set(decisions["to_aa_room_from_5"])
         out4 = set(decisions["to_aa_room_from_4"]) | set(decisions["to_plaza"])
         news = set(decisions["to_news"])
+        # The 28 analytics topics left whatever category they were in, afterwards and on a
+        # separate decision — 11 from the plaza, 5 from ideas, 4 from news, 2 from room 89.
+        # Subtracting the whole list from every expectation is exact: an id that was not in
+        # a given set takes nothing out of it.
+        analitica = set(decisions["to_analitica_room"])
         # Counts come from crawled sets, never from topic_count: the two differ by the
         # unlisted topics and the definition topic, and mixing them silently drifts.
         expected = {
-            4: (prior_ids(prior, 4) - out4) | news,
-            5: (prior_ids(prior, 5) - out5) | set(decisions["to_plaza"]),
-            18: prior_ids(prior, 18) - news,
+            4: ((prior_ids(prior, 4) - out4) | news) - analitica,
+            5: ((prior_ids(prior, 5) - out5) | set(decisions["to_plaza"])) - analitica,
+            18: (prior_ids(prior, 18) - news) - analitica,
         }
         for cid, want in expected.items():
             got = crawl_ids(cid)
@@ -111,12 +116,20 @@ def main():
             )
 
     if rooms and decisions:
-        room_ids = set(decisions["to_aa_room_from_4"]) | set(decisions["to_aa_room_from_5"])
-        # The developers room is born empty: the programme has not started posting. An
-        # empty expectation is still an assertion — it catches a stray moved in by hand.
+        room_ids = (
+            set(decisions["to_aa_room_from_4"]) | set(decisions["to_aa_room_from_5"])
+        ) - analitica
+        # `/t/2168` is the ONE of the 28 that did not move, and it cannot: it is category
+        # 73's definition topic, and `Topic#changed_to_category` opens with
+        # `return true if ... Category.exists?(topic_id: id)` — it reports success and
+        # changes nothing, so `PUT /topics/bulk.json` listed it among the ids it changed
+        # while it stayed in 73. Measured 2026-09-11. Excluded here rather than chased.
+        #
+        # The developers room is still born empty: that programme has not started posting.
+        # An empty expectation is an assertion too — it catches a stray moved in by hand.
         expected_rooms = {
             "administracion_avanzada": room_ids,
-            "analitica": set(),
+            "analitica": analitica - {2168},
             "developers": set(),
         }
         for key, groups in ROOM_GROUPS.items():

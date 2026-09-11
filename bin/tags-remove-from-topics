@@ -1,0 +1,99 @@
+#!/usr/bin/env python3
+"""Remove ONE tag from an approved list of topics, keeping every other tag.
+
+Usage: bin/tags-remove-from-topics <tag-name> <decisions-key>
+
+**The bulk operation to reach for is `manage_tags`, never `remove_tags`.** Core's
+`TopicsBulkAction#remove_tags` is `apply_tag_revision(t, [])` — it strips *every* tag from
+every topic in the list, whatever you name. `manage_tags` with `remove_tag_ids` subtracts
+only the ids given (`current - remove_ids`) and skips a topic whose final set is unchanged.
+Measured against core on 2026-09-11 before the first call, which is the only reason the
+28 analytics topics kept `alumno-certificado`, `administracion-avanzada` and the rest.
+
+Like every other bulk write it goes through `first_post.revise` with `bypass_bump` and
+`silent`, so it does not reflate topics into /latest — **and like every other write it
+costs each topic its list thumbnail, permanently.** Check `image_url` on the set before
+running: this script refuses to write if any topic in the list has one, so that cost is
+always a deliberate `--allow-thumbnail-loss`, never a surprise.
+
+Verification is by comparing each topic's resulting tag set against the prior-state
+capture minus the removed tag — not by trusting the changed-id list, and not by counting.
+"""
+import json
+import pathlib
+import sys
+import urllib.parse
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import _discourse as d  # noqa: E402
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+DATA = ROOT / "docs/superpowers/plans/data"
+DECISIONS = DATA / "2026-09-11-move-decisions.json"
+
+
+def tag_id(name):
+    info = d.get(f"/tag/{urllib.parse.quote(name)}/info.json", elevated=True)["tag_info"]
+    return info["id"], info["topic_count"]
+
+
+def main(name, key, batch_size, allow_thumbnail_loss):
+    ids = json.loads(DECISIONS.read_text())[key]
+    tid, before = tag_id(name)
+    print(f"tag {name!r} id={tid}, {before} topics; removing it from {len(ids)} approved topics")
+
+    prior_path = next(DATA.glob("*-prior-state.json"), None)
+    prior = {}
+    for path in DATA.glob("*-prior-state.json"):
+        capture = json.loads(path.read_text())
+        if capture.get("tag") == name:
+            prior = capture["topics"]
+            prior_path = path
+            break
+    if not prior:
+        raise SystemExit(f"no prior-state capture for tag {name!r}; capture before writing")
+    print(f"  prior state: {prior_path.name}")
+
+    with_image = sorted(int(k) for k, t in prior.items() if t.get("image_url"))
+    if with_image and not allow_thumbnail_loss:
+        raise SystemExit(
+            f"STOP: {len(with_image)} of these topics have a list thumbnail and a write"
+            f" destroys it permanently: {with_image}. Re-run with --allow-thumbnail-loss"
+            f" only if that cost has been agreed."
+        )
+
+    for start in range(0, len(ids), batch_size):
+        chunk = ids[start : start + batch_size]
+        payload = [("topic_ids[]", i) for i in chunk]
+        payload += [("operation[type]", "manage_tags"), ("operation[remove_tag_ids][]", tid)]
+        result = d.request("PUT", "/topics/bulk.json", data=payload, elevated=True)
+        changed = result.get("topic_ids") or []
+        print(
+            f"  batch {start // batch_size}: requested {len(chunk)}, changed {len(changed)}"
+            f"{', errors ' + str(result['errors']) if result.get('errors') else ''}"
+        )
+
+    # Verify against the capture, topic by topic: the tag gone, everything else intact.
+    failures = []
+    for tid_str, was in sorted(prior.items(), key=lambda kv: int(kv[0])):
+        topic = d.get(f"/t/{tid_str}.json", elevated=True)
+        have = sorted(d.tag_names(topic))
+        want = sorted(t for t in was["tags"] if t != name)
+        if have != want:
+            failures.append(f"  /t/{tid_str}: tags {have}, expected {want}")
+
+    _, after = tag_id(name)
+    print(f"tag {name!r} now on {after} topics (was {before})")
+    if failures:
+        print("FAIL: tag sets do not match the capture minus the removed tag")
+        print("\n".join(failures))
+        raise SystemExit(1)
+    print(f"OK: {name!r} removed from {len(prior)} topics, every other tag intact")
+
+
+if __name__ == "__main__":
+    args = [a for a in sys.argv[1:] if not a.startswith("--")]
+    size = 14
+    if "--batch" in sys.argv:
+        size = int(sys.argv[sys.argv.index("--batch") + 1])
+    main(args[0], args[1], size, "--allow-thumbnail-loss" in sys.argv)
