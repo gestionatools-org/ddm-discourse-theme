@@ -1,7 +1,7 @@
 # Genre reorganisation: one plaza, three rooms — design
 
 **Date:** 2026-09-11
-**Status:** agreed in brainstorming, not executed.
+**Status:** **executed on PRE 2026-09-11.** See *As executed* at the foot.
 **Scope:** PRE (`discourse.gestiona4dev.tech`). Instance state only — categories, group
 permissions and two category settings. **No theme code changes.**
 **Supersedes:** the category half of `2026-09-06-migracion-prod-design.md`. Its Phase 2
@@ -309,3 +309,96 @@ Recorded so the next pass does not re-derive them.
   retrieval complaint, and no category move addresses them.
 - **The funcionalidad axis** of the subject layer, out of scope there too by the same
   deliberate choice.
+
+---
+
+## As executed — 2026-09-11
+
+**Done on PRE the same day it was designed.** `bin/categories-verify` is green and
+re-runnable; `bin/tags-verify` is green. 259 topics moved, 0 failures, 0 topics lost.
+
+| | id | before | after |
+|---|---|---|---|
+| **Administración Avanzada** (new) | **89** | — | 240 |
+| **Analítica de datos** (new) | **90** | — | 0 |
+| Foro del Certificado — the plaza | 5 | 366 | **160**, exactly the arrival announcements |
+| Noticias | 4 | 120 | 103 |
+| Tengo una idea | 18 | 528 | 509 |
+
+*(Crawl figures minus each category's definition topic. `topic_count` reports one less
+again, because it also excludes unlisted topics.)*
+
+Both rooms are `read_restricted` with their group at permission 1, and
+`minimum_required_tags` is 0 on all six conversational categories. Category 5's inherited
+`topic_template` is deleted. `auto_close_hours` stays at 720 everywhere, as deferred.
+
+### Departures from the design
+
+- **The plaza is purely ceremonial, stricter than designed.** The design kept ~5
+  community-life threads in category 5 and sent 3 more there from Noticias. Ricardo chose
+  the stricter rule: *the plaza keeps arrival announcements and nothing else*. So
+  `stays_in_plaza` and `to_plaza` are both empty, and `/t/2224` "Reflexiones sobre nuestra
+  Comunidad" — the thread that started this redesign — now lives in room 89. It is walled
+  to `Certificación`, which is every member, so nobody lost access to it.
+- **235 + 205 rather than 234 + 201.** Definition topics are excluded, which the design
+  had not accounted for; see below.
+- **The rooms' slugs are `foro-*`, not their names.** Forced by the shadowing bug below.
+- **Analítica's room was created empty**, as designed, and stays empty. Nothing was moved
+  into it because the reorganisation moved no Analítica content.
+
+### Four things measurement corrected, each found by running rather than reading
+
+1. **The granular read-only key answers 403 on `/c/<id>/show.json`.** "Reads use the
+   read-only key" does not hold: several reads need the Global key. This is why the client
+   names its flag `elevated` rather than `write`.
+2. **Definition topics are in the listing but not in `topic_count`.** Topic 16, *"Acerca
+   de la categoría Foro del Certificado"*, would have been proposed for the move and taken
+   along by the bulk call, leaving the category describing itself from room 89. Their id is
+   exposed only as the tail of `topic_url`. Excluded now, and that is why the moved counts
+   are one below the design's.
+3. **Both classification patterns were wrong as first written.** `CEREMONIAL` missed
+   *"Nueva Certificado CAAG 31 Xavier García"*, a real announcement saved only by its tag.
+   `RELEASE_NOTE` returned 22 rather than 19, admitting *"Seminario de novedades, martes 15
+   de julio"* and two topics about **conversión** — which contains *versión*. Requiring a
+   version-like number fixed all three.
+4. **The thumbnail cost was 5, not 240.** Measured before moving: none of the 205 plaza
+   topics had a list thumbnail, and only 5 of the 35 in Noticias did.
+
+### The regression this work caused, and how it was caught
+
+Creating the rooms **shadowed two `#` filters**, in the exact family this project had
+already recorded for `#eventos` and `#configuracion`. Discourse resolves `#foo` as
+category slug → exact tag name → tag group slug, so a new category wins:
+
+| filter | should resolve to | resolved to |
+|---|---|---|
+| `#administracion-avanzada` | the tag, **700 topics** — the most-used on the instance | category 89, 241 |
+| `#analitica-de-datos` | the subject-layer module group | category 90, **1 topic** |
+
+Silent, and returning a plausible wrong set. **`bin/tags-verify` caught the second one**;
+the first it could not, because it only checks the eight module groups and a tag shadowed
+by a category passes there. Fixed by slugging the rooms `foro-administracion-avanzada` and
+`foro-analitica-de-datos`, keeping the display names, and verified by measuring the search
+again. `bin/categories-verify` now asserts it, checked both ways.
+
+**Any future category needs this check before it is created.** Category 59 has shadowed
+the tag `eventos` for its whole life, which is why the assertion covers only the
+categories this work created rather than failing on a pre-existing accepted condition.
+
+### The deployment incident, which is not about categories at all
+
+Midway through, a security review found the prior-state capture heading for a **public**
+repository carrying 1 014 topic titles, 101 usernames and ~160 names with employing
+authority. It had not been pushed. The repo was flipped to private, which **took the theme
+offline from every instance**: it clones over anonymous HTTPS with no key, so
+`remote_update` answered 422 while `commits_behind` kept reporting 0. Restored by going
+public again; the captures and proposals are gitignored instead, and six member names were
+redacted from the already-public tag-recovery file. Full note in `CLAUDE.md`.
+
+### Still open
+
+- **The walls have not been checked from a non-admin account.** `/c/<id>/show.json` answers
+  with the key's own permissions, and that key is an administrator. Confirm that a
+  `Certificación` member without `Analiza` sees room 89 and not room 90.
+- Everything under *Out of scope* above, unchanged — chiefly `auto_close_hours`, the three
+  permission faults, and category 5's now-inaccurate name.
