@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+"""Create the two programme rooms. Idempotent: it refuses to create a room whose name
+already exists, so a re-run after a partial failure cannot produce a duplicate."""
+import json
+import pathlib
+import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import _discourse as d  # noqa: E402
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+OUT = ROOT / "docs/superpowers/plans/data/2026-09-11-rooms.json"
+
+# permission_types: full=1, create_post=2, readonly=3 (CategoryGroup.permission_types).
+# `Certificación` is 374 people — every member — so the AA room is separated from the
+# plaza without anybody losing access relative to today. `Analiza` is 82.
+ROOMS = [
+    ("administracion_avanzada", "Administración Avanzada", "Certificación", "0088CC"),
+    ("analitica", "Analítica de datos", "Analiza", "3AB54A"),
+]
+
+
+def existing_names():
+    data = d.get("/categories.json?include_subcategories=true")
+
+    def walk(nodes):
+        for c in nodes:
+            yield c["name"], c["id"]
+            yield from walk(c.get("subcategory_list") or [])
+
+    return dict(walk(data["category_list"]["categories"]))
+
+
+def main():
+    known = existing_names()
+    rooms = json.loads(OUT.read_text()) if OUT.exists() else {}
+    for key, name, group, color in ROOMS:
+        if name in known:
+            print(f"exists: {name} -> {known[name]}")
+            rooms[key] = known[name]
+            continue
+        payload = [
+            ("name", name),
+            ("color", color),
+            ("text_color", "FFFFFF"),
+            ("minimum_required_tags", 0),
+            (f"permissions[{group}]", 1),
+        ]
+        created = d.request("POST", "/categories.json", data=payload, elevated=True)
+        rooms[key] = created["category"]["id"]
+        print(f"created: {name} -> {rooms[key]} ({group} at permission 1)")
+    OUT.write_text(json.dumps(rooms, ensure_ascii=False, indent=1))
+
+
+if __name__ == "__main__":
+    main()
