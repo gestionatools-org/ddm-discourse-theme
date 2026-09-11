@@ -1,0 +1,83 @@
+#!/usr/bin/env python3
+"""Apply one approved move list, in batches, verifying by topic id.
+
+Reads ONLY the human-authored decisions file. It has no access to the proposals, which
+is the review gate expressed in code rather than in a promise.
+
+`PUT /topics/bulk.json` answers with the ids it actually changed, and the bulk revision
+runs with bypass_bump, so a move does not reflate the topic into /latest. Each move does
+cost the topic its list thumbnail, permanently.
+"""
+import json
+import pathlib
+import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import _discourse as d  # noqa: E402
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+DATA = ROOT / "docs/superpowers/plans/data"
+DECISIONS = DATA / "2026-09-11-move-decisions.json"
+ROOMS = DATA / "2026-09-11-rooms.json"
+LOG = DATA / "2026-09-11-move-log.json"
+
+PLAZA = 5
+NEWS = 4
+KEYS = ("to_news", "to_plaza", "to_aa_room_from_4", "to_aa_room_from_5")
+
+
+def destination(key):
+    room = json.loads(ROOMS.read_text())["administracion_avanzada"]
+    return {
+        "to_news": NEWS,
+        "to_plaza": PLAZA,
+        "to_aa_room_from_4": room,
+        "to_aa_room_from_5": room,
+    }[key]
+
+
+def main(key, batch_size):
+    if key not in KEYS:
+        raise SystemExit(f"unknown list {key!r}; expected one of {KEYS}")
+    ids = json.loads(DECISIONS.read_text())[key]
+    target = destination(key)
+    log = json.loads(LOG.read_text()) if LOG.exists() else []
+    done = {i for entry in log if entry["key"] == key for i in entry["changed"]}
+    todo = [i for i in ids if i not in done]
+    print(f"{key} -> category {target}: {len(todo)} to move ({len(done)} already done)")
+
+    for start in range(0, len(todo), batch_size):
+        chunk = todo[start : start + batch_size]
+        payload = [("topic_ids[]", i) for i in chunk]
+        payload += [("operation[type]", "change_category"), ("operation[category_id]", target)]
+        result = d.request("PUT", "/topics/bulk.json", data=payload, elevated=True)
+        changed = result.get("topic_ids") or []
+        missing = sorted(set(chunk) - set(changed))
+        log.append(
+            {
+                "key": key,
+                "target": target,
+                "requested": chunk,
+                "changed": changed,
+                "missing": missing,
+                "errors": result.get("errors"),
+            }
+        )
+        LOG.write_text(json.dumps(log, ensure_ascii=False, indent=1))
+        print(
+            f"  batch {start // batch_size}: requested {len(chunk)}, "
+            f"changed {len(changed)}, missing {missing}"
+        )
+        if missing:
+            raise SystemExit(
+                "STOP: some topics did not move. Do not re-run blindly — read the errors "
+                "in the log first. A re-run resumes from `changed`, so nothing moves twice."
+            )
+
+
+if __name__ == "__main__":
+    positional = [a for a in sys.argv[1:] if not a.startswith("--")]
+    size = 50
+    if "--batch" in sys.argv:
+        size = int(sys.argv[sys.argv.index("--batch") + 1])
+    main(positional[0], size)

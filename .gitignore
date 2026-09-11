@@ -22,3 +22,9 @@ CLAUDE.local.md
 
 # Playwright MCP scratch (screenshots can capture on-screen secrets)
 .playwright-mcp/
+
+# Prior-state captures: rollback artefacts, not source. They hold every topic title,
+# author username and arrival announcement of a login-required community — personal data
+# of identified public-sector employees — so they stay on disk and out of a public repo.
+docs/superpowers/plans/data/*-prior-state.json
+docs/superpowers/plans/data/*-move-proposals.json

@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+"""Drop the two-tag toll on the conversational categories and delete category 5's
+inherited topic_template.
+
+`PUT /categories/<id>.json` replaces the record, so a field not resent can revert to a
+default. This reads each category first and sends it back with only the intended fields
+changed — it never composes a payload from scratch.
+
+Out of scope and deliberately untouched: auto_close_hours (720) and
+solved_topics_auto_close_hours (1), deferred to after the production migration.
+"""
+import json
+import pathlib
+import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import _discourse as d  # noqa: E402
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+ROOMS = ROOT / "docs/superpowers/plans/data/2026-09-11-rooms.json"
+
+CONVERSATIONAL = [4, 5, 14, 18]
+
+
+def update(cid, changes):
+    c = d.category(cid)
+    base = {
+        "name": c["name"],
+        "color": c["color"],
+        "text_color": c["text_color"],
+        "slug": c["slug"],
+        "auto_close_hours": c.get("auto_close_hours") or "",
+        "auto_close_based_on_last_post": str(bool(c.get("auto_close_based_on_last_post"))).lower(),
+        "minimum_required_tags": c.get("minimum_required_tags") or 0,
+        "topic_template": c.get("topic_template") or "",
+    }
+    base.update(changes)
+    payload = list(base.items())
+    for g in c.get("group_permissions") or []:
+        payload.append((f"permissions[{g['group_name']}]", g["permission_type"]))
+    d.request("PUT", f"/categories/{cid}.json", data=payload, elevated=True)
+    after = d.category(cid)
+    print(
+        f"  {cid} {after['name'][:26]:26s} min_tags={after.get('minimum_required_tags')} "
+        f"template={'yes' if (after.get('topic_template') or '').strip() else 'no ':3s} "
+        f"auto_close={after.get('auto_close_hours')}"
+    )
+
+
+def main():
+    rooms = json.loads(ROOMS.read_text())
+    for cid in CONVERSATIONAL + list(rooms.values()):
+        changes = {"minimum_required_tags": 0}
+        if cid == 5:
+            changes["topic_template"] = ""
+        update(cid, changes)
+
+
+if __name__ == "__main__":
+    main()

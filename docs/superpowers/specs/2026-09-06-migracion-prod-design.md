@@ -176,6 +176,22 @@ those PRE created (`circuitos-resolucion`, `circuitos-tramitacion`, `integracion
 
 ## Phase 2 — categories
 
+> **VOID as of 2026-09-11, and the whole window is postponed.** This phase replayed onto
+> PROD the 17-category taxonomy PRE carried in August — the taxonomy that
+> `2026-09-11-reorganizacion-generos-design.md` has now replaced on PRE. Executing it would
+> reorganise PROD twice, the second time against 35 live categories and 1 297 topics.
+>
+> Nothing has been applied to PROD, so PROD can receive the final map directly. **Phases 0,
+> 1a and 1b are orthogonal and survive unchanged** — keys, tag limits, spelling merges and
+> the subject layer do not depend on the category map.
+>
+> When PROD's turn comes, the new map is re-derived against PROD's own measurements, never
+> by replaying PRE's lists: PROD has 35 categories, never received August's reorganisation,
+> and still holds its arrival announcements in category 78. Method carries; numbers do not.
+> Note also that PROD will assign its own ids to the two new rooms — PRE's are 89 and 90.
+
+
+
 The visible, irreversible half, deliberately last inside the window. Follows
 `2026-08-25-category-reorganisation-design.md`, **without its Phase 3**: the bulk tagging that
 phase performed has already happened in Phase 1a above.
