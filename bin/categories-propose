@@ -1,0 +1,177 @@
+#!/usr/bin/env python3
+"""Propose the three move lists. Output is a PROPOSAL, never an instruction:
+bin/categories-move reads only the human-authored decisions file, by design.
+
+Run the rules over fixtures first: ./bin/categories-propose --self-test
+"""
+import json
+import pathlib
+import re
+import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import _discourse as d  # noqa: E402
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+OUT = ROOT / "docs/superpowers/plans/data/2026-09-11-move-proposals.json"
+
+# An arrival announcement. Poster and ceremonial announcement are the same genre, so the
+# tag alone is not enough and neither is a narrow wording: the noun between "Nueva" and
+# the role varies, and sometimes there is none — "Nueva Certificado CAAG 31 Xavier
+# García". Measured 2026-09-11: this catches all 60 `poster-evf` topics by text alone,
+# plus 100 announcements that carry no tag at all.
+# Must stay byte-identical to bin/categories-verify's copy.
+CEREMONIAL = re.compile(
+    r"nuev[oa]s?\s+(?:\w+\s+){0,2}(alumn|compañer|miembr|certificad)"
+    r"|certificad[oa]s?\s*[·\-:]"
+    r"|enhorabuena|bienvenid",
+    re.I,
+)
+
+# A product release note. Three things this had to survive, all found by running it over
+# the real 528 titles rather than by reading them:
+#   - the separator is \W* because "Nueva versión: 10.0.3.332" puts a colon there;
+#   - up to two tokens sit between keyword and number, because the product name does:
+#     "Novedades Gestiona 10.0.3.326.1";
+#   - a version-like number (\d+\.\d) is REQUIRED. Without it "Seminario de novedades,
+#     martes 15 de julio" matches, and so does anything containing "conversión" — which
+#     contains "versión". A bare digit gave 22 candidates, three of them wrong.
+RELEASE_NOTE = re.compile(
+    r"(?:novedades?|versi[óo]n|ajustes)\W*(?:\S+\s+){0,2}v?\d+\.\d"
+    r"|pr[óo]ximas\s+mejoras"
+    r"|aviso\s+de\s+mantenimiento",
+    re.I,
+)
+
+# Official communication comes from these groups; everything else in category 4 is a
+# member post. The author discriminates where the title cannot: Spanish titles are noun
+# phrases, so a question heuristic classified 171 of 206 topics as "neither".
+STAFF_GROUPS = ("esPublico", "administradores", "personal", "Producto")
+
+
+def is_ceremonial(title, tags):
+    return "poster-evf" in tags or bool(CEREMONIAL.search(title))
+
+
+def is_release_note(title):
+    return bool(RELEASE_NOTE.search(title))
+
+
+def self_test():
+    ceremonial_cases = [
+        ("Nuevo Alumno Certificado · José Jiménez Alcaraz · CAAG 27", [], True),
+        ("Nueva compañera certificada · Rocío Villarreal Gato", [], True),
+        ("Nueva Certificado CAAG 31 Xavier García", [], True),
+        ("Los pósteres del III Encuentro", ["poster-evf"], True),  # tag without the wording
+        ("Registrar oficio de salida", [], False),
+        ("Tesauro Fecha en tramite externo", [], False),
+        ("Reflexiones sobre nuestra Comunidad: ¿Hacia dónde vamos con Gestiona?", [], False),
+        ("Nueva versión 10.0.3.332", [], False),  # "Nueva …" must not read as an arrival
+    ]
+    release_cases = [
+        ("Novedades versión 10.0.3.336", True),
+        ("Nueva versión: 10.0.3.332", True),
+        ("Novedades Gestiona. Versión 10.0.3.333.0", True),
+        ("Nueva versión Gestiona 10.0.3.325", True),  # escaped the stricter pattern before
+        ("Novedades Gestiona 10.0.3.326.1", True),  # and this one
+        ("Novedades v10.0.3.313.0", True),  # the version number may carry a v prefix
+        ("Ajustes versión 9.1.3.226.2", True),
+        ("Próximas mejoras en el módulo de Padrón", True),
+        ("Aviso de mantenimiento en sede electrónica", True),
+        ("Mejoras en GESTIONA CODE", False),
+        ("Novedades Órganos Colegiados", False),  # product news with no version number
+        ("Propuesta: Sistema de Gestión de Incidencias Ciudadanas (GIC)", False),
+        # Every one of these matched a looser pattern and is a proposal, not a note.
+        ("Seminario de novedades, martes 15 de julio", False),
+        ("Conversión de un numero a texto", False),  # "conversión" contains "versión"
+        ("Sugerencia: Informar de la causa del error de conversión", False),
+        ("Versión 10 (feedback)", False),
+        ("Versión 10 - Tesauros", False),
+    ]
+    bad = []
+    for title, tags, expected in ceremonial_cases:
+        if is_ceremonial(title, tags) != expected:
+            bad.append(f"is_ceremonial({title!r}, {tags!r}) != {expected}")
+    for title, expected in release_cases:
+        if is_release_note(title) != expected:
+            bad.append(f"is_release_note({title!r}) != {expected}")
+    if bad:
+        print("SELF-TEST FAIL")
+        for b in bad:
+            print("  -", b)
+        sys.exit(1)
+    print(f"self-test OK: {len(ceremonial_cases) + len(release_cases)} cases")
+
+
+def staff_usernames():
+    names = set()
+    for group in STAFF_GROUPS:
+        data = d.get(f"/groups/{group}/members.json?limit=100", elevated=True)
+        for member in data.get("members", []) + data.get("owners", []):
+            names.add(member["username"])
+    return names
+
+
+def row(t):
+    return {
+        "id": t["id"],
+        "title": t["title"],
+        "author": t["_author"],
+        "tags": d.tag_names(t),
+        "created_at": t["created_at"][:10],
+        "replies": t["posts_count"] - 1,
+        # Unlisted topics crawl and move like any other but are invisible in every
+        # listing, so a decision about one should be taken knowingly.
+        "unlisted": not t.get("visible", True),
+    }
+
+
+def content_topics(cid):
+    """The category's topics, minus its own definition topic.
+
+    The definition topic is absent from topic_count but present in the listing, so
+    without this every rule here would propose "Acerca de la categoría …" for the move,
+    and a bulk move would take it along — leaving the category describing itself from
+    somewhere else.
+    """
+    definition = d.definition_topic_id(cid)
+    return [t for tid, t in d.crawl_category(cid).items() if tid != definition]
+
+
+def main():
+    staff = staff_usernames()
+    proposals = {
+        # Everything in the plaza that is not an arrival announcement. Review for the
+        # community-life topics that must stay: they carry no pattern of their own.
+        "cat5_candidates": [
+            row(t) for t in content_topics(5) if not is_ceremonial(t["title"], d.tag_names(t))
+        ],
+        # Every member-authored topic in Noticias. Three of these are community life and
+        # belong in the plaza, not in the room — no rule can tell which.
+        "cat4_candidates": [row(t) for t in content_topics(4) if t["_author"] not in staff],
+        "cat18_candidates": [row(t) for t in content_topics(18) if is_release_note(t["title"])],
+        "staff_count": len(staff),
+    }
+    for key in ("cat5_candidates", "cat4_candidates", "cat18_candidates"):
+        proposals[key].sort(key=lambda r: r["created_at"])
+    OUT.write_text(json.dumps(proposals, ensure_ascii=False, indent=1))
+    print(
+        f"proposals -> {OUT}\n"
+        f"  cat5 -> AA room: {len(proposals['cat5_candidates'])}\n"
+        f"  cat4 -> AA room or plaza: {len(proposals['cat4_candidates'])}\n"
+        f"  cat18 -> Noticias: {len(proposals['cat18_candidates'])}\n"
+        f"  staff usernames: {len(staff)}"
+    )
+    unlisted = [
+        r["id"] for key in ("cat5_candidates", "cat4_candidates", "cat18_candidates")
+        for r in proposals[key] if r["unlisted"]
+    ]
+    if unlisted:
+        print(f"  NOTE: {len(unlisted)} unlisted topics among the candidates: {unlisted}")
+
+
+if __name__ == "__main__":
+    if "--self-test" in sys.argv:
+        self_test()
+    else:
+        main()

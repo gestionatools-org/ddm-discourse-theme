@@ -13,7 +13,8 @@
 ## Global Constraints
 
 - **PRE only.** `https://discourse.gestiona4dev.tech`. Nothing here touches PROD; its migration window is postponed.
-- **Credentials by capability.** Reads use `PRE_DISCOURSE_API_KEY` (read-only). Writes use `PRE_DISCOURSE_GLOBAL_API_KEY` — the only key that reaches `/topics/bulk.json`. **Never print a key**, not even redacted: a 2026-08-11 redacted dump leaked one because the hash key was the site URL.
+- **Credentials by capability.** Writes use `PRE_DISCOURSE_GLOBAL_API_KEY`, and so do several *reads* — `/c/<id>/show.json` answers 403 with the granular key. Everything else uses `PRE_DISCOURSE_API_KEY`. **Never print a key**, not even redacted: a 2026-08-11 redacted dump leaked one because the hash key was the site URL.
+- **No member data in git.** This repository is public, and being public is load-bearing — the instance clones it over anonymous HTTPS, so making it private takes the theme offline everywhere. Topic titles, usernames and arrival announcements are personal data of identified public-sector employees: they stay on disk. The only files committed from this work are **decisions** (lists of ids) and code, never captures or proposals carrying titles and authors.
 - **Rate limit ~1 req/s.** Sleep 1.3 s between calls, exponential backoff on 429.
 - **Verify by topic id, never by count.** A count is not a verification.
 - **No unattended classification.** Every move list is approved by Ricardo before any write. The subject-layer body pass produced 10 false positives in 43 proposals; only human review caught them.
@@ -30,7 +31,17 @@
 **Files:**
 - Create: `bin/_discourse.py`
 - Create: `bin/categories-capture`
-- Output: `docs/superpowers/plans/data/2026-09-11-prior-state.json`
+- Modify: `.gitignore`
+- Output (**gitignored, never committed**): `docs/superpowers/plans/data/2026-09-11-prior-state.json`
+
+> **The capture must not enter git.** It holds 1 014 topic titles from a
+> login-required community, 101 author usernames and ~160 arrival announcements
+> carrying a member's full name and employing authority — personal data of
+> identified public-sector employees. This repository is public, and being public
+> is load-bearing: the instance clones it over anonymous HTTPS. So the capture
+> lives on disk, where it serves as the rollback, and `.gitignore` keeps it there.
+> An earlier version of this plan said to commit it; a security review caught that
+> before the branch was pushed.
 
 **Interfaces:**
 - Consumes: nothing.
@@ -224,12 +235,12 @@ Expected: `rollback capture OK: 1014 topics`. A non-zero count of authorless top
 
 ```bash
 git checkout -b feat/genre-reorganisation
-git add bin/_discourse.py bin/categories-capture docs/superpowers/plans/data/2026-09-11-prior-state.json
+git add .gitignore bin/_discourse.py bin/categories-capture
 git commit -m "feat(bin): Discourse API client and prior-state capture
 
 The capture is the only rollback for the moves: a category move is reversible
 only while the source category still exists, and nothing else records where each
-topic came from."
+topic came from. It is gitignored, never committed."
 ```
 
 ---
@@ -421,7 +432,8 @@ three out-of-scope categories are asserted as unchanged."
 
 **Files:**
 - Create: `bin/categories-propose`
-- Output: `docs/superpowers/plans/data/2026-09-11-move-proposals.json`
+- Modify: `.gitignore`
+- Output (**gitignored**): `docs/superpowers/plans/data/2026-09-11-move-proposals.json` — it carries 261 titles with their authors, the same personal data as the capture. The *decisions* file it feeds holds only ids, and that one is committed.
 
 **Interfaces:**
 - Consumes: `_discourse.crawl_category`, `_discourse.tag_names`, `_discourse.get`.
@@ -613,7 +625,7 @@ Expected, against the 2026-09-11 measurement: `cat5 → 206`, `cat4 → 36`, `ca
 - [ ] **Step 4: Commit**
 
 ```bash
-git add bin/categories-propose docs/superpowers/plans/data/2026-09-11-move-proposals.json
+git add bin/categories-propose
 git commit -m "feat(bin): derive the three move proposals from measured rules
 
 Proposals, not instructions: categories-move reads only the human-authored
