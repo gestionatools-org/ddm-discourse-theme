@@ -1,6 +1,6 @@
 # Header links to the three programme rooms — design
 
-**Date:** 2026-09-11 · **Status:** approved in conversation, awaiting spec review
+**Date:** 2026-09-11 · **Status:** approved, executed on PRE the same day — see *As executed*
 **Scope:** PRE instance configuration + one theme component. PROD is out of scope and
 listed under *Consequences for PROD*.
 
@@ -36,8 +36,10 @@ links become the three rooms, acting as the sub-forum menu of each certification
 
 ### What was measured to reach them
 
-- **Search is not a theme concern.** `search_experience` is a site setting, `search_field`
-  on PRE against core's default `search_icon`. The field vs. the icon is decided there.
+- ~~**Search is not a theme concern.**~~ **Wrong — see *As executed*.** `search_experience`
+  is a *themeable* site setting: the theme owns it, and the admin API refuses it
+  instance-wide. This line read it off `/admin/site_settings.json`, which lists it without
+  saying so.
 - **Nesting.** Core validates `height_of_ancestors + 1 + depth_of_descendants <=
   max_category_nesting`, which is 2 on PRE (hidden; default 2, max 3). Rooms under 5 are
   exactly 2 and have no children: allowed today, without Discourse Cloud.
@@ -71,7 +73,7 @@ links become the three rooms, acting as the sub-forum menu of each certification
 
 | change | how |
 |---|---|
-| `search_experience` → `search_icon` | `PUT /admin/site_settings/search_experience` |
+| ~~`search_experience` → `search_icon`~~ | **moved to the theme** — `about.json` `theme_site_settings`, plus `PUT /admin/themes/15/site-setting` once on PRE; see *As executed* |
 | 89, 90, 91 → `parent_category_id: 5` | `bin/categories-reparent`, one room at a time; ids unchanged, no topic moves |
 | Category 5 gains `Analiza`, `Developers`, `AdminDevelopers` at read-only | category update resending the full record; must land **before** the reparenting, or core refuses it |
 | Category 5 → `default_list_filter: none` | same update |
@@ -179,3 +181,44 @@ PROD yet**, so `header_room_category_ids` must be set to PROD's ids once they ar
 created — it joins the category-id parity diff that gates installing the theme there.
 Until then the default `89|90|91` resolves to whatever PROD holds at those ids, if
 anything, and a member only ever sees ids present in their own `site.categories`.
+
+## As executed — 2026-09-11
+
+**Instance (PRE):** `bin/forum-rooms-apply` applied and read back — category 5 at
+`default_list_filter: none` with `Analiza`, `Developers`, `AdminDevelopers` read-only;
+89, 90, 91 its subcategories, ids and slugs unchanged; "Recursos de apoyo" with its five
+links; `default_navigation_menu_categories` at `4|5|14|18|89|90|91`, backfilled. A second
+run printed `already` for every step. `bin/categories-verify` and `bin/tags-verify` green;
+`#foro-*` still resolves to each room alone.
+
+**Theme:** red run 7 of 173 failing — exactly the new header tests and the topbar test
+that configures a link — then green on all five checks.
+
+### Departures from the design
+
+- **The magnifier is theme state, not instance state.** `PUT /admin/site_settings/
+  search_experience` answered 422: it is a *themeable* site setting, owned per theme by
+  `ThemeSiteSettingManager`. The theme had declared `search_field` in `about.json` since
+  `8ae817b`; it now declares `search_icon`, so PROD gets it from the theme. **PRE does not**:
+  `RemoteTheme#create_theme_site_settings` skips a setting the theme already has a row for,
+  and theme 15 got its row from that very line — so PRE is set once with
+  `PUT /admin/themes/15/site-setting`. Setting it to core's default still writes an
+  explicit row (`upsert` stores the default "as insurance"), so the value is pinned either
+  way.
+- **The default sidebar needed the backfill.** The design said the new default would reach
+  members who never customised their sidebar. Core seeds each user's sidebar links once, at
+  signup (`User#set_default_sidebar_section_links`), so without `update_existing_user` it
+  would have reached no current member. Corrected in the spec before execution.
+- **Category 73's tree changed underneath the work, deliberately.** The verifier's red step
+  flagged 73 as drifted. The staff action log showed Ricardo's own edits in admin between
+  17:30 and 17:34 UTC: 73's tree opened to `Analiza` at full access and closed to the three
+  admin groups — fixing the recorded fault of `Analiza` holding only read on its own
+  resources — and 83 moved under 85. He confirmed them, so 73 is re-baselined in
+  `bin/categories-verify` and the tree's children, which nothing asserted before, are now
+  asserted.
+- **`bin/categories-reparent` stopped resending `description`.** The earlier version sent
+  back `description_excerpt`, a truncated rendering, which would have overwritten a
+  definition topic with its own excerpt. It never ran against a category that has one.
+- **The topbar test had a second consumer of the old settings** ("Topbar - admin routes"),
+  not in the plan. It only set them to give the header something to render; it now sets a
+  fixture category instead.
