@@ -87,14 +87,46 @@
     // --header_primary is the ink the colour schemes define for this bar
     // specifically, so the links follow the header rather than the page body:
     // they stay legible if the header's surface is ever changed independently.
+    position: relative;
     color: var(--header_primary);
     font-size: var(--font-down-1);
     white-space: nowrap;
     transition: color var(--ga-duration-fast) var(--ga-ease);
 
+    // The bar under the label, grown from the centre on hover. Modelled on
+    // devcommunity.amd.com, another Discourse site, whose header links do the
+    // same: a 2px `::after`, `scaleX(0)` to `scaleX(1)` from a centred origin.
+    // Measured there rather than guessed — 250ms ease-in-out in their case.
+    //
+    // Ours takes the system's curve and `--ga-duration-base`, deliberately not
+    // the `--ga-duration-fast` that motion.scss reserves for hover: this bar
+    // travels the label's whole width, and at 120ms that reads as a flicker
+    // rather than as growth. The colour stays on the fast step.
+    //
+    // `currentcolor`, so the bar is tinted by the link's own transition to
+    // --tertiary instead of restating the colour and drifting from it later.
+    //
+    // No `prefers-reduced-motion` guard here: motion.scss declares one globally
+    // for `*`, `*::before` and `*::after`, so the bar simply appears at once.
+    &::after {
+      content: "";
+      position: absolute;
+      inset-inline: 0;
+      bottom: calc(-1 * var(--space-1));
+      height: 2px;
+      background: currentcolor;
+      transform: scaleX(0);
+      transform-origin: 50%;
+      transition: transform var(--ga-duration-base) var(--ga-ease);
+    }
+
     &:hover,
     &:focus-visible {
       color: var(--tertiary);
+
+      &::after {
+        transform: scaleX(1);
+      }
     }
   }
 }

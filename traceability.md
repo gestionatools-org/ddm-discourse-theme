@@ -2053,3 +2053,21 @@ JS, so `curl` of the HTML finds no sprite URL at all: 364 symbols, `book`, `desk
 
 `bin/forum-rooms-apply` now **enforces** the icon of every link it owns rather than setting
 it only at creation, so the next bad icon is fixed by a re-run rather than by hand.
+
+## 2026-09-12 — A growing underline on the header links (#131)
+
+Ricardo asked for a bar that grows under a header link on hover, pointing at
+devcommunity.amd.com. **That site runs Discourse too** — its container is `d-header-wrap` —
+so its header links are the same surface as ours, which made the reference measurable
+rather than approximate.
+
+Measured there with a pointer, after removing the consent overlay locally (it intercepts
+every hover): a 2px `::after`, absolutely positioned at `bottom: 0` with a 9.6px inset,
+`transform: scaleX(0)` to `scaleX(1)`, origin centred, `transform 0.25s ease-in-out`.
+
+Ours copies the shape and keeps the system's own motion: `--ga-duration-base` (200ms) with
+`--ga-ease`. That is a deliberate departure from motion.scss's own note that hover belongs
+on `--ga-duration-fast` — the bar crosses the whole label, and 120ms reads as a flicker.
+The colour stays on the fast step. `currentcolor` lets the bar inherit the link's tint
+rather than restating it. Reduced motion needs nothing: motion.scss already covers
+`*::after` globally.
