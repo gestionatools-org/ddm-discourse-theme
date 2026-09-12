@@ -5,62 +5,67 @@ import { block } from "discourse/blocks";
 import { bind } from "discourse/lib/decorators";
 import DAsyncContent from "discourse/ui-kit/d-async-content";
 import DButton from "discourse/ui-kit/d-button";
-import dFormatDate from "discourse/ui-kit/helpers/d-format-date";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
 import { loadCategoryTopics } from "../lib/category-topics";
 
 /**
- * Format a real event start date.
+ * Split a date into the two parts the chip renders.
  *
- * Core's date helpers are built for the past and mislead on future dates:
- * `format="medium"` renders anything ahead of now as "now" (`relativeAgeMedium`
- * compares `now - date` against a one-minute threshold, and a negative distance
- * clears it), while `format="tiny"` drops the sign, so an event three days out
- * reads exactly like a topic bumped three days ago. Event dates are therefore
- * absolute; the topic-date fallback keeps the relative helper, which is what it
- * was built for.
+ * Core's date helpers are no use here. `dFormatDate` has no format that yields
+ * the month and the day separately, and its relative formats mislead on future
+ * dates anyway: `format="medium"` renders anything ahead of now as "now"
+ * (`relativeAgeMedium` compares `now - date` against a one-minute threshold,
+ * and a negative distance clears it), while `format="tiny"` drops the sign, so
+ * an event three days out reads exactly like a topic bumped three days ago.
+ *
+ * Every row carries a chip, and the date behind it is the event's start where
+ * the topic has one and the topic's own date everywhere else — on this
+ * instance only one topic in the category holds a real `event_starts_at`, so a
+ * chip reserved for those would leave the lane ragged. What keeps the two
+ * honest is the `--scheduled` modifier the template adds, not the chip itself.
  *
  * The locale comes from `<html lang>` so it follows the Discourse UI rather
  * than the browser, which can differ.
  */
-function formatEventStart(value) {
-  const date = new Date(value);
-  const sameYear = date.getFullYear() === new Date().getFullYear();
+function dateChip(topic) {
+  const date = new Date(topic.event_starts_at || topic.created_at);
+  const locale = document.documentElement.lang || undefined;
+  const part = (options) =>
+    new Intl.DateTimeFormat(locale, options).format(date);
 
-  return new Intl.DateTimeFormat(document.documentElement.lang || undefined, {
-    day: "numeric",
-    month: "short",
-    year: sameYear ? undefined : "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
+  return {
+    month: part({ month: "short" }),
+    day: part({ day: "numeric" }),
+    iso: date.toISOString(),
+  };
 }
 
-// One row, used by both groups. The mixed date precision is deliberate and
-// carries meaning: a real event brings a day and a time, a write-up of one
-// brings only a month. That difference is what separates a date you can still
-// act on from a record of one that has passed.
+// One row, used by both groups: a calendar chip, then the title. Modelled on
+// the `upcoming-events-list` widget at devcommunity.amd.com, which is where
+// the square with the month over the day comes from.
+//
+// The chip replaced a date line that mixed precision on purpose — a day and a
+// time for a real event, a month for a write-up of one. That distinction now
+// rides on the chip's colour instead of on its content, which is what lets
+// every row share one shape.
 const EventItem = <template>
   <li class="block-events__item">
     <a class="block-events__item-link" href={{@topic.url}}>
-      {{! `event_starts_at` only reaches the topic list for topics carrying an
-          `[event]` block, and only while the calendar plugin is enabled. The
-          category holds both kinds, so the lane shows a real start time where
-          there is one and falls back to the topic's own date everywhere
-          else. }}
-      {{#if @topic.event_starts_at}}
+      {{#let (dateChip @topic) as |chip|}}
+        {{! `event_starts_at` only reaches the topic list for topics carrying
+            an `[event]` block, and only while the calendar plugin is enabled.
+            The category holds both kinds, so its presence — not the chip — is
+            what marks a date the reader can still act on. }}
         <time
-          class="block-events__item-date --scheduled"
-          datetime={{@topic.event_starts_at}}
+          class="block-events__item-date
+            {{if @topic.event_starts_at '--scheduled'}}"
+          datetime={{chip.iso}}
         >
-          {{formatEventStart @topic.event_starts_at}}
+          <span class="block-events__item-date-month">{{chip.month}}</span>
+          <span class="block-events__item-date-day">{{chip.day}}</span>
         </time>
-      {{else}}
-        <time class="block-events__item-date" datetime={{@topic.created_at}}>
-          {{dFormatDate @topic.created_at format="tiny"}}
-        </time>
-      {{/if}}
+      {{/let}}
       <span class="block-events__item-title">
         {{! `fancy_title` is already HTML. dReplaceEmoji escapes its input
             before substituting, so passing it through here double-encodes and

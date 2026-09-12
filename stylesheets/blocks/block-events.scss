@@ -42,10 +42,13 @@
     @include lane-list;
   }
 
+  // A row is a calendar chip and a title, after the `upcoming-events-list`
+  // widget on devcommunity.amd.com. The lane's own structure is untouched
+  // around it: two labelled groups, hairline separators, footer link.
   &__item-link {
     display: flex;
-    flex-direction: column;
-    gap: var(--space-half);
+    align-items: center;
+    gap: var(--space-3);
     color: inherit;
 
     &:hover .block-events__item-title,
@@ -54,27 +57,64 @@
     }
   }
 
+  // The chip. Sized in rem rather than px so it follows the reader's text size
+  // — core ships three of them — and keeps its square proportion at each.
   &__item-date {
-    color: var(--ga-muted-fg);
-    font-size: var(--font-down-2);
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+    display: flex;
+    flex: 0 0 auto;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--ga-border);
+    border-radius: var(--d-border-radius);
+    background: var(--ga-card);
 
-    // A real start time, not the topic's own date. Marked out so a scheduled
-    // event reads as actionable next to the plain topic dates it sits among.
-    // 500 is the system's emphasis weight; core serves only 400 and 700, so
-    // until Roboto Medium is vendored this renders at 400 and the colour is
-    // doing the work on its own.
+    // A real start time, not the topic's own date. Every row carries a chip,
+    // so this modifier is the only thing separating "this happens on the 5th"
+    // from "this was posted on the 7th". `--tertiary` is petrol on light and
+    // brand cyan on dark, and passes AA in both — unlike `--ga-mark`, which is
+    // a fill and a rule, never a text colour on a light surface.
     &.--scheduled {
+      border-color: var(--tertiary);
       color: var(--tertiary);
-      font-weight: 500;
+
+      .block-events__item-date-month {
+        color: inherit;
+      }
     }
   }
 
+  &__item-date-month {
+    color: var(--ga-muted-fg);
+    font-size: var(--font-down-2);
+    font-weight: 700;
+    line-height: 1;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  &__item-date-day {
+    font-size: var(--font-0);
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  // Two lines, not AMD's one. The panel is narrow enough that a single line
+  // truncates half this category's titles mid-word — "Reconocimientos que
+  // reflejan el valor de una gran comunidad" survives at two and does not at
+  // one. `min-width: 0` lets the column shrink below its longest word, which
+  // is what stops a long title pushing the chip out of the row.
   &__item-title {
+    display: -webkit-box;
+    min-width: 0;
+    overflow: hidden;
+    font-size: var(--font-down-1);
     font-weight: 700;
     line-height: var(--line-height-medium);
-    font-size: var(--font-down-1);
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
   }
 
   &__footer {

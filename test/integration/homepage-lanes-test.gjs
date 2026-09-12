@@ -288,6 +288,48 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       assert.dom(".block-events__item-date").exists({ count: 2 });
     });
 
+    // The chip is built here, not by core's date helpers: `dFormatDate` has no
+    // format that yields the two parts separately, and the future-date trap
+    // documented in `block-events.gjs` rules out the relative ones entirely.
+    //
+    // Both fixtures are built from local components at midday rather than from
+    // a UTC string, so the month and day a formatter renders in the runner's
+    // timezone cannot drift a day either side of midnight. CI's timezone is
+    // not ours to choose.
+    test("splits a scheduled date into a month and a day", async function (assert) {
+      stubStore(this.owner, [
+        topic({
+          id: 900046,
+          fancy_title: "Congreso",
+          event_starts_at: new Date(2026, 10, 5, 12).toISOString(),
+        }),
+      ]);
+
+      await renderEvents();
+
+      assert.dom(".block-events__item-date-month").hasText("Nov");
+      assert.dom(".block-events__item-date-day").hasText("5");
+    });
+
+    test("builds the chip from the topic's own date when there is no event", async function (assert) {
+      // Every row carries a chip, so the lane keeps one rhythm; only the
+      // `--scheduled` modifier separates a date you can still act on from the
+      // day a write-up was posted.
+      stubStore(this.owner, [
+        topic({
+          id: 900047,
+          fancy_title: "Cronica",
+          created_at: new Date(2026, 7, 1, 12).toISOString(),
+        }),
+      ]);
+
+      await renderEvents();
+
+      assert.dom(".block-events__item-date-month").hasText("Aug");
+      assert.dom(".block-events__item-date-day").hasText("1");
+      assert.dom(".block-events__item-date.--scheduled").doesNotExist();
+    });
+
     test("shows the archive alone rather than an empty heading", async function (assert) {
       stubStore(this.owner, [
         topic({
