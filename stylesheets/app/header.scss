@@ -89,7 +89,19 @@
     // they stay legible if the header's surface is ever changed independently.
     position: relative;
     color: var(--header_primary);
-    font-size: var(--font-down-1);
+
+    // Body size, not a step down. At --font-down-1 (13.93px against a 44px logo
+    // in a 72px bar) the menu read as small print beside the marca. Measured on
+    // devcommunity.amd.com, the reference for this header: its links are 16px at
+    // weight 400 — body size, regular — and that is what keeps them balanced
+    // without shouting. The menu grows from 449px to 512px, which still clears
+    // the logo and the icons at 1024px.
+    //
+    // The weight stays 400 deliberately. This theme loads Roboto in 400 and 700
+    // only, so a `font-weight: 500` is not a lighter bold: CSS matching drops it
+    // to 400 and nothing changes. Two screenshots taken at 400 and 500 came out
+    // byte-identical. A real medium would mean vendoring Roboto-Medium.woff2.
+    font-size: var(--font-0);
     white-space: nowrap;
     transition: color var(--ga-duration-fast) var(--ga-ease);
 

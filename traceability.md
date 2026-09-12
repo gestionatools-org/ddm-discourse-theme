@@ -2071,3 +2071,25 @@ on `--ga-duration-fast` — the bar crosses the whole label, and 120ms reads as 
 The colour stays on the fast step. `currentcolor` lets the bar inherit the link's tint
 rather than restating it. Reduced motion needs nothing: motion.scss already covers
 `*::after` globally.
+
+## 2026-09-12 — The header menu was small print (#PR)
+
+Ricardo found the header links undersized and asked for a little more weight too, again
+pointing at devcommunity.amd.com as the balanced reference. Measured there properly this
+time — the first probe had grabbed the "Skip to main content" link and reported its 16px as
+if it were the menu's: **AMD's nav links are 16px at weight 400**, body size and regular,
+on an 80px bar with a 43px logo. Ours were 13.93px (`--font-down-1`) on a 72px bar with a
+44px logo, which is where the imbalance came from.
+
+**The extra weight he asked for does not exist in this theme, and saying so mattered more
+than shipping something.** The instance serves Roboto in 400 and 700 only
+(`Roboto-Regular.woff2`, `Roboto-Bold.woff2`), so `font-weight: 500` falls back to 400 by
+CSS font matching. Two screenshots of the header at 16px/400 and 16px/500 came out
+**byte-identical** — the fastest possible proof, and the reason the option was withdrawn
+rather than shipped as a no-op. A genuine medium would mean vendoring
+`Roboto-Medium.woff2` into `assets/`; offered, and declined for now.
+
+Seven variants were rendered on PRE's real header and sent as screenshots: 13.93/400,
+16/400, 16/500, 15/500, 16/700, 15/400 and 16/400 with 0.012em tracking. Ricardo chose
+**16px / 400**, AMD's own values. The menu grows 449px → 512px and still clears the logo
+and the icons at 1024px.
