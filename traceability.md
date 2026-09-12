@@ -2035,3 +2035,21 @@ icons from core's default subset; and `needs.site` replaces the category list, s
 acceptance test appends the rooms to core's fixture rather than substituting for it.
 
 TDD through CI: 7 of 173 red — the new header tests and one topbar test — then green.
+
+## 2026-09-12 — The Academy link had no icon (#130)
+
+`book-open` is not in core's default icon subset: it carries `book` and
+`book-open-reader`. The sidebar link rendered with no icon at all — silently, exactly as
+the note about `SvgSprite.all_icons` never reading sidebar links said it would.
+
+**The check that should have caught it was wrong in a way worth remembering**: a
+`grep -w "book-open"` against the vendored `icons.md` matched, because a hyphen is a word
+boundary and the file contains `book`. Its apparent success is also why the planned "check
+the five icons rendering on PRE" step never ran. Ricardo caught it by eye the next morning.
+
+Fixed to `book` and verified where the sprite actually exists — in the page, injected by
+JS, so `curl` of the HTML finds no sprite URL at all: 364 symbols, `book`, `desktop`,
+`flag` present, `book-open` absent.
+
+`bin/forum-rooms-apply` now **enforces** the icon of every link it owns rather than setting
+it only at creation, so the next bad icon is fixed by a re-run rather than by hand.
