@@ -219,6 +219,15 @@ that configures a link — then green on all five checks.
 - **`bin/categories-reparent` stopped resending `description`.** The earlier version sent
   back `description_excerpt`, a truncated rendering, which would have overwritten a
   definition topic with its own excerpt. It never ran against a category that has one.
+- **The Academy link shipped with no icon, for a day.** `book-open` is not in core's default
+  subset — it has `book` and `book-open-reader` — so it rendered as nothing, silently, which
+  is the failure this design predicted in writing and then walked into. The check that was
+  supposed to prevent it was a `grep -w` against `icons.md`, and a hyphen is a word
+  boundary, so `book` matched `book-open`; the design's own "all five are checked rendering
+  on PRE" step was skipped because that grep looked conclusive. Ricardo saw it the next
+  morning. Fixed to `book`, verified in the browser against the live sprite (364 symbols,
+  `book-open` absent), and `bin/forum-rooms-apply` now enforces the icon of every link it
+  owns instead of only setting it at creation.
 - **The topbar test had a second consumer of the old settings** ("Topbar - admin routes"),
   not in the plan. It only set them to give the header something to render; it now sets a
   fixture category instead.

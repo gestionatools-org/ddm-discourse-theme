@@ -28,7 +28,10 @@ RENAMES = {16: "Recursos Analítica", 19: "Recursos Developers"}
 # have survived PROD; the relative path does. Icons come from core's default subset,
 # because SvgSprite.all_icons never reads sidebar links: anything else renders blank.
 NEW_LINKS = [
-    {"name": "Academy", "value": "https://espublico.gestiona.academy", "icon": "book-open"},
+    # `book`, not `book-open`: the default subset has `book` and `book-open-reader` and no
+    # `book-open`, so that one rendered as nothing on PRE — silently, exactly as the note
+    # about SvgSprite predicted, and it was caught by eye rather than by any check.
+    {"name": "Academy", "value": "https://espublico.gestiona.academy", "icon": "book"},
     {"name": "Demo Gestiona", "value": "https://demo-a.gestiona.espublico.com", "icon": "desktop"},
     {"name": "Primeros pasos", "value": "/c/primeros-pasos/78", "icon": "flag"},
 ]
@@ -89,6 +92,12 @@ def sidebar():
         }
         for link in section["links"]
     ]
+    # The icon of a link this script owns is enforced, not merely set at creation: fixing a
+    # bad icon has to be a re-run, not a hand edit.
+    icons = {link["value"]: link["icon"] for link in NEW_LINKS}
+    for link in links:
+        if link["value"] in icons:
+            link["icon"] = icons[link["value"]]
     present = {link["value"] for link in links}
     links += [{**link, "segment": "primary"} for link in NEW_LINKS if link["value"] not in present]
     before = [(link["name"], link["value"], link["icon"]) for link in section["links"]]
