@@ -2093,3 +2093,57 @@ Seven variants were rendered on PRE's real header and sent as screenshots: 13.93
 16/400, 16/500, 15/500, 16/700, 15/400 and 16/400 with 0.012em tracking. Ricardo chose
 **16px / 400**, AMD's own values. The menu grows 449px → 512px and still clears the logo
 and the icons at 1024px.
+
+## 2026-09-12 — Un cuadrado de fecha en cada fila de la agenda (#133)
+
+Ricardo pidió que los hitos de "Agenda del certificado" se vieran como la sección
+*upcoming events* de devcommunity.amd.com — **la tercera vez que ese sitio sirve de
+referencia esta semana, y sigue siendo medible en lugar de aproximado porque también corre
+Discourse**.
+
+Medido allí, no deducido: `.upcoming-events-list` monta cada fila como chip + contenido.
+Chip de 40×40 con `border-radius: 4px`, fondo blanco y borde gris de 1px; dentro, mes
+abreviado en mayúsculas a 10.56px sobre el día en negrita a 13.93px. A la derecha, título a
+**una** línea con `-webkit-line-clamp: 1` y una línea secundaria gris a 12.13px con la hora
+o el rango ("All day", "October 12 – 15, 2026"). Filas con `padding: 8px` y `gap: 8px`, sin
+separadores.
+
+**Lo que decidió el diseño no fue la referencia, sino los datos.** En la categoría 59 sólo
+**1 de 30** temas lleva `event_starts_at` (el IV Congreso, 5-nov 09:00–17:00): los otros 29
+son crónicas y anuncios sin fecha de evento. Un chip reservado a los eventos reales habría
+dejado el carril con una fila vestida y el resto desnudas. Ricardo eligió chip en todas las
+filas, con la fecha de publicación detrás de las crónicas, y pidió respetar toda la
+estructura — grupos Próximos/Anteriores, separadores, pie — cambiando sólo el hito:
+cuadrado con la fecha y el título, sin línea secundaria.
+
+Eso deja el `--scheduled` cargando todo el peso semántico: **es lo único que separa "esto
+ocurre el día 5" de "esto se publicó el día 7"**. Antes teñía un texto; ahora tiñe el borde
+y el día del chip en `--tertiary` (petrol en claro, cian de marca en oscuro, AA en ambos).
+
+**Medido en PRE contra la hoja compilada del tema**, con `CSSStyleSheet.insertRule` sobre
+`/login` — no con un `<style>` en `<head>`, por la razón ya registrada. Chip 46×46 (2.75rem
+más el borde), filas de 46–63px, carril de 382px, y a 320, 360 y 400px de ancho **ningún
+título recortado ni desbordado**. La hoja viva es la 0.60.0, así que la inyección declaró
+`flex-direction: row` de forma explícita para simular el estado final, donde la declaración
+`column` de la regla vieja ya no existe.
+
+**Dos líneas y no la única de AMD**: el panel es estrecho y a una línea se parte a media
+palabra el título más largo de la categoría ("Reconocimientos que reflejan el valor de una
+gran comunidad"), que a dos cabe entero incluso a 320px.
+
+`dFormatDate` se queda sin consumidor y sale del fichero: **no tiene ningún formato que
+devuelva el mes y el día por separado**, y sus formatos relativos ya estaban descartados
+para fechas futuras. El chip los saca de `Intl.DateTimeFormat`, con el locale de
+`<html lang>` como antes.
+
+TDD por CI, que aquí es el único corredor de QUnit: 2 de 175 en rojo con el mensaje correcto
+—`Element .block-events__item-date-month should exist`, en los dos tests nuevos y sin
+errores globales— y después 175/175 en verde. Las dos fechas de prueba se construyen con
+componentes locales al mediodía en vez de con una cadena UTC, para que el mes y el día no
+puedan bailar un día según la zona horaria del runner.
+
+`theme_version` 0.61.0. Fusionado como `2a5de6f`, con pull forzado en PRE el mismo minuto:
+`local_version` = `remote_version` = `2a5de6f`, `remote_compat_ref: None`, `updated_at`
+17:51 UTC. **Queda por ver con sesión iniciada** — el carril sólo existe para quien ha
+entrado — y ahí la pregunta abierta es si el chip neutro de las crónicas se lee como fecha
+del acto o como fecha de publicación.
