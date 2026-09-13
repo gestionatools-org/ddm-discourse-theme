@@ -467,6 +467,54 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       assert.dom(".block-forum__item-replies").includesText("7");
     });
 
+    test("filters the lane by the registered-idea tag", async function (assert) {
+      // The lane used to show the whole of category 18. It now shows what the
+      // team has marked as taken in — `idea-registrada`, 9 topics the day it
+      // was introduced — so the filter has to reach the **server**: a
+      // client-side pass over one fetched page would show only the registered
+      // ideas that happened to be among the 30 most recently bumped.
+      //
+      // `stubStore` above cannot answer this: it discards its arguments. This
+      // one keeps them, because what is under test is the query, not the
+      // markup it produces.
+      const queries = [];
+      this.owner.unregister("service:store");
+      this.owner.register(
+        "service:store",
+        {
+          findFiltered: async (type, options) => {
+            queries.push(options);
+            return { topics: [topic({ id: 900050 })] };
+          },
+        },
+        { instantiate: false }
+      );
+
+      withPluginApi((api) =>
+        api.renderBlocks("main-outlet-blocks", [
+          {
+            block: BlockForum,
+            args: {
+              title: "homepage.ideas.title",
+              categoryId: 18,
+              count: 6,
+              tag: "idea-registrada",
+            },
+          },
+        ])
+      );
+
+      await render(
+        <template><BlockOutlet @name="main-outlet-blocks" /></template>
+      );
+
+      assert.deepEqual(
+        queries[0]?.params?.tags,
+        ["idea-registrada"],
+        "the tag reaches the server-side query"
+      );
+    });
+
     test("drops the section heading link in compact form", async function (assert) {
       // In the panel the lane is a list, not a section: at ~430px a heading
       // with a trailing link wraps onto two lines and reads as a second

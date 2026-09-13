@@ -77,10 +77,12 @@ export default apiInitializer((api) => {
               },
             },
             {
-              // The ideas lane. Category 18 is the largest on the site (441
-              // topics, 3.6 replies/topic) and its listing answers even on a
-              // dormant instance, so this is the one panel slot that is never
-              // empty.
+              // The ideas lane. Category 18 is the largest on the site, but the
+              // lane no longer shows all of it: `ideas_tag` narrows it to the
+              // ideas the team has marked as registered. That trades the one
+              // panel slot that could never be empty for one that can, so the
+              // tag and the count are kept in step — nine tagged topics, nine
+              // rows — and the setting's own note carries the warning.
               block: BlockForum,
               id: "panel-ideas",
               args: {
@@ -91,6 +93,7 @@ export default apiInitializer((api) => {
                 emptyText: "homepage.ideas.empty",
                 categoryId: settings.ideas_category_id,
                 count: settings.panel_ideas_count,
+                tag: settings.ideas_tag,
                 compact: true,
               },
             },

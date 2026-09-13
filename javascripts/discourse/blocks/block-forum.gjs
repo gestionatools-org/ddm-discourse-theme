@@ -32,6 +32,16 @@ import { loadCategoryTopics } from "../lib/category-topics";
     emptyText: { type: "string", default: "homepage.forum.empty" },
     categoryId: { type: "number", required: true },
     count: { type: "number", default: 6 },
+    // Restricts the lane to topics carrying this tag, server-side — see
+    // `loadCategoryTopics`. Empty means the whole category, which is what this
+    // lane did until the ideas lane started showing only what the team has
+    // marked as registered.
+    //
+    // A tag that stops existing empties the lane **in silence**: the listing
+    // answers 200 with no topics, exactly as it does for a category with
+    // nothing in it. Renaming `idea-registrada` therefore means updating
+    // `ideas_tag` in the same pass.
+    tag: { type: "string", default: "" },
     // The panel variant. In the homepage panel this lane is a list inside a
     // section, not a section of its own: at ~430px a heading with a trailing
     // link wraps onto two lines and starts reading as a second section. So the
@@ -47,7 +57,8 @@ export default class BlockForum extends Component {
     return await loadCategoryTopics(
       this.store,
       this.args.categoryId,
-      this.args.count
+      this.args.count,
+      { tag: this.args.tag }
     );
   }
 
