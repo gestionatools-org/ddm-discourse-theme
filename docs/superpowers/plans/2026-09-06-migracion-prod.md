@@ -2,6 +2,8 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+> **SUPERSEDED 2026-09-13.** Never executed. The migration was replanned as three silent tranches with no maintenance window: see `docs/superpowers/specs/2026-09-13-migracion-silenciosa-design.md`. Its per-task API recipes are still the reference and will be lifted into the new plans; its task *order* and its window are not.
+
 **Goal:** Bring the tag vocabulary, subject layer, category structure and theme that were built on PRE to the production instance, during a staff-writes-only maintenance window.
 
 **Architecture:** No theme code changes until the last task. Everything else is instance configuration, tags and categories on `gestionaavanza.espublico.com`, applied through the Discourse admin API with a Global-scope key created for the window and revoked at the end. There is no test runner: each task measures the live state before, applies, and measures after — the "before" measurement is the failing test, and a task is done when its "after" measurement matches. Several tasks stop for Ricardo's decision mid-flight; those gates are marked and are not optional.
