@@ -129,7 +129,8 @@ them.
    thumbnail is lost.
 5. **Structural tagging by source category**, revalidating the August table row by row against
    the day's listing. Its Webinars row is known wrong for PROD: it assumes a merge that only
-   happened on PRE.
+   happened on PRE. The `programa-certificacion` tag group is recreated in the same pass, over
+   `administracion-avanzada`, `analiza` and `developers`, with `one_per_topic: true`.
 6. **Spelling depuration.** Eleven families measured on PROD, with the canonical form chosen
    by **PROD's counts, not PRE's** — `webinar`(11) there against `webinars`(56) here. Plus one
    unaccented synonym per accented tag: `#padron` without the accent does not return zero, it
