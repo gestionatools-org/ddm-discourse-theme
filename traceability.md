@@ -2189,3 +2189,45 @@ ojo de Ricardo en PRE.
 
 `theme_version` 0.62.0, fusionado como `0306487`, pull forzado y verificado el mismo minuto:
 `local_version` = `remote_version` = `0306487`, `updated_at` 10:28 UTC.
+
+## 2026-09-13 — Ideas a tamaño de cuerpo, nueve filas y un nombre nuevo (#137)
+
+Con la agenda ya a 16px en PRE, Ricardo pidió subir también el carril de ideas, **compensar
+la altura** y renombrar la sección a "Últimas ideas registradas".
+
+**La compensación salió exacta, y ese es el dato que conviene guardar: nueve filas a 16px
+miden lo mismo que diez a 13.93px.** Medido en PRE contra la hoja compilada, con los títulos
+reales de la categoría 18: **611px → 611px** en un panel de 324px y **524px → 520px** en uno
+de 428px. Así que `panel_ideas_count` 10 → 9 devuelve el panel a la altura que ya tenía, sin
+tocar nada más.
+
+**Los dos carriles del panel no cuestan lo mismo, y el motivo es estructural.** En la agenda
+la altura de cada fila la fija el chip de 46px, así que subir la letra fue gratis. Aquí la
+fija el texto, y cada fila crece 3–6px. Cualquier cambio tipográfico futuro en el panel se
+lee con esa asimetría delante.
+
+**Medir con títulos reales no fue un adorno.** La categoría 18 tiene títulos de hasta 108
+caracteres; un fixture de títulos cortos habría dado un crecimiento por fila mucho menor y la
+compensación habría salido mal. Se midieron doce títulos traídos de la API, incluido uno que
+empieza por `##34567 -`.
+
+**`panel_ideas_count` no tenía override en PRE**, así que bajar el default del tema llegó
+solo: tras el pull la instancia lee 9, `overridden: None`. Merece decirlo porque este fichero
+advierte justo de lo contrario — un setting escrito a mano sobre la instancia se convierte en
+override y deja de seguir al tema. Comprobar cuál de los dos casos es, antes de cambiar un
+default, es la diferencia entre un cambio que viaja y uno que no.
+
+**El renombrado tiene un motivo, no es cosmético**: "Tengo una idea" era una invitación
+puesta sobre un carril que lista lo que **otros ya han escrito**. "Últimas ideas registradas"
+describe lo que hay. En inglés quedó "Latest ideas posted" — **esa traducción es mía, solo se
+especificó el español**. `link_text` ("Comparte tu idea") conserva la invitación, que es lo
+que sí necesita el enlace. Ningún test tocó fondo: todos parten de la clave i18n, y el único
+texto asertado del carril es su mensaje de vacío.
+
+Dos comentarios se quedaban mintiendo con el cambio y se corrigieron en el mismo PR: el de
+`block-events.scss` decía que ideas seguía en `--font-down-1`, y el de `block-forum.gjs`
+nombraba "Tengo una idea" al contar su historia — ahora dice "la franja de ideas", que
+sobrevive a cualquier renombrado futuro.
+
+`theme_version` 0.63.0, fusionado como `1a0a77c`, pull forzado y verificado: `local_version`
+= `remote_version` = `1a0a77c`, `updated_at` 12:38 UTC, `panel_ideas_count` = 9.
