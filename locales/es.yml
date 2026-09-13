@@ -72,7 +72,7 @@ es:
       upcoming: "Próximamente"
       past: "Celebrados"
     ideas:
-      title: "Tengo una idea"
+      title: "Últimas ideas registradas"
       link_text: "Comparte tu idea"
       empty: "Todavía no hay ideas."
     # Lo renderiza BlockForum para la franja de ideas. `empty` es el valor por

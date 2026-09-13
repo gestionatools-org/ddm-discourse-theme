@@ -72,7 +72,7 @@ en:
       upcoming: "Coming up"
       past: "Past events"
     ideas:
-      title: "Ideas from the community"
+      title: "Latest ideas posted"
       link_text: "Share an idea"
       empty: "No ideas yet."
     # Rendered by BlockForum for the ideas lane. `empty` is the component's arg

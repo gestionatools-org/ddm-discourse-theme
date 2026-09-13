@@ -118,10 +118,10 @@
   // size of the reading column's own topic links
   // (`--d-topic-list-title-font-size`) — the panel should not compete with it.
   //
-  // The ideas lane below keeps `--font-down-1` for now, so the panel's two
-  // cards no longer share a row type. That is Ricardo's call, to see this one
-  // on PRE first; matching them costs ideas 3–6px a row, which is real because
-  // nothing fixes its row height the way the chip fixes this one.
+  // The ideas lane below matches this size. It was held back one release on
+  // purpose, to be looked at on PRE first, and cost 3–6px a row when it
+  // followed — real height, because nothing fixes its rows the way the chip
+  // fixes these. `panel_ideas_count` went 10 -> 9 to pay for it.
   &__item-title {
     display: -webkit-box;
     min-width: 0;

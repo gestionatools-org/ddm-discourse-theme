@@ -17,7 +17,7 @@ import { loadCategoryTopics } from "../lib/category-topics";
     linkText: { type: "string" },
     linkUrl: { type: "string" },
     // An arg, not a constant: this component used to back two lanes — the forum
-    // and "Tengo una idea" — and only the icon told them apart. The forum lane
+    // and the ideas lane — and only the icon told them apart. The forum lane
     // is gone but the parameterisation stays, so a second lane can return
     // without forking the component. Any icon outside core's default Font
     // Awesome subset also needs an entry in about.json's `svg_icons`, which
