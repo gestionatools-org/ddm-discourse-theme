@@ -93,6 +93,22 @@ ideas_category_id:
 panel_ideas_count:
   type: integer
   default: 9
+
+# What the lane shows: not the whole category, but the topics the team has
+# marked as taken in. Applied server-side, so it selects across all 527 topics
+# of the category rather than across the one page the lane fetches.
+#
+# Created on PRE on 2026-09-13 and applied to the nine most active topics, which
+# is exactly `panel_ideas_count` — so the lane fills today and shows the nine
+# most recently active registered ideas as the tag spreads.
+#
+# Empty restores the old behaviour (the whole category). **A tag that stops
+# existing empties the lane in silence** — the listing answers 200 with no
+# topics, indistinguishable from an empty category — so a rename on the instance
+# has to be mirrored here. Same failure mode `showcase_tag` carried.
+ideas_tag:
+  type: string
+  default: "idea-registrada"
   min: 1
   max: 20
 
