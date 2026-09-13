@@ -84,9 +84,15 @@ ideas_category_id:
 # roughly the foot of the latest list beside it; tune it against the live page,
 # since the two lists have different row heights and the events card above it
 # varies.
+#
+# 10 -> 9 when the lane went to body size. The larger type adds 3-6px a row, and
+# nine rows at 16px come out at exactly the height ten rows had at 13.93px:
+# measured on PRE against the compiled sheet, with this category's real titles,
+# 611px -> 611px at a 324px panel and 524px -> 520px at 428px. So the panel holds
+# the height it had, which is what the events lane gets for free from its chip.
 panel_ideas_count:
   type: integer
-  default: 10
+  default: 9
   min: 1
   max: 20
 

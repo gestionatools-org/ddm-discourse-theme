@@ -59,12 +59,21 @@
 // `lane-frame`, `lane-header` and `lane-list` with the events lane above it and
 // the latest list — the frame, the title size and the row rhythm all come from
 // there. The heading loses its trailing link in the template (at ~430px it
-// wrapped onto a second line and read as a new section), so all `--compact`
-// still adds is a smaller row title.
+// wrapped onto a second line and read as a new section).
+//
+// Body size, matching the events lane above: the two share a frame and now
+// share a row type, so the panel reads as one column rather than as a card and
+// a footnote. `--compact` is therefore no longer "the smaller row title" — what
+// it still carries is the linkless heading.
+//
+// **Unlike the events lane, this one pays for the size**, because nothing here
+// fixes a row's height the way the 46px chip fixes one there: rows grow 3-6px
+// each. `panel_ideas_count` absorbs it — see the note on the setting, which
+// dropped 10 -> 9 in the same change to hold the panel at the height it had.
 .block-forum.--compact {
   @include lane-frame;
 
   .block-forum__item-title {
-    font-size: var(--font-down-1);
+    font-size: var(--font-0);
   }
 }
