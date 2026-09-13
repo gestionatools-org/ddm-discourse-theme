@@ -28,3 +28,5 @@ CLAUDE.local.md
 # of identified public-sector employees — so they stay on disk and out of a public repo.
 docs/superpowers/plans/data/*-prior-state.json
 docs/superpowers/plans/data/*-move-proposals.json
+docs/superpowers/plans/data/*-capture.json
+docs/superpowers/plans/data/*-title-proposals.json

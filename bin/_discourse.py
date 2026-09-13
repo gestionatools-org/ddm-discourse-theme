@@ -2,24 +2,49 @@
 import json
 import os
 import re
+import sys
 import time
 import urllib.error
 import urllib.parse
 import urllib.request
 
-PAUSE = 1.3  # PRE rate-limits at roughly 1 req/s
+PAUSE = 1.3  # both instances rate-limit at roughly 1 req/s
+
+_ANNOUNCED = False
 
 # The environment is read at call time, not at import. Importing this module must stay
 # free of credentials so a caller's pure-function self-test can run without .env.local —
 # which is exactly what a rule test should need.
 
 
+def _instance():
+    """Which instance this process talks to. There is deliberately no default.
+
+    A default is how a script meant for PRE ends up writing to production. An unset or
+    unknown value dies here rather than silently picking one.
+    """
+    value = os.environ.get("DISCOURSE_INSTANCE")
+    if value not in ("PRE", "PROD"):
+        raise SystemExit(
+            f"DISCOURSE_INSTANCE={value!r}: set it to PRE or PROD. There is no default — "
+            "guessing the instance is how a script meant for PRE writes to production."
+        )
+    return value
+
+
+def _env(suffix):
+    name = f"{_instance()}_DISCOURSE_{suffix}"
+    if name not in os.environ:
+        raise SystemExit(f"{name} is not set. Did you `set -a && source .env.local && set +a`?")
+    return os.environ[name]
+
+
 def _url():
-    return os.environ["PRE_DISCOURSE_URL"].rstrip("/")
+    return _env("URL").rstrip("/")
 
 
 def _user():
-    return os.environ["PRE_DISCOURSE_API_USERNAME"]
+    return _env("API_USERNAME")
 
 
 def _key(elevated):
@@ -31,7 +56,17 @@ def _key(elevated):
     with the granular read-only key, which is why this flag is named after the key it
     picks rather than after the HTTP verb. Never log either value.
     """
-    return os.environ["PRE_DISCOURSE_GLOBAL_API_KEY" if elevated else "PRE_DISCOURSE_API_KEY"]
+    return _env("GLOBAL_API_KEY" if elevated else "API_KEY")
+
+
+def banner():
+    """Print instance and URL once per process, to stderr, so no log is ambiguous about
+    what it ran against. The URL is not a secret; the key never appears here.
+    """
+    global _ANNOUNCED
+    if not _ANNOUNCED:
+        print(f"[{_instance()}] {_url()}", file=sys.stderr)
+        _ANNOUNCED = True
 
 
 def request(method, path, data=None, elevated=False, retries=4, allow_404=False):
@@ -40,6 +75,7 @@ def request(method, path, data=None, elevated=False, retries=4, allow_404=False)
     Rails wants repeated keys for arrays (`topic_ids[]`) and bracketed keys for nested
     hashes (`operation[type]`), which a plain dict cannot express — hence the pair list.
     """
+    banner()
     headers = {"Api-Key": _key(elevated), "Api-Username": _user(), "Accept": "application/json"}
     body = None
     if data is not None:
