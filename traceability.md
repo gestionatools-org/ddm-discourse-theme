@@ -2301,3 +2301,40 @@ antes de escribir.
 `theme_version` 0.64.0, fusionado como `e1922b4`, pull forzado y verificado: `local_version` =
 `remote_version` = `e1922b4`, `updated_at` 13:03 UTC, `ideas_tag` = `idea-registrada` y
 `panel_ideas_count` = 9, ambos siguiendo al tema sin override.
+
+## 2026-09-13 — `idea-registrada` restringida a staff
+
+Estado de instancia, sin tocar el tema. En Discourse el permiso de una etiqueta no vive en la
+etiqueta: vive en un **grupo de etiquetas**. Creado "Estado de idea" (id 14) con
+`permissions = {"3": 1, "0": 3}` — staff puede aplicarla, todos los demás solo verla y
+filtrar por ella. La etiqueta ya reporta `staff: true`, sigue con 9 usos y
+`bin/tags-verify` sigue en PASS.
+
+**`everyone` lleva lectura explícita (3), no ausencia**, y es deliberado: el carril filtra por
+la etiqueta en el servidor, así que si los no-staff no pudieran verla el carril podría
+quedárseles vacío justo a quienes va dirigido. Omitir el 0 habría sido el error silencioso
+fácil.
+
+Dos hechos que corrigen o amplían lo que había escrito:
+
+- **`permissions` sí se acepta — en JSON.** La nota que arrastrábamos decía que enviarlo da
+  500, y era cierta para `application/x-www-form-urlencoded`, que fue como se creó el grupo
+  desechable de la etiqueta. Como `Content-Type: application/json` el `POST /tag_groups.json`
+  respondió **200 a la primera**, con los permisos ya puestos. La nota de `CLAUDE.local.md`
+  ("Send no `permissions` parameter") merece ese matiz.
+- **Los grupos automáticos tienen el nombre traducido, así que hay que resolverlos por id.**
+  Aquí son `administradores`(1), `moderadores`(2) y **`personal`(3), que es *staff*, 14
+  personas**. `/g/staff.json` y `/g/admins.json` responden **404**: los nombres canónicos
+  ingleses no existen en esta instancia. El listado que sí los devuelve todos es
+  `/groups/search.json` — `/groups.json` solo sacó el id 1, y `/admin/groups.json` no devuelve
+  JSON. Asumir "staff = 3" habría acertado por convención, pero un permiso mal puesto deja la
+  etiqueta abierta o bloquea a todo el mundo, así que se comprobó.
+
+El nombre del grupo se eligió para no ensombrecer nada: `#estado-de-idea` no colisiona con
+ninguna etiqueta ni categoría, comprobado antes de crearlo. Llamarlo como la etiqueta habría
+sido justo el fallo que ya se pagó con `#configuracion` y con `#eventos`.
+
+**Sin comprobar, y no se puede desde aquí**: que un miembro no-staff vea la etiqueta y no
+pueda aplicarla. La API responde con los permisos de la clave, que es de administrador — el
+mismo hueco que arrastran las salas 89/90/91 y `hero_default_category_id`. Hace falta una
+sesión con una cuenta normal.
