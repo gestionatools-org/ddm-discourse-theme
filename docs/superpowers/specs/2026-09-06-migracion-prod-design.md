@@ -1,7 +1,11 @@
 # Migrating PRE's work to PROD — design
 
 **Date:** 2026-09-06
-**Status:** agreed in brainstorming, not executed. Nothing here has been applied to PROD.
+**Status:** **SUPERSEDED 2026-09-13 by `2026-09-13-migracion-silenciosa-design.md`.** Never
+executed; nothing here was applied to PROD. Its *structure* is replaced — the staff-writes-only
+window is gone (a read-only notice is the opposite of a silent migration) and Phase 2 was
+already void. **Its PROD measurements, its tag mechanics and its per-task API recipes remain
+the reference** and are cited rather than repeated by the new spec.
 **Scope:** `gestionaavanza.espublico.com` (PROD). Instance configuration, tags and categories,
 then the theme. Executed during a **staff-writes-only maintenance window** next week.
 **Depends on:** `2026-08-25-category-reorganisation-design.md` (its Phase 3 table and instance
