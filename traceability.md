@@ -2147,3 +2147,45 @@ puedan bailar un día según la zona horaria del runner.
 17:51 UTC. **Queda por ver con sesión iniciada** — el carril sólo existe para quien ha
 entrado — y ahí la pregunta abierta es si el chip neutro de las crónicas se lee como fecha
 del acto o como fecha de publicación.
+
+## 2026-09-13 — Los hitos de la agenda, a tamaño de cuerpo (#135)
+
+Ricardo vio el chip en PRE y pidió subir el tamaño de letra de los hitos. `--font-down-1`
+(13.93px) a `--font-0` (16px), solo en la agenda.
+
+**El hallazgo que decidió el tamaño: subir la letra no alarga el carril.** La altura de cada
+fila la fija el **chip de 46px**, no el título — dos líneas incluso a 18.4px miden 44px y
+caben dentro. Medido en PRE contra la hoja compilada, el carril mide **382px a 13.9, 16 y
+18.4px por igual**. La primera lectura de ese 382 repetido pareció un error de medición y no
+lo era; perseguirlo hasta entenderlo es lo que convirtió un número sospechoso en el
+argumento.
+
+**Los anchos del panel se derivan del grid, no se adivinan**, y conviene tenerlos escritos:
+la sección 1 reparte `minmax(0, 1.85fr) minmax(0, 1fr)` con `gap: var(--space-5)`, así que
+el panel mide **428px** con el contenedor a 1240 (ventana 1920 con sidebar) y **324px** con
+el contenedor a 944 (ventana 1280 con sidebar). Por debajo de 896px de contenedor la sección
+se apila y el panel pasa a ancho completo. Las medidas anteriores a 320/360/400 eran
+aproximaciones razonables; estas son los dos anchos que la página produce de verdad.
+
+A 428px no se recorta ningún título. A 324px el clamp de dos líneas corta **uno de los
+cuatro** — el más largo de la categoría — y deja dos tercios.
+
+**`--font-up-1` (18.4px) se descartó midiéndolo, no por criterio**: no gana nada en altura,
+pone los cuatro títulos a dos líneas a 324px (el carril se vuelve un muro uniforme) y es el
+tamaño de los enlaces de la columna de lectura (`--d-topic-list-title-font-size`), con lo que
+el panel competiría con ella.
+
+**El carril de ideas se queda en `--font-down-1` a propósito**, por decisión de Ricardo, para
+ver primero este en PRE. Los dos comparten marco y hasta ahora compartían tipo, así que el
+panel queda desparejo en su mitad inferior mientras tanto. Igualarlos cuesta **3,1px por fila
+a 324px y 6px a 428px** — sobre las 10 filas de `panel_ideas_count`, 31px y 60px — porque
+ahí manda el texto y no hay chip que fije la altura. Medido con los títulos reales de la
+categoría 18, que llegan a 108 caracteres; un fixture de títulos cortos habría subestimado
+todas esas cifras.
+
+Sin ciclo rojo: no hay comportamiento nuevo y los tests no miran tipografía — la hoja
+compilada no se carga en QUnit, así que el tamaño no es observable ahí. La comprobación es el
+ojo de Ricardo en PRE.
+
+`theme_version` 0.62.0, fusionado como `0306487`, pull forzado y verificado el mismo minuto:
+`local_version` = `remote_version` = `0306487`, `updated_at` 10:28 UTC.
