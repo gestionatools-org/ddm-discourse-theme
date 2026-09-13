@@ -1,0 +1,68 @@
+#!/usr/bin/env python3
+"""Assert that instance resolution refuses to guess. No credentials needed.
+
+`_discourse` reads the environment at call time, not at import, so this can import it
+with nothing set and still drive every branch.
+"""
+import os
+import pathlib
+import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import _discourse as d  # noqa: E402
+
+FAILURES = []
+
+
+def check(label, fn, expect_exit, contains=None):
+    try:
+        value = fn()
+    except SystemExit as exc:
+        if not expect_exit:
+            FAILURES.append(f"{label}: unexpected SystemExit({exc})")
+        elif contains and contains not in str(exc):
+            FAILURES.append(f"{label}: message {str(exc)!r} lacks {contains!r}")
+        return
+    if expect_exit:
+        FAILURES.append(f"{label}: expected SystemExit, got {value!r}")
+        return
+    return value
+
+
+os.environ.pop("DISCOURSE_INSTANCE", None)
+check("unset dies", d._instance, expect_exit=True, contains="DISCOURSE_INSTANCE")
+
+os.environ["DISCOURSE_INSTANCE"] = "pre"
+check("lowercase dies", d._instance, expect_exit=True, contains="PRE or PROD")
+
+os.environ["DISCOURSE_INSTANCE"] = "STAGING"
+check("unknown dies", d._instance, expect_exit=True, contains="PRE or PROD")
+
+for instance, url, user, ro, rw in [
+    ("PRE", "https://pre.example/", "u-pre", "k-pre-ro", "k-pre-rw"),
+    ("PROD", "https://prod.example/", "u-prod", "k-prod-ro", "k-prod-rw"),
+]:
+    os.environ["DISCOURSE_INSTANCE"] = instance
+    os.environ[f"{instance}_DISCOURSE_URL"] = url
+    os.environ[f"{instance}_DISCOURSE_API_USERNAME"] = user
+    os.environ[f"{instance}_DISCOURSE_API_KEY"] = ro
+    os.environ[f"{instance}_DISCOURSE_GLOBAL_API_KEY"] = rw
+    if d._url() != url.rstrip("/"):
+        FAILURES.append(f"{instance}: _url() -> {d._url()!r}")
+    if d._user() != user:
+        FAILURES.append(f"{instance}: _user() -> {d._user()!r}")
+    if d._key(False) != ro:
+        FAILURES.append(f"{instance}: read key resolved to the wrong variable")
+    if d._key(True) != rw:
+        FAILURES.append(f"{instance}: elevated key resolved to the wrong variable")
+
+os.environ["DISCOURSE_INSTANCE"] = "PROD"
+os.environ.pop("PROD_DISCOURSE_GLOBAL_API_KEY", None)
+check("missing variable dies", lambda: d._key(True), expect_exit=True, contains="PROD_DISCOURSE_GLOBAL_API_KEY")
+
+if FAILURES:
+    print("FAIL")
+    for f in FAILURES:
+        print("  " + f)
+    raise SystemExit(1)
+print("PASS  instance resolution refuses to guess, and each instance reads its own variables")
