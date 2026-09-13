@@ -32,6 +32,11 @@ import { loadCategoryTopics } from "../lib/category-topics";
     emptyText: { type: "string", default: "homepage.forum.empty" },
     categoryId: { type: "number", required: true },
     count: { type: "number", default: 6 },
+    // Declared before it is honoured, on purpose. An arg a block receives but
+    // has not declared raises an uncaught BlockError that aborts the **whole**
+    // QUnit run — 25 of 56 tests never ran the day that was learned — so the
+    // red step of a TDD cycle reports nothing unless the arg already exists.
+    tag: { type: "string", default: "" },
     // The panel variant. In the homepage panel this lane is a list inside a
     // section, not a section of its own: at ~430px a heading with a trailing
     // link wraps onto two lines and starts reading as a second section. So the
