@@ -2231,3 +2231,73 @@ sobrevive a cualquier renombrado futuro.
 
 `theme_version` 0.63.0, fusionado como `1a0a77c`, pull forzado y verificado: `local_version`
 = `remote_version` = `1a0a77c`, `updated_at` 12:38 UTC, `panel_ideas_count` = 9.
+
+## 2026-09-13 — El carril de ideas pasa a mostrar lo registrado (#139)
+
+Ricardo pidió una etiqueta `idea-registrada` y que el carril muestre los temas que la llevan.
+Etiqueta creada (id 293), nueve temas etiquetados, `ideas_tag` como ajuste nuevo y el filtro
+aplicado **en servidor**: `loadCategoryTopics` ya traía la opción, así que selecciona sobre
+los 527 temas de la categoría y no sobre la única página que el carril descarga. Un filtro
+en cliente habría mostrado solo las ideas registradas que estuvieran entre los 30 temas con
+actividad más reciente.
+
+**El orden importaba y se acordó antes de tocar nada**: etiquetar primero, filtrar después.
+Al revés, el carril habría quedado vacío en la home —en el único tema instalado, sin error—
+hasta que alguien etiquetase. Con nueve etiquetados y `panel_ideas_count` en 9, el carril
+llena desde el primer día.
+
+### El incidente: 13 etiquetas basura y nueve temas despojados
+
+**Lo peor de la sesión, y la parte que hay que recordar.** Las etiquetas que devuelve
+`/t/<id>.json` son **objetos** `{id, name, slug}`, no cadenas. Añadir una obliga a reenviar
+el conjunto entero (el `PUT` reemplaza, no añade), y reenviar esos objetos a través de
+`urlencode(..., doseq=True)` los serializa con `str()`. Discourse **aceptó** el resultado
+como nombre de etiqueta, truncado a 30 caracteres: `id:-59-name:-mejoras-slug:-mej`. Devolvió
+**200** nueve veces.
+
+Resultado: el vocabulario pasó de 104 a 117, y los nueve temas perdieron sus etiquetas reales
+—`mejoras`, `expedientes`, `padrón`, `administracion-avanzada`…— conservándose solo
+`idea-registrada`.
+
+**Se reparó entero**: los nueve temas tienen otra vez sus etiquetas originales más la nueva,
+las 13 basura están borradas, el vocabulario volvió a **104** exacto y `bin/tags-verify` está
+en PASS. Tres cosas hicieron posible la reparación, y son la lección:
+
+- **El script defectuoso había impreso el estado previo de cada tema antes de escribir.** Esa
+  captura, hecha por costumbre y no por previsión, es la única razón de que la restauración
+  fuera exacta en vez de reconstruida de memoria. Captura siempre el estado anterior por tema
+  antes de una escritura masiva.
+- **El 200 no dice nada.** Hay que releer los nombres tema por tema después de escribir. El
+  recuento de etiquetas por tema era incluso correcto; solo los nombres delataban el estropicio.
+- **Hubo un aviso y se leyó mal.** Minutos antes, un `Counter` sobre esas mismas etiquetas
+  había petado con `TypeError: unhashable type: 'dict'`. Se trató como una molestia de
+  parseo en vez de como lo que era: un hecho sobre la forma del dato.
+
+Guardado en memoria como `discourse-tags-come-back-as-objects`.
+
+### Dos mecánicas que vuelven a confirmarse
+
+- **No hay endpoint para crear una etiqueta.** Se crea nombrándola en un grupo desechable
+  (`POST /tag_groups.json` con `tag_names[]`, **sin** `permissions`, que da 500) y borrando el
+  grupo después: eso destruye las membresías, no las etiquetas. El primer intento murió en el
+  shell (`failed to change group ID`, por una sustitución de comando anidada) **después** de
+  que la API hubiera creado el grupo, así que el reintento tuvo que ser idempotente: comprobar
+  antes de crear, y barrer grupos `tmp-` colgados.
+- **Un arg no declarado tumba la suite entera de QUnit**, no el test. Por eso el paso rojo
+  declaró `tag` inerte y el fallo salió informativo: **175 pass / 1 fail**, el único fallo la
+  aserción nueva. Sin esa declaración previa el rojo no habría dicho nada.
+
+### Lo que se ha cambiado a peor, a sabiendas
+
+El carril de ideas era **el único hueco del panel que no podía quedarse vacío** (la categoría
+18 responde siempre). Ahora depende de una etiqueta, y **una etiqueta que deje de existir lo
+vacía en silencio**: el listado responde 200 sin temas, indistinguible de una categoría vacía.
+Está escrito en la nota del propio ajuste. Si se renombra `idea-registrada` en la instancia,
+hay que mover `ideas_tag` en la misma pasada — mismo modo de fallo que ya cargó `showcase_tag`.
+
+Etiquetar no costó miniaturas: **ningún tema de la categoría 18 tiene `image_url`**, medido
+antes de escribir.
+
+`theme_version` 0.64.0, fusionado como `e1922b4`, pull forzado y verificado: `local_version` =
+`remote_version` = `e1922b4`, `updated_at` 13:03 UTC, `ideas_tag` = `idea-registrada` y
+`panel_ideas_count` = 9, ambos siguiendo al tema sin override.
