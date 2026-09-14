@@ -66,6 +66,9 @@ es:
       empty: "Todavía no hay publicaciones."
     events:
       title: "Agenda del certificado"
+      # Sin uso hoy: la home dejó de pasar `linkUrl` al carril de agenda, así
+      # que no se renderiza ningún botón de pie. Se conserva porque el bloque
+      # sigue aceptando el arg — reactivarlo no debe mostrar una clave cruda.
       link_text: "Ver agenda"
       empty: "No hay eventos programados."
       # Group headings. The lane is a record as much as an announcement, so

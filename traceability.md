@@ -2437,3 +2437,25 @@ importe solo `app/mixins` y el bloque que interese.
 va a 400. El carril de ideas comparte panel justo debajo y pone sus títulos en negrita; una
 columna de títulos normales sobre otra de negritas se lee como dos niveles, no como una
 lista. Se dijo al reportar, por si Ricardo prefiere lo contrario.
+
+## 2026-09-14 — Un píxel bajo el título del evento, y fuera "Ver agenda" (#PR)
+
+`theme_version` 0.67.0. Dos cambios pequeños en la agenda, ambos pedidos tras ver el carril
+en PRE ("visto y conforme" al modelo de AMD).
+
+**El píxel es literal y no un token.** `margin-block-start: 1px` en `__item-when`: las dos
+líneas viven en la misma columna flex y lo que faltaba era el pelo de aire que impide que la
+fecha toque los descendentes del título. El token más pequeño (`--space-1`, 4px) es cuatro
+veces eso y ya se lee como hueco. Medido en PRE con la hoja del tema: el hueco pasa de **0 a
+1px**, la fila **sigue a 46px** porque la fija el cuadrado, y la columna de contenido va de
+36 a 37.
+
+**El enlace "Ver agenda" sale del initializer, no del bloque.** Basta con no pasar `linkUrl`:
+el `{{#if @linkUrl}}` del pie deja de renderizar. `BlockEvents` conserva el arg — el carril de
+últimas publicaciones sigue pasando el suyo — así que recuperar el botón son dos líneas en
+`homepage-blocks.gjs` y no un cambio en el bloque. Es el mismo criterio de "quitar carriles,
+conservar helpers" de #73.
+
+**Las cadenas `events.link_text` se quedan en `en.yml` y `es.yml`, comentadas.** Sin uso hoy,
+pero si alguien las borra y luego reactiva el botón, lo que sale es una clave cruda. El
+comentario lo dice en el fichero para que no haya que deducirlo.

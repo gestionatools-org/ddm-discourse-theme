@@ -66,12 +66,16 @@ export default apiInitializer((api) => {
               // discourse-calendar's `display_post_event_date_on_topic_title`
               // is on — it is, on this instance — otherwise every row falls
               // back to the topic's own date.
+              //
+              // No `linkUrl`, so no "Ver agenda" footer: the lane is a glance
+              // at what is coming, and a reader who wants the category can
+              // click any row to land in it. `BlockEvents` keeps the arg — the
+              // latest lane still passes one — so restoring the button is two
+              // lines here rather than a change to the block.
               block: BlockEvents,
               id: "panel-events",
               args: {
                 title: "homepage.events.title",
-                linkText: "homepage.events.link_text",
-                linkUrl: `/c/${settings.events_category_id}`,
                 categoryId: settings.events_category_id,
                 count: settings.events_count,
               },
