@@ -2338,3 +2338,42 @@ sido justo el fallo que ya se pagó con `#configuracion` y con `#eventos`.
 pueda aplicarla. La API responde con los permisos de la clave, que es de administrador — el
 mismo hueco que arrastran las salas 89/90/91 y `hero_default_category_id`. Hace falta una
 sesión con una cuenta normal.
+
+## 2026-09-14 — Menos rayas en los carriles de la home (#PR)
+
+`theme_version` 0.65.0. Solo SCSS, tres ficheros y un mixin compartido.
+
+Ricardo: *«entre los eventos no quiero que añadas una raya de separación. Con el espaciado es
+suficiente. Es sobrecarga visual»*, y la raya bajo el título de **Agenda del certificado** y
+**Tengo una idea** fuera, la de **Últimas publicaciones** dentro.
+
+Tres cortes:
+
+- **`lane-list` pierde los separadores entre filas**, así que los pierden la agenda y las
+  ideas a la vez. Es lo que se decidió al preguntar: las dos tarjetas van apiladas en el mismo
+  panel y comparten tipo de fila, de modo que dejar una rayada y la otra no se habría leído
+  como incoherencia y no como jerarquía. El parámetro no existe — ningún consumidor quería
+  conservarlas, y un `$separators` que nadie pasa es código muerto.
+- **El espaciado de fila sube `--space-2` → `--space-3`**, de 16px a 24px entre filas. Sin
+  raya el aire es lo único que separa, y no podía quedarse igual. **Cuesta altura y es
+  aritmética, no estimación**: el relleno interior de una lista de N filas pasa de `16N−16` a
+  `24N−24`, o sea **+8px por cada fila menos una** — con `panel_ideas_count` en 9 son 64px
+  más en el carril de ideas. El dial, si el panel desborda la columna de lectura, sigue siendo
+  ese ajuste.
+- **`lane-header` gana `$rule`, apagado por defecto.** Solo `block-latest` lo enciende, y por
+  una razón concreta: su contenido es la tabla de core, que abre con su propia fila de
+  cabecera, y sin la raya el título del carril y las etiquetas de columna se apilan como un
+  solo bloque de rótulos. La agenda y las ideas abren directamente en filas. Donde no hay
+  raya, el hueco sube un paso (`--space-4` en lugar de `--space-3` + `--space-2`).
+
+De propina, y por la misma lógica, **la raya entre los grupos PRÓXIMOS y PASADOS de la agenda
+también sale** — el rótulo en mayúsculas ya marcaba el límite. Queda `margin-top: --space-5`.
+
+El filo lateral (`border-inline-start`) se queda en los tres. Es el que dice «esto es una
+sección»; la raya inferior lo repetía por segunda vez en cada uno de tres carriles ya
+enmarcados, que es justo la sobrecarga que Ricardo señaló.
+
+**Sin comprobar desde aquí:** cómo queda la altura del panel contra la columna de lectura.
+Las cifras de arriba son del relleno, que es determinista, no del render — y este fichero ya
+guarda tres afirmaciones hechas desde los tokens que la medición en PRE contradijo. Se ve al
+tirar de PRE.

@@ -5,18 +5,31 @@
 // referenced before it exists.
 // A lane header is a section header, which the system dresses with the filo on
 // its leading edge — the same gesture the decks already use on `.slide-title`.
-// The hairline underneath stays: the edge says "this is a section", the rule
-// says where the section's chrome ends and its content begins.
-@mixin lane-header {
+// The filo alone says "this is a section"; a rule underneath it says the same
+// thing a second time, and three framed lanes each repeating it read as
+// clutter. So `$rule` is off by default and only the latest lane opts in: its
+// content is core's topic table, which draws its own header row, and the rule
+// is what stops the lane heading and the table heading reading as one stack of
+// labels. The events and ideas lanes open straight onto rows and need nothing.
+//
+// Without the rule the gap grows a step (`--space-4` rather than
+// `--space-3` + `--space-2`): with no line doing the separating, the whitespace
+// has to carry it alone.
+@mixin lane-header($rule: false) {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: var(--space-3);
-  margin-bottom: var(--space-3);
   padding-inline-start: var(--space-3);
-  padding-bottom: var(--space-2);
   border-inline-start: var(--ga-edge-width) solid var(--ga-edge);
-  border-bottom: 1px solid var(--ga-border);
+
+  @if $rule {
+    margin-bottom: var(--space-3);
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid var(--ga-border);
+  } @else {
+    margin-bottom: var(--space-4);
+  }
 }
 
 @mixin lane-title {
@@ -103,18 +116,26 @@
   }
 }
 
-// Rows that read as a list of links: hairline separators, no bullets. Used by
-// the events and ideas lanes (the latest lane renders core's table instead), so
-// the row rhythm is tuned for a narrow panel card — `--space-2` rather than
-// `--space-3`.
+// Rows that read as a list of links: no bullets, no separators. Used by the
+// events and ideas lanes (the latest lane renders core's table instead).
+//
+// The hairline between rows is deliberately gone. Each row is already a bold
+// title — in the events lane, a bold title beside a bordered date chip — so a
+// rule between every pair of them was drawing a boundary the type had drawn
+// already, twice over in a panel holding two of these lists.
+//
+// The space is what separates rows now, and it had to grow to do that job:
+// `--space-3` rather than `--space-2`, so a row is 24px clear of its
+// neighbours instead of 16px. That costs height in a lane whose row count is a
+// setting — `panel_ideas_count` is the dial if the panel outgrows the reading
+// column beside it.
 @mixin lane-list {
   margin: 0;
   padding: 0;
   list-style: none;
 
   > li {
-    padding-block: var(--space-2);
-    border-bottom: 1px solid var(--ga-border);
+    padding-block: var(--space-3);
 
     // The header's own `margin-bottom` is the gap above the first row, and the
     // card's padding is the gap below the last — so the outer rows shed the
@@ -124,7 +145,6 @@
     }
 
     &:last-child {
-      border-bottom: 0;
       padding-bottom: 0;
     }
   }
