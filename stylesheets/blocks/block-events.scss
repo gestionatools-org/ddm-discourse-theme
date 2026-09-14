@@ -44,12 +44,17 @@
     @include lane-list;
   }
 
-  // A row is a calendar chip and a title, after the `upcoming-events-list`
-  // widget on devcommunity.amd.com. The lane's own structure is untouched
-  // around it: two labelled groups, footer link.
+  // A row is a calendar chip beside a column holding the title over the date,
+  // after the `upcoming-events-list` widget on devcommunity.amd.com. The
+  // lane's own structure is untouched around it: two labelled groups, footer
+  // link.
+  //
+  // `flex-start`, not `center`: the title sits level with the top of the
+  // square and the date hangs below it, which is what makes the two lines read
+  // as one block hung off the chip rather than as a centred pair.
   &__item-link {
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     gap: var(--space-3);
     color: inherit;
 
@@ -57,6 +62,23 @@
     &:focus-visible .block-events__item-title {
       color: var(--tertiary);
     }
+  }
+
+  // `flex: 1` is load-bearing and was found by measuring, not by reading: as a
+  // plain flex item this column sizes to fit-content, and its widest line is
+  // the grey date, not the title. At a 428px panel that left the title 213px
+  // of the 322px available and truncated it that much earlier — the date was
+  // deciding how much of the title a reader got to see.
+  //
+  // `min-width: 0` belongs on the column rather than only on the title:
+  // without it the item refuses to shrink below its longest word and pushes
+  // the chip out of the row, which is the trap the title carried before this
+  // column existed.
+  &__item-content {
+    display: flex;
+    min-width: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
   }
 
   // The chip. Sized in rem rather than px so it follows the reader's text size
@@ -103,36 +125,45 @@
     line-height: 1.2;
   }
 
-  // Two lines, not AMD's one. The panel is narrow enough that a single line
-  // truncates half this category's titles mid-word — "Reconocimientos que
-  // reflejan el valor de una gran comunidad" survives at two and does not at
-  // one. `min-width: 0` lets the column shrink below its longest word, which
-  // is what stops a long title pushing the chip out of the row.
+  // One line, clamped — AMD's own shape, and now affordable. It was two lines
+  // here for a reason that the date line removed: with nothing under the title
+  // a clamped one lost half this category's titles mid-word, so the second
+  // line was buying comprehension. The row now carries the date underneath, so
+  // a truncated title is read against a date rather than alone, and the ellipsis
+  // is a cue to open the topic rather than a dead end.
   //
-  // Body size, and it costs no height: the chip is 46px and sets the row, so a
-  // title only starts driving it past two lines at 18.4px. Measured on PRE
-  // against the compiled sheet at both panel widths the section grid actually
-  // produces — 428px at a 1240 container, 324px at 944 — the lane stays 382px
-  // tall at 13.9, 16 and 18.4px alike.
+  // Solid `--primary`, not the link colour it would otherwise inherit: the
+  // whole row is the anchor, so tinting the title would tint the only thing in
+  // the row with weight. Hover moves it to `--tertiary`, which is where the
+  // affordance lives.
   //
-  // `--font-up-1` was the other candidate and is deliberately not taken: it
-  // gains nothing here, puts every title on two lines at 324px, and is the
-  // size of the reading column's own topic links
-  // (`--d-topic-list-title-font-size`) — the panel should not compete with it.
+  // `font-weight: 700` is the one place this row departs from AMD, whose name
+  // runs at 400. The ideas lane directly below shares this panel and sets its
+  // titles bold; a column of regular titles over a column of bold ones reads
+  // as two tiers rather than as one list.
   //
-  // The ideas lane below matches this size. It was held back one release on
-  // purpose, to be looked at on PRE first, and cost 3–6px a row when it
-  // followed — real height, because nothing fixes its rows the way the chip
-  // fixes these. `panel_ideas_count` went 10 -> 9 to pay for it.
+  // Height: the chip is 46px and the two lines come to ~34px, so the chip
+  // still sets the row and the lane's height is unchanged by the date line.
   &__item-title {
     display: -webkit-box;
-    min-width: 0;
     overflow: hidden;
+    color: var(--primary);
     font-size: var(--font-0);
     font-weight: 700;
     line-height: var(--line-height-medium);
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 1;
+    transition: color var(--ga-duration-fast) var(--ga-ease);
+  }
+
+  // When it happens, or when it was written up. Quiet by construction — this
+  // is the second thing read in the row, never the first — and it wraps rather
+  // than clamps: a two-day range is the longest string it can hold and losing
+  // the end of it would be losing the point.
+  &__item-when {
+    color: var(--ga-muted-fg);
+    font-size: var(--font-down-2);
+    line-height: var(--line-height-large);
   }
 
   &__footer {

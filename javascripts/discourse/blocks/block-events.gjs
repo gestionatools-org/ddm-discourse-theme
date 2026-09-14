@@ -38,17 +38,76 @@ function dateChip(topic) {
     month: part({ month: "short" }),
     day: part({ day: "numeric" }),
     iso: date.toISOString(),
+    when: eventWhen(topic, locale),
   };
 }
 
-// One row, used by both groups: a calendar chip, then the title. Modelled on
-// the `upcoming-events-list` widget at devcommunity.amd.com, which is where
-// the square with the month over the day comes from.
+const DAY_PARTS = { day: "numeric", month: "long", year: "numeric" };
+const TIME_PARTS = { hour: "2-digit", minute: "2-digit" };
+
+/**
+ * The grey line under the title: when the thing happens, or when the write-up
+ * was posted.
+ *
+ * Three shapes, and which one a row gets is decided by the data rather than by
+ * the group it sits in:
+ *
+ *   a real event spanning days  ->  "12–15 de octubre de 2026"
+ *   a real event on one day     ->  "5 de noviembre de 2026, 10:00–18:00"
+ *   no `[event]` at all         ->  "14 de julio de 2026"
+ *
+ * `Intl.formatRange` builds the first two, which is why neither needs a locale
+ * string of its own: it collapses the shared parts per locale — English gets
+ * "October 12 – 15, 2026", Spanish "12–15 de octubre de 2026" — and a
+ * hand-rolled "x – y" could not. Nothing here reaches `locales/`.
+ *
+ * **Only one topic in category 59 carries an `[event]` block**, so in practice
+ * the third shape is almost every row and the first has never rendered on the
+ * instance at all. The multi-day branch is guarded by tests for exactly that
+ * reason — there is no fixture on PRE that would exercise it.
+ *
+ * Times are rendered in the reader's own timezone, not the event's: the topic
+ * list serializes `event_starts_at` as UTC and carries no timezone field, and
+ * a local time is the one a reader can act on.
+ */
+function eventWhen(topic, locale) {
+  const format = (options) => new Intl.DateTimeFormat(locale, options);
+
+  if (!topic.event_starts_at) {
+    return format(DAY_PARTS).format(new Date(topic.created_at));
+  }
+
+  const start = new Date(topic.event_starts_at);
+  const end = topic.event_ends_at ? new Date(topic.event_ends_at) : null;
+
+  if (!end) {
+    return format({ ...DAY_PARTS, ...TIME_PARTS }).format(start);
+  }
+
+  // `toDateString` compares in the reader's timezone, which is the one the
+  // row renders in — an event that ends at 00:30 UTC is still the same
+  // evening in Madrid, and must not sprout a second day.
+  const spansDays = start.toDateString() !== end.toDateString();
+
+  return spansDays
+    ? format(DAY_PARTS).formatRange(start, end)
+    : format({ ...DAY_PARTS, ...TIME_PARTS }).formatRange(start, end);
+}
+
+// One row, used by both groups: a calendar chip, then a column holding the
+// title over the date. Modelled on the `upcoming-events-list` widget at
+// devcommunity.amd.com — measured there, not guessed: the chip is a 42px
+// square, the content column is top-aligned with it rather than centred, the
+// name is solid black at body size, and the line under it runs at 12px in
+// grey.
 //
-// The chip replaced a date line that mixed precision on purpose — a day and a
-// time for a real event, a month for a write-up of one. That distinction now
-// rides on the chip's colour instead of on its content, which is what lets
-// every row share one shape.
+// Two deliberate departures from that reference, both because the data differs
+// from AMD's. Its widget lists only real events, so every row there has a time
+// or a range; ours is a record as much as an announcement, so most rows fall
+// back to the day the write-up was posted. And the title keeps `font-weight:
+// 700`, where AMD's runs at 400 — the ideas lane directly below shares this
+// panel and sets its titles bold, and one column of bold titles over another
+// of regular ones reads as two tiers rather than one list.
 const EventItem = <template>
   <li class="block-events__item">
     <a class="block-events__item-link" href={{@topic.url}}>
@@ -65,13 +124,17 @@ const EventItem = <template>
           <span class="block-events__item-date-month">{{chip.month}}</span>
           <span class="block-events__item-date-day">{{chip.day}}</span>
         </time>
+        <span class="block-events__item-content">
+          <span class="block-events__item-title">
+            {{! `fancy_title` is already HTML. dReplaceEmoji escapes its input
+                before substituting, so passing it through here double-encodes
+                and renders "&rsquo;" as literal text. Core renders it raw
+                too. }}
+            {{trustHTML @topic.fancy_title}}
+          </span>
+          <span class="block-events__item-when">{{chip.when}}</span>
+        </span>
       {{/let}}
-      <span class="block-events__item-title">
-        {{! `fancy_title` is already HTML. dReplaceEmoji escapes its input
-            before substituting, so passing it through here double-encodes and
-            renders "&rsquo;" as literal text. Core renders it raw too. }}
-        {{trustHTML @topic.fancy_title}}
-      </span>
     </a>
   </li>
 </template>;
