@@ -2377,3 +2377,63 @@ enmarcados, que es justo la sobrecarga que Ricardo señaló.
 Las cifras de arriba son del relleno, que es determinista, no del render — y este fichero ya
 guarda tres afirmaciones hechas desde los tokens que la medición en PRE contradijo. Se ve al
 tirar de PRE.
+
+## 2026-09-14 — La fila de la agenda toma el modelo de AMD (#PR)
+
+`theme_version` 0.66.0. Solo el carril de eventos: componente, SCSS y tres tests.
+
+Ricardo pidió replicar `devcommunity.amd.com` en **Agenda del certificado** y solo ahí —
+título en color sólido justificado arriba a la altura del cuadrado, y debajo en menor tamaño
+y gris la fecha, la hora o el rango si el evento dura más de un día.
+
+**La referencia se midió, no se miró.** Con Playwright sobre el widget
+`upcoming-events-list`: cuadrado de 42px, columna de contenido **alineada arriba** con él
+(`topDelta: 0`), nombre en negro sólido a 16px, y bajo él el tiempo a **12,13px** en
+`rgb(97,97,97)`. Sus textos son `All day` o `October 12 – 15, 2026`.
+
+**El choque con nuestros datos es lo que decidió el diseño.** El widget de AMD lista solo
+eventos reales, así que todas sus filas tienen hora o rango. Medido sobre la categoría 59:
+**1 de 30 topics lleva `[event]`** — el IV Congreso, y de un solo día. Las otras 29 son
+crónicas sin hora ni rango. Ricardo eligió, sobre las tres opciones que se le plantearon,
+**la fecha de publicación** para esas filas: misma forma en todas, y no añade engaño nuevo
+porque el cuadrado ya venía mostrando esa misma fecha. Y eligió **una línea de título como
+AMD**, revirtiendo las dos líneas que el carril tenía.
+
+**`Intl.formatRange` construye las tres formas y no hace falta ni una cadena en `locales/`.**
+Verificado en navegador antes de confiar en ello:
+
+```
+es  5 de noviembre de 2026, 10:00–18:00   12–15 de octubre de 2026   14 de julio de 2026
+en  November 5, 2026, 10:00 AM – 6:00 PM  October 12 – 15, 2026      July 14, 2026
+```
+
+El rango inglés sale idéntico al de AMD sin pedirlo. Un `"x – y"` a mano no habría colapsado
+las partes comunes por locale.
+
+**La rama multi-día no existe en la instancia**, así que los tests son lo único que la
+sostiene — de ahí que se añadieran tres, y que asserten por partes y no contra la cadena
+entera: los separadores y el reloj de 12/24 horas los pone el ICU del runner, que este repo
+no fija.
+
+**La medición encontró un fallo que la lectura no.** Compilado el SCSS de la rama con
+dart-sass y metido en la hoja del tema de PRE con `insertRule` (nunca un `<style>` añadido —
+ya está recordado por qué), la columna de contenido resultó ser un flex item sin `flex`, o
+sea a fit-content, **y su línea más ancha es la fecha gris, no el título**: con 322px
+disponibles el título se quedaba en 213 y se truncaba mucho antes de lo necesario. **La fecha
+estaba decidiendo cuánto título se leía.** Con `flex: 1 1 auto` el título pasa a 328px a
+428 de panel y a 224 a 324.
+
+Medido después del arreglo, a los dos anchos que el grid produce de verdad: `titleTop −
+chipTop = 0`, filas de 46px (las fija el cuadrado, no el texto), ninguna línea gris parte en
+dos, y la sección se queda en **386px** — la línea de fecha no cuesta altura.
+
+**Para compilar SCSS de este repo en local hacen falta dos stubs**, y merece la pena
+recordarlo: `lib/viewport` lo aporta el core de Discourse y no está en el árbol, y las
+variables de asset (`$roboto-slab-regular`, `$isotipo`) las inyecta Discourse al compilar.
+Con un `_viewport.scss` de mentira y `$isotipo: "data:,"` compila un fichero de entrada que
+importe solo `app/mixins` y el bloque que interese.
+
+**Una desviación deliberada de AMD**: el título se queda en `font-weight: 700` donde el suyo
+va a 400. El carril de ideas comparte panel justo debajo y pone sus títulos en negrita; una
+columna de títulos normales sobre otra de negritas se lee como dos niveles, no como una
+lista. Se dijo al reportar, por si Ricardo prefiere lo contrario.

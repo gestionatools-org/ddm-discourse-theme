@@ -330,6 +330,88 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       assert.dom(".block-events__item-date.--scheduled").doesNotExist();
     });
 
+    // The grey line under the title. Three shapes, and the multi-day one has
+    // never rendered on the instance — category 59 holds exactly one topic
+    // with an `[event]` block and it runs for a single day — so these tests
+    // are the only thing standing behind that branch.
+    test("gives a one-day event its date and its hours", async function (assert) {
+      stubStore(this.owner, [
+        topic({
+          id: 900050,
+          fancy_title: "Congreso",
+          event_starts_at: new Date(2026, 10, 5, 10).toISOString(),
+          event_ends_at: new Date(2026, 10, 5, 18).toISOString(),
+        }),
+      ]);
+
+      await renderEvents();
+
+      // Asserted by parts rather than against a whole string: the exact
+      // separators and the 12/24-hour choice come from the runner's ICU build
+      // and its locale, neither of which this repo pins.
+      const when = document
+        .querySelector(".block-events__item-when")
+        .textContent.trim();
+
+      assert.true(when.includes("November"), `month spelled out in "${when}"`);
+      assert.true(when.includes("2026"), `year present in "${when}"`);
+      assert.true(/10[:.]00/.test(when), `start time in "${when}"`);
+      assert.true(
+        /6[:.]00|18[:.]00/.test(when),
+        `end time in "${when}", in whichever clock the locale uses`
+      );
+    });
+
+    test("collapses a multi-day event into a range, with no times", async function (assert) {
+      stubStore(this.owner, [
+        topic({
+          id: 900051,
+          fancy_title: "Cumbre",
+          event_starts_at: new Date(2026, 9, 12, 9).toISOString(),
+          event_ends_at: new Date(2026, 9, 15, 17).toISOString(),
+        }),
+      ]);
+
+      await renderEvents();
+
+      const when = document
+        .querySelector(".block-events__item-when")
+        .textContent.trim();
+
+      assert.true(when.includes("12"), `first day in "${when}"`);
+      assert.true(when.includes("15"), `last day in "${when}"`);
+      assert.true(when.includes("October"), `month once, not twice: "${when}"`);
+      assert.false(
+        /\d{1,2}[:.]\d{2}/.test(when),
+        `a range spanning days drops the clock: "${when}"`
+      );
+    });
+
+    test("falls back to the posting date when there is no event", async function (assert) {
+      // 29 of the 30 topics in this category are write-ups with no `[event]`
+      // block, so this is the shape almost every row takes.
+      stubStore(this.owner, [
+        topic({
+          id: 900052,
+          fancy_title: "Cronica",
+          created_at: new Date(2026, 6, 14, 12).toISOString(),
+        }),
+      ]);
+
+      await renderEvents();
+
+      const when = document
+        .querySelector(".block-events__item-when")
+        .textContent.trim();
+
+      assert.true(when.includes("July"), `posting month in "${when}"`);
+      assert.true(when.includes("14"), `posting day in "${when}"`);
+      assert.false(
+        /\d{1,2}[:.]\d{2}/.test(when),
+        `no invented clock on a topic that has no event: "${when}"`
+      );
+    });
+
     test("shows the archive alone rather than an empty heading", async function (assert) {
       stubStore(this.owner, [
         topic({
