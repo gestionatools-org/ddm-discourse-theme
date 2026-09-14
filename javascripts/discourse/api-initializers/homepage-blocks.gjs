@@ -42,12 +42,15 @@ export default apiInitializer((api) => {
       id: "home-latest",
       children: [
         {
+          // No `linkUrl`, so the heading is a heading and nothing else — the
+          // same call as the events lane above. Core's own list already ends
+          // in its navigation, and every row is a way into the site.
+          // `BlockLatest` keeps the arg, so restoring the button is two lines
+          // here rather than a change to the block.
           block: BlockLatest,
           id: "latest-list",
           args: {
             title: "homepage.latest.title",
-            linkText: "homepage.latest.link_text",
-            linkUrl: "/latest",
             count: settings.latest_count,
           },
         },

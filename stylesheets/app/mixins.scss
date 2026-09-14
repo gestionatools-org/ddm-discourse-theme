@@ -3,31 +3,26 @@
 // Lives in app/ rather than layouts/ because blocks/ consumes it and
 // common.scss imports app before blocks — a mixin declared in layouts/ would be
 // referenced before it exists.
-// A lane header is a section header. It carries no chrome of its own any more
-// — no filo on the leading edge, and a rule underneath only where it earns its
-// keep. Three framed lanes on one page each repeating "this is a section" in
-// two gestures was the overload; the frame already says it once.
+// A lane header is a section header, and it carries no chrome at all: no filo
+// on the leading edge, no rule underneath. Three framed lanes on one page each
+// repeating "this is a section" in a second gesture was the overload — the
+// frame says it once, which is enough.
 //
-// `$rule` is off by default and only the latest lane opts in: its content is
-// core's topic table, which opens with its own header row, and without the
-// rule the lane title and the column labels stack into one run of labels. The
-// events and ideas lanes open straight onto rows and need nothing.
+// The rule survived one release longer on the latest lane, on the argument
+// that core's topic table opens with its own header row and the two would
+// stack into one run of labels. Measured on PRE once it was gone: they do not
+// — 20px of air and a bold heading against small uppercase column labels
+// separate them on their own.
 //
-// The gap below the heading is 20px in every lane, rule or no rule — the
-// spacing the rule used to sit inside of. It is what carries the title's
-// hierarchy now that nothing is drawn, so it does not shrink when the line
-// goes.
-@mixin lane-header($rule: false) {
+// That 20px is the spacing the rule used to sit inside of, and it stays. It is
+// what carries the title's hierarchy now that nothing is drawn.
+@mixin lane-header {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: var(--space-3);
   margin-bottom: var(--space-3);
   padding-bottom: var(--space-2);
-
-  @if $rule {
-    border-bottom: 1px solid var(--ga-border);
-  }
 }
 
 @mixin lane-title {
