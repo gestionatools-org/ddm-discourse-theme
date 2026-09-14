@@ -62,8 +62,9 @@
 // wrapped onto a second line and read as a new section).
 //
 // Body size, matching the events lane above: the two share a frame and now
-// share a row type, so the panel reads as one column rather than as a card and
-// a footnote. `--compact` is therefore no longer "the smaller row title" — what
+// share a row type — and, since the separators came out of `lane-list`, the
+// same unruled rhythm — so the panel reads as one column rather than as a card
+// and a footnote. `--compact` is therefore no longer "the smaller row title" — what
 // it still carries is the linkless heading.
 //
 // **Unlike the events lane, this one pays for the size**, because nothing here

@@ -19,10 +19,12 @@
   // Two labelled groups: what is coming, then what has been held. A group
   // renders only when it has rows, so a lane with nothing upcoming shows the
   // archive alone rather than an empty heading.
+  //
+  // Separated by space alone, like the rows inside them. The uppercase group
+  // title is what marks the boundary; a rule above it only restated that, in a
+  // lane that had just shed every other hairline it carried.
   &__group + &__group {
-    margin-top: var(--space-4);
-    padding-top: var(--space-3);
-    border-top: 1px solid var(--ga-border);
+    margin-top: var(--space-5);
   }
 
   // Quieter than the lane title and set apart from it: this labels a run of
@@ -44,7 +46,7 @@
 
   // A row is a calendar chip and a title, after the `upcoming-events-list`
   // widget on devcommunity.amd.com. The lane's own structure is untouched
-  // around it: two labelled groups, hairline separators, footer link.
+  // around it: two labelled groups, footer link.
   &__item-link {
     display: flex;
     align-items: center;

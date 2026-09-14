@@ -11,8 +11,11 @@
 .block-latest {
   @include lane-frame;
 
+  // The one lane that keeps the rule under its heading. Core's topic table
+  // opens with its own header row, so without it the lane title and the column
+  // labels stack into a single run of headings.
   &__header {
-    @include lane-header;
+    @include lane-header($rule: true);
   }
 
   &__title {
