@@ -161,6 +161,12 @@
   // than clamps: a two-day range is the longest string it can hold and losing
   // the end of it would be losing the point.
   &__item-when {
+    // A literal pixel, not a spacing token: the two lines sit inside one flex
+    // column and what was wanted is the hairline of air that stops the date
+    // touching the descenders of the title above it. The smallest token
+    // (`--space-1`, 4px) is four times that and starts reading as a gap.
+    // Costs no height — the 46px chip sets the row and the column comes to 37.
+    margin-block-start: 1px;
     color: var(--ga-muted-fg);
     font-size: var(--font-down-2);
     line-height: var(--line-height-large);

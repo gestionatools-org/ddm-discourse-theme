@@ -66,6 +66,9 @@ en:
       empty: "Nothing new yet."
     events:
       title: "What's on"
+      # Unused today: the homepage stopped passing `linkUrl` to the events
+      # lane, so no footer button renders. Kept because the block still takes
+      # the arg — restoring the button must not surface a raw key.
       link_text: "See the calendar"
       empty: "No events scheduled."
       # Group headings. The lane is a record as much as an announcement, so
