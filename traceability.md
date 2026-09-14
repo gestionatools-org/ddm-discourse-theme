@@ -2459,3 +2459,35 @@ conservar helpers" de #73.
 **Las cadenas `events.link_text` se quedan en `en.yml` y `es.yml`, comentadas.** Sin uso hoy,
 pero si alguien las borra y luego reactiva el botón, lo que sale es una clave cruda. El
 comentario lo dice en el fichero para que no haya que deducirlo.
+
+## 2026-09-14 — Últimas publicaciones pierde su raya y su "Ver todas" (#PR)
+
+`theme_version` 0.68.0. Cierra la limpieza de los tres carriles que empezó esta mañana.
+
+**La raya bajo el título era la última que quedaba, y se conservaba por un argumento que la
+medición no sostiene.** Se dejó un release más sobre la base de que la tabla de core abre con
+su propia fila de cabecera y, sin la raya, el título del carril y las etiquetas de columna se
+apilarían como un solo bloque de rótulos. Medido en PRE con la hoja del tema una vez quitada:
+**no se apilan.** Los separan 20px de aire y tres diferencias simultáneas —
+
+| | título del carril | cabecera de la tabla |
+|---|---|---|
+| tamaño | 16px | 13,93px |
+| peso | 700 | 400 |
+| color | `rgb(17,33,39)` | `rgb(38,73,86)` |
+
+**`lane-header` vuelve a no tener parámetro.** `$rule` existía para un solo consumidor y ya no
+lo usa nadie; dejarlo habría sido una rama muerta con un comentario explicando un caso que no
+existe. El mixin queda otra vez en una sola forma, sin filo y sin raya, con los 20px que
+sostienen la jerarquía del título.
+
+**"Ver todas" sale del initializer, igual que "Ver agenda" en #146** — pero ojo a la
+diferencia de forma: en `BlockLatest` el botón vive **dentro de la cabecera**, no en un pie,
+así que al quitarlo el `justify-content: space-between` del header deja de tener efecto
+visible (un solo hijo). No estorba y se queda: el arg sigue declarado y reponer el botón son
+dos líneas en `homepage-blocks.gjs`.
+
+Las cadenas `latest.link_text` se conservan comentadas en los dos locales, por el mismo motivo
+que las de la agenda: borrarlas y reactivar el botón después mostraría una clave cruda.
+
+Con esto, los tres carriles de la home tienen exactamente el mismo chrome de título: ninguno.

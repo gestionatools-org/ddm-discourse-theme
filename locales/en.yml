@@ -62,6 +62,9 @@ en:
   homepage:
     latest:
       title: "Latest posts"
+      # Unused today: the homepage stopped passing `linkUrl` to the latest
+      # lane, so the heading carries no button. Kept because the block still
+      # takes the arg — restoring it must not surface a raw key.
       link_text: "See all"
       empty: "Nothing new yet."
     events:

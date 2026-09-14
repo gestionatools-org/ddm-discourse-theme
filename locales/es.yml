@@ -62,6 +62,9 @@ es:
   homepage:
     latest:
       title: "Últimas publicaciones"
+      # Sin uso hoy: la home dejó de pasar `linkUrl` al carril de últimas
+      # publicaciones, así que la cabecera no lleva botón. Se conserva porque el
+      # bloque sigue aceptando el arg — reactivarlo no debe mostrar una clave cruda.
       link_text: "Ver todas"
       empty: "Todavía no hay publicaciones."
     events:
