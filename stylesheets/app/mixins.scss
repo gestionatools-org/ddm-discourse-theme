@@ -3,32 +3,30 @@
 // Lives in app/ rather than layouts/ because blocks/ consumes it and
 // common.scss imports app before blocks — a mixin declared in layouts/ would be
 // referenced before it exists.
-// A lane header is a section header, which the system dresses with the filo on
-// its leading edge — the same gesture the decks already use on `.slide-title`.
-// The filo alone says "this is a section"; a rule underneath it says the same
-// thing a second time, and three framed lanes each repeating it read as
-// clutter. So `$rule` is off by default and only the latest lane opts in: its
-// content is core's topic table, which draws its own header row, and the rule
-// is what stops the lane heading and the table heading reading as one stack of
-// labels. The events and ideas lanes open straight onto rows and need nothing.
+// A lane header is a section header. It carries no chrome of its own any more
+// — no filo on the leading edge, and a rule underneath only where it earns its
+// keep. Three framed lanes on one page each repeating "this is a section" in
+// two gestures was the overload; the frame already says it once.
 //
-// Without the rule the gap grows a step (`--space-4` rather than
-// `--space-3` + `--space-2`): with no line doing the separating, the whitespace
-// has to carry it alone.
+// `$rule` is off by default and only the latest lane opts in: its content is
+// core's topic table, which opens with its own header row, and without the
+// rule the lane title and the column labels stack into one run of labels. The
+// events and ideas lanes open straight onto rows and need nothing.
+//
+// The gap below the heading is 20px in every lane, rule or no rule — the
+// spacing the rule used to sit inside of. It is what carries the title's
+// hierarchy now that nothing is drawn, so it does not shrink when the line
+// goes.
 @mixin lane-header($rule: false) {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
   gap: var(--space-3);
-  padding-inline-start: var(--space-3);
-  border-inline-start: var(--ga-edge-width) solid var(--ga-edge);
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-2);
 
   @if $rule {
-    margin-bottom: var(--space-3);
-    padding-bottom: var(--space-2);
     border-bottom: 1px solid var(--ga-border);
-  } @else {
-    margin-bottom: var(--space-4);
   }
 }
 
