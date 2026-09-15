@@ -87,7 +87,7 @@ Each session is sized for one sitting. **Visible** says what a member could noti
   Expected counts now: **~219 tags, 36 categories**, topics measured.
   *Gate:* Ricardo hears the numbers and the thumbnail total (he is PROD's tagger, D4 — no one else to warn). *Visible:* nothing. *Rollback:* none needed (read-only).
 
-- [ ] **S2 · Ceilings and the two renames** — T1 **Tasks 3 and 4**.
+- [x] **S2 · Ceilings and the two renames** — **done 2026-09-15**. — T1 **Tasks 3 and 4**.
   *Visible:* nothing (`#caag`, `#posters` keep filtering through synonyms).
   *Rollback:* rename back + delete synonym; no topic is written.
 

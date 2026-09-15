@@ -381,6 +381,21 @@ category 3 (17 against 7, unlisted documents).
 - The public sidebar section "Community" links **Wiki → `/c/documentacion-analiza/74`**, a category
   that does not exist on PROD. Already broken today; T3 settles it with the chrome.
 
+### S2 · Ceilings and renames (T1 Tasks 3–4) — 2026-09-15
+
+First writes to PROD. No topic written, so no thumbnail spent.
+
+- **Write probe departed from the plan**: it re-sent `max_tags_in_filter_list` at its current **3**
+  instead of setting 30, because 30 would have changed the tag filter members see. 204.
+- `max_tags_per_topic` 3 → **7**, `max_tag_length` 20 → **30**; both read back.
+- `caag` (id 259, 130) → **`administracion-avanzada`**, `posters` (id 217, 171) → **`poster-evf`**,
+  each with its old name recreated as a synonym; neither had synonyms before. Read back: same id,
+  same count, old name absent as a base tag and present as a synonym, slug equal to the new name,
+  no truncated `administracion-avanz*` variant.
+- `#caag`/`#administracion-avanzada` and `#posters`/`#poster-evf` return the same topics as `#caag`
+  and `#posters` did before. **That comparison covers the first search page only (50, the cap)**;
+  the unchanged tag id and count are what show the `topic_tags` rows were not touched.
+
 **Decisions recorded 2026-09-15 (D1–D4):** keep PROD 89; move 86 with `/t/2683` after the poll closes
 (2026-09-25 13:00Z); no date yet for T2; Ricardo is PROD's tagger, so no one else needs warning.
 
