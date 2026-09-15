@@ -91,13 +91,15 @@ Each session is sized for one sitting. **Visible** says what a member could noti
   *Visible:* nothing (`#caag`, `#posters` keep filtering through synonyms).
   *Rollback:* rename back + delete synonym; no topic is written.
 
-- [ ] **S3 · Structural bulk tagging** — T1 **Task 5**. The first session that writes to topics.
+- [x] **S3 · Structural bulk tagging** — **done 2026-09-15**: 793 writes, 0 bumped; thumbnails 1 lost / 157 kept (provisional, re-check in S4). — T1 **Task 5**. The first session that writes to topics.
   Categories 59, 86 and 89 are not in its table; the `PROTECTED` guard still applies.
   *Gate:* the revalidated table with its **thumbnail bill**, approved before writing.
   *Visible:* tags on existing topics. *Rollback:* capture file, one write per topic (costs a second
   thumbnail).
 
 - [ ] **S4 · Tag group + spelling merges + unaccented synonyms** — T1 **Tasks 6 and 7**.
+  **First**: re-check the 157 thumbnails S3 kept. **Add to the families**: `app-movil` ↔ `app-móvil`
+  and `cafe-con-certificados` ↔ `cafe-con-certificado`, both created by S3's own mistake.
   *Gate:* canonical form per family. *Visible:* autocomplete offers fewer variants.
   *Rollback:* **none for merges** (`destroy_synonym` does not return topics) — the gate is the
   protection.

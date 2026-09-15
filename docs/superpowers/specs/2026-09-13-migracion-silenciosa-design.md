@@ -396,6 +396,71 @@ First writes to PROD. No topic written, so no thumbnail spent.
   and `#posters` did before. **That comparison covers the first search page only (50, the cap)**;
   the unchanged tag id and count are what show the `topic_tags` rows were not touched.
 
+### S3 · Structural bulk tagging (T1 Task 5) — 2026-09-15, done
+
+**Revalidated table** (read-only, before any write): 15 rows — the plan's 13 plus **49**
+(`administracion-avanzada`) and **86** (`hackathon-eivissa`), both applied on PRE in August's
+Phase 3. **793 writes, 158 thumbnails, 0 over the 7-tag ceiling**, `/t/2683` excluded.
+Approved by Ricardo with three decisions: campaign tags take PRE's final names **`ideas-2024`,
+`ideas-2025`, `ideas-v9`** (the plan said `campana-*`); 5 and 18 approved despite carrying 126 of the
+158 thumbnails; `hackathon-eivissa` as on PRE rather than PROD's existing `hackathon`(12).
+
+**Two measurements taken before approving the bill:**
+
+- **A tag-only write does not bump.** Over PRE's 1 268 topics, the 115 topics written on 2026-08-27
+  show no bump at all; the 220 written on 2026-09-06/07 show 12 (possibly the junk-tag incident's
+  nine, not proven).
+- **The thumbnails are not rendered anywhere once the theme ships.** Core's topic list does not show
+  them; the theme reads `image_url` only in the highlights cards, and the one newsletter at risk
+  (`/t/2575`) is not the newest one the card shows.
+
+**Executor**: a throwaway (not in `bin/`) that re-reads each topic live, normalises tag names, saves
+its prior tags to `2026-09-15-prod-s3-prior-state.json` (gitignored) **before** writing, skips
+`PROTECTED`, re-reads names after the write and stops on the first mismatch. After each run it
+compares `bumped_at` before/after and checks `/latest` page 1. Record by category, ids and counts
+only: `docs/superpowers/plans/data/2026-09-13-prod-bulk-tagging.json`.
+
+| Batch | Categories | Writes | Thumbnails lost | Bumped |
+|---|---|---:|---:|---:|
+| Pilot | 66, 54, 69, 49 | 7 | 0 | 0 |
+| 2 | 68, 56, 50, 57, 87, 65 | 78 | 12 | 0 |
+| 3 | 58 | 103 | 0 | 0 |
+| 4 | 62, 86 (`/t/2683` skipped) | 24 | 20 | 0 |
+| 5 | 5, in four chunks (75/60/60/65) | 260 | 47 | 0 |
+| 6 | 18, in five chunks (60×4, 81) | 321 | 79 | 0 |
+| **Total** | 15 categories | **793** | **158 predicted** | **0** |
+
+Counts reconciled after batch 2: `administracion-avanzada` 130 → 160, `tasas` 5 → 24, `pid` 7 → 10,
+`analiza` 74 → 90, `newsletter` 22 → 30; no junk names.
+
+**Verified after the last batch, by re-crawl, not by the executor's own counts:**
+
+- Every topic in the 15 categories carries its planned tags, **except `/t/2683`** (protected). None
+  exceeds 7 tags. 793 topics in the prior-state file.
+- Tag deltas against the S1 capture match the prior-state prediction exactly, with one exception:
+  `administracion-avanzada` **130 → 758, +628 against +627**. The extra use is `/t/2696`, created in
+  category 18 at 10:19 that day already carrying the tag; it is not in the prior state, so it was not
+  written by the executor.
+- **Thumbnails: 1 lost, 157 kept** of the 158 written topics that had one. This **contradicts the
+  PRE rule** ("every topic write costs its thumbnail", measured on 2026.8.0 in August) — PROD runs
+  2026.9.0, which may be the difference. **Provisional**: measured minutes after the writes, so it
+  is re-checked at the start of S4 in case a deferred job clears them. The one loss is `/t/2063`
+  (category 87). Until the re-check, keep budgeting thumbnails as spent.
+
+**A mistake, and the rule it broke.** Two of the six tags the rows created **duplicate a spelling
+PROD already had**: `app-movil`(2) beside `app-móvil`(3), and `cafe-con-certificados`(7) beside
+`cafe-con-certificado`(8) — `/t/2063` now carries both. The rule was already written ("search the
+vocabulary before creating", from `nueva-version-gestiona` on PRE) and the revalidated table printed
+`ABSENT` for exact names only. Both pairs join S4's spelling merges; a synonym merge writes no topic.
+The other four new tags (`hackathon-eivissa`, `ideas-2024`, `ideas-2025`, `ideas-v9`) collide with
+nothing: `hackathon`(12), `ideas`(73) and `v9`(37) are distinct tags, not variants.
+
+**A false alarm worth recognising.** After batch 4, six Hackathon topics (2484–2489) sat on `/latest`
+page 1. Their `bumped_at` was **2026-09-13 18:37–23:33**, identical in the prior-state capture and
+after the write, with last posts from June: someone edited them two days earlier. The check
+"written ∩ /latest" cannot tell the two apart, so the executor now snapshots `/latest` before
+writing and reports only topics *new* to page 1.
+
 **Decisions recorded 2026-09-15 (D1–D4):** keep PROD 89; move 86 with `/t/2683` after the poll closes
 (2026-09-25 13:00Z); no date yet for T2; Ricardo is PROD's tagger, so no one else needs warning.
 
