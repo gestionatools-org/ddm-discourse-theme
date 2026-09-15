@@ -461,6 +461,50 @@ after the write, with last posts from June: someone edited them two days earlier
 "written ∩ /latest" cannot tell the two apart, so the executor now snapshots `/latest` before
 writing and reports only topics *new* to page 1.
 
+### S4 · Spelling merges, unaccented synonyms, tag group (T1 Tasks 6–7) — 2026-09-15
+
+**Thumbnail re-check first**, over an hour after S3: of the 158 written topics that had a thumbnail,
+**157 still have it**; `/t/2063` remains the only loss. On PROD (2026.9.0) a tag-only topic write
+no longer clears the list thumbnail — **the PRE rule from August no longer holds here**. Keep
+measuring before each batch rather than generalising either way.
+
+**Families, canonical forms approved by Ricardo** (no accent, hyphenated; `webinars` chosen over
+PROD's more used `seminarios` for parity with PRE). Every absorbed or renamed name kept as a
+synonym; no topic written.
+
+| Canonical | Absorbed | Count after |
+|---|---|---:|
+| `evento` | `eventos` | 32 |
+| `tesauro` | `tesauros` | 82 |
+| `webinars` | `seminarios`, `seminario`, `webinar` | 55 |
+| `busquedas-avanzadas` (renamed) | `búsquedas-avanzadas`, `búsquedasavanzadas`, `busquedasavanzadas` | 16 |
+| `cafe-con-certificados` | `cafe-con-certificado` (S3's duplicate) | 9 |
+| `tramites-externos` (renamed) | `trámites-externos`, `tramitesexternos` | 13 |
+| `integraciones` | `ìntegración` | 9 |
+| `curso` | `cursos` | 7 |
+| `paginas-informativas` (renamed) | `páginas-informativas`, `paginasinformativas` | 6 |
+| `app-movil` | `app-móvil` (S3's duplicate) | 5 |
+| `temas-y-categorias` | `temasycategorías` | 3 |
+| `poster-evf` | `póster` (not caught by the root detector; added by hand) | 173 |
+| `transformacion-digital` (renamed) | `transformación-digit` (truncated by the old 20-char limit) | 2 |
+
+The first merge (`eventos` → `evento`) was verified before any other ran: `tags[][name]` with an
+**existing** name does merge. Every count landed between the largest member and the sum.
+**46 unaccented synonyms** added, 0 failed. Vocabulary **225 → 210** base tags.
+`/t/2673` (protected) carries `evento`, the target of a merge; its tags did not change and no topic
+was written.
+
+**Search checks.** `#padron` 15, `#cafe-con-certificado` 9, `#transformación-digit` 2,
+`#tramitacion-reglada` 50 = identical first page to `#tramitación-reglada` (88 uses, so the cap is
+real). **`#seminarios` returns category 67, not the tag**: all 50 results are in 67, whose slug is
+`seminarios` — category slug wins over tag name. Pre-existing, not caused by the merge. **For T2:**
+closing 67 does not remove the shadow, the category must stop existing or change slug.
+
+**`programa-certificacion` was not created.** `one_per_topic` would conflict with `/t/2582` and
+`/t/2583` (category 5, Developers arrival announcements), which carry both `developers` and
+`administracion-avanzada` — **the second added by S3's category-5 row**. On PRE the same two topics
+carry only `developers`, and PRE's group is `one_per_topic: true`. Pending Ricardo's call.
+
 **Decisions recorded 2026-09-15 (D1–D4):** keep PROD 89; move 86 with `/t/2683` after the poll closes
 (2026-09-25 13:00Z); no date yet for T2; Ricardo is PROD's tagger, so no one else needs warning.
 
