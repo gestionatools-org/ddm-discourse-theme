@@ -503,7 +503,13 @@ closing 67 does not remove the shadow, the category must stop existing or change
 **`programa-certificacion` was not created.** `one_per_topic` would conflict with `/t/2582` and
 `/t/2583` (category 5, Developers arrival announcements), which carry both `developers` and
 `administracion-avanzada` — **the second added by S3's category-5 row**. On PRE the same two topics
-carry only `developers`, and PRE's group is `one_per_topic: true`. Pending Ricardo's call.
+carry only `developers`, and PRE's group is `one_per_topic: true`.
+
+**Resolved the same day on Ricardo's yes.** `administracion-avanzada` removed from `/t/2582` and
+`/t/2583` (prior tags saved to `2026-09-15-prod-s4-prior-state.json`, gitignored; neither had a
+thumbnail; names read back). Full listings then showed **no topic carrying two programme tags**, and
+`programa-certificacion` was created with `one_per_topic: true` over `administracion-avanzada` (756),
+`analiza` (90) and `developers` (17) — all three non-empty, so none was invented.
 
 **Decisions recorded 2026-09-15 (D1–D4):** keep PROD 89; move 86 with `/t/2683` after the poll closes
 (2026-09-25 13:00Z); no date yet for T2; Ricardo is PROD's tagger, so no one else needs warning.

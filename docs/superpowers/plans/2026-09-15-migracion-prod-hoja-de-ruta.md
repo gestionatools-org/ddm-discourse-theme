@@ -97,7 +97,7 @@ Each session is sized for one sitting. **Visible** says what a member could noti
   *Visible:* tags on existing topics. *Rollback:* capture file, one write per topic (costs a second
   thumbnail).
 
-- [x] **S4 · Tag group + spelling merges + unaccented synonyms** — **done 2026-09-15 except the tag group** (pending `/t/2582`, `/t/2583`). — T1 **Tasks 6 and 7**.
+- [x] **S4 · Tag group + spelling merges + unaccented synonyms** — **done 2026-09-15**, tag group included after fixing `/t/2582` and `/t/2583`. — T1 **Tasks 6 and 7**.
   **First**: re-check the 157 thumbnails S3 kept. **Add to the families**: `app-movil` ↔ `app-móvil`
   and `cafe-con-certificados` ↔ `cafe-con-certificado`, both created by S3's own mistake.
   *Gate:* canonical form per family. *Visible:* autocomplete offers fewer variants.
