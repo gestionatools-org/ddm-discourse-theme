@@ -104,7 +104,7 @@ Each session is sized for one sitting. **Visible** says what a member could noti
   *Rollback:* **none for merges** (`destroy_synonym` does not return topics) — the gate is the
   protection.
 
-- [ ] **S5 · Module groups and verifier** — T1 **Task 8**.
+- [x] **S5 · Module groups and verifier** — **done 2026-09-15**: 8 groups, 6 more merges, coverage 598/1 309 = 45.68%, `tags-verify` green on both instances. — T1 **Task 8**.
   *Gate:* the mapping (budget several rounds). *Visible:* nothing.
 
 - [ ] **S5b · Coverage pass** — T1 **Task 9**, in as many sittings as the batches need.

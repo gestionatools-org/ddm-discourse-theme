@@ -511,6 +511,50 @@ thumbnail; names read back). Full listings then showed **no topic carrying two p
 `programa-certificacion` was created with `one_per_topic: true` over `administracion-avanzada` (756),
 `analiza` (90) and `developers` (17) — all three non-empty, so none was invented.
 
+### S5 · Module groups and verifier (T1 Task 8) — 2026-09-15
+
+**Proposal derived from PRE's mapping resolved onto PROD**, not from PRE's lists: with PRE's groups
+as they stood, coverage was 548 of 1 309 (41.86%) and three members were absent
+(`circuitos-resolucion`, `circuitos-tramitacion`, `dietas`). Approved by Ricardo in two parts.
+
+**Six more merges first**, the same calls he made on PRE, no topic written:
+`circuitos`(16) + `circuitosresolucion`(36) → **`circuitos-resolucion`** (50);
+`circuitosdetramitaci`(10) + `circuitostramitacion`(3) → **`circuitos-tramitacion`** (13);
+`padrondehabitantes` → `padrón` (18); `órganos` → `órganos-colegiados` (10);
+`pid` → **`integracion-pid`** (10); `seriesdocumentales` → **`serie-documental`** (4).
+Every old name kept as a synonym.
+
+**A mechanic that cost one attempt.** `órganos` carried S4's unaccented synonym `organos`, and a tag
+with synonyms cannot be merged. `DELETE /tag/<id>/synonyms/<synonym>` looks the synonym up **by
+numeric id** (`Tag.find_by(id: params[:synonym_id])` in `tags_controller.rb`), so the first attempt,
+by name, answered 404 and the script stopped before any merge. Detached by id, `organos` became a
+0-topic base tag and was absorbed with the rest.
+
+**Eight groups created**, PRE's membership minus `dietas` (absent), plus four PROD additions:
+`gestión-tributaria` → Gestión económica; `usuarios` and `delegación-funciones` → Configuración
+Gestiona; `analítica` → Analítica de datos (on PRE it was deleted when room 90 absorbed its topics;
+here that room does not exist until T2). Left outside by decision: generic (`documentación`,
+`comunicación`), deleted on PRE (`interoperabilidad`, `desarrollo-software`, `debate-técnico`) and
+genre/event tags (`actualizar`, `actualidad-gestiona`, `novedades`, `soporte` and others). Each group
+returned exactly the requested members; none was invented. Mapping:
+`docs/superpowers/plans/data/2026-09-13-prod-module-axis.json`.
+
+**Shadowing** checked against PROD's tag and category slugs before creation: all eight clear.
+**Filters**: every `#<group>` result carries a member tag — `#tramitacion-administrativa`,
+`#configuracion-gestiona`, `#atencion-a-la-ciudadania`, `#registro-electronico` and `#inicio` hit the
+50-result page cap with 50 of 50 member-tagged; `#gestion-economica` 44, `#analitica-de-datos` 37,
+`#aplicaciones-y-servicios` 25.
+
+**Coverage, by fresh crawl: 598 of 1 309 topics = 45.68%.** (PRE started its title pass from 47.3%.)
+
+**`bin/tags-verify` now serves PROD.** Its use floor comes from the mapping (`"min_uses": null` on
+PROD, 3 by default): PROD keeps ~100 tags below 3 uses because T1 deletes no tags, so the floor would
+fail on a decision, not a typo. The empty-tag case the floor used to catch is now asserted directly:
+a group member at 0 uses fails. The rename block carries all ten PROD renames with their synonyms.
+Proven both ways on PROD — **red** with `Inicio` altered (`missing=['tasas'] extra=['firma']`), mapping
+restored byte-identical, **green**: `8 groups, 0 deletions, 10 renames, 206 tags (no use floor), no
+shadowed slug`. PRE still green after the change.
+
 **Decisions recorded 2026-09-15 (D1–D4):** keep PROD 89; move 86 with `/t/2683` after the poll closes
 (2026-09-25 13:00Z); no date yet for T2; Ricardo is PROD's tagger, so no one else needs warning.
 
