@@ -17,7 +17,11 @@ MAP = json.loads((ROOT / "docs/superpowers/plans/data" / MAPS[d._instance()]).re
 # the second kind on 2026-09-11 — its 28 topics moved into category 90, which names the
 # subject, so the tag classified nothing and was deleted with its synonym rather than
 # exempted. That is why the module group "Analítica de datos" now has two members.
-MIN_USES = 3
+MIN_USES = MAP.get("min_uses", 3)
+# PROD carries `"min_uses": null`: its long tail was deliberately not pruned in T1 (the plan
+# deletes no tags), so the floor would fail on ~100 tags that are a decision, not a typo.
+# A null floor still leaves the empty-tag case to the group check below: a group member
+# at 0 uses is reported there.
 # Working queues are counted, not judged: their size is data about what is unclassified.
 USE_EXEMPT = {"pendiente-etiquetar"}
 
@@ -63,9 +67,14 @@ def main():
     # A tag below the floor is usually an empty one invented by a typo in a group's
     # tag_names[], which the membership check above cannot see: it compares names, and an
     # invented tag has the right name.
-    for name, t in sorted(tags.items()):
-        if name not in USE_EXEMPT and t["count"] < MIN_USES:
-            failures.append(f"tag below {MIN_USES} uses: {name} ({t['count']})")
+    if MIN_USES is not None:
+        for name, t in sorted(tags.items()):
+            if name not in USE_EXEMPT and t["count"] < MIN_USES:
+                failures.append(f"tag below {MIN_USES} uses: {name} ({t['count']})")
+    for name, want in MAP["groups"].items():
+        for member in want:
+            if member in tags and tags[member]["count"] == 0:
+                failures.append(f"group {name}: member {member} has 0 uses — invented by tag_names[]?")
 
     # A group whose slug is also a tag's or a category's is shadowed: search resolves
     # `#foo` as category slug -> exact tag name -> tag-group slug, so the filter never
@@ -96,7 +105,7 @@ def main():
         return 1
     print(
         f"PASS — {len(MAP['groups'])} groups, {len(MAP['delete'])} deletions, "
-        f"{len(MAP['rename'])} renames, {len(tags)} tags at {MIN_USES}+ uses, no shadowed slug"
+        f"{len(MAP['rename'])} renames, {len(tags)} tags" + (f" at {MIN_USES}+ uses" if MIN_USES else " (no use floor)") + ", no shadowed slug"
     )
     return 0
 

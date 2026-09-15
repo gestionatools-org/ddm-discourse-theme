@@ -337,3 +337,224 @@ Recorded so the next pass does not re-derive them.
   that can lose a month of activity.
 - **PRE.** It remains the development target and is untouched, except for the
   `theme_site_settings` leak measurement in T3.
+
+## As executed
+
+### S1 · Pre-flight (T1 Task 2) — 2026-09-15, read-only
+
+Capture `docs/superpowers/plans/data/2026-09-13-prod-capture.json`, gitignored, 425 KB. Nothing
+written to PROD.
+
+| Check | Measured |
+|---|---|
+| Keys | Global 200 on `/tags.json`, granular 403; the Global name appears once in `.env.local` |
+| Version | **2026.9.0-latest**, above the `2026.7.0` floor |
+| Ceilings | `max_tags_per_topic` **3**, `max_tag_length` **20** — Task 3 raises both |
+| Search | `min_search_term_length` **6**, `max_tag_search_results` **3**, `max_tags_in_filter_list` 3 |
+| Tagging rights | `tag_topic_allowed_groups` `1\|2\|10` (trust level 0 may tag), `create_tag_allowed_groups` `1\|3` |
+| Edit notifications | `disable_tags_edit_notifications` **true**, `disable_category_edit_notifications` **true** — tag writes and moves notify no author |
+| Vocabulary | **219** tags, **0** tag groups |
+| Topics crawled | **1 306** in **36** categories; **309** with a thumbnail; **202** untagged |
+| Thumbnails by category | 18→79, 5→47, 78→35, 4→32, 80→23, 81→22, 65→15, 62→13, 50→8, 59→8, 86→7, 67→5, 66→3, 84→3, 83→2, 87→2, and 1 each in 3, 14, 34, 56, 79 |
+| Closed topics | 4→79, 5→241, 14→23, 18→314 (**657** in the four categories whose timer T1 clears; stay closed by decision) |
+| Protected | `/t/2673` cat 59, **has thumbnail**; `/t/2683` cat 86, none; `/t/2690` cat 89, none |
+
+**Departures from the plan's expectations.** 219 tags / 1 306 topics / 36 categories against the
+spec's 218 / 1 297 / 35: the delta is ordinary activity plus category **89 "Anuncios"**, kept by
+decision D1. Every crawl count exceeds `topic_count` by exactly one (the definition topic), except
+category 3 (17 against 7, unlisted documents).
+
+**What the staff log shows since the restore** (2026-07-28 → 2026-09-15, actions only):
+
+- `deleted_unused_tags` ×50 is Discourse's **daily automatic job**, not a person.
+- 2026-08-21: slugs of 4 and 5 changed (now `te-contamos`, `el-foro-del-certificado`),
+  `default_composer_category` → 5, and the whole `default_categories_*` family.
+- 2026-09-14: permissions changed on **59, 1, 86, 85**; category types unconfigured on 86, 85, 3;
+  `Category Banners` and `discourse-gifs` components disabled.
+
+**Two findings for later tranches, not T1.**
+
+- `default_categories_tracking` `18|49|59|85|73|75|65`, `..._watching_first_post` `4|5|87|62|67`
+  and `..._normal` `66|78|56|68|69` name categories T2 empties and closes. T2 must retune them with
+  `default_navigation_menu_categories`, or new members inherit notification levels for dead
+  categories.
+- The public sidebar section "Community" links **Wiki → `/c/documentacion-analiza/74`**, a category
+  that does not exist on PROD. Already broken today; T3 settles it with the chrome.
+
+### S2 · Ceilings and renames (T1 Tasks 3–4) — 2026-09-15
+
+First writes to PROD. No topic written, so no thumbnail spent.
+
+- **Write probe departed from the plan**: it re-sent `max_tags_in_filter_list` at its current **3**
+  instead of setting 30, because 30 would have changed the tag filter members see. 204.
+- `max_tags_per_topic` 3 → **7**, `max_tag_length` 20 → **30**; both read back.
+- `caag` (id 259, 130) → **`administracion-avanzada`**, `posters` (id 217, 171) → **`poster-evf`**,
+  each with its old name recreated as a synonym; neither had synonyms before. Read back: same id,
+  same count, old name absent as a base tag and present as a synonym, slug equal to the new name,
+  no truncated `administracion-avanz*` variant.
+- `#caag`/`#administracion-avanzada` and `#posters`/`#poster-evf` return the same topics as `#caag`
+  and `#posters` did before. **That comparison covers the first search page only (50, the cap)**;
+  the unchanged tag id and count are what show the `topic_tags` rows were not touched.
+
+### S3 · Structural bulk tagging (T1 Task 5) — 2026-09-15, done
+
+**Revalidated table** (read-only, before any write): 15 rows — the plan's 13 plus **49**
+(`administracion-avanzada`) and **86** (`hackathon-eivissa`), both applied on PRE in August's
+Phase 3. **793 writes, 158 thumbnails, 0 over the 7-tag ceiling**, `/t/2683` excluded.
+Approved by Ricardo with three decisions: campaign tags take PRE's final names **`ideas-2024`,
+`ideas-2025`, `ideas-v9`** (the plan said `campana-*`); 5 and 18 approved despite carrying 126 of the
+158 thumbnails; `hackathon-eivissa` as on PRE rather than PROD's existing `hackathon`(12).
+
+**Two measurements taken before approving the bill:**
+
+- **A tag-only write does not bump.** Over PRE's 1 268 topics, the 115 topics written on 2026-08-27
+  show no bump at all; the 220 written on 2026-09-06/07 show 12 (possibly the junk-tag incident's
+  nine, not proven).
+- **The thumbnails are not rendered anywhere once the theme ships.** Core's topic list does not show
+  them; the theme reads `image_url` only in the highlights cards, and the one newsletter at risk
+  (`/t/2575`) is not the newest one the card shows.
+
+**Executor**: a throwaway (not in `bin/`) that re-reads each topic live, normalises tag names, saves
+its prior tags to `2026-09-15-prod-s3-prior-state.json` (gitignored) **before** writing, skips
+`PROTECTED`, re-reads names after the write and stops on the first mismatch. After each run it
+compares `bumped_at` before/after and checks `/latest` page 1. Record by category, ids and counts
+only: `docs/superpowers/plans/data/2026-09-13-prod-bulk-tagging.json`.
+
+| Batch | Categories | Writes | Thumbnails lost | Bumped |
+|---|---|---:|---:|---:|
+| Pilot | 66, 54, 69, 49 | 7 | 0 | 0 |
+| 2 | 68, 56, 50, 57, 87, 65 | 78 | 12 | 0 |
+| 3 | 58 | 103 | 0 | 0 |
+| 4 | 62, 86 (`/t/2683` skipped) | 24 | 20 | 0 |
+| 5 | 5, in four chunks (75/60/60/65) | 260 | 47 | 0 |
+| 6 | 18, in five chunks (60×4, 81) | 321 | 79 | 0 |
+| **Total** | 15 categories | **793** | **158 predicted** | **0** |
+
+Counts reconciled after batch 2: `administracion-avanzada` 130 → 160, `tasas` 5 → 24, `pid` 7 → 10,
+`analiza` 74 → 90, `newsletter` 22 → 30; no junk names.
+
+**Verified after the last batch, by re-crawl, not by the executor's own counts:**
+
+- Every topic in the 15 categories carries its planned tags, **except `/t/2683`** (protected). None
+  exceeds 7 tags. 793 topics in the prior-state file.
+- Tag deltas against the S1 capture match the prior-state prediction exactly, with one exception:
+  `administracion-avanzada` **130 → 758, +628 against +627**. The extra use is `/t/2696`, created in
+  category 18 at 10:19 that day already carrying the tag; it is not in the prior state, so it was not
+  written by the executor.
+- **Thumbnails: 1 lost, 157 kept** of the 158 written topics that had one. This **contradicts the
+  PRE rule** ("every topic write costs its thumbnail", measured on 2026.8.0 in August) — PROD runs
+  2026.9.0, which may be the difference. **Provisional**: measured minutes after the writes, so it
+  is re-checked at the start of S4 in case a deferred job clears them. The one loss is `/t/2063`
+  (category 87). Until the re-check, keep budgeting thumbnails as spent.
+
+**A mistake, and the rule it broke.** Two of the six tags the rows created **duplicate a spelling
+PROD already had**: `app-movil`(2) beside `app-móvil`(3), and `cafe-con-certificados`(7) beside
+`cafe-con-certificado`(8) — `/t/2063` now carries both. The rule was already written ("search the
+vocabulary before creating", from `nueva-version-gestiona` on PRE) and the revalidated table printed
+`ABSENT` for exact names only. Both pairs join S4's spelling merges; a synonym merge writes no topic.
+The other four new tags (`hackathon-eivissa`, `ideas-2024`, `ideas-2025`, `ideas-v9`) collide with
+nothing: `hackathon`(12), `ideas`(73) and `v9`(37) are distinct tags, not variants.
+
+**A false alarm worth recognising.** After batch 4, six Hackathon topics (2484–2489) sat on `/latest`
+page 1. Their `bumped_at` was **2026-09-13 18:37–23:33**, identical in the prior-state capture and
+after the write, with last posts from June: someone edited them two days earlier. The check
+"written ∩ /latest" cannot tell the two apart, so the executor now snapshots `/latest` before
+writing and reports only topics *new* to page 1.
+
+### S4 · Spelling merges, unaccented synonyms, tag group (T1 Tasks 6–7) — 2026-09-15
+
+**Thumbnail re-check first**, over an hour after S3: of the 158 written topics that had a thumbnail,
+**157 still have it**; `/t/2063` remains the only loss. On PROD (2026.9.0) a tag-only topic write
+no longer clears the list thumbnail — **the PRE rule from August no longer holds here**. Keep
+measuring before each batch rather than generalising either way.
+
+**Families, canonical forms approved by Ricardo** (no accent, hyphenated; `webinars` chosen over
+PROD's more used `seminarios` for parity with PRE). Every absorbed or renamed name kept as a
+synonym; no topic written.
+
+| Canonical | Absorbed | Count after |
+|---|---|---:|
+| `evento` | `eventos` | 32 |
+| `tesauro` | `tesauros` | 82 |
+| `webinars` | `seminarios`, `seminario`, `webinar` | 55 |
+| `busquedas-avanzadas` (renamed) | `búsquedas-avanzadas`, `búsquedasavanzadas`, `busquedasavanzadas` | 16 |
+| `cafe-con-certificados` | `cafe-con-certificado` (S3's duplicate) | 9 |
+| `tramites-externos` (renamed) | `trámites-externos`, `tramitesexternos` | 13 |
+| `integraciones` | `ìntegración` | 9 |
+| `curso` | `cursos` | 7 |
+| `paginas-informativas` (renamed) | `páginas-informativas`, `paginasinformativas` | 6 |
+| `app-movil` | `app-móvil` (S3's duplicate) | 5 |
+| `temas-y-categorias` | `temasycategorías` | 3 |
+| `poster-evf` | `póster` (not caught by the root detector; added by hand) | 173 |
+| `transformacion-digital` (renamed) | `transformación-digit` (truncated by the old 20-char limit) | 2 |
+
+The first merge (`eventos` → `evento`) was verified before any other ran: `tags[][name]` with an
+**existing** name does merge. Every count landed between the largest member and the sum.
+**46 unaccented synonyms** added, 0 failed. Vocabulary **225 → 210** base tags.
+`/t/2673` (protected) carries `evento`, the target of a merge; its tags did not change and no topic
+was written.
+
+**Search checks.** `#padron` 15, `#cafe-con-certificado` 9, `#transformación-digit` 2,
+`#tramitacion-reglada` 50 = identical first page to `#tramitación-reglada` (88 uses, so the cap is
+real). **`#seminarios` returns category 67, not the tag**: all 50 results are in 67, whose slug is
+`seminarios` — category slug wins over tag name. Pre-existing, not caused by the merge. **For T2:**
+closing 67 does not remove the shadow, the category must stop existing or change slug.
+
+**`programa-certificacion` was not created.** `one_per_topic` would conflict with `/t/2582` and
+`/t/2583` (category 5, Developers arrival announcements), which carry both `developers` and
+`administracion-avanzada` — **the second added by S3's category-5 row**. On PRE the same two topics
+carry only `developers`, and PRE's group is `one_per_topic: true`.
+
+**Resolved the same day on Ricardo's yes.** `administracion-avanzada` removed from `/t/2582` and
+`/t/2583` (prior tags saved to `2026-09-15-prod-s4-prior-state.json`, gitignored; neither had a
+thumbnail; names read back). Full listings then showed **no topic carrying two programme tags**, and
+`programa-certificacion` was created with `one_per_topic: true` over `administracion-avanzada` (756),
+`analiza` (90) and `developers` (17) — all three non-empty, so none was invented.
+
+### S5 · Module groups and verifier (T1 Task 8) — 2026-09-15
+
+**Proposal derived from PRE's mapping resolved onto PROD**, not from PRE's lists: with PRE's groups
+as they stood, coverage was 548 of 1 309 (41.86%) and three members were absent
+(`circuitos-resolucion`, `circuitos-tramitacion`, `dietas`). Approved by Ricardo in two parts.
+
+**Six more merges first**, the same calls he made on PRE, no topic written:
+`circuitos`(16) + `circuitosresolucion`(36) → **`circuitos-resolucion`** (50);
+`circuitosdetramitaci`(10) + `circuitostramitacion`(3) → **`circuitos-tramitacion`** (13);
+`padrondehabitantes` → `padrón` (18); `órganos` → `órganos-colegiados` (10);
+`pid` → **`integracion-pid`** (10); `seriesdocumentales` → **`serie-documental`** (4).
+Every old name kept as a synonym.
+
+**A mechanic that cost one attempt.** `órganos` carried S4's unaccented synonym `organos`, and a tag
+with synonyms cannot be merged. `DELETE /tag/<id>/synonyms/<synonym>` looks the synonym up **by
+numeric id** (`Tag.find_by(id: params[:synonym_id])` in `tags_controller.rb`), so the first attempt,
+by name, answered 404 and the script stopped before any merge. Detached by id, `organos` became a
+0-topic base tag and was absorbed with the rest.
+
+**Eight groups created**, PRE's membership minus `dietas` (absent), plus four PROD additions:
+`gestión-tributaria` → Gestión económica; `usuarios` and `delegación-funciones` → Configuración
+Gestiona; `analítica` → Analítica de datos (on PRE it was deleted when room 90 absorbed its topics;
+here that room does not exist until T2). Left outside by decision: generic (`documentación`,
+`comunicación`), deleted on PRE (`interoperabilidad`, `desarrollo-software`, `debate-técnico`) and
+genre/event tags (`actualizar`, `actualidad-gestiona`, `novedades`, `soporte` and others). Each group
+returned exactly the requested members; none was invented. Mapping:
+`docs/superpowers/plans/data/2026-09-13-prod-module-axis.json`.
+
+**Shadowing** checked against PROD's tag and category slugs before creation: all eight clear.
+**Filters**: every `#<group>` result carries a member tag — `#tramitacion-administrativa`,
+`#configuracion-gestiona`, `#atencion-a-la-ciudadania`, `#registro-electronico` and `#inicio` hit the
+50-result page cap with 50 of 50 member-tagged; `#gestion-economica` 44, `#analitica-de-datos` 37,
+`#aplicaciones-y-servicios` 25.
+
+**Coverage, by fresh crawl: 598 of 1 309 topics = 45.68%.** (PRE started its title pass from 47.3%.)
+
+**`bin/tags-verify` now serves PROD.** Its use floor comes from the mapping (`"min_uses": null` on
+PROD, 3 by default): PROD keeps ~100 tags below 3 uses because T1 deletes no tags, so the floor would
+fail on a decision, not a typo. The empty-tag case the floor used to catch is now asserted directly:
+a group member at 0 uses fails. The rename block carries all ten PROD renames with their synonyms.
+Proven both ways on PROD — **red** with `Inicio` altered (`missing=['tasas'] extra=['firma']`), mapping
+restored byte-identical, **green**: `8 groups, 0 deletions, 10 renames, 206 tags (no use floor), no
+shadowed slug`. PRE still green after the change.
+
+**Decisions recorded 2026-09-15 (D1–D4):** keep PROD 89; move 86 with `/t/2683` after the poll closes
+(2026-09-25 13:00Z); no date yet for T2; Ricardo is PROD's tagger, so no one else needs warning.
+

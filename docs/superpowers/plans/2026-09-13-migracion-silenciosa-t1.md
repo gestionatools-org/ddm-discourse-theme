@@ -28,6 +28,23 @@
 - **Captures never enter the repository.** It is public by obligation — the theme is cloned over anonymous HTTPS — so any file holding topic titles or member data is born gitignored.
 - **`main` is protected.** Work on a branch, open a PR, and watch the four required CI checks go green before merging; `gh pr merge --auto` does not gate CI from this account.
 
+## Amendments 2026-09-15 (measured after this plan was written)
+
+Sequenced in `2026-09-15-migracion-prod-hoja-de-ruta.md`, which is the entry point from here.
+
+- **Task 1 is done** (`6db5986` on `main`).
+- **Task 2 Steps 1–2 are answered**: the Global key exists once as `PROD_DISCOURSE_GLOBAL_API_KEY`;
+  PROD runs **2026.9.0-latest**. Re-run them as a check only.
+- **Expected counts moved**: ~219 tags, **36** categories (89 "Anuncios" is new). `caag` 130,
+  `posters` 171. Ceilings still 3 / 20.
+- **Protected topics `/t/2683`, `/t/2690`, `/t/2673`**: every loop that writes to a topic skips them
+  (guard added to Tasks 5 and 9). Any other action on them needs Ricardo's explicit yes.
+- **Ids after the restore collide**: category 89 and group 98 (`Votacion` on PROD) mean different
+  things on each instance. Task 11 resolves `Developers` and the rooms by name; PROD's room ids
+  replace 89/90/91 everywhere PROD is concerned.
+- **The granular PROD key reads `/t/<id>.json` and listings (200)** but not `/c/<id>/show.json`
+  (403) — `d.category()` already uses the Global key.
+
 ---
 
 ### Task 1: Point the toolchain at an instance
@@ -671,12 +688,15 @@ import _discourse as d
 
 plan = json.load(open("/tmp/bulk-plan.json"))
 CEILING = 7
+PROTECTED = {2683, 2690, 2673}  # see CLAUDE.local.md — never written without Ricardo's yes
 log = {}
 
 for cid, row in plan.items():
     want = row["tags"]
     applied = skipped = failed = lost = 0
     for tid, t in sorted(d.crawl_category(int(cid)).items()):
+        if tid in PROTECTED:
+            print(f"  /t/{tid} PROTECTED — skipped, ask Ricardo"); skipped += 1; continue
         full = d.get(f"/t/{tid}.json")
         have = d.tag_names(full)          # objects -> names. Never resend the objects.
         add = [x for x in want if x not in have]
@@ -1176,6 +1196,7 @@ import _discourse as d
 props = json.load(open("docs/superpowers/plans/data/2026-09-13-prod-title-proposals.json"))
 dec = json.load(open("docs/superpowers/plans/data/2026-09-13-prod-batch-decisions.json"))
 CEILING = 7
+PROTECTED = {2683, 2690, 2673}  # see CLAUDE.local.md — never written without Ricardo's yes
 
 by_topic = {}
 for tag, rows in props.items():
@@ -1189,6 +1210,8 @@ for tag, rows in props.items():
 
 applied = skipped = failed = 0
 for tid, add in sorted(by_topic.items()):
+    if tid in PROTECTED:
+        print(f"  /t/{tid} PROTECTED — skipped, ask Ricardo"); skipped += 1; continue
     have = d.tag_names(d.get(f"/t/{tid}.json"))
     new = [t for t in add if t not in have]
     if not new:
