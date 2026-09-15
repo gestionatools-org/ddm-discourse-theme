@@ -337,3 +337,50 @@ Recorded so the next pass does not re-derive them.
   that can lose a month of activity.
 - **PRE.** It remains the development target and is untouched, except for the
   `theme_site_settings` leak measurement in T3.
+
+## As executed
+
+### S1 · Pre-flight (T1 Task 2) — 2026-09-15, read-only
+
+Capture `docs/superpowers/plans/data/2026-09-13-prod-capture.json`, gitignored, 425 KB. Nothing
+written to PROD.
+
+| Check | Measured |
+|---|---|
+| Keys | Global 200 on `/tags.json`, granular 403; the Global name appears once in `.env.local` |
+| Version | **2026.9.0-latest**, above the `2026.7.0` floor |
+| Ceilings | `max_tags_per_topic` **3**, `max_tag_length` **20** — Task 3 raises both |
+| Search | `min_search_term_length` **6**, `max_tag_search_results` **3**, `max_tags_in_filter_list` 3 |
+| Tagging rights | `tag_topic_allowed_groups` `1\|2\|10` (trust level 0 may tag), `create_tag_allowed_groups` `1\|3` |
+| Edit notifications | `disable_tags_edit_notifications` **true**, `disable_category_edit_notifications` **true** — tag writes and moves notify no author |
+| Vocabulary | **219** tags, **0** tag groups |
+| Topics crawled | **1 306** in **36** categories; **309** with a thumbnail; **202** untagged |
+| Thumbnails by category | 18→79, 5→47, 78→35, 4→32, 80→23, 81→22, 65→15, 62→13, 50→8, 59→8, 86→7, 67→5, 66→3, 84→3, 83→2, 87→2, and 1 each in 3, 14, 34, 56, 79 |
+| Closed topics | 4→79, 5→241, 14→23, 18→314 (**657** in the four categories whose timer T1 clears; stay closed by decision) |
+| Protected | `/t/2673` cat 59, **has thumbnail**; `/t/2683` cat 86, none; `/t/2690` cat 89, none |
+
+**Departures from the plan's expectations.** 219 tags / 1 306 topics / 36 categories against the
+spec's 218 / 1 297 / 35: the delta is ordinary activity plus category **89 "Anuncios"**, kept by
+decision D1. Every crawl count exceeds `topic_count` by exactly one (the definition topic), except
+category 3 (17 against 7, unlisted documents).
+
+**What the staff log shows since the restore** (2026-07-28 → 2026-09-15, actions only):
+
+- `deleted_unused_tags` ×50 is Discourse's **daily automatic job**, not a person.
+- 2026-08-21: slugs of 4 and 5 changed (now `te-contamos`, `el-foro-del-certificado`),
+  `default_composer_category` → 5, and the whole `default_categories_*` family.
+- 2026-09-14: permissions changed on **59, 1, 86, 85**; category types unconfigured on 86, 85, 3;
+  `Category Banners` and `discourse-gifs` components disabled.
+
+**Two findings for later tranches, not T1.**
+
+- `default_categories_tracking` `18|49|59|85|73|75|65`, `..._watching_first_post` `4|5|87|62|67`
+  and `..._normal` `66|78|56|68|69` name categories T2 empties and closes. T2 must retune them with
+  `default_navigation_menu_categories`, or new members inherit notification levels for dead
+  categories.
+- The public sidebar section "Community" links **Wiki → `/c/documentacion-analiza/74`**, a category
+  that does not exist on PROD. Already broken today; T3 settles it with the chrome.
+
+**Decisions recorded 2026-09-15 (D1–D4):** keep PROD 89; move 86 with `/t/2683` after the poll closes
+(2026-09-25 13:00Z); no date yet for T2; Ricardo is PROD's tagger, so no one else needs warning.
+

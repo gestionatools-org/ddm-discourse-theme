@@ -62,7 +62,7 @@ Each row names the step that absorbs it.
 
 | Fact | Consequence | Absorbed in |
 |---|---|---|
-| PROD has **36** categories, not 35: **89 "Anuncios"** (public, created on PROD, holds `/t/2690`) | Not in the target map. Keep, fold or close is Ricardo's call. Its id collides with PRE's room 89 | Decision D1, before S7 |
+| PROD has **36** categories, not 35: **89 "Anuncios"** (public, created on PROD, holds `/t/2690`) | **Kept** (D1). Its id collides with PRE's room 89 | S7, S10 |
 | PRE carries **92** "Gestiona for developers" and **93** "Administración Avanzada" under 85, plus **83** now under 85 | Part of the target map; T2 must create 92/93 equivalents under 85 and reparent 83 | S8 |
 | PRE **94** "Prueba anuncios" is a rehearsal | Never replicated | — |
 | PROD group **98 = `Votacion`** (8), PRE 98 = `Developers` | `Developers` gets a new id on PROD; resolve by name | S6 |
@@ -82,7 +82,7 @@ Each session is sized for one sitting. **Visible** says what a member could noti
 
 ### T1 — Content (invisible)
 
-- [ ] **S1 · Pre-flight capture** — T1 plan **Task 2**, Steps 3–7. Steps 1–2 are already answered
+- [x] **S1 · Pre-flight capture** — **done 2026-09-15**, record in the spec's *As executed*. — T1 plan **Task 2**, Steps 3–7. Steps 1–2 are already answered
   (table above); run them anyway as a 30-second check.
   Expected counts now: **~219 tags, 36 categories**, topics measured.
   *Gate:* Ricardo hears the numbers and the thumbnail total (he is PROD's tagger, D4 — no one else to warn). *Visible:* nothing. *Rollback:* none needed (read-only).
@@ -144,7 +144,9 @@ are not.
   6. Create 92/93 equivalents under 85 and reparent 83 under 85, matching PRE.
   7. Surplus categories emptied and closed (staff-only, out of the default sidebar) — **never
      deleted**.
-  8. `default_navigation_menu_categories` with `update_existing_user=true`.
+  8. `default_navigation_menu_categories` with `update_existing_user=true`, **and the
+     `default_categories_{tracking,watching,watching_first_post,normal}` family**, which today names
+     categories this pass closes (measured in S1).
   *Verifier:* `bin/categories-verify` parameterised with PROD's ids (a T2 task), green.
   *Visible:* topics listed elsewhere, rooms appear for members of each programme. Links do not break.
   *Rollback:* move back (second thumbnail each).
