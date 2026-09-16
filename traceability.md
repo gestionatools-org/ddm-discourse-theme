@@ -2505,3 +2505,12 @@ Registro completo en la spec `2026-09-13-migracion-silenciosa-design.md`, *As ex
 - **Desviación del plan:** `Developers` (101, 49 personas) nació visible solo para staff, porque
   PROD tiene el directorio de grupos activo. `bin/groups-sync-developers --hidden`; T2 lo hace
   público al abrir la sala 92.
+
+## 2026-09-17 — Migración PROD: T1 cerrada (#148)
+
+Cuatro verificadores en verde (selftest, `tags-verify` en PRE y PROD, `categories-verify` en PRE).
+Criterios medidos en PROD: cobertura **814/1 313 (62,00 %)** por rastreo nuevo; los tres filtros de
+grupo bajo el tope coinciden exactamente con la unión rastreada; `#caag` y `#posters` siguen
+filtrando; búsqueda de tres letras 200; cero tags basura. **Incumplido por decisión:** 99 tags bajo 3
+usos, porque T1 no borra tags. Factura de miniaturas: 1 pagada de 217 presupuestadas. Siete
+desviaciones del plan, listadas en la spec (*T1 closed*).

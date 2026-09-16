@@ -54,7 +54,8 @@ PROD mechanics from `2026-09-06-migracion-prod-design.md`; target map from
 | PROD Discourse version | **2026.9.0-latest** — above the `2026.7.0` floor; T3 is not blocked |
 | PROD user fields 1–4 | **Measured, identical to PRE** (1 NIF and 3 CIF hidden) — T3's stop-the-line row is cleared, re-read by name on flip day |
 | Granular PROD key | 200 on `/t/<id>.json` and category listings, 403 on `/c/<id>/show.json` — enough for `crawl_category` |
-| T1 Tasks 2–12, T2, T3 | **Not started** |
+| T1 Tasks 2–12 | **Done 2026-09-15 → 09-17** (S1–S6b), record in the spec's *As executed* |
+| T2, T3 | **Not started** |
 
 ### What changed since the spec (measured 2026-09-14/15)
 
@@ -116,7 +117,7 @@ Each session is sized for one sitting. **Visible** says what a member could noti
   `2026-09-13-prod-rooms.json` and **replace 89/90/91 everywhere PROD is concerned**.
   *Visible:* short searches work; posting no longer demands two tags; new topics stop auto-closing.
 
-- [ ] **S6b · Close T1** — T1 **Task 12**: all verifiers green on both instances, *As executed*,
+- [x] **S6b · Close T1** — **done 2026-09-17**: four verifiers green, coverage 814/1 313 (62.00%), 1 thumbnail spent of 217 budgeted. — T1 **Task 12**: all verifiers green on both instances, *As executed*,
   `CLAUDE.local.md`, PR with CI green before merge.
 
 ### T2 — Categories (the one real leak)

@@ -635,3 +635,51 @@ member was notified (`notify_users` is never sent).
 
 **Not verified from a non-admin account:** that neither the rooms nor the group are visible to a
 member. Every key here is an administrator's.
+
+### T1 closed (Task 12) — 2026-09-17
+
+**Every assertion green**, run the same sitting: `bin/selftest-instance` PASS; `tags-verify` on PRE
+(`8 groups, 4 deletions, 2 renames, 104 tags at 3+ uses, no shadowed slug`) and on PROD
+(`8 groups, 0 deletions, 10 renames, 206 tags (no use floor), no shadowed slug`);
+`categories-verify` on PRE (`genre reorganisation target state holds`).
+
+**Success criteria, measured on PROD, not carried from the session records:**
+
+| Criterion | Measured |
+|---|---|
+| Ceilings raised before the first tag write | `max_tags_per_topic` 7, `max_tag_length` 30, set in S2 before S3 wrote |
+| `#caag`, `#posters` still filtering | same ids as `#administracion-avanzada` and `#poster-evf` (50 each, the page cap) |
+| Eight module groups, none shadowed | `tags-verify` green; every result of every `#<group>` carries a member tag (0 outside) |
+| Each `#slug` returns its union | five hit the 50 cap; below it, **search = crawl union** exactly: `#gestion-economica` 46, `#analitica-de-datos` 44, `#aplicaciones-y-servicios` 30 |
+| No tag below 3 uses | **Not met, by decision**: 206 base tags, minimum 1 use, **99 below 3**. T1 deletes no tags; the floor is `null` in PROD's mapping (S5) |
+| Subject coverage, fresh crawl | **814 of 1 313 = 62.00%** over 39 categories. The three extra topics against S5b's 1 310 are the untagged definition topics of rooms 90–92 (`/t/2699`–`2701`); on S5b's population it is still 62.14% |
+| A three-letter term no longer 400 | `q=tasas` 200 (50), `q=v10` 200 (44); `q=ia` 400 as expected |
+| Zero junk tags | 0 topics carrying a non-name tag over the whole crawl, plus the per-write name re-read in S3 and S5b |
+
+**Departures from the T1 plan, all recorded in their session above:**
+
+1. **Campaign tags took PRE's final names** `ideas-2024/2025/v9`, not `campana-*` (S3), and 49/86
+   were added to the bulk table from PRE's August Phase 3 (S3).
+2. **S3 created two duplicate spellings** by checking exact names only; merged in S4.
+3. **`programa-certificacion` needed two topics fixed first** (`/t/2582`, `/t/2583`), whose second
+   programme tag S3's category-5 row had added (S4).
+4. **Six more merges and four PROD-only group members** beyond PRE's mapping (S5).
+5. **The use floor was dropped on PROD** (above). There is **no `pendiente-etiquetar` queue** either,
+   because the body pass was not run.
+6. **The coverage pass tagged campaign ideas by menu path**, not by title words (S5b).
+7. **`Developers` (101) was born staff-only**, not public (S6). T2 flips it with room 92.
+
+**Thumbnail bill, real against predicted.** Budgeted as spent on the August PRE rule: **158** in S3
+plus the 59 at risk in S5b. Paid: **1** (`/t/2063`). On PROD 2026.9.0 a tag-only write keeps the
+list thumbnail — measured three times (S3, S4 an hour later, S5b).
+
+**The price T1 did pay instead: 4 bumps.** A tag write on a wiki first post can bump its topic
+(S5b); repaired with `reset-bump-date` in S6. Every later topic write checks `wiki` first.
+
+**The funcionalidad axis was not built on PROD either.** It was Approach C on PRE, chosen
+deliberately; `#tramitacion-administrativa` returning a large undifferentiated set is the accepted
+scope, not a defect.
+
+**What T2's plan starts from:** rooms **90/91/92** (`2026-09-13-prod-rooms.json`), group
+**`Developers` 101**, the post-T1 vocabulary of 206 base tags with the mapping
+`2026-09-13-prod-module-axis.json`, and the S1 capture, which lives on disk only (gitignored).
