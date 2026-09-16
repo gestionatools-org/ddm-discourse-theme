@@ -34,7 +34,7 @@ PROD mechanics from `2026-09-06-migracion-prod-design.md`; target map from
   valid on PROD until re-read by **name**.
 - **This is production, with no maintenance window.** When an outcome differs from the prediction,
   STOP and report; do not improvise.
-- **Every topic write costs its list thumbnail, permanently.** Measure `image_url` before any batch.
+- **On PROD (2026.9.0) a tag-only write keeps the list thumbnail** (measured S3–S5b: 216 of 217 kept). It still **bumps a wiki first post** — `PostRevisor#should_bump?` — so check `wiki` before writing, or an old topic jumps to the top of `/latest`.
 - **Tags come back as objects.** Normalise with `d.tag_names()`, re-read names after every write.
 - **Captures never enter the repo** (public by obligation). Files holding titles or member data are
   born gitignored: `*-capture.json`, `*-prior-state.json`, `*-move-proposals.json`,
@@ -107,7 +107,7 @@ Each session is sized for one sitting. **Visible** says what a member could noti
 - [x] **S5 · Module groups and verifier** — **done 2026-09-15**: 8 groups, 6 more merges, coverage 598/1 309 = 45.68%, `tags-verify` green on both instances. — T1 **Task 8**.
   *Gate:* the mapping (budget several rounds). *Visible:* nothing.
 
-- [ ] **S5b · Coverage pass** — T1 **Task 9**, in as many sittings as the batches need.
+- [x] **S5b · Coverage pass** — **done 2026-09-16**: 215 topics, coverage 62.14%, thumbnails all kept; **4 wiki topics bumped to the top of `/latest`** (repair pending). — T1 **Task 9**, in as many sittings as the batches need.
   *Gate:* every batch; thumbnail bill before writing. Body pass is **not** run.
   *Visible:* tags on existing topics.
 

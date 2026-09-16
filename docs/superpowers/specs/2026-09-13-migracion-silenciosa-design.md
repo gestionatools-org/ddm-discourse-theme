@@ -555,6 +555,45 @@ Proven both ways on PROD — **red** with `Inicio` altered (`missing=['tasas'] e
 restored byte-identical, **green**: `8 groups, 0 deletions, 10 renames, 206 tags (no use floor), no
 shadowed slug`. PRE still green after the change.
 
+### S5b · Subject coverage by the title rule (T1 Task 9) — 2026-09-16
+
+**Two batches, both reviewed by Ricardo before any write.**
+
+- **A — menu path (110 topics, 173 tags).** Campaign-idea titles in categories 57 and 58 start with
+  Gestiona's own menu path (`# 08 - CONFIGURACIÓN · 08.09 - TESAURO · …`). Tagging by **section and
+  subsection**, ignoring the free-text description, replaced the plan's word rule for these: the word
+  rule gave one topic `usuarios`, `tesauro` and `tramitación` at once. 13 topics keep no tag because
+  their path has no equivalent (oficina de asistencia 5, avisos y alertas 4, chat 2, mi área 2).
+- **B — title words (116 topics, 155 tags),** with 48 matches excluded up front: 27 `usuarios` that
+  mean *certified users* (arrival announcements, encuentros), the 17 archived topics of category 3,
+  and 4 homonyms (tooltip *de ayuda*, *asignación de un valor*, *registro de ideas*). Ricardo then
+  cut three more on review: `fechas` kept only on `/t/374` and `/t/777` (11 were Analiza date
+  formulas, not the Inicio feature), `analítica` only on `/t/908`, and `circuitos-tramitacion`
+  dropped from `/t/389`. Those cuts left 11 topics with nothing to add, so the plan was **215**.
+
+**Result: 215 topics written, 0 failures, 0 over the ceiling, all planned tags present on re-read.**
+Coverage **598 → 814 of 1 310 = 62.14%** (measured by a fresh crawl, not derived). `bin/tags-verify`
+green. **Thumbnails: 59 of 59 kept**, confirming S4's re-check.
+
+**Four topics were bumped to the top of `/latest`, and that is a real leak.** `/t/2359`, `/t/2364`,
+`/t/2365`, `/t/2366` — category 81, last posted in May — now carry `bumped_at` of the write minute
+and sat at positions 0–3 of `/latest`. Nothing else on PROD bumped that day except two genuinely new
+topics.
+
+**The mechanism is only half explained, and the half that is known is worth keeping.** Core's
+`PostRevisor#should_bump?` returns true when the edited post `is_first_post? && wiki? &&
+post_changes.any?` — so **a tag write can bump a wiki first post**, which an ordinary post never does.
+All four are wiki posts. But **wiki is not sufficient**: 13 other wiki topics in the same category,
+written in the same minute, did not bump, and the revision diffs of a bumped and a non-bumped one are
+indistinguishable (same version, same changed fields, same tags-only change). Not resolved; recorded
+as a price rather than a theory.
+
+**Practical rule for T2 and any later tagging: check `wiki` before writing.** A wiki first post can
+surface a year-old topic at the top of the forum, which is exactly what this tranche must not do.
+
+**Repair available and pending Ricardo's yes:** `PUT /t/<id>/reset-bump-date` (staff-only,
+`topics#reset_bump_date`) resets `bumped_at` to the last post's date, returning the four to May.
+
 **Decisions recorded 2026-09-15 (D1–D4):** keep PROD 89; move 86 with `/t/2683` after the poll closes
 (2026-09-25 13:00Z); no date yet for T2; Ricardo is PROD's tagger, so no one else needs warning.
 
