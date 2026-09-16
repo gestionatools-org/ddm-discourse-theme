@@ -1,0 +1,95 @@
+{
+ "groups": {
+  "Tramitación administrativa": [
+   "circuitos-resolucion",
+   "circuitos-tramitacion",
+   "expedientes",
+   "expedientes-apertura",
+   "gestiona-code",
+   "gestiona-envia",
+   "integracion-pid",
+   "markdown",
+   "plantillas",
+   "procedimientos",
+   "relacionados",
+   "subprocesos",
+   "tesauro",
+   "tramitación",
+   "tramitación-reglada",
+   "órganos-colegiados"
+  ],
+  "Configuración Gestiona": [
+   "configuración",
+   "delegación-funciones",
+   "integraciones",
+   "markdown",
+   "serie-documental",
+   "tesauro",
+   "usuario-perfil",
+   "usuarios"
+  ],
+  "Atención a la ciudadanía": [
+   "canal-denuncias",
+   "carpeta-ciudadana",
+   "cita-previa",
+   "interesados",
+   "paginas-informativas",
+   "representante",
+   "sede-electrónica",
+   "tablón-anuncios",
+   "temas-y-categorias",
+   "terceros",
+   "transparencia"
+  ],
+  "Registro electrónico": [
+   "registro",
+   "tramites-externos",
+   "ventanilla-única"
+  ],
+  "Inicio": [
+   "app-movil",
+   "asignaciones",
+   "asignado-a",
+   "fechas",
+   "firma",
+   "plazos",
+   "tareas",
+   "tareas-personal",
+   "tareas-regladas"
+  ],
+  "Gestión económica": [
+   "ayudas",
+   "ayudas-personal",
+   "contratación",
+   "gestión-tributaria",
+   "menor",
+   "subvenciones",
+   "tasas"
+  ],
+  "Analítica de datos": [
+   "analítica",
+   "auditoria",
+   "busquedas-avanzadas"
+  ],
+  "Aplicaciones y servicios": [
+   "facturas",
+   "padrón",
+   "sello-de-organo",
+   "urbanismo"
+  ]
+ },
+ "delete": [],
+ "rename": {
+  "caag": "administracion-avanzada",
+  "posters": "poster-evf",
+  "búsquedas-avanzadas": "busquedas-avanzadas",
+  "trámites-externos": "tramites-externos",
+  "páginas-informativas": "paginas-informativas",
+  "transformación-digit": "transformacion-digital",
+  "circuitosresolucion": "circuitos-resolucion",
+  "circuitosdetramitaci": "circuitos-tramitacion",
+  "pid": "integracion-pid",
+  "seriesdocumentales": "serie-documental"
+ },
+ "min_uses": null
+}

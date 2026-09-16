@@ -1,0 +1,171 @@
+{
+ "66": {
+  "tags": [
+   "blog-gestiona"
+  ],
+  "topics": 10,
+  "applied": 1,
+  "skipped": 9,
+  "protected_skipped": 0,
+  "over_ceiling": 0,
+  "thumbnails_lost": 0
+ },
+ "54": {
+  "tags": [
+   "ideas-v9"
+  ],
+  "topics": 2,
+  "applied": 2,
+  "skipped": 0,
+  "protected_skipped": 0,
+  "over_ceiling": 0,
+  "thumbnails_lost": 0
+ },
+ "69": {
+  "tags": [
+   "administracion-avanzada",
+   "app-movil"
+  ],
+  "topics": 2,
+  "applied": 2,
+  "skipped": 0,
+  "protected_skipped": 0,
+  "over_ceiling": 0,
+  "thumbnails_lost": 0
+ },
+ "49": {
+  "tags": [
+   "administracion-avanzada"
+  ],
+  "topics": 2,
+  "applied": 2,
+  "skipped": 0,
+  "protected_skipped": 0,
+  "over_ceiling": 0,
+  "thumbnails_lost": 0
+ },
+ "68": {
+  "tags": [
+   "administracion-avanzada",
+   "pid"
+  ],
+  "topics": 5,
+  "applied": 5,
+  "skipped": 0,
+  "protected_skipped": 0,
+  "over_ceiling": 0,
+  "thumbnails_lost": 0
+ },
+ "56": {
+  "tags": [
+   "administracion-avanzada",
+   "tasas"
+  ],
+  "topics": 21,
+  "applied": 21,
+  "skipped": 0,
+  "protected_skipped": 0,
+  "over_ceiling": 0,
+  "thumbnails_lost": 1
+ },
+ "50": {
+  "tags": [
+   "analiza"
+  ],
+  "topics": 16,
+  "applied": 16,
+  "skipped": 0,
+  "protected_skipped": 0,
+  "over_ceiling": 0,
+  "thumbnails_lost": 8
+ },
+ "57": {
+  "tags": [
+   "ideas-2024"
+  ],
+  "topics": 21,
+  "applied": 21,
+  "skipped": 0,
+  "protected_skipped": 0,
+  "over_ceiling": 0,
+  "thumbnails_lost": 0
+ },
+ "87": {
+  "tags": [
+   "cafe-con-certificados"
+  ],
+  "topics": 7,
+  "applied": 7,
+  "skipped": 0,
+  "protected_skipped": 0,
+  "over_ceiling": 0,
+  "thumbnails_lost": 2
+ },
+ "65": {
+  "tags": [
+   "newsletter"
+  ],
+  "topics": 28,
+  "applied": 8,
+  "skipped": 20,
+  "protected_skipped": 0,
+  "over_ceiling": 0,
+  "thumbnails_lost": 1
+ },
+ "58": {
+  "tags": [
+   "ideas-2025"
+  ],
+  "topics": 103,
+  "applied": 103,
+  "skipped": 0,
+  "protected_skipped": 0,
+  "over_ceiling": 0,
+  "thumbnails_lost": 0
+ },
+ "62": {
+  "tags": [
+   "administracion-avanzada",
+   "trucazo"
+  ],
+  "topics": 16,
+  "applied": 16,
+  "skipped": 0,
+  "protected_skipped": 0,
+  "over_ceiling": 0,
+  "thumbnails_lost": 13
+ },
+ "86": {
+  "tags": [
+   "hackathon-eivissa"
+  ],
+  "topics": 9,
+  "applied": 8,
+  "skipped": 0,
+  "protected_skipped": 1,
+  "over_ceiling": 0,
+  "thumbnails_lost": 7
+ },
+ "5": {
+  "tags": [
+   "administracion-avanzada"
+  ],
+  "topics": 260,
+  "applied": 260,
+  "skipped": 195,
+  "protected_skipped": 0,
+  "over_ceiling": 0,
+  "thumbnails_lost": 47
+ },
+ "18": {
+  "tags": [
+   "administracion-avanzada"
+  ],
+  "topics": 322,
+  "applied": 321,
+  "skipped": 241,
+  "protected_skipped": 0,
+  "over_ceiling": 0,
+  "thumbnails_lost": 79
+ }
+}
