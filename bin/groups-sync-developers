@@ -19,8 +19,15 @@ lose the room while still sitting in a cohort, and nothing would say so.
 are already in `Certificación`, which IS primary; a second primary group would rewrite the
 flair and title of every one of them as a side effect of a permissions change.
 
+`--hidden` creates the group visible to staff only, group and member list alike. PROD's
+was born that way on 2026-09-17: the group directory is enabled there, so a public group
+would have shown up in `/g` and on every developer's profile weeks before the rooms it
+exists for. The category tranche makes it public when it opens them. It shapes creation
+only — an existing group's visibility is left as it is.
+
 Usernames are member data: this prints counts, never names, and writes nothing to the repo.
 """
+import argparse
 import pathlib
 import sys
 
@@ -49,13 +56,22 @@ SHAPE = [
 ]
 
 
-def main():
+# Group.visibility_levels: public=0, logged_on_users=1, members=2, staff=3, owners=4.
+STAFF_ONLY = 3
+
+
+def main(hidden=False):
     existing = d.group(NAME)
     if existing:
         gid = existing["id"]
         print(f"exists: {NAME} -> {gid}")
     else:
-        created = d.request("POST", "/admin/groups.json", data=SHAPE, elevated=True)
+        shape = SHAPE
+        if hidden:
+            overrides = {"group[visibility_level]": STAFF_ONLY,
+                         "group[members_visibility_level]": STAFF_ONLY}
+            shape = [(k, overrides.get(k, v)) for k, v in SHAPE]
+        created = d.request("POST", "/admin/groups.json", data=shape, elevated=True)
         # The create response wraps the record in `basic_group`; read it defensively so a
         # serializer change surfaces as a named error rather than a KeyError after the
         # group already exists on the instance.
@@ -96,4 +112,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    p = argparse.ArgumentParser()
+    p.add_argument("--hidden", action="store_true",
+                   help="create the group visible to staff only, until its room opens")
+    main(p.parse_args().hidden)

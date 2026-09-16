@@ -591,9 +591,47 @@ as a price rather than a theory.
 **Practical rule for T2 and any later tagging: check `wiki` before writing.** A wiki first post can
 surface a year-old topic at the top of the forum, which is exactly what this tranche must not do.
 
-**Repair available and pending Ricardo's yes:** `PUT /t/<id>/reset-bump-date` (staff-only,
-`topics#reset_bump_date`) resets `bumped_at` to the last post's date, returning the four to May.
+**Repaired 2026-09-17 on Ricardo's yes:** `PUT /t/<id>/reset-bump-date` (staff-only,
+`topics#reset_bump_date`) on the four, all 200. None of them is on page 1 of `/latest` any more;
+its head is again genuinely new content (`/t/2694`, `/t/2698`).
 
 **Decisions recorded 2026-09-15 (D1–D4):** keep PROD 89; move 86 with `/t/2683` after the poll closes
 (2026-09-25 13:00Z); no date yet for T2; Ricardo is PROD's tagger, so no one else needs warning.
 
+### S6 · Settings and the additive tail (T1 Tasks 10–11) — 2026-09-17
+
+**Task 10 — settings.** `min_search_term_length` **6 → 3** and `max_tag_search_results` **3 → 5**
+(both 204). `q=tasas` and `q=v10` went from **400 to 200**; `q=ia` stays 400, as expected at a floor
+of 3. On categories **4, 5, 14, 18**: `auto_close_hours` **720 → none** and `minimum_required_tags`
+**2 → 0**. Topics already closed stay closed. Read back against S1's capture: name, slug and
+restriction unchanged; the definition topics of 4 and 14, whose `description` reads empty, were last
+edited in 2025, so that emptiness predates the write.
+
+**PRE still auto-closes at 720 on the same four.** Decision 4 above removes it on PROD; the genre
+reorganisation deferred it on PRE. The two instances now differ here by decision, not by drift.
+
+**Task 11 — rooms, born closed.** `bin/categories-create-rooms --closed-to administradores`, after
+checking that no tag, tag group or topic answers to any of the three `foro-` slugs (0 each):
+
+| Room | PRE | **PROD** | PROD permission |
+|---|---|---|---|
+| Administración Avanzada | 89 | **90** | `administradores` 1 only |
+| Analítica de datos | 90 | **91** | `administradores` 1 only |
+| Gestiona for Developers | 91 | **92** | `administradores` 1 only |
+
+All three top-level, `read_restricted`, 0 topics. Ids are in
+`docs/superpowers/plans/data/2026-09-13-prod-rooms.json`. **They sit one above PRE's, and 92 means
+something else on each instance** (PRE 92 is "Gestiona for developers" under 85). T2 and T3 read the
+PROD file, never PRE's ids.
+
+**The `Developers` group — id 101, 49 people — was born hidden, a deviation from the plan.** The
+plan called this step invisible, but the script created the group public as on PRE, and PROD has
+`enable_group_directory` on: a new public group would have appeared in `/g` and on 49 profiles
+weeks before its room opens. On Ricardo's call it was created with `visibility_level` and
+`members_visibility_level` at **3 (staff)** through a new `--hidden` flag on
+`bin/groups-sync-developers`. **T2 must make it public when it opens room 92.** Membership is the
+cohort union: 16 + 14 + 17 + 15 = 62 raw, **49 people**, 13 repeating — the same figures as PRE. No
+member was notified (`notify_users` is never sent).
+
+**Not verified from a non-admin account:** that neither the rooms nor the group are visible to a
+member. Every key here is an administrator's.

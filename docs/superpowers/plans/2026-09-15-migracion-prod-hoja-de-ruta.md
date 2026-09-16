@@ -107,11 +107,11 @@ Each session is sized for one sitting. **Visible** says what a member could noti
 - [x] **S5 · Module groups and verifier** — **done 2026-09-15**: 8 groups, 6 more merges, coverage 598/1 309 = 45.68%, `tags-verify` green on both instances. — T1 **Task 8**.
   *Gate:* the mapping (budget several rounds). *Visible:* nothing.
 
-- [x] **S5b · Coverage pass** — **done 2026-09-16**: 215 topics, coverage 62.14%, thumbnails all kept; **4 wiki topics bumped to the top of `/latest`** (repair pending). — T1 **Task 9**, in as many sittings as the batches need.
+- [x] **S5b · Coverage pass** — **done 2026-09-16**: 215 topics, coverage 62.14%, thumbnails all kept; **4 wiki topics bumped to the top of `/latest`**, repaired 2026-09-17 with `reset-bump-date`. — T1 **Task 9**, in as many sittings as the batches need.
   *Gate:* every batch; thumbnail bill before writing. Body pass is **not** run.
   *Visible:* tags on existing topics.
 
-- [ ] **S6 · Settings + additive tail** — T1 **Tasks 10 and 11**.
+- [x] **S6 · Settings + additive tail** — **done 2026-09-17**: rooms **90/91/92** closed to `administradores`; `Developers` id **101**, 49, born **hidden** (T2 makes it public). — T1 **Tasks 10 and 11**.
   Rooms born closed to `administradores`; their PROD ids are recorded in
   `2026-09-13-prod-rooms.json` and **replace 89/90/91 everywhere PROD is concerned**.
   *Visible:* short searches work; posting no longer demands two tags; new topics stop auto-closing.
@@ -133,7 +133,8 @@ are not.
 
 - [ ] **S8 · Execute T2**, in this order, one sitting per numbered block:
   1. Category 5 receives the programme groups (read-only rows) before anything hangs under it.
-  2. Rooms opened to their groups and reparented under 5 (no topic moves, no id changes).
+  2. Rooms **90/91/92** opened to their groups and reparented under 5 (no topic moves, no id
+     changes); **`Developers` (101) made public in the same sitting** — it was born staff-only.
   3. Consultations moved into the rooms, in batches, verified by id; thumbnails measured per batch.
   4. August's consolidation, per the mapping in `2026-08-25-category-reorganisation-design.md`
      (lines 149–173) plus its recorded departures: 57/58/54 → 18; 34 → 85; 62/67 → 14;

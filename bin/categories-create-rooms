@@ -7,7 +7,12 @@ Two rooms on 2026-09-11, a third the same day: `Gestiona for Developers`, walled
 script first: what Discourse does with a `permissions[...]` key naming a group that does
 not exist has not been measured here, and the cheap branch is not to find out on a live
 room — so this refuses to create one until every named group resolves.
+
+`--closed-to <group>` walls every new room to that one group instead of its programme
+group, so the room is born invisible to members. PROD's rooms were created that way on
+2026-09-17, ahead of the category tranche that opens them.
 """
+import argparse
 import json
 import pathlib
 import sys
@@ -16,7 +21,12 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import _discourse as d  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-OUT = ROOT / "docs/superpowers/plans/data/2026-09-11-rooms.json"
+# Per instance, so PROD's ids never overwrite PRE's: ids assigned after the restore collide.
+ROOM_FILES = {
+    "PRE": "2026-09-11-rooms.json",
+    "PROD": "2026-09-13-prod-rooms.json",
+}
+OUT = ROOT / "docs/superpowers/plans/data" / ROOM_FILES[d._instance()]
 
 # permission_types: full=1, create_post=2, readonly=3 (CategoryGroup.permission_types).
 # `Certificación` is 374 people — every member — so the AA room is separated from the
@@ -53,7 +63,7 @@ def existing_names():
     return dict(walk(data["category_list"]["categories"]))
 
 
-def main():
+def main(closed_to=None):
     known = existing_names()
     rooms = json.loads(OUT.read_text()) if OUT.exists() else {}
     for key, name, groups, color, text_color, slug in ROOMS:
@@ -61,7 +71,11 @@ def main():
             print(f"exists: {name} -> {known[name]}")
             rooms[key] = known[name]
             continue
-        for group in groups:
+        # A room born closed is walled to one staff group instead of its programme
+        # group, so it is absent from the category list and the composer's picker for
+        # everyone else. The category tranche opens it by resending the real rows.
+        wall = (closed_to,) if closed_to else groups
+        for group in wall:
             if d.group(group) is None:
                 raise SystemExit(
                     f"group {group} does not exist — create it first. A room created with"
@@ -74,13 +88,16 @@ def main():
             ("color", color),
             ("text_color", text_color),
             ("minimum_required_tags", 0),
-        ] + [(f"permissions[{group}]", 1) for group in groups]
+        ] + [(f"permissions[{group}]", 1) for group in wall]
         created = d.request("POST", "/categories.json", data=payload, elevated=True)
         rooms[key] = created["category"]["id"]
         print(f"created: {name} -> {rooms[key]} (#{created['category']['slug']}, "
-              f"{' + '.join(groups)} at permission 1)")
+              f"{' + '.join(wall)} at permission 1)")
     OUT.write_text(json.dumps(rooms, ensure_ascii=False, indent=1))
 
 
 if __name__ == "__main__":
-    main()
+    p = argparse.ArgumentParser()
+    p.add_argument("--closed-to", help="wall every new room to this group instead of its "
+                                       "programme group, so it is born invisible")
+    main(p.parse_args().closed_to)
