@@ -21,12 +21,19 @@ import unicodedata
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import _discourse as d  # noqa: E402
+import _category_map as cm  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DATA = ROOT / "docs/superpowers/plans/data"
 PRIOR = DATA / "2026-09-11-prior-state.json"
 DECISIONS = DATA / "2026-09-11-move-decisions.json"
 ROOMS = DATA / "2026-09-11-rooms.json"
+
+PROD_DATA = {
+    "map": "2026-09-17-prod-category-map.json",
+    "decisions": "2026-09-17-prod-t2-move-decisions.json",
+    "prior": "2026-09-17-prod-t2-prior-state.json",
+}
 
 # Must stay byte-identical to bin/categories-propose's CEREMONIAL: the two decide the
 # same question from opposite ends, and a divergence would let this pass on a plaza the
@@ -109,6 +116,46 @@ def prior_ids(prior, cid):
         for tid, t in prior["topics"].items()
         if t["category_id"] == cid and int(tid) != prior["categories"][str(cid)]["definition_topic_id"]
     }
+
+
+def check_developers_union(visibility=None):
+    union = set()
+    for cohort in DEVELOPER_COHORTS:
+        union |= set(d.group_members(cohort))
+    developers = d.group("Developers")
+    check(developers is not None, "group Developers does not exist")
+    if not developers:
+        return
+    have = set(d.group_members("Developers"))
+    check(have == union, f"group Developers has {len(have)} members, expected the cohort union of"
+                         f" {len(union)} (extra {len(have - union)}, missing {len(union - have)})")
+    for field in ("public_admission", "public_exit", "allow_membership_requests"):
+        check(not developers.get(field), f"group Developers: {field} is on, expected off")
+    check(not developers.get("primary_group"), "group Developers is a primary group")
+    if visibility is not None:
+        check(developers.get("visibility_level") == visibility,
+              f"group Developers visibility {developers.get('visibility_level')}, expected {visibility}")
+
+
+def taken_slugs():
+    def slugify(text):
+        text = unicodedata.normalize("NFKD", text.lower())
+        text = "".join(c for c in text if not unicodedata.combining(c))
+        return re.sub(r"[^a-z0-9]+", "-", text).strip("-")
+
+    taken = {slugify(t["name"]) for t in d.get("/tags.json", elevated=True)["tags"]}
+    return taken | {slugify(g["name"]) for g in d.get("/tag_groups.json", elevated=True)["tag_groups"]}
+
+
+def finish(ok_message, pending=()):
+    for p in pending:
+        print("  PENDING", p)
+    if failures:
+        print("FAIL")
+        for f in failures:
+            print("  -", f)
+        sys.exit(1)
+    print(ok_message)
 
 
 def main():
@@ -232,13 +279,7 @@ def main():
     # `eventos` and has for its whole life — a known, accepted, pre-existing condition —
     # which is why this asserts only the categories this work created.
     if rooms:
-        def slugify(text):
-            text = unicodedata.normalize("NFKD", text.lower())
-            text = "".join(c for c in text if not unicodedata.combining(c))
-            return re.sub(r"[^a-z0-9]+", "-", text).strip("-")
-
-        taken = {slugify(t["name"]) for t in d.get("/tags.json", elevated=True)["tags"]}
-        taken |= {slugify(g["name"]) for g in d.get("/tag_groups.json", elevated=True)["tag_groups"]}
+        taken = taken_slugs()
         for key in ROOM_GROUPS:
             if key not in rooms:
                 continue
@@ -280,25 +321,7 @@ def main():
     # `Developers` must be exactly the union of the four cohorts, and must not be
     # self-service — a member who could leave it would silently lose the room while still
     # being in a cohort, which is the drift this group exists to prevent.
-    union = set()
-    for cohort in DEVELOPER_COHORTS:
-        union |= set(d.group_members(cohort))
-    developers = d.group("Developers")
-    check(developers is not None, "group Developers does not exist")
-    if developers:
-        have = set(d.group_members("Developers"))
-        check(
-            have == union,
-            f"group Developers has {len(have)} members, expected the cohort union of"
-            f" {len(union)} (extra {len(have - union)}, missing {len(union - have)})",
-        )
-        for field in ("public_admission", "public_exit", "allow_membership_requests"):
-            check(not developers.get(field), f"group Developers: {field} is on, expected off")
-        check(
-            not developers.get("primary_group"),
-            "group Developers is a primary group — it would overwrite the flair of all"
-            " 49 members, every one of whom is already in Certificación",
-        )
+    check_developers_union()
 
     # Nothing but arrival announcements and the approved exceptions may remain in the plaza.
     if decisions:
@@ -313,13 +336,116 @@ def main():
         )
         check(not strays, f"unapproved non-ceremonial topics left in the plaza: {strays}")
 
-    if failures:
-        print("FAIL")
-        for f in failures:
-            print("  -", f)
-        sys.exit(1)
-    print("OK: genre reorganisation target state holds")
+    finish("OK: genre reorganisation target state holds")
+
+
+def verify_prod():
+    m = load(DATA / PROD_DATA["map"])
+    rooms = load(DATA / m["rooms_file"]) or {}
+    created = load(DATA / m["created_file"]) or {}
+    decisions = load(DATA / PROD_DATA["decisions"])
+    prior = load(DATA / PROD_DATA["prior"])
+    pending = []
+
+    def expect(ok, message, not_before=None):
+        if ok:
+            return
+        (pending if cm.not_yet(not_before) else failures).append(
+            message + (f" (not before {not_before})" if cm.not_yet(not_before) else ""))
+
+    # 1. Every category the map names looks the way the map says.
+    for key, entry in m["categories"].items():
+        entry = dict(entry)
+        not_before = entry.pop("not_before", None)
+        try:
+            cid = cm.resolve(key, rooms, created)
+        except KeyError:
+            check(False, f"{key}: not created")
+            continue
+        if entry.get("parent") is not None:
+            entry["parent"] = cm.resolve(entry["parent"], rooms, created)
+        changes, perms = cm.plan_changes(d.category(cid), entry)
+        expect(not changes and perms is None, f"category {key} ({cid}) still needs {changes} {perms}", not_before)
+
+    # 2. The categories created under 85.
+    for key, spec in m["create"].items():
+        check(key in created, f"create {key}: not created")
+        if key in created:
+            changes, perms = cm.plan_changes(d.category(created[key]),
+                                             {**spec, "parent": cm.resolve(spec["parent"], rooms, created)})
+            check(not changes and perms is None, f"create {key} ({created[key]}) still needs {changes} {perms}")
+
+    # 3. Surplus categories: empty and closed, never deleted.
+    rules = m["close"]
+    for cid in rules["order"]:
+        not_before = rules.get("not_before", {}).get(str(cid))
+        c = d.request("GET", f"/c/{cid}/show.json", elevated=True, allow_404=True)
+        check(c is not None, f"category {cid} no longer exists — T2 deletes nothing")
+        if c is None:
+            continue
+        definition = d.definition_topic_id(cid)
+        left = sorted(t for t in d.crawl_category(cid) if t != definition)
+        entry = {"permissions": rules.get("permissions_override", {}).get(str(cid), m["closed_to"])}
+        if str(cid) in rules.get("slug", {}):
+            entry["slug"] = rules["slug"][str(cid)]
+        changes, perms = cm.plan_changes(c["category"], entry)
+        expect(not left, f"category {cid} still holds {len(left)} topics {left[:8]}", not_before)
+        expect(not changes and perms is None, f"category {cid} not closed: {changes} {perms}", not_before)
+
+    # 4. Every decided id is in its destination; every kept id is where it was.
+    if decisions:
+        crawled = {}
+
+        def ids_in(cid):
+            if cid not in crawled:
+                crawled[cid] = set(d.crawl_category(cid))
+            return crawled[cid]
+
+        for key, spec in decisions["lists"].items():
+            target = cm.resolve(spec["target"], rooms, created)
+            missing = [i for i in spec["ids"] if i not in ids_in(target)]
+            expect(not missing, f"list {key}: {len(missing)} of {len(spec['ids'])} not in {target} {missing[:8]}",
+                   spec.get("not_before"))
+        for source, ids in decisions["stays"].items():
+            gone = [i for i in ids if i not in ids_in(int(source))]
+            check(not gone, f"stays in {source}: {len(gone)} left it {gone[:8]}")
+    else:
+        check(False, "move decisions missing")
+
+    # 5. Protected topics are where the map allows.
+    for tid, home in m["protected_topics"].items():
+        now = d.get(f"/t/{tid}.json", elevated=True)["category_id"]
+        allowed = {home} | ({85} if tid == "2683" else set())
+        check(now in allowed, f"protected /t/{tid} is in {now}, expected {sorted(allowed)}")
+
+    # 6. The group behind room 92.
+    check_developers_union(visibility=m["developers_group"]["visibility_level"])
+
+    # 7. No renamed or created slug shadows a tag or a tag group.
+    taken = taken_slugs()
+    slugs = [e["slug"] for e in m["categories"].values() if "slug" in e]
+    slugs += [e["slug"] for e in m["create"].values()] + list(rules.get("slug", {}).values())
+    for slug in slugs:
+        check(slug not in taken, f"slug #{slug} shadows a tag or tag group")
+
+    # 8. Sidebar and notification defaults.
+    settings = {x["setting"]: x["value"] for x in d.get("/admin/site_settings.json", elevated=True)["site_settings"]}
+    for name, spec in m["site_settings"].items():
+        want = "|".join(str(cm.resolve(p, rooms, created)) for p in spec["value"].split("|"))
+        check(settings.get(name) == want, f"{name} is {settings.get(name)!r}, expected {want!r}")
+
+    # 9. The categories the map keeps are as captured.
+    if prior:
+        for cid in m["keep"]:
+            c = d.category(int(cid))
+            was = prior["categories"][cid]
+            check(c["name"] == was["name"] and cm.perms_of(c) == was["permissions"],
+                  f"category {cid} changed (kept by the map)")
+    else:
+        check(False, "T2 prior-state capture missing")
+
+    finish("OK: PROD T2 target state holds", pending)
 
 
 if __name__ == "__main__":
-    main()
+    verify_prod() if d._instance() == "PROD" else main()

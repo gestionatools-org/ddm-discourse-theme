@@ -125,7 +125,7 @@ Each session is sized for one sitting. **Visible** says what a member could noti
 Written as its own plan when it starts, from that week's listings. The steps are fixed; the lists
 are not.
 
-- [ ] **S7 · Write the T2 plan.** Inputs: post-T1 capture, PRE's current tree (20 categories incl.
+- [ ] **S7 · Write the T2 plan.** — **plan and target map written 2026-09-17** (`2026-09-17-migracion-silenciosa-t2.md`, `data/2026-09-17-prod-category-map.json`), decisions E1–E4 recorded there; **map awaiting Ricardo's approval**, move lists are the plan's Task 4 gate. Inputs: post-T1 capture, PRE's current tree (20 categories incl.
   92/93, excluding 94), the rules in `2026-09-11-reorganizacion-generos-design.md`, and decisions
   D1–D4 below (89 "Anuncios" kept). Output: `docs/superpowers/plans/<date>-migracion-silenciosa-t2.md`, with every
   move list derived from PROD rules and **the three protected topics listed by id as excluded or

@@ -1,0 +1,163 @@
+#!/usr/bin/env python3
+"""Bring an instance's categories to its target map, one entry at a time, in the order the
+caller gives. Dry run unless --write: it prints what it would send, which is how every
+sitting of T2 starts.
+
+Order is the caller's job and it is load-bearing: core refuses a child whose groups are
+absent from its parent, so parents gain groups before children and children lose them
+before parents. A 422 means the order was wrong; it changes nothing.
+"""
+import json
+import pathlib
+import re
+import sys
+import unicodedata
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import _category_map as cm  # noqa: E402
+import _discourse as d  # noqa: E402
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+DATA = ROOT / "docs/superpowers/plans/data"
+MAPS = {"PROD": "2026-09-17-prod-category-map.json"}
+
+
+def load():
+    name = MAPS.get(d._instance())
+    if not name:
+        raise SystemExit(f"no category map for {d._instance()}")
+    m = json.loads((DATA / name).read_text())
+    rooms = json.loads((DATA / m["rooms_file"]).read_text())
+    created_path = DATA / m["created_file"]
+    created = json.loads(created_path.read_text()) if created_path.exists() else {}
+    return m, rooms, created, created_path
+
+
+def slugify(text):
+    text = unicodedata.normalize("NFKD", text.lower())
+    text = "".join(c for c in text if not unicodedata.combining(c))
+    return re.sub(r"[^a-z0-9]+", "-", text).strip("-")
+
+
+def slug_is_free(slug):
+    """A category slug wins over a tag and a tag group on the # filter, silently."""
+    taken = {slugify(t["name"]) for t in d.get("/tags.json", elevated=True)["tags"]}
+    taken |= {slugify(g["name"]) for g in d.get("/tag_groups.json", elevated=True)["tag_groups"]}
+    synonym = d.request("GET", f"/tag/{slug}/info.json", elevated=True, allow_404=True)
+    return slug not in taken and synonym is None
+
+
+def apply_entry(label, cid, entry, write):
+    entry = dict(entry)
+    if cm.not_yet(entry.pop("not_before", None)):
+        raise SystemExit(f"STOP: {label} is dated; not before its date")
+    current = d.category(cid)
+    changes, perms = cm.plan_changes(current, entry)
+    print(f"{label} ({cid}) {current['name']!r}: changes={changes} "
+          f"permissions={'unchanged' if perms is None else perms}")
+    if not changes and perms is None:
+        print("  already there")
+        return
+    if "slug" in changes and not slug_is_free(changes["slug"]):
+        raise SystemExit(f"STOP: slug {changes['slug']!r} is a tag, synonym or tag group")
+    if not write:
+        return
+    after = d.update_category(cid, changes, permissions=perms)
+    left, left_perms = cm.plan_changes(after, entry)
+    if left or left_perms is not None:
+        raise SystemExit(f"FAIL: {label} reads back still needing {left} {left_perms}")
+    print("  OK")
+
+
+def categories(keys, write):
+    m, rooms, created, _ = load()
+    for key in keys:
+        entry = dict(m["categories"][key])
+        if "parent" in entry and entry["parent"] is not None:
+            entry["parent"] = cm.resolve(entry["parent"], rooms, created)
+        apply_entry(key, cm.resolve(key, rooms, created), entry, write)
+
+
+def close(ids, write):
+    m, _, _, _ = load()
+    rules = m["close"]
+    for cid in ids:
+        if cid not in rules["order"]:
+            raise SystemExit(f"STOP: {cid} is not a surplus category in the map")
+        if cm.not_yet(rules.get("not_before", {}).get(str(cid))):
+            raise SystemExit(f"STOP: {cid} is dated; not before {rules['not_before'][str(cid)]}")
+        definition = d.definition_topic_id(cid)
+        left = sorted(t for t in d.crawl_category(cid) if t != definition)
+        if left:
+            raise SystemExit(f"STOP: category {cid} still holds {len(left)} topics {left[:10]} — "
+                             f"closing it would hide them from every member")
+        entry = {"permissions": rules.get("permissions_override", {}).get(str(cid), m["closed_to"])}
+        if str(cid) in rules.get("slug", {}):
+            entry["slug"] = rules["slug"][str(cid)]
+        apply_entry(f"close {cid}", cid, entry, write)
+
+
+def create(keys, write):
+    m, rooms, created, created_path = load()
+    for key in keys:
+        spec = m["create"][key]
+        parent = cm.resolve(spec["parent"], rooms, created)
+        if key in created:
+            print(f"create {key}: exists as {created[key]}")
+            continue
+        print(f"create {key}: {spec['name']!r} under {parent}, slug {spec['slug']!r}, {spec['permissions']}")
+        if not slug_is_free(spec["slug"]):
+            raise SystemExit(f"STOP: slug {spec['slug']!r} is a tag, synonym or tag group")
+        if not write:
+            continue
+        payload = [("name", spec["name"]), ("slug", spec["slug"]), ("color", spec["color"]),
+                   ("text_color", spec["text_color"]), ("parent_category_id", parent),
+                   ("minimum_required_tags", 0)]
+        payload += [(f"permissions[{g}]", p) for g, p in spec["permissions"].items()]
+        result = d.request("POST", "/categories.json", data=payload, elevated=True)
+        created[key] = result["category"]["id"]
+        created_path.write_text(json.dumps(created, indent=1) + "\n")
+        left, left_perms = cm.plan_changes(d.category(created[key]), {**spec, "parent": parent})
+        if left or left_perms is not None:
+            raise SystemExit(f"FAIL: created {key} ({created[key]}) reads back still needing {left} {left_perms}")
+        print(f"  created {created[key]}")
+
+
+def site_settings(write):
+    m, rooms, created, _ = load()
+
+    def current():
+        return {x["setting"]: x["value"] for x in d.get("/admin/site_settings.json", elevated=True)["site_settings"]}
+
+    now = current()
+    for name, spec in m["site_settings"].items():
+        value = "|".join(str(cm.resolve(p, rooms, created)) for p in spec["value"].split("|"))
+        print(f"{name}: {now.get(name)!r} -> {value!r} (backfill {spec['backfill']})")
+        if now.get(name) == value or not write:
+            continue
+        data = [(name, value)] + ([("update_existing_user", "true")] if spec["backfill"] else [])
+        d.request("PUT", f"/admin/site_settings/{name}", data=data, elevated=True)
+        got = current().get(name)
+        if got != value:
+            raise SystemExit(f"FAIL: {name} reads back {got!r}")
+        print("  OK")
+
+
+if __name__ == "__main__":
+    args = sys.argv[1:]
+    if "--self-test" in args:
+        failures = cm.self_test()
+        print("\n".join(failures) if failures else "self-test OK")
+        raise SystemExit(1 if failures else 0)
+    write = "--write" in args
+    rest = [a for a in args if a != "--write"]
+    if rest[:1] == ["--close"]:
+        close([int(a) for a in rest[1:]], write)
+    elif rest[:1] == ["--create"]:
+        create(rest[1:], write)
+    elif rest[:1] == ["--site-settings"]:
+        site_settings(write)
+    else:
+        categories(rest, write)
+    if not write:
+        print("(dry run — nothing written; add --write)")

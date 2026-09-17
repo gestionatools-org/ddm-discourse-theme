@@ -144,7 +144,7 @@ def category(cid):
     return get(f"/c/{cid}/show.json", elevated=True)["category"]
 
 
-def update_category(cid, changes=None, add_permissions=None):
+def update_category(cid, changes=None, add_permissions=None, permissions=None):
     """Read a category and send it back with only `changes` applied.
 
     `PUT /categories/<id>.json` has always been driven here by read-and-resend rather
@@ -153,7 +153,8 @@ def update_category(cid, changes=None, add_permissions=None):
     sending it back risks replacing the definition topic's text with its own excerpt.
 
     `add_permissions` adds groups at a level but never lowers or removes a row a group
-    already holds. Returns the category as read back after the write.
+    already holds. `permissions` replaces every row. Returns the category as read back
+    after the write.
     """
     c = category(cid)
     fields = {
@@ -169,6 +170,10 @@ def update_category(cid, changes=None, add_permissions=None):
     }
     fields.update(changes or {})
     perms = {g["group_name"]: g["permission_type"] for g in (c.get("group_permissions") or [])}
+    if permissions is not None:
+        # Replace every row. Core rejects a set incompatible with the parent or the
+        # children with a 422, which is loud and leaves the category untouched.
+        perms = dict(permissions)
     for group, level in (add_permissions or {}).items():
         perms.setdefault(group, level)
     payload = list(fields.items()) + [(f"permissions[{g}]", p) for g, p in perms.items()]

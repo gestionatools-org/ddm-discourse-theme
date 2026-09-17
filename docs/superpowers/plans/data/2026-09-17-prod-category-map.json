@@ -1,0 +1,203 @@
+{
+ "instance": "PROD",
+ "measured": "2026-09-17",
+ "closed_to": {
+  "moderadores": 1
+ },
+ "rooms_file": "2026-09-13-prod-rooms.json",
+ "created_file": "2026-09-17-prod-t2-created.json",
+ "protected_topics": {
+  "2683": 86,
+  "2690": 89,
+  "2673": 59
+ },
+ "developers_group": {
+  "name": "Developers",
+  "visibility_level": 0,
+  "members_visibility_level": 0
+ },
+ "keep": {
+  "1": "Sin categoría — the uncategorized category, a site setting, not taxonomy",
+  "3": "Administradores — serves /faq, /tos, /privacy",
+  "14": "Aula de formación — receives 62 and 67",
+  "89": "Anuncios — PROD-only, kept by D1, holds protected /t/2690"
+ },
+ "categories": {
+  "4": {
+   "name": "Noticias",
+   "slug": "noticias"
+  },
+  "5": {
+   "name": "Foro del Certificado",
+   "slug": "foro-del-certificado",
+   "add_permissions": {
+    "Analiza": 3,
+    "Developers": 3,
+    "AdminDevelopers": 3
+   },
+   "default_list_filter": "none",
+   "topic_template": ""
+  },
+  "18": {
+   "slug": "tengo-una-idea",
+   "parent": null
+  },
+  "59": {
+   "name": "Eventos"
+  },
+  "73": {
+   "name": "Recursos Analítica",
+   "slug": "recursos-analitica",
+   "permissions": {
+    "Analiza": 1
+   }
+  },
+  "79": {
+   "permissions": {
+    "Analiza": 1
+   }
+  },
+  "80": {
+   "permissions": {
+    "Analiza": 1
+   }
+  },
+  "81": {
+   "permissions": {
+    "Analiza": 1
+   }
+  },
+  "82": {
+   "permissions": {
+    "Analiza": 1
+   }
+  },
+  "84": {
+   "permissions": {
+    "Analiza": 1
+   }
+  },
+  "88": {
+   "permissions": {
+    "Analiza": 1
+   }
+  },
+  "83": {
+   "name": "Analítica de datos",
+   "parent": 85,
+   "permissions": {
+    "administradores": 1
+   },
+   "color": "00b4d2",
+   "text_color": "000000"
+  },
+  "75": {
+   "name": "Recursos Developers",
+   "slug": "recursos-developers"
+  },
+  "78": {
+   "name": "Primeros pasos",
+   "slug": "primeros-pasos",
+   "parent": null
+  },
+  "85": {
+   "name": "Comparte",
+   "slug": "comparte",
+   "permissions": {
+    "administradores": 1
+   },
+   "not_before": "2026-09-25T13:00:00Z"
+  },
+  "room:administracion_avanzada": {
+   "parent": 5,
+   "permissions": {
+    "Certificación": 1
+   }
+  },
+  "room:analitica": {
+   "parent": 5,
+   "permissions": {
+    "Analiza": 1
+   }
+  },
+  "room:developers": {
+   "parent": 5,
+   "permissions": {
+    "Developers": 1,
+    "AdminDevelopers": 1
+   }
+  }
+ },
+ "create": {
+  "developers_85": {
+   "name": "Gestiona for developers",
+   "slug": "gestiona-for-developers",
+   "parent": 85,
+   "permissions": {
+    "administradores": 1
+   },
+   "color": "00b4d2",
+   "text_color": "000000"
+  },
+  "administracion_avanzada_85": {
+   "name": "Administración Avanzada",
+   "slug": "administracion-avanzada-de-gestiona",
+   "parent": 85,
+   "permissions": {
+    "administradores": 1
+   },
+   "color": "00b4d2",
+   "text_color": "000000"
+  }
+ },
+ "close": {
+  "order": [
+   34,
+   54,
+   58,
+   56,
+   68,
+   69,
+   49,
+   50,
+   57,
+   53,
+   62,
+   67,
+   65,
+   66,
+   87,
+   71,
+   86
+  ],
+  "slug": {
+   "67": "seminarios-archivo"
+  },
+  "not_before": {
+   "86": "2026-09-25T13:00:00Z"
+  },
+  "permissions_override": {
+   "86": {
+    "administradores": 1
+   }
+  }
+ },
+ "site_settings": {
+  "default_navigation_menu_categories": {
+   "value": "4|5|14|18|59|room:administracion_avanzada|room:analitica|room:developers",
+   "backfill": true
+  },
+  "default_categories_tracking": {
+   "value": "18|59|85|73|75",
+   "backfill": false
+  },
+  "default_categories_watching_first_post": {
+   "value": "4|5",
+   "backfill": false
+  },
+  "default_categories_normal": {
+   "value": "78",
+   "backfill": false
+  }
+ }
+}

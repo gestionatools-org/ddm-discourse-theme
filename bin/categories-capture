@@ -2,6 +2,7 @@
 """Dump the recoverable prior state before the first write. This is the only rollback
 for the moves: a category move is reversible only while the source category still
 exists, and nothing else records where each topic came from."""
+import datetime
 import json
 import pathlib
 import sys
@@ -10,17 +11,42 @@ sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
 import _discourse as d  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-OUT = ROOT / "docs/superpowers/plans/data/2026-09-11-prior-state.json"
-SOURCES = [4, 5, 18]
-ALL_CATEGORIES = [3, 4, 5, 14, 18, 59, 73, 75, 78, 85]
+DATA = ROOT / "docs/superpowers/plans/data"
+# (file, topic sources, categories). "all" walks the whole tree: PROD's T2 empties or
+# splits 20 categories, and a capture that misses one is a move with no way back.
+CAPTURES = {
+    "PRE": ("2026-09-11-prior-state.json", [4, 5, 18], [3, 4, 5, 14, 18, 59, 73, 75, 78, 85]),
+    "PROD": ("2026-09-17-prod-t2-prior-state.json", "all", "all"),
+}
+
+
+def all_category_ids():
+    data = d.get("/categories.json?include_subcategories=true")
+
+    def walk(nodes):
+        for c in nodes:
+            yield c["id"]
+            yield from walk(c.get("subcategory_list") or [])
+
+    return sorted(walk(data["category_list"]["categories"]))
 
 
 def main():
+    name, sources, cats = CAPTURES[d._instance()]
+    out = DATA / name
+    if out.exists() and "--force" not in sys.argv:
+        raise SystemExit(f"{out.name} exists. It is the rollback: refusing to overwrite without --force.")
+    everything = all_category_ids()
+    sources = everything if sources == "all" else sources
+    cats = everything if cats == "all" else cats
+
     categories = {}
-    for cid in ALL_CATEGORIES:
+    for cid in cats:
         c = d.category(cid)
         categories[str(cid)] = {
             "name": c["name"],
+            "slug": c["slug"],
+            "parent": c.get("parent_category_id"),
             "read_restricted": c["read_restricted"],
             # `topic_count` excludes unlisted topics AND the definition topic, so it never
             # equals the length of a crawl. Both are captured so later checks can say
@@ -29,14 +55,15 @@ def main():
             "definition_topic_id": d.definition_topic_id(cid),
             "minimum_required_tags": c.get("minimum_required_tags"),
             "auto_close_hours": c.get("auto_close_hours"),
-            "topic_template": c.get("topic_template") or "",
+            "default_list_filter": c.get("default_list_filter"),
+            "topic_template_length": len(c.get("topic_template") or ""),
             "permissions": {
                 g["group_name"]: g["permission_type"] for g in (c.get("group_permissions") or [])
             },
         }
 
     topics = {}
-    for cid in SOURCES:
+    for cid in sources:
         for tid, t in d.crawl_category(cid).items():
             topics[str(tid)] = {
                 "category_id": t["category_id"],
@@ -44,16 +71,19 @@ def main():
                 "tags": d.tag_names(t),
                 "author": t["_author"],
                 "created_at": t["created_at"],
+                "bumped_at": t.get("bumped_at"),
                 "image_url": t.get("image_url"),
                 # Unlisted topics are invisible in every listing but still crawl and still
                 # move. Recorded so a decision about one is taken knowingly.
                 "visible": t.get("visible", True),
             }
 
-    OUT.write_text(
-        json.dumps({"categories": categories, "topics": topics}, ensure_ascii=False, indent=1)
-    )
-    print(f"captured {len(categories)} categories and {len(topics)} topics -> {OUT}")
+    out.write_text(json.dumps({
+        "captured_at": datetime.datetime.now(datetime.timezone.utc).isoformat(),
+        "categories": categories,
+        "topics": topics,
+    }, ensure_ascii=False, indent=1))
+    print(f"captured {len(categories)} categories and {len(topics)} topics -> {out.name}")
 
 
 if __name__ == "__main__":
