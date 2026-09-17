@@ -58,6 +58,26 @@ SHAPE = [
 
 # Group.visibility_levels: public=0, logged_on_users=1, members=2, staff=3, owners=4.
 STAFF_ONLY = 3
+PUBLIC = 0
+UNCHANGED = ("public_admission", "public_exit", "allow_membership_requests", "primary_group",
+             "mentionable_level", "messageable_level")
+
+
+def reveal():
+    """Make the group public, for the sitting its room opens. Born hidden on PROD because the
+    group directory is on there; see --hidden."""
+    g = d.group(NAME)
+    if g is None:
+        raise SystemExit(f"{NAME} does not exist")
+    was = {k: g.get(k) for k in UNCHANGED}
+    d.request("PUT", f"/groups/{g['id']}.json", elevated=True,
+              data=[("group[visibility_level]", PUBLIC), ("group[members_visibility_level]", PUBLIC)])
+    g = d.group(NAME)
+    now = {k: g.get(k) for k in UNCHANGED}
+    if (g["visibility_level"], g["members_visibility_level"]) != (PUBLIC, PUBLIC) or now != was:
+        raise SystemExit(f"FAIL: {NAME} reads back visibility {g['visibility_level']}/"
+                         f"{g['members_visibility_level']}, other fields {now} (were {was})")
+    print(f"OK: {NAME} ({g['id']}) is public; nothing else changed")
 
 
 def main(hidden=False):
@@ -115,4 +135,6 @@ if __name__ == "__main__":
     p = argparse.ArgumentParser()
     p.add_argument("--hidden", action="store_true",
                    help="create the group visible to staff only, until its room opens")
-    main(p.parse_args().hidden)
+    p.add_argument("--reveal", action="store_true", help="make the existing group public")
+    args = p.parse_args()
+    reveal() if args.reveal else main(args.hidden)
