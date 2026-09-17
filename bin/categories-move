@@ -1,84 +1,116 @@
 #!/usr/bin/env python3
-"""Apply one approved move list, in batches, verifying by topic id.
+"""Apply one approved move list, in batches, verifying each topic by re-reading it.
 
-Reads ONLY the human-authored decisions file. It has no access to the proposals, which
-is the review gate expressed in code rather than in a promise.
-
-`PUT /topics/bulk.json` answers with the ids it actually changed, and the bulk revision
-runs with bypass_bump, so a move does not reflate the topic into /latest. Each move does
-cost the topic its list thumbnail, permanently.
+Reads ONLY the human-authored decisions file — the review gate expressed in code. On PROD
+it also re-reads every topic before and after its batch: the category it is in (a topic
+someone moved meanwhile is skipped, not dragged), its thumbnail, and its bump. The ids
+`PUT /topics/bulk.json` reports are logged but never trusted — it lists a definition topic
+it did not move.
 """
 import json
 import pathlib
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import _category_map as cm  # noqa: E402
 import _discourse as d  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DATA = ROOT / "docs/superpowers/plans/data"
-DECISIONS = DATA / "2026-09-11-move-decisions.json"
-ROOMS = DATA / "2026-09-11-rooms.json"
-LOG = DATA / "2026-09-11-move-log.json"
-
-PLAZA = 5
-NEWS = 4
-KEYS = ("to_news", "to_plaza", "to_aa_room_from_4", "to_aa_room_from_5", "to_analitica_room")
+FILES = {
+    "PRE": ("2026-09-11-move-decisions.json", "2026-09-11-rooms.json", "2026-09-11-move-log.json"),
+    "PROD": ("2026-09-17-prod-t2-move-decisions.json", "2026-09-13-prod-rooms.json", "2026-09-17-prod-t2-move-log.json"),
+}
+PROTECTED = {2683, 2690, 2673}
 
 
-def destination(key):
-    rooms = json.loads(ROOMS.read_text())
-    return {
-        "to_news": NEWS,
-        "to_plaza": PLAZA,
-        "to_aa_room_from_4": rooms["administracion_avanzada"],
-        "to_aa_room_from_5": rooms["administracion_avanzada"],
-        "to_analitica_room": rooms["analitica"],
-    }[key]
+def lists():
+    decisions_name, rooms_name, _ = FILES[d._instance()]
+    decisions = json.loads((DATA / decisions_name).read_text())
+    rooms = json.loads((DATA / rooms_name).read_text())
+    if d._instance() == "PRE":
+        targets = {"to_news": 4, "to_plaza": 5,
+                   "to_aa_room_from_4": rooms["administracion_avanzada"],
+                   "to_aa_room_from_5": rooms["administracion_avanzada"],
+                   "to_analitica_room": rooms["analitica"]}
+        return {k: {"target": t, "from": None, "ids": decisions[k], "not_before": None}
+                for k, t in targets.items()}
+    return {k: {"target": cm.resolve(e["target"], rooms, {}), "from": e["from"], "ids": e["ids"],
+                "not_before": e.get("not_before")} for k, e in decisions["lists"].items()}
 
 
-def main(key, batch_size):
-    if key not in KEYS:
-        raise SystemExit(f"unknown list {key!r}; expected one of {KEYS}")
-    ids = json.loads(DECISIONS.read_text())[key]
-    target = destination(key)
-    log = json.loads(LOG.read_text()) if LOG.exists() else []
+def measure(tid):
+    t = d.get(f"/t/{tid}.json", elevated=True)
+    return {"category_id": t["category_id"], "image_url": t.get("image_url"), "bumped_at": t.get("bumped_at")}
+
+
+def latest_ids():
+    return {t["id"] for t in d.get("/latest.json", elevated=True)["topic_list"]["topics"]}
+
+
+def main(key, batch_size, max_batches, allow):
+    all_lists = lists()
+    if key not in all_lists:
+        raise SystemExit(f"unknown list {key!r}; expected one of {sorted(all_lists)}")
+    spec = all_lists[key]
+    if cm.not_yet(spec["not_before"]):
+        raise SystemExit(f"STOP: {key} is not before {spec['not_before']}")
+    blocked = sorted((set(spec["ids"]) & PROTECTED) - set(allow))
+    if blocked:
+        raise SystemExit(f"STOP: {key} holds protected topics {blocked}. Name them to Ricardo; "
+                         f"with his yes, re-run with --allow <id>.")
+    target = spec["target"]
+    log_path = DATA / FILES[d._instance()][2]
+    log = json.loads(log_path.read_text()) if log_path.exists() else []
     done = {i for entry in log if entry["key"] == key for i in entry["changed"]}
-    todo = [i for i in ids if i not in done]
+    todo = [i for i in spec["ids"] if i not in done]
     print(f"{key} -> category {target}: {len(todo)} to move ({len(done)} already done)")
 
-    for start in range(0, len(todo), batch_size):
-        chunk = todo[start : start + batch_size]
-        payload = [("topic_ids[]", i) for i in chunk]
-        payload += [("operation[type]", "change_category"), ("operation[category_id]", target)]
-        result = d.request("PUT", "/topics/bulk.json", data=payload, elevated=True)
-        changed = result.get("topic_ids") or []
-        missing = sorted(set(chunk) - set(changed))
-        log.append(
-            {
-                "key": key,
-                "target": target,
-                "requested": chunk,
-                "changed": changed,
-                "missing": missing,
-                "errors": result.get("errors"),
-            }
-        )
-        LOG.write_text(json.dumps(log, ensure_ascii=False, indent=1))
-        print(
-            f"  batch {start // batch_size}: requested {len(chunk)}, "
-            f"changed {len(changed)}, missing {missing}"
-        )
-        if missing:
-            raise SystemExit(
-                "STOP: some topics did not move. Do not re-run blindly — read the errors "
-                "in the log first. A re-run resumes from `changed`, so nothing moves twice."
-            )
+    for n, start in enumerate(range(0, len(todo), batch_size)):
+        if n >= max_batches:
+            print(f"  stopping after {max_batches} batches; re-run to continue")
+            return
+        chunk = todo[start:start + batch_size]
+        before = {tid: measure(tid) for tid in chunk}
+        skipped = [tid for tid in chunk if spec["from"] and before[tid]["category_id"] not in spec["from"]]
+        chunk = [tid for tid in chunk if tid not in skipped]
+        on_latest = latest_ids()
+        result = {}
+        if chunk:
+            payload = [("topic_ids[]", i) for i in chunk]
+            payload += [("operation[type]", "change_category"), ("operation[category_id]", target)]
+            result = d.request("PUT", "/topics/bulk.json", data=payload, elevated=True)
+        after = {tid: measure(tid) for tid in chunk}
+        entry = {
+            "key": key, "target": target, "requested": chunk,
+            "changed": [t for t in chunk if after[t]["category_id"] == target],
+            "reported": result.get("topic_ids") or [],
+            "not_moved": [t for t in chunk if after[t]["category_id"] != target],
+            "skipped": skipped,
+            "thumbnails_lost": [t for t in chunk if before[t]["image_url"] and not after[t]["image_url"]],
+            "bumped": [t for t in chunk if after[t]["bumped_at"] != before[t]["bumped_at"]],
+            "new_on_latest": sorted(latest_ids() - on_latest),
+            "errors": result.get("errors"),
+        }
+        log.append(entry)
+        log_path.write_text(json.dumps(log, indent=1) + "\n")
+        print(f"  batch {n}: moved {len(entry['changed'])}/{len(chunk)}, skipped {skipped}, "
+              f"thumbnails lost {entry['thumbnails_lost']}, bumped {entry['bumped']}, "
+              f"new on /latest {entry['new_on_latest']}")
+        if entry["not_moved"] or entry["bumped"] or skipped:
+            raise SystemExit("STOP: read the log entry before anything else. A re-run resumes from "
+                             "`changed`, so nothing moves twice — but a skipped topic (moved by "
+                             "someone meanwhile) is skipped again until Ricardo decides it and "
+                             "the decisions file drops or re-targets it.")
 
 
 if __name__ == "__main__":
-    positional = [a for a in sys.argv[1:] if not a.startswith("--")]
-    size = 50
-    if "--batch" in sys.argv:
-        size = int(sys.argv[sys.argv.index("--batch") + 1])
-    main(positional[0], size)
+    argv = sys.argv[1:]
+
+    def option(name, default):
+        return int(argv[argv.index(name) + 1]) if name in argv else default
+
+    allow = [int(argv[i + 1]) for i, a in enumerate(argv) if a == "--allow"]
+    positional = [a for i, a in enumerate(argv)
+                  if not a.startswith("--") and (i == 0 or argv[i - 1] not in ("--batch", "--max-batches", "--allow"))]
+    main(positional[0], option("--batch", 50), option("--max-batches", 1), allow)
