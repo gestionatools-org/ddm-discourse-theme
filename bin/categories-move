@@ -22,6 +22,10 @@ FILES = {
     "PROD": ("2026-09-17-prod-t2-move-decisions.json", "2026-09-13-prod-rooms.json", "2026-09-17-prod-t2-move-log.json"),
 }
 PROTECTED = {2683, 2690, 2673}
+# /t/2683 carries an open ranked-choice poll until this instant. The decisions file is
+# written by hand, so the date is bound to the topic here as well: a list that forgets
+# its `not_before` must not become the only thing between an operator and that poll.
+PROTECTED_UNTIL = {2683: "2026-09-25T13:00:00Z"}
 
 
 def lists():
@@ -59,6 +63,10 @@ def main(key, batch_size, max_batches, allow):
     if blocked:
         raise SystemExit(f"STOP: {key} holds protected topics {blocked}. Name them to Ricardo; "
                          f"with his yes, re-run with --allow <id>.")
+    early = sorted(i for i in set(spec["ids"]) & set(allow) if cm.not_yet(PROTECTED_UNTIL.get(i)))
+    if early:
+        raise SystemExit(f"STOP: {early} may not move before {PROTECTED_UNTIL[early[0]]}, "
+                         f"whatever the list says. --allow does not override the date.")
     target = spec["target"]
     log_path = DATA / FILES[d._instance()][2]
     log = json.loads(log_path.read_text()) if log_path.exists() else []
