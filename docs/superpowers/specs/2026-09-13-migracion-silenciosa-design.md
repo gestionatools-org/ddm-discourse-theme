@@ -819,3 +819,20 @@ login page until the flip; accepted, the flip removes it.
 Not yet checked: the three new link icons by eye (they render only in a session), and that the two
 resource links, whose categories are walled (73 `Analiza`, 75 its own), behave for a member outside
 those groups — part of S12.
+
+### T3 · S12 — one non-admin session, signed off by Ricardo — 2026-10-01
+
+A non-admin account of the Administración Avanzada programme, in `?preview_theme_id=14` on PROD:
+
+| # | Check | Result |
+|---|---|---|
+| 1 | Walls | sees room 90 Administración Avanzada; **not** 91 Analítica nor 92 Developers |
+| 2 | Header | links only room 90 |
+| 3 | "Nueva publicación" lands in 5 | **checked on PRE** (same code and setting): composer opens on 5. PROD is in staff-writes-only mode, which only CDCK can lift; repeat there once lifted |
+| 4 | Plaza | category 5's listing shows only arrival announcements |
+| 5 | `idea-registrada` | visible on tagged ideas (its staff-only restriction is deferred, F1) |
+
+Sidebar: "Recursos de apoyo" shows its links. **Recursos Analítica and Recursos Developers answer
+"no access" to this account** — the section is public, its two category links are walled (73 to
+`Analiza`, 75 to its own groups). Same on PRE; recorded, not changed. A sidebar link cannot be
+filtered by group, so the alternatives are dropping those two links or accepting the dead end.
