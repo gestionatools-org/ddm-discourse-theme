@@ -65,6 +65,10 @@ export function extractVideoId(cooked) {
   return null;
 }
 
+export function extractVideoThumbnail() {
+  return null;
+}
+
 /**
  * The hqdefault thumbnail URL for a YouTube id. hqdefault (480×360) always
  * exists; maxresdefault does not for every video, so it is not used.

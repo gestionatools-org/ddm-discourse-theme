@@ -90,6 +90,21 @@ module(
         .doesNotExist("play button is gone");
     });
 
+    test("prefers the post's own thumbnail of the video over hqdefault", async function (assert) {
+      const sharp = "https://img.youtube.com/vi/1qH2Ye8IJrE/maxresdefault.jpg";
+      await render(
+        <template>
+          <HighlightPodcastCard
+            @topic={{topic}}
+            @videoId="1qH2Ye8IJrE"
+            @thumbnail={{sharp}}
+          />
+        </template>
+      );
+
+      assert.dom(".highlight-podcast__play img").hasAttribute("src", sharp);
+    });
+
     test("with no video, the thumbnail is a link to the topic and there is no play button", async function (assert) {
       await render(
         <template>
