@@ -2,7 +2,7 @@ es:
   theme_metadata:
     description: "Tema de Discourse para la comunidad de es|public."
     settings:
-      hero_default_category_id: "Categoría que preselecciona el botón «Nueva publicación» en la portada y en los listados genéricos. Una página de categoría usa la suya. 0 deja la categoría por defecto de Discourse."
+      hero_default_category_id: "Categoría que preselecciona el botón «Inicia una conversación» en la portada y en los listados genéricos. Una página de categoría usa la suya. 0 deja la categoría por defecto de Discourse."
       latest_count: "Cuántos temas mostrar en la lista de últimas publicaciones."
       events_category_id: "Categoría que se muestra en la franja de eventos del panel. Incluye sus subcategorías. 0 oculta la franja."
       events_count: "Cuántos eventos mostrar en la franja del panel."
@@ -52,12 +52,12 @@ es:
   # esto es lo que se ve en /latest, /top y /unread.
   hero:
     home:
-      title: "Seguimos aprendiendo juntos"
-      subtitle: "Comparte tus ideas o recibe consejos de otros usuarios certificados"
+      title: "Conecta con la comunidad"
+      subtitle: "Encuentra apoyo de profesionales y del equipo de Gestiona. Haz tu pregunta y avanza con confianza."
     tag:
       title: "Temas etiquetados %{tag}"
       subtitle: "Todo lo que la comunidad ha guardado bajo esta etiqueta"
-    button: "Nueva publicación"
+    button: "Inicia una conversación"
 
   homepage:
     latest:
