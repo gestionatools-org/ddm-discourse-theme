@@ -836,3 +836,23 @@ Sidebar: "Recursos de apoyo" shows its links. **Recursos Analítica and Recursos
 "no access" to this account** — the section is public, its two category links are walled (73 to
 `Analiza`, 75 to its own groups). Same on PRE; recorded, not changed. A sidebar link cannot be
 filtered by group, so the alternatives are dropping those two links or accepting the dead end.
+
+### T3 · S13 — the flip — 2026-10-01
+
+Before it, on Ricardo's call: the hero band was retitled (#150, `a89645e`, `theme_version` 0.69.0) —
+**"Conecta con la comunidad"**, subtitle *"Encuentra apoyo de profesionales y del equipo de
+Gestiona. Haz tu pregunta y avanza con confianza."*, button **"Inicia una conversación"** — and
+pulled onto PRE (15) and PROD (14); `theme-verify` green on both at `a89645e`.
+
+`theme-verify` green, then `PUT /admin/themes/14.json` with `theme[default]=true`. **Default before:
+Air (2); after: Espublico Theme (14) alone.** `theme-verify --flipped`: `OK`. Colour schemes **26
+"Gestiona Avanza" / 27 "Gestiona Avanza Oscuro"**, both owned by theme 14. An anonymous `/login`
+now receives theme 14 in `activatedThemes`, with `themeSiteSettingOverrides`
+`enable_welcome_banner: false`, `search_experience: search_icon` (Air had the banner on).
+
+**Rollback, for one week:** `PUT /admin/themes/2.json` with `theme[default]=true` (Air was the default
+replaced; "Gestiona avanza" (1) also stays installed).
+
+**From now on every merge to `main` reaches PROD** — recorded in `CLAUDE.md` → *Conventions*.
+PROD is still in staff-writes-only mode, which only CDCK can lift; S12's composer check repeats on
+PROD once it is.
