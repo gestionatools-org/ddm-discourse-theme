@@ -780,3 +780,25 @@ shows `false` there today: it is theme 1's row, not an instance value.
 **Consequence for PROD:** `theme_site_settings` stays in `about.json`. Installing the theme hidden
 changes nothing for members, and on the flip the two rows match what PROD's current default theme
 (1) already holds.
+
+### T3 · S10 — the theme installed hidden on PROD — 2026-10-01
+
+Before the install, on Ricardo's calls of the same day: **F1** `idea-registrada` (339) carries 10
+topics, all in 18 — its staff-only tag group is **deferred**; **F2** `nueva-version-gestiona` (340) is
+the base tag with 14 topics and `nuevas-versiones` its synonym (a first pass had the direction
+inverted, and a synonym's `l/latest` listing 301s to the tag page, which the highlights card cannot
+read); **F3** no child components; **F4** the dead **Wiki** link (`/c/documentacion-analiza/74`)
+removed from Community. F4 cost a second attempt: **an omitted sidebar link is kept and
+repositioned, not deleted** — Wiki jumped to the top of Community for under a minute — and it went
+with `links[][_destroy]=true` and its id. `tags-verify` PROD green after F1/F2.
+
+**PROD's default theme had changed to Air (2)** between the morning's reading (1 "Gestiona avanza")
+and the install. Irrelevant to a hidden install after S9; it is the theme the flip replaces.
+
+`bin/theme-apply --write` imported the theme as **id 14** — not default, not user-selectable, no
+children, colour schemes **26/27** assigned by the import — and set `header_room_category_ids` to
+`90|91|92`. `bin/theme-verify`: **`OK: theme install on PROD holds`**, at `255b4ee` = `main`,
+`remote_compat_ref` None, `commits_behind` 0; the `about.json` rows `enable_welcome_banner: false`
+and `search_experience: search_icon` present on theme 14. Default afterwards: still Air (2) alone.
+
+**PROD 14 ≠ PRE 14** (PRE's 14 was an earlier install, deleted 2026-08-16; PRE's theme is 15).
