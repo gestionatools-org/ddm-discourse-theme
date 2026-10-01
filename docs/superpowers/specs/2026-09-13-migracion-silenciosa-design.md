@@ -753,3 +753,129 @@ two batches per call instead of three, because 150 topics overran one invocation
 
 **Still unmeasured, and only a member's session can measure it:** what E1, E3 and E4 cost a member
 — the closed surplus URLs, Comparte admin-only, and `analiza` topics behind room 91.
+
+### T3 · S9 — the `theme_site_settings` leak, measured on PRE — 2026-10-01
+
+**No leak.** A throwaway theme (**18**, `t3-leak-probe`, not default, not user-selectable) carried
+both themeable rows set to the opposite of PRE's live values — `enable_welcome_banner: true`,
+`search_experience: search_field` — written with `PUT /admin/themes/18/site-setting`.
+
+| Reading | Baseline | Probe installed | After deletion |
+|---|---|---|---|
+| admin site-settings listing | `false` / `search_icon` | `false` / `search_icon` | same |
+| anonymous `/login`, preloaded | `False` / `search_icon` | `False` / `search_icon` | same |
+| admin `/`, preloaded | `False` / `search_icon` | `False` / `search_icon` | same |
+| admin `/?preview_theme_id=18` (positive control) | — | **`True` / `search_field`** | — |
+
+The positive control is what makes the three unchanged rows mean something: the probe's rows did
+act, but only for a request rendering that theme. Theme 18 was deleted the same minute; no probe
+theme remains.
+
+**Two facts from the measurement.** Themeable settings never appear in the preloaded
+`siteSettings`; the client receives them, for the active theme, in
+**`themeSiteSettingOverrides`** — a probe reading `siteSettings` returns `None` for both and looks
+like a broken instance. And the admin listing reports the **default theme's** row, which is why PROD
+shows `false` there today: it is theme 1's row, not an instance value.
+
+**Consequence for PROD:** `theme_site_settings` stays in `about.json`. Installing the theme hidden
+changes nothing for members, and on the flip the two rows match what PROD's current default theme
+(1) already holds.
+
+### T3 · S10 — the theme installed hidden on PROD — 2026-10-01
+
+Before the install, on Ricardo's calls of the same day: **F1** `idea-registrada` (339) carries 10
+topics, all in 18 — its staff-only tag group is **deferred**; **F2** `nueva-version-gestiona` (340) is
+the base tag with 14 topics and `nuevas-versiones` its synonym (a first pass had the direction
+inverted, and a synonym's `l/latest` listing 301s to the tag page, which the highlights card cannot
+read); **F3** no child components; **F4** the dead **Wiki** link (`/c/documentacion-analiza/74`)
+removed from Community. F4 cost a second attempt: **an omitted sidebar link is kept and
+repositioned, not deleted** — Wiki jumped to the top of Community for under a minute — and it went
+with `links[][_destroy]=true` and its id. `tags-verify` PROD green after F1/F2.
+
+**PROD's default theme had changed to Air (2)** between the morning's reading (1 "Gestiona avanza")
+and the install. Irrelevant to a hidden install after S9; it is the theme the flip replaces.
+
+`bin/theme-apply --write` imported the theme as **id 14** — not default, not user-selectable, no
+children, colour schemes **26/27** assigned by the import — and set `header_room_category_ids` to
+`90|91|92`. `bin/theme-verify`: **`OK: theme install on PROD holds`**, at `255b4ee` = `main`,
+`remote_compat_ref` None, `commits_behind` 0; the `about.json` rows `enable_welcome_banner: false`
+and `search_experience: search_icon` present on theme 14. Default afterwards: still Air (2) alone.
+
+**PROD 14 ≠ PRE 14** (PRE's 14 was an earlier install, deleted 2026-08-16; PRE's theme is 15).
+
+### T3 · S11 — the chrome on PROD — 2026-10-01
+
+`bin/chrome-apply --write`, then a dry run reading `already set` everywhere. Sidebar section **3**
+went from "Herramientas", **private**, two links, to **"Recursos de apoyo", public**, five links in
+this order: Recursos Analítica (`/c/documentacion-analiza/73`), Recursos Developers
+(`/c/doc-developers/75`), Academy (`book`), Demo Gestiona (`desktop`), Primeros pasos (`flag`,
+`/c/primeros-pasos/78`). The first two kept their ids. Community (1) had nothing left to drop (F4).
+
+The three login site texts now hold PRE's values. **Read anonymously on `/login`, the new heading and
+subtitle render — and so does `site_description` ("El espacio virtual…") beneath them**, because the
+theme's `login.scss` rule that hides it acts only once the theme is default. Two subtitles on the
+login page until the flip; accepted, the flip removes it.
+
+Not yet checked: the three new link icons by eye (they render only in a session), and that the two
+resource links, whose categories are walled (73 `Analiza`, 75 its own), behave for a member outside
+those groups — part of S12.
+
+### T3 · S12 — one non-admin session, signed off by Ricardo — 2026-10-01
+
+A non-admin account of the Administración Avanzada programme, in `?preview_theme_id=14` on PROD:
+
+| # | Check | Result |
+|---|---|---|
+| 1 | Walls | sees room 90 Administración Avanzada; **not** 91 Analítica nor 92 Developers |
+| 2 | Header | links only room 90 |
+| 3 | "Nueva publicación" lands in 5 | **checked on PRE** (same code and setting): composer opens on 5. PROD is in staff-writes-only mode, which only CDCK can lift; repeat there once lifted |
+| 4 | Plaza | category 5's listing shows only arrival announcements |
+| 5 | `idea-registrada` | visible on tagged ideas (its staff-only restriction is deferred, F1) |
+
+Sidebar: "Recursos de apoyo" shows its links. **Recursos Analítica and Recursos Developers answer
+"no access" to this account** — the section is public, its two category links are walled (73 to
+`Analiza`, 75 to its own groups). Same on PRE; recorded, not changed. A sidebar link cannot be
+filtered by group, so the alternatives are dropping those two links or accepting the dead end.
+
+### T3 · S13 — the flip — 2026-10-01
+
+Before it, on Ricardo's call: the hero band was retitled (#150, `a89645e`, `theme_version` 0.69.0) —
+**"Conecta con la comunidad"**, subtitle *"Encuentra apoyo de profesionales y del equipo de
+Gestiona. Haz tu pregunta y avanza con confianza."*, button **"Inicia una conversación"** — and
+pulled onto PRE (15) and PROD (14); `theme-verify` green on both at `a89645e`.
+
+`theme-verify` green, then `PUT /admin/themes/14.json` with `theme[default]=true`. **Default before:
+Air (2); after: Espublico Theme (14) alone.** `theme-verify --flipped`: `OK`. Colour schemes **26
+"Gestiona Avanza" / 27 "Gestiona Avanza Oscuro"**, both owned by theme 14. An anonymous `/login`
+now receives theme 14 in `activatedThemes`, with `themeSiteSettingOverrides`
+`enable_welcome_banner: false`, `search_experience: search_icon` (Air had the banner on).
+
+**Rollback, for one week:** `PUT /admin/themes/2.json` with `theme[default]=true` (Air was the default
+replaced; "Gestiona avanza" (1) also stays installed).
+
+**From now on every merge to `main` reaches PROD** — recorded in `CLAUDE.md` → *Conventions*.
+PROD is still in staff-writes-only mode, which only CDCK can lift; S12's composer check repeats on
+PROD once it is.
+
+### T3 · After the flip — 2026-10-01
+
+**The congress vanished from "Agenda del certificado", and the flip did not cause it.** `/t/2600`'s
+first post on PROD read `:hugs:[event start=…]` — an emoji glued in front of a block bbcode, so the
+`[event]` cooked as plain text and no event record existed (the silent failure recorded under
+*discourse-calendar*). With no `event_starts_at` the lane filed it under past events, fifth of a
+four-row lane. PRE had been fixed by hand in August (post version 5) and never carried over; Air has
+no such lane, so nothing showed it before the flip. Fixed on Ricardo's call with **PROD's own event
+values** — only a line break inserted before `[event`: 4 Nov 00:00 → 6 Nov 12:30 Europe/Madrid. No
+thumbnail, not wiki, not bumped. No other topic in 59 carries an uncooked `[event]`.
+
+**"Primeros pasos" (78) got PRE's onboarding set.** PRE's guides were written after the restore, so
+they were **created anew on PROD** as RicardoPG, PRE's author: 2620 → **2739** Cómo buscar, 2621 →
+**2740** Cómo seguir un tema, 2623 → **2741** Cómo reportar, 2624 → **2742** Cómo se construye un buen
+debate, 2622 → **2743** Empieza aquí (pinned in 78). Links between them rewritten to PROD's ids; links
+to `/t/-/4` became **`/faq`** (on PROD /t/4 sat in staff-only category 3). `pendiente-etiquetar` not
+carried (PRE's work queue). Then, **on Ricardo's call, the five were backdated** with
+`PUT /t/<id>/change-timestamp` to **2026-06-01 09:00–09:04 Madrid**, which takes them out of `/latest`
+(page 4 ends at 2026-06-29) and out of "new"; the dates they show are therefore not when they were
+written. **`/t/4`** took PRE's title and text ("Pautas y preguntas frecuentes", its four guide links
+mapped to 2739–2742) and moved to 78 — `/faq` serves it; **`/t/63`** moved to 78 unchanged (PRE
+carries a retouched text). Neither bumped; none of the seven had a thumbnail.

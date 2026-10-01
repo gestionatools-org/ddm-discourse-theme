@@ -2528,3 +2528,20 @@ encuesta cerrada. 15 sobrantes cerradas a `moderadores`, 86 y 85 «Comparte» so
 93/94 creadas bajo 85, slugs antiguos con 301. `categories-verify` PROD verde sin PENDING;
 `tags-verify` verde en las dos instancias. Pendiente para T3: la sesión de un no-admin, que es lo
 único que mide el coste de E1, E3 y E4.
+
+## 2026-10-01 — Migración PROD, T3: el theme es el de por defecto en PROD
+
+Registro completo en la spec `2026-09-13-migracion-silenciosa-design.md`, *As executed* → T3 (S9–S13
+y *After the flip*).
+
+S9 descartó en PRE la fuga de `theme_site_settings` (theme sonda con control positivo vía
+`preview_theme_id`). Herramientas nuevas: `theme-verify` (los diez ajustes contra datos reales,
+campos 2/4 por nombre), `theme-apply` (instala oculto) y `chrome-apply` (barra lateral y textos del
+login; un enlace se borra con `_destroy`, omitirlo lo conserva y lo recoloca). Theme **14** instalado
+oculto, barra lateral y textos aplicados, sesión no-admin validada por Ricardo (el compositor, en
+PRE: PROD sigue en modo solo-staff, que solo CDCK puede levantar), hero renombrado (#150) y **cambio
+de theme: Air (2) → 14**. Después: el congreso volvió a la agenda (un `[event]` pegado a un emoji
+nunca se cocinó en PROD), y «Primeros pasos» recibió «Empieza aquí», cuatro guías (fechadas en
+junio a petición de Ricardo para no aparecer en recientes), /t/4 reescrito y /t/63.
+Pendiente: S14 (revocar la key Global de PROD), grupo de staff para `idea-registrada`, y los dos
+enlaces a categorías cerradas en «Recursos de apoyo».

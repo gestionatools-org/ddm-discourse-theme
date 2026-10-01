@@ -1,0 +1,11 @@
+{
+ "remote_url": "https://github.com/gestionatools-org/ddm-discourse-theme.git",
+ "default": false,
+ "rooms_parent": 5,
+ "settings": {"header_room_category_ids": "90|91|92"},
+ "site_settings": {"enable_welcome_banner": "false", "search_experience": "search_icon"},
+ "user_fields": {
+  "highlights_member_entity_field_id": "Nombre y tipo de entidad",
+  "highlights_member_role_field_id": "Cargo"
+ }
+}
