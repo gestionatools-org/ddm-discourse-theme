@@ -137,7 +137,14 @@ export async function loadCategoryTopics(
  * @returns {Promise<Array|null>}
  */
 export async function loadLatestTopics(store, count) {
-  const topicList = await store.findFiltered("topicList", { filter: "latest" });
+  // `order: "created"` sorts by when the topic was written. Plain `latest`
+  // sorts by bumped_at, so a reply to a topic from 2025 put it at the head of
+  // "Últimas publicaciones" on PROD (2026-10-01). The activity column still
+  // shows last activity — that is core's topic list, unchanged.
+  const topicList = await store.findFiltered("topicList", {
+    filter: "latest",
+    params: { order: "created" },
+  });
 
   const definitions = definitionTopicIds();
   const topics = topicList?.topics?.filter(
