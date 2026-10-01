@@ -55,7 +55,8 @@ PROD mechanics from `2026-09-06-migracion-prod-design.md`; target map from
 | PROD user fields 1–4 | **Measured, identical to PRE** (1 NIF and 3 CIF hidden) — T3's stop-the-line row is cleared, re-read by name on flip day |
 | Granular PROD key | 200 on `/t/<id>.json` and category listings, 403 on `/c/<id>/show.json` — enough for `crawl_category` |
 | T1 Tasks 2–12 | **Done 2026-09-15 → 09-17** (S1–S6b), record in the spec's *As executed* |
-| T2, T3 | **Not started** |
+| T2 | **Done 2026-10-01** — record in the spec's *As executed* → T2 |
+| T3 | **Not started** |
 
 ### What changed since the spec (measured 2026-09-14/15)
 
@@ -125,14 +126,14 @@ Each session is sized for one sitting. **Visible** says what a member could noti
 Written as its own plan when it starts, from that week's listings. The steps are fixed; the lists
 are not.
 
-- [ ] **S7 · Write the T2 plan.** — **plan and target map written 2026-09-17** (`2026-09-17-migracion-silenciosa-t2.md`, `data/2026-09-17-prod-category-map.json`), decisions E1–E4 recorded there; **map awaiting Ricardo's approval**, move lists are the plan's Task 4 gate. Inputs: post-T1 capture, PRE's current tree (20 categories incl.
+- [x] **S7 · Write the T2 plan.** — **approved 2026-09-17 (Task 4).** **plan and target map written 2026-09-17** (`2026-09-17-migracion-silenciosa-t2.md`, `data/2026-09-17-prod-category-map.json`), decisions E1–E4 recorded there; **map awaiting Ricardo's approval**, move lists are the plan's Task 4 gate. Inputs: post-T1 capture, PRE's current tree (20 categories incl.
   92/93, excluding 94), the rules in `2026-09-11-reorganizacion-generos-design.md`, and decisions
   D1–D4 below (89 "Anuncios" kept). Output: `docs/superpowers/plans/<date>-migracion-silenciosa-t2.md`, with every
   move list derived from PROD rules and **the three protected topics listed by id as excluded or
   pending**. Gitignored proposals under `*-move-proposals.json`.
   *Gate:* Ricardo approves the map and every move list.
 
-- [ ] **S8 · Execute T2**, in this order, one sitting per numbered block:
+- [x] **S8 · Execute T2** — **done 2026-10-01**, 736 topics moved, 0 of 137 thumbnails lost, verifier green. In this order, one sitting per numbered block:
   1. Category 5 receives the programme groups (read-only rows) before anything hangs under it.
   2. Rooms **90/91/92** opened to their groups and reparented under 5 (no topic moves, no id
      changes); **`Developers` (101) made public in the same sitting** — it was born staff-only.

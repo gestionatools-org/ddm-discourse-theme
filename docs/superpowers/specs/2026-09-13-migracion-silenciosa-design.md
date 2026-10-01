@@ -683,3 +683,73 @@ scope, not a defect.
 **What T2's plan starts from:** rooms **90/91/92** (`2026-09-13-prod-rooms.json`), group
 **`Developers` 101**, the post-T1 vocabulary of 206 base tags with the mapping
 `2026-09-13-prod-module-axis.json`, and the S1 capture, which lives on disk only (gitignored).
+
+### T2 · Categories (T2 plan Tasks 9–15) — 2026-10-01, done
+
+PROD was in **staff-writes-only mode** throughout (`isStaffWritesOnly: true`, set by Ricardo), so no
+member could post into a category mid-move. PROD had moved to **Discourse 2026.10.0-latest**
+(`028d988`) since T1; every thumbnail figure below is on that version.
+
+**Drift since the capture, decided before the first write.** 16 topics were created 2026-09-17 → 26,
+none in an approved list. The T2 rule was applied to them, with two exceptions Ricardo approved:
+**2711** (an arrival announcement posted in 4) → 5, and **2728** (a release note posted in 5) → 4,
+so `to_news` accepts 5 as a source. 2712 stays in 18; 2705 (59) and 2731 (89, the read-only notice)
+are not sources. Commit `e36517c`.
+
+**Sitting 1 (Task 9).** `Developers` (101) revealed; its re-sync was `added 1, removed 1` — one
+cohort changed, the union is still 49. Category 5 → **Foro del Certificado**, `foro-del-certificado`,
+`Analiza`/`Developers`/`AdminDevelopers` at 3, `default_list_filter: none`, template deleted. Rooms
+90/91/92 reparented under 5 with their groups. `/latest` head identical before and after.
+
+**Moves (Tasks 10 and 14), from the move log:**
+
+| List | → | Moved | Thumbnails at risk | Lost | Bumped | Skipped |
+|---|---|---|---|---|---|---|
+| `to_events` (pilot) | 59 | 8 | 1 | 0 | 0 | 0 |
+| `to_aula` | 14 | 68 | 18 | 0 | 0 | 0 |
+| `to_news` | 4 | 37 | 18 | 0 | 0 | 0 |
+| `to_comparte` | 85 | 5 | 1 | 0 | 0 | 0 |
+| `to_room_analitica` | 91 | 18 | 8 | 0 | 0 | 0 |
+| `to_ideas` | 18 | 123 | 0 | 0 | 0 | 0 |
+| `to_room_aa` | 90 | 299 | 49 | 0 | 0 | 0 |
+| `to_first_steps` | 78 | 1 | 0 | 0 | 0 | 0 |
+| `to_plaza` | 5 | 169 | 35 | 0 | 0 | 0 |
+| `to_comparte_hackathon` | 85 | 8 | 7 | 0 | 0 | 0 |
+| **Total** | | **736** | **137** | **0** | **0** | **0** |
+
+"At risk" is counted from the capture, so it matches Task 4's 137. Three post-capture topics also
+carried one (2702, 2711, 2728) and kept it — the mover measures every topic live, before and after.
+**Commit `cd9fe5a`'s message is wrong**: it says 731 topics and 129 at risk for the first nine
+lists; the log gives **728** and **130**.
+
+Nothing surfaced on `/latest` in any batch. **On 2026.10.0 a category move keeps the list
+thumbnail** — the August PRE rule (any topic write clears it) does not hold here for moves either.
+
+**`/t/2683`** moved in `to_comparte_hackathon` with `--allow 2683`, on Ricardo's explicit yes,
+after its poll was read as `closed` (2026-09-25 13:00Z) in the same sitting.
+
+**Renames, trees, closes (Tasks 11, 12, 14).** 4 Noticias · 18 promoted, `tengo-una-idea` · 59
+Eventos · 75 Recursos Developers · 78 Primeros pasos, promoted once `78 unexpected: []` · 83 under
+85, `administradores` only · 79–82, 84, 88 then 73 (Recursos Analítica) `Analiza` only · created
+**93** "Gestiona for developers" and **94** "Administración Avanzada" under 85 · 15 surplus
+categories closed to `moderadores` (57 already was), 67's slug `seminarios-archivo` · 86 closed to
+`administradores` · 85 **Comparte**, `administradores` only. Old slugs all answer **301** to the new
+ones. `#seminarios` and `#webinars` both resolve into 14.
+
+Site settings: `default_navigation_menu_categories` `4|5|14|18|59|90|91|92` (backfilled);
+`default_categories_tracking` `18|59|85|73|75`, `..._watching_first_post` `4|5`, `..._normal` `78`.
+
+**Theme-keyed categories (Task 13):** 59 Eventos (50 topics), 18 Tengo una idea (445), 5 Foro del
+Certificado (169) — all top level, all with topics. `header_room_category_ids` for T3 is `90|91|92`.
+
+**Every assertion green, same sitting:** `selftest-instance`, `_category_map` and
+`categories-propose` self-tests; `tags-verify` PRE (`104 tags at 3+ uses`) and PROD (`207 tags (no
+use floor), no shadowed slug`); `categories-verify` PRE (`genre reorganisation target state holds`)
+and PROD (**`PROD T2 target state holds`, no PENDING line**).
+
+**Departures from the T2 plan:** the 16 post-capture topics above; `to_first_steps` (a Task 4
+override) ran just before `to_plaza`, and the 78 residue check subtracts its id; the move lists ran
+two batches per call instead of three, because 150 topics overran one invocation's 10 minutes.
+
+**Still unmeasured, and only a member's session can measure it:** what E1, E3 and E4 cost a member
+— the closed surplus URLs, Comparte admin-only, and `analiza` topics behind room 91.
