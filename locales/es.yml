@@ -52,8 +52,8 @@ es:
   # esto es lo que se ve en /latest, /top y /unread.
   hero:
     home:
-      title: "Seguimos aprendiendo juntos"
-      subtitle: "Comparte tus ideas o recibe consejos de otros usuarios certificados"
+      title: "Conecta con la comunidad"
+      subtitle: "Encuentra apoyo de profesionales y del equipo de Gestiona. Haz tu pregunta y avanza con confianza."
     tag:
       title: "Temas etiquetados %{tag}"
       subtitle: "Todo lo que la comunidad ha guardado bajo esta etiqueta"

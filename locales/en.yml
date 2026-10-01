@@ -52,8 +52,8 @@ en:
   # the fallback the community sees on /latest, /top and /unread.
   hero:
     home:
-      title: "We keep learning together"
-      subtitle: "Share your ideas or get advice from other certified users"
+      title: "Connect with the community"
+      subtitle: "Find support from professionals and the Gestiona team. Ask your question and move forward with confidence."
     tag:
       title: "Topics tagged %{tag}"
       subtitle: "Everything the community has filed under this tag"

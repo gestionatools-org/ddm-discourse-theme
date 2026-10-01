@@ -440,7 +440,7 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
         <template><BlockOutlet @name="main-outlet-blocks" /></template>
       );
 
-      assert.dom(".page-hero__title").hasText("We keep learning together");
+      assert.dom(".page-hero__title").hasText("Connect with the community");
     });
   });
 
