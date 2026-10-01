@@ -30,7 +30,7 @@
 - **PROD's default theme is "Gestiona avanza" (1)**, not Air (2) as measured on 2026-09-14. Components on PROD: 3, 4, 5, 6, 7, 9, 12. Espublico Theme is not installed.
 - **`enable_welcome_banner` and `search_experience` are themeable** on both instances. PROD theme 1 holds `false` / `search_icon` — exactly what our `about.json` declares — while theme 2 holds `true` / `search_icon`. The values are per theme already, so **a leak, if it exists, could not change PROD's behaviour today**. Task 1 is a confirmation, not a gate that can block.
 - **User fields on PROD, read by name**: 1 NIF (hidden), 2 Nombre y tipo de entidad, 3 CIF Entidad (hidden), 4 Cargo — identical to PRE.
-- **Tags on PROD**: `podcast` 6, `newsletter` 30, `nuevas-versiones` 14 (no synonyms); **`idea-registrada` and `nueva-version-gestiona` absent**. On PRE, `idea-registrada` (9) sits in tag group 14 "Estado de idea" with permissions `{staff: 1, everyone: 3}` (staff apply, everyone sees); `nueva-version-gestiona` (39) carries `nuevas-versiones` as a synonym.
+- **Tags on PROD**: `podcast` 6, `newsletter` 30, `nuevas-versiones` 14. *Re-measured after Ricardo's F1/F2, same day:* `idea-registrada` (339) 10 topics in 18, in no tag group; `nueva-version-gestiona` (340) a synonym of `nuevas-versiones`. On PRE, `idea-registrada` (9) sits in tag group 14 "Estado de idea" with permissions `{staff: 1, everyone: 3}` (staff apply, everyone sees); `nueva-version-gestiona` (39) carries `nuevas-versiones` as a synonym.
 - **Sidebar section 3 exists on both** (id pre-dates the restore). PRE: "Recursos de apoyo", public, five links. **PROD: "Herramientas", private**, two links (`/c/documentacion-analiza/73`, `/c/doc-developers/75`, both 301 to the new slugs). PROD's "Community" section carries a **Wiki** link to `/c/documentacion-analiza/74` — category 74 exists on neither instance.
 - **Login texts on PROD are core's defaults**; PRE overrides all three (values in Task 4).
 - **PRE theme 15**: default, not user-selectable, color schemes 28/29, one child component "Sidebar Theme Toggle" (17), no setting overrides. `academy_url` is no longer a theme setting (#129) — it lives in the sidebar links.
@@ -39,10 +39,10 @@
 
 | # | Question | Recommendation | Needed by |
 |---|---|---|---|
-| F1 | Which PROD topics get `idea-registrada`? The ideas lane shows only topics carrying it | Ricardo tags them (D4: he is the one tagging PROD), at least `panel_ideas_count` (10) of them; until then the verifier stays red on purpose | Task 8 |
-| F2 | `nueva-version-gestiona` on PROD | **Rename** `nuevas-versiones` (14) to it and keep the old name as a synonym — PRE's end state, one tag instead of a create + merge, no topic write | Task 5 |
+| F1 | Which PROD topics get `idea-registrada`? | **Done by Ricardo** before 2026-10-01: tag 339, **10 topics, all in 18**. It sits in **no tag group**, so any member can apply it — Task 5 Step 1 still creates "Estado de idea" | — |
+| F2 | `nueva-version-gestiona` on PROD | **Done by Ricardo, inverted**: `nueva-version-gestiona` (340) is a *synonym* of `nuevas-versiones` (61, 14 topics). A synonym's listing answers **301 to `/tag/nuevas-versiones/61.json`**, not the `l/latest` listing the card fetches, so **PROD sets `highlights_news_tag` = `nuevas-versiones`** as an instance override (expectation file) — no tag write | — |
 | F3 | Child components for the theme on PROD | **None at first**, matching PRE minus "Sidebar Theme Toggle" (not installed on PROD). Theme 1's components stay on theme 1 | Task 8 |
-| F4 | The dead **Wiki** link (`/c/documentacion-analiza/74`) in PROD's Community section | Remove it in Task 6 | Task 6 |
+| F4 | The dead **Wiki** link (`/c/documentacion-analiza/74`) in PROD's Community section | **Done 2026-10-01** by hand (see Task 4's note on `_destroy`). `DROP` stays in `chrome-apply` so a re-run asserts it | — |
 
 ## Review Focus
 
@@ -368,7 +368,7 @@ Expected: `self-test OK: 18 checks`
  "remote_url": "https://github.com/gestionatools-org/ddm-discourse-theme.git",
  "default": false,
  "rooms_parent": 5,
- "settings": {"header_room_category_ids": "90|91|92"},
+ "settings": {"header_room_category_ids": "90|91|92", "highlights_news_tag": "nuevas-versiones"},
  "site_settings": {"enable_welcome_banner": "false", "search_experience": "search_icon"},
  "user_fields": {
   "highlights_member_entity_field_id": "Nombre y tipo de entidad",
@@ -588,7 +588,7 @@ DISCOURSE_INSTANCE=PRE ./bin/theme-apply
 DISCOURSE_INSTANCE=PROD ./bin/theme-apply
 ```
 
-Expected: PRE ends in `STOP: theme 15 is already default` — the guard is the point: this script never touches a default theme, and PRE's is. PROD prints `import https://github.com/gestionatools-org/ddm-discourse-theme.git (not default)`, `then set {'header_room_category_ids': '90|91|92'}` and the dry-run line.
+Expected: PRE ends in `STOP: theme 15 is already default` — the guard is the point: this script never touches a default theme, and PRE's is. PROD prints `import https://github.com/gestionatools-org/ddm-discourse-theme.git (not default)`, `then set {'header_room_category_ids': '90|91|92', 'highlights_news_tag': 'nuevas-versiones'}` and the dry-run line.
 
 - [ ] **Step 3: Lint and commit**
 
@@ -647,18 +647,28 @@ TEXTS = {
 
 
 def sidebar_links(section_links, renames, new_links, drop):
-    """The full wanted link list: existing links in order, renamed, minus `drop`, then new ones."""
+    """The full wanted link list: existing links in order, renamed, then new ones.
+
+    A dropped link is NOT omitted: core keeps a link the payload leaves out and re-positions
+    it — measured on PROD 2026-10-01, the omitted Wiki link jumped to the top of Community.
+    It goes last, with its id and `_destroy`, which is what nested attributes delete on.
+    """
     links = [
         {"id": link["id"], "name": renames.get(link["value"], link["name"]), "value": link["value"],
          "icon": link["icon"], "segment": link.get("segment") or "primary"}
         for link in section_links if link["value"] not in drop
+    ]
+    doomed = [
+        {"id": link["id"], "name": link["name"], "value": link["value"], "icon": link["icon"],
+         "segment": link.get("segment") or "primary", "_destroy": True}
+        for link in section_links if link["value"] in drop
     ]
     icons = {link["value"]: link["icon"] for link in new_links}
     for link in links:
         if link["value"] in icons:
             link["icon"] = icons[link["value"]]
     present = {link["value"] for link in links}
-    return links + [{**link, "segment": "primary"} for link in new_links if link["value"] not in present]
+    return links + [{**link, "segment": "primary"} for link in new_links if link["value"] not in present] + doomed
 
 
 def self_test():
@@ -679,7 +689,9 @@ def self_test():
     assert sidebar_links(bad, RENAMES, NEW_LINKS, set())[2]["icon"] == "book"
     # drop removes only what it names
     wiki = prod + [{"id": 30, "name": "Wiki", "value": "/c/documentacion-analiza/74", "icon": "anchor"}]
-    assert "/c/documentacion-analiza/74" not in [l["value"] for l in sidebar_links(wiki, {}, [], DROP)]
+    dropped = sidebar_links(wiki, {}, [], DROP)
+    assert [l["value"] for l in dropped if not l.get("_destroy")] == [l["value"] for l in prod]
+    assert dropped[-1] == {**wiki[-1], "segment": "primary", "_destroy": True}
     print("self-test OK: 5 cases")
 
 
@@ -703,7 +715,7 @@ def section(sid):
 def apply_section(sid, title, renames, new_links, drop, write):
     s = section(sid)
     wanted = sidebar_links(s["links"], renames, new_links, drop)
-    key = lambda links: [(l["name"], l["value"], l["icon"]) for l in links]  # noqa: E731
+    key = lambda links: [(l["name"], l["value"], l["icon"]) for l in links if not l.get("_destroy")]  # noqa: E731
     if key(s["links"]) == key(wanted) and s["title"] == title and s.get("public"):
         print(f"sidebar section {sid}: already set")
         return
@@ -719,6 +731,8 @@ def apply_section(sid, title, renames, new_links, drop, write):
                     ("links[][icon]", link["icon"]), ("links[][segment]", link["segment"])]
         if "id" in link:
             payload.append(("links[][id]", link["id"]))
+        if link.get("_destroy"):
+            payload.append(("links[][_destroy]", "true"))
     d.request("PUT", f"/sidebar_sections/{sid}.json", data=payload, elevated=True)
     after = section(sid)
     if key(after["links"]) != key(wanted) or after["title"] != title:
@@ -769,7 +783,7 @@ DISCOURSE_INSTANCE=PRE ./bin/chrome-apply
 DISCOURSE_INSTANCE=PROD ./bin/chrome-apply
 ```
 
-Expected: PRE `nothing to drop`, `sidebar section 3: already set`, three `already set` texts. PROD: section 1 drops the Wiki link; section 3 `'Herramientas' public=False` → `'Recursos de apoyo' public=True` with five links; three texts from core's defaults to PRE's values. Anything else is a STOP.
+Expected: PRE `nothing to drop`, `sidebar section 3: already set`, three `already set` texts. PROD: section 1 `nothing to drop` (F4 done by hand); section 3 `'Herramientas' public=False` → `'Recursos de apoyo' public=True` with five links; three texts from core's defaults to PRE's values. Anything else is a STOP.
 
 - [ ] **Step 5: Lint and commit**
 
@@ -784,7 +798,7 @@ git commit -m "feat(bin): chrome-apply carries the sidebar section and login tex
 
 ### Task 5: S10 — tags, then the theme hidden on PROD
 
-**Decision F2 first.** Then the tags, then the install.
+F1, F2 and F4 are done (see *Decisions*). Then the tag group, then the install.
 
 - [ ] **Step 1: `idea-registrada` and its staff-only group** (tag created by the group, no topic written)
 
@@ -804,25 +818,18 @@ EOF
 
 Expected: `… ['idea-registrada'] {'staff': 1, 'everyone': 3}` (keys may come back as group ids `'3'`/`'0'`), and `idea-registrada 0`. **If `permissions` answers 500** (recorded on 2026-09-04 for a throwaway group), create the group without it and set it with `PUT /tag_groups/<id>.json` the same way, reading back.
 
-- [ ] **Step 2: `nuevas-versiones` → `nueva-version-gestiona`, old name kept as synonym** (F2)
+- [ ] **Step 2: The two news tags, read — no write** (F2 was done by Ricardo, inverted)
 
 ```bash
 set -a && source .env.local && set +a
-DISCOURSE_INSTANCE=PROD python3 - <<'EOF'
-import sys; sys.path.insert(0, "bin"); import _discourse as d
-info = d.get("/tag/nuevas-versiones/info.json", elevated=True)["tag_info"]
-tid, count = info["id"], info["topic_count"]
-d.request("PUT", f"/tag/{tid}/settings.json", data=[("tag_settings[name]", "nueva-version-gestiona"),
-          ("tag_settings[slug]", "nueva-version-gestiona")], elevated=True)
-d.request("POST", "/tag/nueva-version-gestiona/synonyms.json", data=[("synonyms[]", "nuevas-versiones")], elevated=True)
-new = d.get("/tag/nueva-version-gestiona/info.json", elevated=True)["tag_info"]
-print(new["id"] == tid, new["topic_count"], count, [s["name"] for s in new.get("synonyms", [])])
-EOF
+DISCOURSE_INSTANCE=PROD python3 -c "
+import sys; sys.path.insert(0, 'bin'); import _discourse as d
+i = d.get('/tag/nuevas-versiones/info.json', elevated=True)['tag_info']
+print(i['id'], i['topic_count'], [x['name'] for x in i.get('synonyms', [])])"
+DISCOURSE_INSTANCE=PROD ./bin/tags-verify
 ```
 
-Expected: `True 14 14 ['nuevas-versiones']`. The rename writes no topic, so no thumbnail and no bump. **The synonym call is the one that bit on PRE** (`#circuitosresolucion` stopped filtering until its synonym was posted back): if the synonym list is empty, STOP. If the endpoint shape differs, use the 2026-09-04 form `tags[][name]` against `/tag/<name>/synonyms` and read back.
-
-Then `DISCOURSE_INSTANCE=PROD ./bin/tags-verify` — expected PASS, `no shadowed slug`.
+Expected: `61 14 ['nueva-version-gestiona']` (count may have grown); `tags-verify` PASS, `no shadowed slug`. The theme reads `nuevas-versiones` on PROD through its expectation file.
 
 - [ ] **Step 3: Install hidden**
 
