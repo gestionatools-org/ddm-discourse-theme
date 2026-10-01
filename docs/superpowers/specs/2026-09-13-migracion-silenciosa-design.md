@@ -802,3 +802,20 @@ children, colour schemes **26/27** assigned by the import — and set `header_ro
 and `search_experience: search_icon` present on theme 14. Default afterwards: still Air (2) alone.
 
 **PROD 14 ≠ PRE 14** (PRE's 14 was an earlier install, deleted 2026-08-16; PRE's theme is 15).
+
+### T3 · S11 — the chrome on PROD — 2026-10-01
+
+`bin/chrome-apply --write`, then a dry run reading `already set` everywhere. Sidebar section **3**
+went from "Herramientas", **private**, two links, to **"Recursos de apoyo", public**, five links in
+this order: Recursos Analítica (`/c/documentacion-analiza/73`), Recursos Developers
+(`/c/doc-developers/75`), Academy (`book`), Demo Gestiona (`desktop`), Primeros pasos (`flag`,
+`/c/primeros-pasos/78`). The first two kept their ids. Community (1) had nothing left to drop (F4).
+
+The three login site texts now hold PRE's values. **Read anonymously on `/login`, the new heading and
+subtitle render — and so does `site_description` ("El espacio virtual…") beneath them**, because the
+theme's `login.scss` rule that hides it acts only once the theme is default. Two subtitles on the
+login page until the flip; accepted, the flip removes it.
+
+Not yet checked: the three new link icons by eye (they render only in a session), and that the two
+resource links, whose categories are walled (73 `Analiza`, 75 its own), behave for a member outside
+those groups — part of S12.
