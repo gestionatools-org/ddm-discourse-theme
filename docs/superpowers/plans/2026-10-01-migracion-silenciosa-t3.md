@@ -39,8 +39,8 @@
 
 | # | Question | Recommendation | Needed by |
 |---|---|---|---|
-| F1 | Which PROD topics get `idea-registrada`? | **Done by Ricardo** before 2026-10-01: tag 339, **10 topics, all in 18**. It sits in **no tag group**, so any member can apply it — Task 5 Step 1 still creates "Estado de idea" | — |
-| F2 | `nueva-version-gestiona` on PROD | **Done by Ricardo, inverted**: `nueva-version-gestiona` (340) is a *synonym* of `nuevas-versiones` (61, 14 topics). A synonym's listing answers **301 to `/tag/nuevas-versiones/61.json`**, not the `l/latest` listing the card fetches, so **PROD sets `highlights_news_tag` = `nuevas-versiones`** as an instance override (expectation file) — no tag write | — |
+| F1 | `idea-registrada` on PROD | **Topics done by Ricardo**: tag 339, 10 topics, all in 18. **Restricting it to staff (tag group "Estado de idea") is deferred by Ricardo, 2026-10-01** — until then any member can apply it. Not a gate for the flip; listed in Task 9 as pending | — |
+| F2 | `nueva-version-gestiona` on PROD | **Done by Ricardo, 2026-10-01**: `nueva-version-gestiona` (340) is the base tag, 14 topics; `nuevas-versiones` (61) its synonym, whose listing 301s to it. The theme's default works; no override. (A first pass the same day had the direction inverted — a synonym's `l/latest` listing 301s to the tag page, not to a listing) | — |
 | F3 | Child components for the theme on PROD | **None at first**, matching PRE minus "Sidebar Theme Toggle" (not installed on PROD). Theme 1's components stay on theme 1 | Task 8 |
 | F4 | The dead **Wiki** link (`/c/documentacion-analiza/74`) in PROD's Community section | **Done 2026-10-01** by hand (see Task 4's note on `_destroy`). `DROP` stays in `chrome-apply` so a re-run asserts it | — |
 
@@ -368,7 +368,7 @@ Expected: `self-test OK: 18 checks`
  "remote_url": "https://github.com/gestionatools-org/ddm-discourse-theme.git",
  "default": false,
  "rooms_parent": 5,
- "settings": {"header_room_category_ids": "90|91|92", "highlights_news_tag": "nuevas-versiones"},
+ "settings": {"header_room_category_ids": "90|91|92"},
  "site_settings": {"enable_welcome_banner": "false", "search_experience": "search_icon"},
  "user_fields": {
   "highlights_member_entity_field_id": "Nombre y tipo de entidad",
@@ -588,7 +588,7 @@ DISCOURSE_INSTANCE=PRE ./bin/theme-apply
 DISCOURSE_INSTANCE=PROD ./bin/theme-apply
 ```
 
-Expected: PRE ends in `STOP: theme 15 is already default` — the guard is the point: this script never touches a default theme, and PRE's is. PROD prints `import https://github.com/gestionatools-org/ddm-discourse-theme.git (not default)`, `then set {'header_room_category_ids': '90|91|92', 'highlights_news_tag': 'nuevas-versiones'}` and the dry-run line.
+Expected: PRE ends in `STOP: theme 15 is already default` — the guard is the point: this script never touches a default theme, and PRE's is. PROD prints `import https://github.com/gestionatools-org/ddm-discourse-theme.git (not default)`, `then set {'header_room_category_ids': '90|91|92'}` and the dry-run line.
 
 - [ ] **Step 3: Lint and commit**
 
@@ -798,38 +798,31 @@ git commit -m "feat(bin): chrome-apply carries the sidebar section and login tex
 
 ### Task 5: S10 — tags, then the theme hidden on PROD
 
-F1, F2 and F4 are done (see *Decisions*). Then the tag group, then the install.
+F1's topics, F2 and F4 are done (see *Decisions*); F1's tag group is deferred. Read the tags, then install.
 
-- [ ] **Step 1: `idea-registrada` and its staff-only group** (tag created by the group, no topic written)
-
-```bash
-set -a && source .env.local && set +a
-DISCOURSE_INSTANCE=PROD python3 - <<'EOF'
-import sys; sys.path.insert(0, "bin"); import _discourse as d
-names = [g["name"] for g in d.get("/tag_groups.json", elevated=True)["tag_groups"]]
-if "Estado de idea" not in names:
-    d.request("POST", "/tag_groups.json", data=[("name", "Estado de idea"), ("tag_names[]", "idea-registrada"),
-              ("permissions[staff]", "1"), ("permissions[everyone]", "3")], elevated=True)
-g = next(g for g in d.get("/tag_groups.json", elevated=True)["tag_groups"] if g["name"] == "Estado de idea")
-print(g["id"], [t if isinstance(t, str) else t["name"] for t in g["tags"]], g["permissions"])
-print("idea-registrada", d.get("/tag/idea-registrada/info.json", elevated=True)["tag_info"]["topic_count"])
-EOF
-```
-
-Expected: `… ['idea-registrada'] {'staff': 1, 'everyone': 3}` (keys may come back as group ids `'3'`/`'0'`), and `idea-registrada 0`. **If `permissions` answers 500** (recorded on 2026-09-04 for a throwaway group), create the group without it and set it with `PUT /tag_groups/<id>.json` the same way, reading back.
-
-- [ ] **Step 2: The two news tags, read — no write** (F2 was done by Ricardo, inverted)
+- [ ] **Step 1: `idea-registrada` — read only** (its staff-only group is deferred, F1)
 
 ```bash
 set -a && source .env.local && set +a
 DISCOURSE_INSTANCE=PROD python3 -c "
 import sys; sys.path.insert(0, 'bin'); import _discourse as d
-i = d.get('/tag/nuevas-versiones/info.json', elevated=True)['tag_info']
-print(i['id'], i['topic_count'], [x['name'] for x in i.get('synonyms', [])])"
+print('idea-registrada', d.get('/tag/idea-registrada/info.json', elevated=True)['tag_info']['topic_count'])"
+```
+
+Expected: 10 or more.
+
+- [ ] **Step 2: The two news tags, read — no write** (F2 done by Ricardo)
+
+```bash
+set -a && source .env.local && set +a
+DISCOURSE_INSTANCE=PROD python3 -c "
+import sys; sys.path.insert(0, 'bin'); import _discourse as d
+i = d.get('/tag/nueva-version-gestiona/info.json', elevated=True)['tag_info']
+print(i['id'], i['name'], i['topic_count'], [x['name'] for x in i.get('synonyms', [])])"
 DISCOURSE_INSTANCE=PROD ./bin/tags-verify
 ```
 
-Expected: `61 14 ['nueva-version-gestiona']` (count may have grown); `tags-verify` PASS, `no shadowed slug`. The theme reads `nuevas-versiones` on PROD through its expectation file.
+Expected: `340 nueva-version-gestiona 14 ['nuevas-versiones']` (count may have grown); `tags-verify` PASS, `no shadowed slug`.
 
 - [ ] **Step 3: Install hidden**
 
@@ -840,11 +833,11 @@ DISCOURSE_INSTANCE=PROD ./bin/theme-apply --write
 DISCOURSE_INSTANCE=PROD ./bin/theme-verify
 ```
 
-Expected: `OK` from the installer; the verifier `FAIL` with **exactly one** line, `ideas_tag 'idea-registrada' has no topics` — that is F1, and it stays red until Ricardo tags. Any other line is a STOP. Also read the record: `remote_compat_ref` None is already asserted; note the theme id.
+Expected: `OK` from the installer; the verifier `OK: theme install on PROD holds`. Any problem line is a STOP. Also read the record: `remote_compat_ref` None is already asserted; note the theme id.
 
 - [ ] **Step 4: Preview, for Ricardo**
 
-Send him `https://gestionaavanza.espublico.com/?preview_theme_id=<id>` to open in his admin session: three lanes, the bento, the header rooms, the band, the colours. The ideas lane is empty until F1.
+Send him `https://gestionaavanza.espublico.com/?preview_theme_id=<id>` to open in his admin session: three lanes, the bento, the header rooms, the band, the colours. 
 
 - [ ] **Step 5: Record and commit**
 
@@ -888,7 +881,7 @@ Checklist, in `?preview_theme_id=<id>` with a non-admin account:
 2. **Header**: only the rooms the account can enter are linked.
 3. **"Nueva publicación"** in the band opens the composer on **5 Foro del Certificado**.
 4. **Plaza**: category 5's own listing shows only arrival announcements.
-5. **`idea-registrada`** is visible on tagged ideas and not offered in the composer's tag chooser.
+5. **`idea-registrada`** is visible on tagged ideas. *(Whether the composer offers it to members is F1's deferred restriction — expected to be offered today; note it, it is not a failure.)*
 
 *Gate:* Ricardo signs off each line. Record in *As executed → T3 · S12*.
 
@@ -903,7 +896,7 @@ set -a && source .env.local && set +a
 DISCOURSE_INSTANCE=PROD ./bin/theme-verify
 ```
 
-Expected: `OK: theme install on PROD holds` — which needs F1 done (`idea-registrada` with topics). Task 7 signed off. F3 decided.
+Expected: `OK: theme install on PROD holds`. Task 7 signed off. F3 decided (no child components).
 
 - [ ] **Step 2: Flip**
 
@@ -932,8 +925,9 @@ Expected: the default is our theme alone; `OK` with `--flipped`. Themes 1 and 2 
 
 - [ ] **Step 1:** Ricardo revokes `PROD_DISCOURSE_GLOBAL_API_KEY` in admin; its line is deleted from `.env.local`; a probe with it answers 403/401.
 - [ ] **Step 2:** *As executed → T3 closed*, roadmap S9–S14 ticked, `traceability.md`, `CLAUDE.local.md`.
-- [ ] **Step 3:** Decide, with Ricardo, the real deletion of T2's emptied categories (spec: decided after the launch) and the removal of themes 1 and 2 after the week.
-- [ ] **Step 4:** PR, four checks green, merge.
+- [ ] **Step 3: Pending, carried forward** — F1's staff-only tag group for `idea-registrada` (PRE's shape: "Estado de idea", `{staff: 1, everyone: 3}`; if `permissions` answers 500 on create, create without it and `PUT` it, reading back).
+- [ ] **Step 4:** Decide, with Ricardo, the real deletion of T2's emptied categories (spec: decided after the launch) and the removal of themes 1 and 2 after the week.
+- [ ] **Step 5:** PR, four checks green, merge.
 
 ---
 
@@ -945,7 +939,7 @@ Expected: the default is our theme alone; `OK` with `--flipped`. Themes 1 and 2 
 | Theme enters PROD hidden, verified in preview against real data | 3, 5 |
 | Ten settings resolve: 3 category ids, rooms, 4 tags, 2 user fields | 2 (`problems`), 5 |
 | `header_room_category_ids` overridden on PROD | expectation file, 3 |
-| `idea-registrada` created, restricted to staff via tag group | 5 Step 1; F1 for topics |
+| `idea-registrada` created, restricted to staff via tag group | created and applied by Ricardo (F1); **restriction deferred**, Task 9 Step 3 |
 | `nueva-version-gestiona` exists | 5 Step 2 (F2) |
 | User fields 2/4 verified by name before the flip | 2 (every run), 8 Step 1 |
 | Chrome: sidebar section, link renames, login texts, sidebar order check | 4, 6 |
@@ -954,4 +948,4 @@ Expected: the default is our theme alone; `OK` with `--flipped`. Themes 1 and 2 
 | Global key revoked | 9 |
 | Rollback is uninstalling / re-defaulting | Global Constraints, 8 |
 
-**Departures from the roadmap, deliberate:** `academy_url` is no longer a theme setting (#129) and is carried as a sidebar link; `nueva-version-gestiona` is a **rename with synonym** rather than create + merge (F2), which reaches PRE's end state with one tag and no topic write; the default theme being replaced is **1 "Gestiona avanza"**, not Air.
+**Departures from the roadmap, deliberate:** `academy_url` is no longer a theme setting (#129) and is carried as a sidebar link; `nueva-version-gestiona` was done by Ricardo as a rename with synonym (F2), PRE's end state; the staff-only group for `idea-registrada` is deferred (F1); the default theme being replaced is **1 "Gestiona avanza"**, not Air.
