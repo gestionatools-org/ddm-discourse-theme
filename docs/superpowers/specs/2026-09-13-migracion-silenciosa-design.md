@@ -856,3 +856,26 @@ replaced; "Gestiona avanza" (1) also stays installed).
 **From now on every merge to `main` reaches PROD** — recorded in `CLAUDE.md` → *Conventions*.
 PROD is still in staff-writes-only mode, which only CDCK can lift; S12's composer check repeats on
 PROD once it is.
+
+### T3 · After the flip — 2026-10-01
+
+**The congress vanished from "Agenda del certificado", and the flip did not cause it.** `/t/2600`'s
+first post on PROD read `:hugs:[event start=…]` — an emoji glued in front of a block bbcode, so the
+`[event]` cooked as plain text and no event record existed (the silent failure recorded under
+*discourse-calendar*). With no `event_starts_at` the lane filed it under past events, fifth of a
+four-row lane. PRE had been fixed by hand in August (post version 5) and never carried over; Air has
+no such lane, so nothing showed it before the flip. Fixed on Ricardo's call with **PROD's own event
+values** — only a line break inserted before `[event`: 4 Nov 00:00 → 6 Nov 12:30 Europe/Madrid. No
+thumbnail, not wiki, not bumped. No other topic in 59 carries an uncooked `[event]`.
+
+**"Primeros pasos" (78) got PRE's onboarding set.** PRE's guides were written after the restore, so
+they were **created anew on PROD** as RicardoPG, PRE's author: 2620 → **2739** Cómo buscar, 2621 →
+**2740** Cómo seguir un tema, 2623 → **2741** Cómo reportar, 2624 → **2742** Cómo se construye un buen
+debate, 2622 → **2743** Empieza aquí (pinned in 78). Links between them rewritten to PROD's ids; links
+to `/t/-/4` became **`/faq`** (on PROD /t/4 sat in staff-only category 3). `pendiente-etiquetar` not
+carried (PRE's work queue). Then, **on Ricardo's call, the five were backdated** with
+`PUT /t/<id>/change-timestamp` to **2026-06-01 09:00–09:04 Madrid**, which takes them out of `/latest`
+(page 4 ends at 2026-06-29) and out of "new"; the dates they show are therefore not when they were
+written. **`/t/4`** took PRE's title and text ("Pautas y preguntas frecuentes", its four guide links
+mapped to 2739–2742) and moved to 78 — `/faq` serves it; **`/t/63`** moved to 78 unchanged (PRE
+carries a retouched text). Neither bumped; none of the seven had a thumbnail.
