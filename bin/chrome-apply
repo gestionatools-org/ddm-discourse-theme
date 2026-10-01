@@ -1,0 +1,153 @@
+#!/usr/bin/env python3
+"""Sidebar section 3 and the three login texts — instance state the theme cannot carry.
+
+    DISCOURSE_INSTANCE=PROD bin/chrome-apply            # dry run
+    DISCOURSE_INSTANCE=PROD bin/chrome-apply --write
+    bin/chrome-apply --self-test
+
+On PRE it is a regression check: everything already holds, so a dry run lists nothing.
+Section 3 and its first two links pre-date the restore, so their ids are shared.
+"""
+import pathlib
+import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import _discourse as d  # noqa: E402
+
+SECTION = 3
+TITLE = "Recursos de apoyo"
+RENAMES = {"/c/documentacion-analiza/73": "Recursos Analítica", "/c/doc-developers/75": "Recursos Developers"}
+# Icons from core's default subset, matched literally: sidebar link icons never reach the
+# sprite, and `book-open` (absent) rendered blank on PRE while a word-boundary grep said fine.
+NEW_LINKS = [
+    {"name": "Academy", "value": "https://espublico.gestiona.academy", "icon": "book"},
+    {"name": "Demo Gestiona", "value": "https://demo-a.gestiona.espublico.com", "icon": "desktop"},
+    {"name": "Primeros pasos", "value": "/c/primeros-pasos/78", "icon": "flag"},
+]
+COMMUNITY = 1
+DROP = {"/c/documentacion-analiza/74"}  # category 74 exists on neither instance (F4)
+TEXTS = {
+    "login_required.welcome_message": "# Bienvenid@s a la comunidad %{title}\n\n"
+    "Plataforma online para alumnos de los programas de certificación de Gestiona.",
+    "js.log_in": "Accede a la comunidad",
+    "js.login.header_title": "Bienvenid@",
+}
+
+
+def sidebar_links(section_links, renames, new_links, drop):
+    """The full wanted link list: existing links in order, renamed, then new ones.
+
+    A dropped link is NOT omitted: core keeps a link the payload leaves out and re-positions
+    it — measured on PROD 2026-10-01, the omitted Wiki link jumped to the top of Community.
+    It goes last, with its id and `_destroy`, which is what nested attributes delete on.
+    """
+    links = [
+        {"id": link["id"], "name": renames.get(link["value"], link["name"]), "value": link["value"],
+         "icon": link["icon"], "segment": link.get("segment") or "primary"}
+        for link in section_links if link["value"] not in drop
+    ]
+    doomed = [
+        {"id": link["id"], "name": link["name"], "value": link["value"], "icon": link["icon"],
+         "segment": link.get("segment") or "primary", "_destroy": True}
+        for link in section_links if link["value"] in drop
+    ]
+    icons = {link["value"]: link["icon"] for link in new_links}
+    for link in links:
+        if link["value"] in icons:
+            link["icon"] = icons[link["value"]]
+    present = {link["value"] for link in links}
+    return links + [{**link, "segment": "primary"} for link in new_links if link["value"] not in present] + doomed
+
+
+def self_test():
+    prod = [{"id": 16, "name": "Analítica de Datos", "value": "/c/documentacion-analiza/73", "icon": "file"},
+            {"id": 19, "name": "Gestiona for Developers", "value": "/c/doc-developers/75", "icon": "file"}]
+    got = sidebar_links(prod, RENAMES, NEW_LINKS, set())
+    assert [l["name"] for l in got] == ["Recursos Analítica", "Recursos Developers", "Academy", "Demo Gestiona", "Primeros pasos"], got
+    assert [l.get("id") for l in got[:2]] == [16, 19]
+    # keeps foreign links in order
+    foreign = [{"id": 7, "name": "X", "value": "/x", "icon": "file"}] + prod
+    assert [l["value"] for l in sidebar_links(foreign, RENAMES, NEW_LINKS, set())][:3] == ["/x", "/c/documentacion-analiza/73", "/c/doc-developers/75"]
+    # idempotent: PRE's final list produces itself
+    pre = [{**l, "id": i} for i, l in enumerate(got)]
+    assert [(l["name"], l["value"], l["icon"]) for l in sidebar_links(pre, RENAMES, NEW_LINKS, set())] == \
+        [(l["name"], l["value"], l["icon"]) for l in got]
+    # a wrong icon on an owned link is corrected, not kept
+    bad = pre[:2] + [{**pre[2], "icon": "book-open"}] + pre[3:]
+    assert sidebar_links(bad, RENAMES, NEW_LINKS, set())[2]["icon"] == "book"
+    # drop removes only what it names
+    wiki = prod + [{"id": 30, "name": "Wiki", "value": "/c/documentacion-analiza/74", "icon": "anchor"}]
+    dropped = sidebar_links(wiki, {}, [], DROP)
+    assert [l["value"] for l in dropped if not l.get("_destroy")] == [l["value"] for l in prod]
+    assert dropped[-1] == {**wiki[-1], "segment": "primary", "_destroy": True}
+    print("self-test OK: 5 cases")
+
+
+if __name__ == "__main__" and "--self-test" in sys.argv:
+    self_test()
+    raise SystemExit(0)
+
+
+def section(sid):
+    return next(s for s in d.get("/sidebar_sections.json", elevated=True)["sidebar_sections"] if s["id"] == sid)
+
+
+def apply_section(sid, title, renames, new_links, drop, write):
+    s = section(sid)
+    wanted = sidebar_links(s["links"], renames, new_links, drop)
+    key = lambda links: [(l["name"], l["value"], l["icon"]) for l in links if not l.get("_destroy")]  # noqa: E731
+    if key(s["links"]) == key(wanted) and s["title"] == title and s.get("public"):
+        print(f"sidebar section {sid}: already set")
+        return
+    print(f"sidebar section {sid}: {s['title']!r} public={s.get('public')} {key(s['links'])}")
+    print(f"                 -> {title!r} public=True {key(wanted)}")
+    if not write:
+        return
+    # The whole array goes, ids included: the updater re-derives order from it. `name` leads
+    # each element because Rails starts a new hash when a `links[][...]` key repeats.
+    payload = [("title", title), ("public", "true")]
+    for link in wanted:
+        payload += [("links[][name]", link["name"]), ("links[][value]", link["value"]),
+                    ("links[][icon]", link["icon"]), ("links[][segment]", link["segment"])]
+        if "id" in link:
+            payload.append(("links[][id]", link["id"]))
+        if link.get("_destroy"):
+            payload.append(("links[][_destroy]", "true"))
+    d.request("PUT", f"/sidebar_sections/{sid}.json", data=payload, elevated=True)
+    after = section(sid)
+    if key(after["links"]) != key(wanted) or after["title"] != title:
+        raise SystemExit(f"FAIL: section {sid} reads back {after['title']!r} {key(after['links'])}")
+    print("  OK")
+
+
+def apply_texts(write):
+    for key, value in TEXTS.items():
+        now = d.get(f"/admin/customize/site_texts/{key}?locale=es", elevated=True)["site_text"]["value"]
+        if now == value:
+            print(f"text {key}: already set")
+            continue
+        print(f"text {key}: {now!r} -> {value!r}")
+        if not write:
+            continue
+        # `locale` inside site_text, never as a sibling: core reads params.dig(:site_text, :locale).
+        d.request("PUT", f"/admin/customize/site_texts/{key}",
+                  data=[("site_text[value]", value), ("site_text[locale]", "es")], elevated=True)
+        back = d.get(f"/admin/customize/site_texts/{key}?locale=es", elevated=True)["site_text"]["value"]
+        if back != value:
+            raise SystemExit(f"FAIL: {key} reads back {back!r}")
+        print("  OK")
+
+
+def main():
+    write = "--write" in sys.argv
+    community = section(COMMUNITY)
+    apply_section(COMMUNITY, community["title"], {}, [], DROP, write) if any(
+        l["value"] in DROP for l in community["links"]) else print(f"sidebar section {COMMUNITY}: nothing to drop")
+    apply_section(SECTION, TITLE, RENAMES, NEW_LINKS, set(), write)
+    apply_texts(write)
+    if not write:
+        print("(dry run — nothing written; add --write)")
+
+
+if __name__ == "__main__":
+    main()
