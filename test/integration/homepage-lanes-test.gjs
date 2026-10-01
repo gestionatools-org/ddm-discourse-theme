@@ -209,7 +209,10 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
         <template><BlockOutlet @name="main-outlet-blocks" /></template>
       );
 
-      assert.deepEqual(calls[0].options, { filter: "latest" });
+      assert.deepEqual(calls[0].options, {
+        filter: "latest",
+        params: { order: "created" },
+      });
     });
   });
 
