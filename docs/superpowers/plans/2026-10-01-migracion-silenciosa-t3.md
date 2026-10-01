@@ -873,7 +873,12 @@ Expected: the dry run as in Task 4 Step 4; `OK` after each write; the second dry
 
 ### Task 7: S12 — one non-admin session (Ricardo)
 
-**PROD must be out of staff-writes-only mode**, or a member sees no composer and the "Nueva publicación" check is void. Ricardo lifts it first.
+**PROD is in staff-writes-only mode, and only CDCK can lift it** — measured 2026-10-01 in core: the
+mode lives in Redis under `Discourse::STAFF_WRITES_ONLY_MODE_KEY`, set from a Rails console; no admin
+route or site setting reaches it (`PUT /admin/backups/readonly` toggles the *user* read-only key,
+a different mode). So checks 1, 2, 4 and 5 run on PROD now, and **check 3 runs on PRE** (same code,
+same `hero_default_category_id` 5), to be repeated on PROD once CDCK lifts the mode. The flip does not
+wait for it.
 
 Checklist, in `?preview_theme_id=<id>` with a non-admin account:
 
