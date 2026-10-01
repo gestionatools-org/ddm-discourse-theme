@@ -753,3 +753,30 @@ two batches per call instead of three, because 150 topics overran one invocation
 
 **Still unmeasured, and only a member's session can measure it:** what E1, E3 and E4 cost a member
 — the closed surplus URLs, Comparte admin-only, and `analiza` topics behind room 91.
+
+### T3 · S9 — the `theme_site_settings` leak, measured on PRE — 2026-10-01
+
+**No leak.** A throwaway theme (**18**, `t3-leak-probe`, not default, not user-selectable) carried
+both themeable rows set to the opposite of PRE's live values — `enable_welcome_banner: true`,
+`search_experience: search_field` — written with `PUT /admin/themes/18/site-setting`.
+
+| Reading | Baseline | Probe installed | After deletion |
+|---|---|---|---|
+| admin site-settings listing | `false` / `search_icon` | `false` / `search_icon` | same |
+| anonymous `/login`, preloaded | `False` / `search_icon` | `False` / `search_icon` | same |
+| admin `/`, preloaded | `False` / `search_icon` | `False` / `search_icon` | same |
+| admin `/?preview_theme_id=18` (positive control) | — | **`True` / `search_field`** | — |
+
+The positive control is what makes the three unchanged rows mean something: the probe's rows did
+act, but only for a request rendering that theme. Theme 18 was deleted the same minute; no probe
+theme remains.
+
+**Two facts from the measurement.** Themeable settings never appear in the preloaded
+`siteSettings`; the client receives them, for the active theme, in
+**`themeSiteSettingOverrides`** — a probe reading `siteSettings` returns `None` for both and looks
+like a broken instance. And the admin listing reports the **default theme's** row, which is why PROD
+shows `false` there today: it is theme 1's row, not an instance value.
+
+**Consequence for PROD:** `theme_site_settings` stays in `about.json`. Installing the theme hidden
+changes nothing for members, and on the flip the two rows match what PROD's current default theme
+(1) already holds.

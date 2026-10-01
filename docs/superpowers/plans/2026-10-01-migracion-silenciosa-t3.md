@@ -72,7 +72,7 @@
 
 **Files:** none; record in the spec.
 
-The probe is a throwaway theme with both rows set to the **opposite** of PRE's live values (`enable_welcome_banner: true`, `search_experience: search_field`). Three readings: the admin site-settings listing, the preloaded `siteSettings` an anonymous visitor gets on `/login`, and the preloaded `siteSettings` an admin gets on `/`. **Positive control**: the same admin read with `?preview_theme_id=<probe>` must show the probe's values — otherwise the probe proves nothing.
+The probe is a throwaway theme with both rows set to the **opposite** of PRE's live values (`enable_welcome_banner: true`, `search_experience: search_field`). Three readings: the admin site-settings listing, the preloaded `themeSiteSettingOverrides` an anonymous visitor gets on `/login`, and the same an admin gets on `/`. **Positive control**: the same admin read with `?preview_theme_id=<probe>` must show the probe's values — otherwise the probe proves nothing.
 
 - [ ] **Step 1: Baseline**
 
@@ -88,8 +88,11 @@ def preload(path, admin):
     if admin:
         h.update({"Api-Key": d._key(True), "Api-Username": d._user()})
     html = urllib.request.urlopen(urllib.request.Request(d._url() + path, headers=h)).read().decode()
-    raw = json.loads(re.search(r'preloaded">(\{.*?\})</script>', html, re.S).group(1))["siteSettings"]
-    s = json.loads(raw) if isinstance(raw, str) else raw  # preload values arrive JSON-encoded
+    # Themeable settings are not in `siteSettings`: the client gets them per active theme
+    # in `themeSiteSettingOverrides` (measured on PRE 2026-10-01). Preload values arrive
+    # JSON-encoded.
+    raw = json.loads(re.search(r'preloaded">(\{.*?\})</script>', html, re.S).group(1))["themeSiteSettingOverrides"]
+    s = json.loads(raw) if isinstance(raw, str) else raw
     return {k: s.get(k) for k in KEYS}
 admin_list = {x["setting"]: x["value"] for x in d.get("/admin/site_settings.json", elevated=True)["site_settings"] if x["setting"] in KEYS}
 probe = sys.argv[1] if len(sys.argv) > 1 else None
