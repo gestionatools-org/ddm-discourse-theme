@@ -313,14 +313,17 @@ acceptance(
   function (needs) {
     needs.site({ categories: CATEGORIES });
 
-    test("asks for the site-wide latest listing, with no category to point at", async function (assert) {
+    test("asks for the site-wide latest listing by creation date, not by last activity", async function (assert) {
+      // `latest` alone sorts by bumped_at, so a two-year-old topic with a fresh
+      // reply leads the lane. The lane is "latest posts": newest first, by when
+      // the topic was written.
       const store = fakeStore([topic({ id: 10 })]);
 
       await loadLatestTopics(store, 4);
 
       assert.deepEqual(store.calls[0], {
         type: "topicList",
-        options: { filter: "latest" },
+        options: { filter: "latest", params: { order: "created" } },
       });
     });
 
