@@ -1,0 +1,82 @@
+#!/usr/bin/env python3
+"""Assert the theme's install on an instance against its expectation file. Read-only.
+
+    DISCOURSE_INSTANCE=PROD bin/theme-verify            # before the flip: hidden
+    DISCOURSE_INSTANCE=PROD bin/theme-verify --flipped  # after: default
+
+`main` is read from the remote, not the local checkout, because what the instance pulls is
+GitHub's main — a stale local branch would make a current install look behind.
+"""
+import json
+import pathlib
+import subprocess
+import sys
+
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import _discourse as d  # noqa: E402
+import _theme_check as tc  # noqa: E402
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+EXPECT = ROOT / "docs/superpowers/plans/data/2026-10-01-{}-theme-expect.json"
+
+
+def main_sha():
+    out = subprocess.run(["git", "ls-remote", "origin", "refs/heads/main"], capture_output=True, text=True, check=True)
+    return out.stdout.split()[0]
+
+
+def gather(expect):
+    state = {"main_sha": main_sha(), "categories": {}, "tags": {}, "user_fields": {}, "theme": None}
+    tid = d.theme_id_by_remote(expect["remote_url"])
+    if tid is None:
+        return state
+    t = d.get(f"/admin/themes/{tid}.json", elevated=True)["theme"]
+    rt = t["remote_theme"]
+    settings = {s["setting"]: s["value"] for s in t["settings"]}
+    state["theme"] = {
+        "id": tid,
+        "default": bool(t.get("default")),
+        "remote_url": rt["remote_url"],
+        "remote_compat_ref": rt.get("remote_compat_ref"),
+        "local_version": rt.get("local_version") or "",
+        "settings": settings,
+        "site_settings": {s["setting"]: s["value"] for s in t.get("themeable_site_settings") or []},
+    }
+    ids = [int(settings[n]) for n in tc.CATEGORY_SETTINGS]
+    ids += [int(x) for x in str(settings[tc.ROOMS_SETTING]).split("|") if x]
+    for cid in ids:
+        c = d.request("GET", f"/c/{cid}/show.json", elevated=True, allow_404=True)
+        state["categories"][cid] = None if c is None else {
+            "parent": c["category"].get("parent_category_id"),
+            "topic_count": c["category"].get("topic_count"),
+        }
+    for name in tc.TAG_SETTINGS:
+        tag = settings[name]
+        if tag:
+            info = d.request("GET", f"/tag/{tag}/info.json", elevated=True, allow_404=True)
+            state["tags"][tag] = None if info is None else info["tag_info"]["topic_count"]
+    for f in d.get("/site.json", elevated=True).get("user_fields", []):
+        state["user_fields"][f["id"]] = {"name": f["name"], "show_on_profile": bool(f.get("show_on_profile"))}
+    return state
+
+
+def main():
+    instance = d._instance().lower()
+    expect = json.loads(pathlib.Path(str(EXPECT).format(instance)).read_text())
+    if "--flipped" in sys.argv:
+        expect["default"] = True
+    state = gather(expect)
+    found = tc.problems(state, expect)
+    theme = state["theme"]
+    if theme:
+        print(f"theme {theme['id']} local_version {theme['local_version'][:7]} main {state['main_sha'][:7]}")
+    if found:
+        print("FAIL")
+        for p in found:
+            print(f"  - {p}")
+        raise SystemExit(1)
+    print(f"OK: theme install on {instance.upper()} holds")
+
+
+if __name__ == "__main__":
+    main()

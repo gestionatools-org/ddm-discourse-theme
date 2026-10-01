@@ -144,6 +144,18 @@ def category(cid):
     return get(f"/c/{cid}/show.json", elevated=True)["category"]
 
 
+def theme_id_by_remote(url):
+    """The id of the installed theme pulled from `url`, or None.
+
+    By remote, not by name: a theme can be renamed in admin, and two installs of the same
+    repository were what PRE carried until 2026-08-16.
+    """
+    for theme in get("/admin/themes.json", elevated=True)["themes"]:
+        if (theme.get("remote_theme") or {}).get("remote_url") == url:
+            return theme["id"]
+    return None
+
+
 def update_category(cid, changes=None, add_permissions=None, permissions=None):
     """Read a category and send it back with only `changes` applied.
 
