@@ -2514,3 +2514,17 @@ grupo bajo el tope coinciden exactamente con la unión rastreada; `#caag` y `#po
 filtrando; búsqueda de tres letras 200; cero tags basura. **Incumplido por decisión:** 99 tags bajo 3
 usos, porque T1 no borra tags. Factura de miniaturas: 1 pagada de 217 presupuestadas. Siete
 desviaciones del plan, listadas en la spec (*T1 closed*).
+
+## 2026-10-01 — Migración PROD, T2 ejecutada: categorías
+
+Registro completo en la spec `2026-09-13-migracion-silenciosa-design.md`, *As executed* → T2.
+
+PROD en modo solo lectura con escritura para el staff (`isStaffWritesOnly`) durante toda la sesión,
+ya en Discourse 2026.10.0. Antes de escribir, 16 temas posteriores a la captura entraron en las
+decisiones por la regla de T2 con dos excepciones de Ricardo (2711 → 5, 2728 → 4). Salas 90/91/92
+bajo 5 «Foro del Certificado»; 736 temas movidos en diez listas, verificados por id, **0 de 137
+miniaturas perdidas**, ningún bump. `/t/2683` movido a 85 con el sí explícito de Ricardo y la
+encuesta cerrada. 15 sobrantes cerradas a `moderadores`, 86 y 85 «Comparte» solo administradores,
+93/94 creadas bajo 85, slugs antiguos con 301. `categories-verify` PROD verde sin PENDING;
+`tags-verify` verde en las dos instancias. Pendiente para T3: la sesión de un no-admin, que es lo
+único que mide el coste de E1, E3 y E4.
