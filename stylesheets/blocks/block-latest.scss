@@ -34,5 +34,12 @@
     // and ideas lanes carry no fill behind their headers — so drop it here and
     // let the hairline under the header row do the separating.
     --d-topic-list-header-background-color: transparent;
+
+    // The homepage lane is a glance, not a listing: the tags under each title
+    // doubled the height of most rows and said little the title did not. They
+    // stay on every real listing — this hides them here only.
+    .discourse-tags {
+      display: none;
+    }
   }
 }
