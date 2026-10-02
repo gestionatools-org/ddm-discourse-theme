@@ -316,6 +316,13 @@
   // heights match, and the difference is spent on text.
   &__frame {
     position: relative;
+
+    // An explicit width, so the frame always spans the card. Without it Safari
+    // derives the width from `max-height` through `aspect-ratio` — 304px × 16/9
+    // = 540px, a thumbnail parked at the left of a 945px card (PROD,
+    // 2026-10-01). Chromium stretches the flex item and hid it; with a definite
+    // width the ratio only ever sizes the height.
+    width: 100%;
     min-height: 0;
     max-height: 19rem;
     aspect-ratio: 16 / 9;
