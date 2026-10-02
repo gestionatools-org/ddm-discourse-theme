@@ -1,0 +1,14 @@
+// The global category list, /categories. Core's own `bodyClass` puts
+// `categories-list` on <body> on that route only, so a category page that
+// lists its subcategories (73, for one) keeps its descriptions.
+//
+// The descriptions are hidden there: the list is for choosing where to go,
+// and the excerpts turned every row into a paragraph. Core renders them as
+// `.category-description` in every layout — a <div> under the title on
+// desktop, a whole <tr> on mobile, plus `.subcategory-description` on
+// subcategory rows, which carries the same class — so one rule reaches all.
+//
+// (0,3,1), above core's own `.category-list .category-description`.
+body.categories-list .category-list .category-description {
+  display: none;
+}
