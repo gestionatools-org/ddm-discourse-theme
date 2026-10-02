@@ -232,6 +232,31 @@ module(
         .exists("and the pair sits directly under the badge");
     });
 
+    test("names the window the figures were counted over", async function (assert) {
+      await render(
+        <template>
+          <HighlightMemberCard @member={{member}} @period="monthly" />
+        </template>
+      );
+
+      assert
+        .dom(".highlight-member__window")
+        .hasText("Activity over the last 30 days");
+      assert
+        .dom(".highlight-member__window + .highlight-member__figures")
+        .exists("the note sits directly above the figures it qualifies");
+    });
+
+    test("renders no window note for an unknown period", async function (assert) {
+      await render(
+        <template>
+          <HighlightMemberCard @member={{member}} @period="weekly" />
+        </template>
+      );
+
+      assert.dom(".highlight-member__window").doesNotExist();
+    });
+
     test("renders the profile details, and no line for the ones absent", async function (assert) {
       // Ricardo Penalver's real shape: everything but the job title.
       const profile = {
