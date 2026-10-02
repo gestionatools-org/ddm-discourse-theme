@@ -10,6 +10,16 @@ import SidebarGettingStarted from "../../discourse/components/sidebar-getting-st
 // The user is a plain object. Core's `SectionLink` reads the same service, but
 // only `user_option?.external_links_in_new_tab`, which a double without
 // `user_option` answers safely.
+//
+// `site.categories` is guardian-scoped in production, so "a member who cannot
+// see the category" is a category absent from this list. Stubbed by mutating
+// the real service and restored after, as header-links-test does.
+const GETTING_STARTED = {
+  id: 78,
+  name: "Primeros pasos",
+  url: "/c/primeros-pasos/78",
+};
+
 function stubCurrentUser(owner, user) {
   owner.unregister("service:current-user");
   owner.register("service:current-user", user, { instantiate: false });
@@ -23,21 +33,28 @@ module(
     // `settings` is a shared global across the whole QUnit run, so every test
     // here starts from the shipped defaults rather than the previous test's.
     hooks.beforeEach(function () {
-      settings.getting_started_topic_id = 2743;
+      this.site = this.owner.lookup("service:site");
+      this.originalCategories = this.site.categories;
+      this.site.categories = [GETTING_STARTED];
+      settings.getting_started_category_id = 78;
       settings.getting_started_max_trust_level = 1;
     });
 
-    test("a new member sees the link to the guide", async function (assert) {
+    hooks.afterEach(function () {
+      this.site.categories = this.originalCategories;
+    });
+
+    test("a new member sees the category, under its own name", async function (assert) {
       stubCurrentUser(this.owner, { trust_level: 0 });
 
       await render(<template><SidebarGettingStarted /></template>);
 
       assert
         .dom(".sidebar-getting-started .sidebar-section-link")
-        .hasAttribute("href", /\/t\/2743$/);
+        .hasAttribute("href", "/c/primeros-pasos/78");
       assert
         .dom(".sidebar-getting-started .sidebar-section-link-content-text")
-        .hasText(/\S/, "labelled from the locale, not left empty");
+        .hasText("Primeros pasos");
       assert.dom(".sidebar-getting-started .d-icon-rocket").exists();
     });
 
@@ -66,8 +83,17 @@ module(
       assert.dom(".sidebar-getting-started").exists();
     });
 
-    test("a topic id of 0 hides the row", async function (assert) {
-      settings.getting_started_topic_id = 0;
+    test("a category id of 0 hides the row", async function (assert) {
+      settings.getting_started_category_id = 0;
+      stubCurrentUser(this.owner, { trust_level: 0 });
+
+      await render(<template><SidebarGettingStarted /></template>);
+
+      assert.dom(".sidebar-getting-started").doesNotExist();
+    });
+
+    test("a category the member cannot see hides the row", async function (assert) {
+      this.site.categories = [];
       stubCurrentUser(this.owner, { trust_level: 0 });
 
       await render(<template><SidebarGettingStarted /></template>);
