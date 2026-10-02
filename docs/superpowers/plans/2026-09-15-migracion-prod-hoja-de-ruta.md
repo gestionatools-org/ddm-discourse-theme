@@ -160,29 +160,29 @@ are not.
 
 ### T3 — Launch
 
-- [ ] **S9 · Measure the `theme_site_settings` leak on PRE** with a throwaway theme (spec §T3).
+- [x] **S9 · Measure the `theme_site_settings` leak on PRE** with a throwaway theme (spec §T3).
   Decides whether `enable_welcome_banner: false` must leave `about.json` until the flip.
 
-- [ ] **S10 · Install the theme on PROD hidden** (not default), then set the instance overrides it
+- [x] **S10 · Install the theme on PROD hidden** (not default), then set the instance overrides it
   needs, all resolved by name:
   `header_room_category_ids` = PROD's three room ids (**never the default `89|90|91` — PROD 89 is
   "Anuncios"**); `idea-registrada` created, restricted to staff via tag group; `nueva-version-gestiona`
   created (merge `nuevas-versiones`(14) into it); `academy_url`; user fields 2/4 re-read by name.
   Verify the ten settings in `?preview_theme_id=` against real data.
 
-- [ ] **S11 · Chrome that does not travel**: sidebar section "Recursos de apoyo" (icons from the
+- [x] **S11 · Chrome that does not travel**: sidebar section "Recursos de apoyo" (icons from the
   default subset, matched literally), the three login site texts, `search_experience` row.
   Check PROD's existing custom sidebar sections against the capture — the theme reorders them.
 
-- [ ] **S12 · One non-admin session on PROD (preview)**: walls, header links by membership,
+- [x] **S12 · One non-admin session on PROD (preview)**: walls, header links by membership,
   "Nueva publicación" lands in 5, plaza lists only announcements, `idea-registrada` visible but not
   applicable. *Gate:* Ricardo signs off.
 
-- [ ] **S13 · Flip**: theme default; Air Theme and `Gestiona avanza` kept installed (not default)
+- [x] **S13 · Flip**: theme default; Air Theme and `Gestiona avanza` kept installed (not default)
   as the rollback for one week. From here **every merge to `main` reaches PROD**: watch CI green
   before merging, always.
 
-- [ ] **S14 · Close**: revoke `PROD_DISCOURSE_GLOBAL_API_KEY` and delete its line; record *As
+- [x] **S14 · Close**: revoke `PROD_DISCOURSE_GLOBAL_API_KEY` and delete its line; record *As
   executed*; decide real deletion of the emptied categories.
 
 ---

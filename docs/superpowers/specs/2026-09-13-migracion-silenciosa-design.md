@@ -879,3 +879,35 @@ carried (PRE's work queue). Then, **on Ricardo's call, the five were backdated**
 written. **`/t/4`** took PRE's title and text ("Pautas y preguntas frecuentes", its four guide links
 mapped to 2739–2742) and moved to 78 — `/faq` serves it; **`/t/63`** moved to 78 unchanged (PRE
 carries a retouched text). Neither bumped; none of the seven had a thumbnail.
+
+### T3 · Closed — 2026-10-02
+
+- **S12 check 3 on PROD**, now that read-only is lifted: measured at the data level, not in a
+  session. `Certificación` holds `permission_type` **1** (full) on category 5, so `site.json` gives its
+  members `permission: FULL` there and the band's button preselects 5 (`hero_default_category_id` = 5,
+  no override). `Analiza`, `Developers` and `AdminDevelopers` hold 3 (read), so a member only in those
+  falls back to core's default — by design. The UI half was checked on PRE with the same code. The
+  Global key is **bound to its own user**: `Api-Username` of a member answers 403, so impersonating a
+  non-admin over the API is not available on PROD.
+- **F1 done**: tag group **11 "Estado de idea"** holding `idea-registrada` (10 topics), permissions
+  `{3: 1, 0: 3}` — staff apply, everyone sees — identical to PRE's group 14. `estado-de-idea` checked
+  against PROD's categories and tags first: no collision. **`permissions` sent as a form (`permissions[staff]=1`)
+  answers 500** on both create and update; the same `PUT /tag_groups/<id>.json` as **JSON with integer
+  values** answers 200. Core maps a non-integer permission through `permission_types[...]`, and the
+  form delivers strings.
+- **The emptied categories are deleted** — by Ricardo in admin, 2026-10-02 12:51–13:02 UTC, all 17 of
+  T2's `close.order` (staff action log, `delete_category`). PROD now has **24** categories:
+  1, 3, 4, 5, 14, 18, 59, 73, 75, 78–85, 88–94. T2's undo-by-moving-back is gone with them.
+- **Themes 1 "Gestiona avanza" and 2 "Air Theme" deleted** (204 each), ahead of the one-week window,
+  on Ricardo's go. Theme 1 had zero fields of its own. Theme 14 stays default with schemes 26/27.
+  Air's children stay installed and now hang from no theme: 3, 4, 5, 6, 7, 9 (remote) and 12 (local,
+  "Hide Category Padlock"). Rollback is now a fresh install of Air from GitHub, not a switch.
+- **`PROD_DISCOURSE_GLOBAL_API_KEY` revoked** — key record 7 "refactor-global", identified by its
+  truncated form without printing the value; a probe with it answers **403**; its line is deleted from
+  `.env.local`. `PROD_DISCOURSE_API_KEY` (record 6, read-only: 403/404 on `/tags.json` and `/admin/*`)
+  stays. **Consequence: nothing in this repo can force a PROD theme pull any more** — PROD picks up
+  `main` on Discourse's own check, or by hand in admin.
+
+**T3 closed. The PROD migration is complete.** Carried forward, none of it migration work: the three
+permission faults (75, 73, 85), the orphaned Air components, and two walled links in "Recursos de
+apoyo" (kept by decision, 2026-10-01).
