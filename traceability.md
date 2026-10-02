@@ -2552,6 +2552,7 @@ Registro en la spec, *As executed* → *T3 · Closed*. Grupo de etiquetas **11 �
 con `idea-registrada`, solo staff la aplica (los permisos solo entran como JSON con enteros; por
 formulario, 500). S12 punto 3 comprobado a nivel de datos: `Certificación` tiene permiso completo en
 la 5. Las 17 categorías vaciadas las borró Ricardo; temas 1 y 2 desinstalados (la vuelta atrás ya es
-reinstalar Air). **Key Global de PROD revocada** (403) y fuera de `.env.local`: desde aquí PROD coge
-`main` por su propia comprobación. Ese mismo día, en la portada y las categorías: sin etiquetas en
+reinstalar Air). La key Global de PROD se revocó y **Ricardo deshizo la revocación y rotó la
+credencial**: ahora `PROD_DISCOURSE_API_KEY` llega al admin y no existe `PROD_DISCOURSE_GLOBAL_API_KEY`.
+Con ella se borraron los siete componentes huérfanos de Air: PROD tiene un único tema, el 14. Ese mismo día, en la portada y las categorías: sin etiquetas en
 «Últimas publicaciones» (#157) y sin descripciones en las listas de subcategorías (#158).

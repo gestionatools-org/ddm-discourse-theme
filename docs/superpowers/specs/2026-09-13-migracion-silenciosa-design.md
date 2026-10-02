@@ -902,12 +902,16 @@ carries a retouched text). Neither bumped; none of the seven had a thumbnail.
   on Ricardo's go. Theme 1 had zero fields of its own. Theme 14 stays default with schemes 26/27.
   Air's children stay installed and now hang from no theme: 3, 4, 5, 6, 7, 9 (remote) and 12 (local,
   "Hide Category Padlock"). Rollback is now a fresh install of Air from GitHub, not a switch.
-- **`PROD_DISCOURSE_GLOBAL_API_KEY` revoked** — key record 7 "refactor-global", identified by its
-  truncated form without printing the value; a probe with it answers **403**; its line is deleted from
-  `.env.local`. `PROD_DISCOURSE_API_KEY` (record 6, read-only: 403/404 on `/tags.json` and `/admin/*`)
-  stays. **Consequence: nothing in this repo can force a PROD theme pull any more** — PROD picks up
-  `main` on Discourse's own check, or by hand in admin.
+- **`PROD_DISCOURSE_GLOBAL_API_KEY` revoked — and then reinstated.** Record 7 "refactor-global" was
+  revoked through the API (200, probe 403) and its line deleted from `.env.local`. **Ricardo undid the
+  revocation the same afternoon and rotated the credential**: since 2026-10-02 `PROD_DISCOURSE_API_KEY`
+  holds a key that reaches `/admin/*` (200 on `/admin/themes.json` and `/admin/api/keys.json`), and
+  there is no `PROD_DISCOURSE_GLOBAL_API_KEY` any more. So the S14 step "revoke the Global key" did
+  **not** stand, by Ricardo's choice: PROD keeps one admin-capable key, under the plain name.
+  Its predecessor under that name (record 6, "refactor-community") read `/categories.json` only.
+- **Air's orphaned components deleted** with the rotated key, after checking none hung from theme
+  14: 3, 4, 5, 6, 7, 9 and 12 (204 each). PROD now has **one** installed theme, 14, default.
 
 **T3 closed. The PROD migration is complete.** Carried forward, none of it migration work: the three
-permission faults (75, 73, 85), the orphaned Air components, and two walled links in "Recursos de
+permission faults (75, 73, 85) and two walled links in "Recursos de
 apoyo" (kept by decision, 2026-10-01).
