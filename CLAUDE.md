@@ -243,7 +243,7 @@ Every setting needs a description under `theme_metadata.settings.<name>` in `loc
 
 ### Versioning and compatibility
 
-Bump `theme_version` in `about.json` on user-visible change. `.discourse-compatibility` maps core versions to theme commits so old Discourse versions keep resolving a working commit — needed once the theme depends on APIs newer than the oldest supported core.
+Bump `theme_version` in `about.json` on user-visible change. It is **1.0.0 since 2026-10-02**, set when the theme became PROD's default and the migration closed — nothing reads the number, so the rule is convention: **minor** (1.x.0) for a user-visible change, **patch** (1.0.x) for a fix, **major** only when something that depends on the theme breaks — renaming or removing a setting an instance overrides, or the `theme:espublico:*` block namespace. `.discourse-compatibility` maps core versions to theme commits so old Discourse versions keep resolving a working commit — needed once the theme depends on APIs newer than the oldest supported core.
 
 ## Reference corpus
 
