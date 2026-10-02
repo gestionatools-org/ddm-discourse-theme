@@ -131,6 +131,34 @@ export function extractCoverImage(cooked) {
 }
 
 /**
+ * The post's own thumbnail of `videoId`, or null.
+ *
+ * Core's lazy-video container already cooks YouTube's `maxresdefault`
+ * (1280×720) into the post. `hqdefault` is 480×360, and stretched across the
+ * ~945px podcast frame it pixelated visibly (PROD, 2026-10-01). Matched on the
+ * `/vi/<id>/` path, so a teaser image of a different video never stands in.
+ *
+ * @param {String} cooked - post HTML
+ * @param {String} videoId - the YouTube id the card plays
+ * @returns {String|null}
+ */
+export function extractVideoThumbnail(cooked, videoId) {
+  const doc = videoId ? parseCooked(cooked) : null;
+  if (!doc) {
+    return null;
+  }
+
+  for (const img of doc.querySelectorAll("img")) {
+    const src = img.getAttribute("src");
+    if (src?.includes(`/vi/${videoId}/`)) {
+      return src;
+    }
+  }
+
+  return null;
+}
+
+/**
  * The href of the first PDF linked from a cooked post, or null.
  *
  * An absolute URL is preferred over a `/uploads/short-url/…` path, and that

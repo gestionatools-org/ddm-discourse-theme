@@ -5,6 +5,7 @@ import {
   extractCoverImage,
   extractPdfUrl,
   extractVideoId,
+  extractVideoThumbnail,
   loadLatestTaggedTopic,
   memberHasActivity,
   monthAndYear,
@@ -493,6 +494,43 @@ acceptance(
         900002,
         "the pinned definition topic is skipped, not returned first"
       );
+    });
+  }
+);
+
+module(
+  "Espublico Theme | Unit | highlights | extractVideoThumbnail",
+  function () {
+    // Core's lazy-video container, as /t/2597 cooks on PROD: the post already
+    // carries YouTube's 1280×720 thumbnail, sharper than hqdefault's 480×360,
+    // which pixelated across a ~945px frame.
+    const lazyVideo = `<div class="lazy-video-container" data-video-id="1qH2Ye8IJrE"><a href="https://www.youtube.com/watch?v=1qH2Ye8IJrE"><img class="youtube-thumbnail" src="https://img.youtube.com/vi/1qH2Ye8IJrE/maxresdefault.jpg" title="Teaser"></a></div><p>Copy <img src="https://emoji.discourse-cdn.com/apple/laptop.png?v=15" class="emoji"></p>`;
+
+    test("returns the post's own thumbnail of that video", function (assert) {
+      assert.strictEqual(
+        extractVideoThumbnail(lazyVideo, "1qH2Ye8IJrE"),
+        "https://img.youtube.com/vi/1qH2Ye8IJrE/maxresdefault.jpg"
+      );
+    });
+
+    test("ignores an image of another video or of nothing", function (assert) {
+      assert.strictEqual(
+        extractVideoThumbnail(lazyVideo, "dZJpHhWGyzQ"),
+        null,
+        "a teaser image for a different video is not this one's frame"
+      );
+      assert.strictEqual(
+        extractVideoThumbnail(
+          `<p><img src="/uploads/cover.jpg"></p>`,
+          "1qH2Ye8IJrE"
+        ),
+        null
+      );
+    });
+
+    test("returns null with no cooked post or no video id", function (assert) {
+      assert.strictEqual(extractVideoThumbnail(null, "1qH2Ye8IJrE"), null);
+      assert.strictEqual(extractVideoThumbnail(lazyVideo, null), null);
     });
   }
 );

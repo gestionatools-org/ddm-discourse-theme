@@ -17,10 +17,12 @@ import { youtubeThumbnail } from "../lib/highlights";
 export default class HighlightPodcastCard extends Component {
   @tracked playing = false;
 
+  // The post's own `maxresdefault` when the block found one, else hqdefault.
   get thumbnail() {
-    return this.args.videoId
-      ? youtubeThumbnail(this.args.videoId)
-      : this.args.topic.image_url;
+    if (!this.args.videoId) {
+      return this.args.topic.image_url;
+    }
+    return this.args.thumbnail ?? youtubeThumbnail(this.args.videoId);
   }
 
   get embedUrl() {

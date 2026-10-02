@@ -16,6 +16,7 @@ import {
   extractCoverImage,
   extractPdfUrl,
   extractVideoId,
+  extractVideoThumbnail,
   loadLatestTaggedTopic,
   memberHasActivity,
   paragraphsFromCooked,
@@ -274,9 +275,11 @@ export default class BlockHighlights extends Component {
     } catch {
       // no reachable first post: the card falls back to a plain topic link
     }
+    const videoId = extractVideoId(cooked);
     return {
       topic,
-      videoId: extractVideoId(cooked),
+      videoId,
+      thumbnail: extractVideoThumbnail(cooked, videoId),
       paragraphs: paragraphsFromCooked(cooked, CARD_EXCERPT_MAX),
     };
   }
@@ -367,6 +370,7 @@ export default class BlockHighlights extends Component {
                   <HighlightPodcastCard
                     @topic={{data.topic}}
                     @videoId={{data.videoId}}
+                    @thumbnail={{data.thumbnail}}
                     @paragraphs={{data.paragraphs}}
                   />
                 </:content>
