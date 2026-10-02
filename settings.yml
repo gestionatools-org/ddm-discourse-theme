@@ -184,3 +184,18 @@ highlights_member_entity_field_id:
 highlights_member_role_field_id:
   type: integer
   default: 4
+
+# The "Primeros pasos" row at the top of the sidebar. A topic id rather than a
+# URL because the slug follows the title. Ids differ per instance: PROD's guide
+# is 2743, PRE's is 2622 (an instance override there). 0 hides the row.
+getting_started_topic_id:
+  type: integer
+  default: 2743
+  min: 0
+
+# Members above this trust level no longer see the row. 1 = new and basic.
+getting_started_max_trust_level:
+  type: integer
+  default: 1
+  min: 0
+  max: 4

@@ -16,6 +16,8 @@ en:
       highlights_member_period: "Window for the most-active-member ranking. 'monthly' is the last 30 days — Discourse has no calendar-month option."
       highlights_member_entity_field_id: "Numeric id of the user field holding the member's organisation, shown on the member card. 0 hides the line. Ids are per-instance — check them before installing on another site."
       highlights_member_role_field_id: "Numeric id of the user field holding the member's job title, shown on the member card. 0 hides the line. Never widen this to read every user field: some carry identity documents that only administrators receive."
+      getting_started_topic_id: "Topic linked as 'Getting started' at the top of the sidebar, by numeric id. Ids are per-instance. 0 hides the link."
+      getting_started_max_trust_level: "Highest trust level that still sees the 'Getting started' link. 1 shows it to new and basic members only."
 
   header:
     links:
@@ -46,6 +48,9 @@ en:
       posts:
         one: "message"
         other: "messages"
+
+  sidebar:
+    getting_started: "Getting started"
 
   # The heading band at the top of the homepage and every listing. A category
   # page overrides both strings with its own name and description, so these are
