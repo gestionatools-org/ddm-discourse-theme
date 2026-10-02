@@ -2545,3 +2545,13 @@ nunca se cocinó en PROD), y «Primeros pasos» recibió «Empieza aquí», cuat
 junio a petición de Ricardo para no aparecer en recientes), /t/4 reescrito y /t/63.
 Pendiente: S14 (revocar la key Global de PROD), grupo de staff para `idea-registrada`, y los dos
 enlaces a categorías cerradas en «Recursos de apoyo».
+
+## 2026-10-02 — Migración PROD: T3 cerrada, migración terminada
+
+Registro en la spec, *As executed* → *T3 · Closed*. Grupo de etiquetas **11 «Estado de idea»** en PROD
+con `idea-registrada`, solo staff la aplica (los permisos solo entran como JSON con enteros; por
+formulario, 500). S12 punto 3 comprobado a nivel de datos: `Certificación` tiene permiso completo en
+la 5. Las 17 categorías vaciadas las borró Ricardo; temas 1 y 2 desinstalados (la vuelta atrás ya es
+reinstalar Air). **Key Global de PROD revocada** (403) y fuera de `.env.local`: desde aquí PROD coge
+`main` por su propia comprobación. Ese mismo día, en la portada y las categorías: sin etiquetas en
+«Últimas publicaciones» (#157) y sin descripciones en las listas de subcategorías (#158).
