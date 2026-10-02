@@ -12,8 +12,19 @@ import { monthAndYear } from "../lib/highlights";
 // or the directory switched off — it is a nudge to take part, which also stops
 // the bento grid growing a hole.
 export default class HighlightMemberCard extends Component {
+  // The window the figures were counted over, named on the card because the
+  // ranking is a rolling one and nothing else says so. One key per
+  // `highlights_member_period` choice; an unknown period renders no line.
+  static WINDOWS = ["monthly", "quarterly", "yearly", "all"];
+
   get user() {
     return this.args.member?.user;
+  }
+
+  get windowKey() {
+    return HighlightMemberCard.WINDOWS.includes(this.args.period)
+      ? `homepage.highlights.member.window.${this.args.period}`
+      : null;
   }
 
   get displayName() {
@@ -100,6 +111,11 @@ export default class HighlightMemberCard extends Component {
           {{/if}}
           {{#if @profile.role}}
             <p class="highlight-member__role">{{@profile.role}}</p>
+          {{/if}}
+          {{#if this.windowKey}}
+            <p class="highlight-member__window">{{i18n
+                (themePrefix this.windowKey)
+              }}</p>
           {{/if}}
           <p class="highlight-member__figures">
             <span>{{i18n

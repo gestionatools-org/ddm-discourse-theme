@@ -114,6 +114,11 @@ es:
         days:
           one: "%{count} día activo"
           other: "%{count} días activos"
+        window:
+          monthly: "Actividad de los últimos 30 días"
+          quarterly: "Actividad de los últimos 3 meses"
+          yearly: "Actividad del último año"
+          all: "Actividad total"
         profile: "Ver perfil"
         since: "Miembro desde %{date}"
         cta_empty: "Publica y participa este mes para aparecer aquí"

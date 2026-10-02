@@ -114,6 +114,11 @@ en:
         days:
           one: "%{count} active day"
           other: "%{count} active days"
+        window:
+          monthly: "Activity over the last 30 days"
+          quarterly: "Activity over the last 3 months"
+          yearly: "Activity over the last year"
+          all: "All-time activity"
         profile: "View profile"
         since: "Member since %{date}"
         cta_empty: "Post and take part this month to show up here"

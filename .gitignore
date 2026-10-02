@@ -30,3 +30,6 @@ docs/superpowers/plans/data/*-prior-state.json
 docs/superpowers/plans/data/*-move-proposals.json
 docs/superpowers/plans/data/*-capture.json
 docs/superpowers/plans/data/*-title-proposals.json
+
+# Database dumps: member data, never in this public repo
+backup/

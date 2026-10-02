@@ -410,6 +410,7 @@ export default class BlockHighlights extends Component {
                 <HighlightMemberCard
                   @member={{data.member}}
                   @profile={{data.profile}}
+                  @period={{@memberPeriod}}
                 />
               </:content>
             </DAsyncContent>
