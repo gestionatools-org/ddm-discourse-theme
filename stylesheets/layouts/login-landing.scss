@@ -55,6 +55,25 @@
     margin-block: 1.5rem 1rem;
   }
 
+  // With an external provider the primary button launches it, and the form
+  // sits one quieter step below: a text button, close to the primary one so
+  // they read as a pair, with the note keeping its distance after both.
+  &__sso {
+    margin-bottom: 0;
+  }
+
+  &__local {
+    margin-block: -0.25rem 1rem;
+    color: var(--tertiary);
+    font-size: var(--font-down-1);
+
+    &:hover,
+    &:focus-visible {
+      color: var(--tertiary-hover, var(--tertiary));
+      text-decoration: underline;
+    }
+  }
+
   // A quiet note under the button: a faint tint rather than a panel with a
   // rule (which read as a quote), and type a step lighter than the copy above
   // so it is legible without competing with the button.

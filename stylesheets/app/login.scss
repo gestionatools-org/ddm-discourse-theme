@@ -22,48 +22,35 @@
 }
 
 // ---------------------------------------------------------------------------
-// PROVISIONAL — passkeys, hidden rather than disabled.
+// /login is the username-and-password screen, and only that.
 //
-// The real fix is the site setting `enable_passkeys: false`. It cannot be made
-// from here: the setting is `hidden: true` in core, and Discourse refuses to
-// change hidden settings through the admin API — `PUT
-// /admin/site_settings/enable_passkeys` answers 422 "No tienes permiso para
-// cambiar los ajustes ocultos". It needs a Rails console, so it is a request to
-// Discourse Cloud. **Delete this block once they have flipped it.**
+// External sign-in (Academy's OAuth2 on PROD) starts from the landing, which
+// launches the provider directly, so whoever uses it never reaches /login.
+// Here every external button is hidden — the provider's and the passkey one —
+// together with the right-hand column and its divider, whose space a 32rem
+// card does not have anyway: shown, the column wrapped under the form with a
+// stray vertical rule (PROD, 2026-10-05).
 //
-// Be clear about what this does and does not do. It removes the button from the
-// page. It does NOT disable passkey authentication: `#login-account-name` still
-// carries `autocomplete="username webauthn"`, so a browser may still offer a
-// registered passkey from the username field's own dropdown, and the server
-// still accepts one. Stripping that attribute would take JS and would still
-// leave the server accepting it, so the line is drawn here.
-// The condition sits on the container, not on the column: a hidden element is
-// still a child, so `.login-left-side:only-child` would never have matched.
-// `:has()` makes the whole block self-limiting — add a social login later and
-// the column comes back on its own, rather than staying hidden by a rule
-// written for a different reason.
-.login-body.has-alt-auth:not(
-    :has(.login-right-side .btn:not(.passkey-login-button))
-  ) {
-  .login-right-side {
+// Conditioned on the form being there: if local logins are ever turned off
+// (the planned move to Academy only), /login must not end up empty — core then
+// sends people straight to the provider anyway (`auth_immediately`).
+//
+// Passkeys are hidden, not disabled. The real fix is `enable_passkeys: false`,
+// a hidden setting the admin API refuses (422), so it is a request to Discourse
+// Cloud; the username field still carries `autocomplete="username webauthn"`
+// and the server still accepts a registered passkey.
+.login-body:has(#login-form) {
+  .login-right-side,
+  > #login-buttons {
     display: none;
   }
 
-  // With the column gone the form is alone in the flex row, so it has to be
-  // told to take the width the divider used to share.
+  // With the column gone the form is alone in the flex row, so it takes the
+  // width the divider used to share.
   .login-left-side {
     flex: 1 1 auto;
     border-inline-end: 0;
   }
-}
-
-// Mobile has no right-hand column: core renders `#login-buttons` straight
-// into the card, above the form, so the rule above never reached it and the
-// passkey button stayed visible on phones (seen on PRE, 2026-10-05). Same
-// self-limiting condition, on the button group itself — any other login
-// button brings the group back.
-.login-body > #login-buttons:not(:has(.btn:not(.passkey-login-button))) {
-  display: none;
 }
 
 // ---------------------------------------------------------------------------

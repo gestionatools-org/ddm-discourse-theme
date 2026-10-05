@@ -1,5 +1,6 @@
 import { click, currentURL, visit } from "@ember/test-helpers";
 import { test } from "qunit";
+import { clearAuthMethods } from "discourse/models/login-method";
 import { acceptance } from "discourse/tests/helpers/qunit-helpers";
 
 // The topbar above the header asks for /about.json on every route. Under
@@ -16,6 +17,7 @@ acceptance("Login landing", function (needs) {
     title: "Gestiona Avanza",
   });
   needs.pretender(stubAbout);
+  needs.hooks.beforeEach(() => clearAuthMethods());
 
   test("replaces core's splash", async function (assert) {
     await visit("/");
@@ -48,6 +50,7 @@ acceptance("Login landing | no site logo", function (needs) {
     title: "Gestiona Avanza",
   });
   needs.pretender(stubAbout);
+  needs.hooks.beforeEach(() => clearAuthMethods());
 
   test("falls back to the site title as text", async function (assert) {
     await visit("/");
@@ -91,5 +94,57 @@ acceptance("Login page | help", function (needs) {
 
     assert.dom(".login-page-cta").doesNotExist();
     assert.dom(".login-fullpage .login-help").exists();
+  });
+});
+
+// With an external provider (Academy's OAuth2 on PROD) the landing launches it
+// directly — the SSO user never sees /login — and keeps a quieter way to the
+// username-and-password form.
+const ACADEMY = {
+  name: "oauth2_basic",
+  title_override: "Acceder con credenciales Academy",
+  pretty_name_override: null,
+  custom_url: null,
+  frame_width: null,
+  frame_height: null,
+  can_connect: true,
+  can_revoke: true,
+};
+
+acceptance("Login landing | external provider", function (needs) {
+  needs.settings({ login_required: true, enable_local_logins: true });
+  needs.site({ auth_providers: [ACADEMY] });
+  needs.pretender(stubAbout);
+
+  // `findAll()` caches the providers for the whole run; reset it so this
+  // module and the ones without a provider each see their own site.
+  needs.hooks.beforeEach(() => clearAuthMethods());
+  needs.hooks.afterEach(() => clearAuthMethods());
+
+  test("leads with the provider, keeps the form one step away", async function (assert) {
+    await visit("/");
+
+    assert
+      .dom(".login-landing__sso")
+      .hasText("Acceder con credenciales Academy");
+    assert.dom(".login-landing__local").exists();
+
+    await click(".login-landing__local");
+    assert.strictEqual(currentURL(), "/login");
+  });
+});
+
+acceptance("Login landing | external provider only", function (needs) {
+  needs.settings({ login_required: true, enable_local_logins: false });
+  needs.site({ auth_providers: [ACADEMY] });
+  needs.pretender(stubAbout);
+  needs.hooks.beforeEach(() => clearAuthMethods());
+  needs.hooks.afterEach(() => clearAuthMethods());
+
+  test("drops the form link when local logins are off", async function (assert) {
+    await visit("/");
+
+    assert.dom(".login-landing__sso").exists();
+    assert.dom(".login-landing__local").doesNotExist();
   });
 });
