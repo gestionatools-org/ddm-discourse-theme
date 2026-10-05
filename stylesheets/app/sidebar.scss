@@ -185,3 +185,14 @@
 .sidebar-section-link.exact-url-match {
   box-shadow: inset var(--ga-edge-width) 0 0 0 var(--ga-edge);
 }
+
+// "Primeros pasos" sits alone above Community, so core's section padding —
+// sized for a header plus a list — leaves the single row pressed against the
+// top of the rail and against the hairline below it. Extra block padding on
+// the wrapper adds to whatever core gives `.sidebar-section-content` instead
+// of replacing it, so the row keeps core's own rhythm and just gains air.
+// Both classes, to outrank core's `.sidebar-section-wrapper` rules regardless
+// of load order.
+.sidebar-section-wrapper.sidebar-getting-started {
+  padding-block: 0.75rem;
+}
