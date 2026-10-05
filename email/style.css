@@ -1,0 +1,168 @@
+/*
+  Gestiona Avanza — email styles (Admin → Personalizar → Estilo de email → CSS).
+  Source of truth is this file; see docs/operations/email-style.md.
+
+  How core applies this file (lib/email/styles.rb) dictates four rules:
+
+  1. Every rule is INLINED and PREPENDED to the element's existing style
+     ("ours; theirs"). The digest templates carry their own inline styles, so a
+     declaration without !important loses to them. Hence !important throughout.
+  2. Rules are applied in file order and each prepends, so between two of our
+     own !important declarations for the same property, the FIRST rule in this
+     file wins. Specific rules go above general ones.
+  3. @media blocks would be flattened into inline styles. Never put one here.
+  4. An inline !important cannot be overridden by any stylesheet, so nothing
+     here may set a COLOUR that dark mode needs to change. This file carries
+     shape and type only — sizes, families, radii, spacing — plus transparent
+     backgrounds, which read correctly on either card. Colours live in the
+     <style> blocks of template.html, light and dark side by side.
+*/
+
+/* ---- Digest ------------------------------------------------------------ */
+
+/* The wrapper already carries the logo. */
+.digest-header {
+  display: none !important;
+}
+
+.summary-email {
+  font-family: Roboto, Arial, sans-serif !important;
+}
+
+/* "Desde tu última visita" band: its fill comes from email_accent_bg_color
+   (petrol); the brand cyan edge reads on both schemes. */
+.digest-content-header {
+  border-top: 3px solid #00b4d3 !important;
+  border-radius: 8px 8px 0 0 !important;
+}
+
+.header-since-last-visit,
+.header-popular-topics {
+  font-family: "Roboto Slab", Georgia, serif !important;
+  font-size: 20px !important;
+  font-weight: 700 !important;
+}
+
+.digest-topic-title a {
+  font-family: "Roboto Slab", Georgia, serif !important;
+  font-size: 18px !important;
+  line-height: 1.35 !important;
+}
+
+.digest-topic-username {
+  font-size: 15px !important;
+  font-weight: 700 !important;
+}
+
+.digest-topic-name,
+.digest-created-at {
+  font-size: 13px !important;
+}
+
+/* "Nuevo para ti" counters: core leaves these cells to shrink-wrap, and the
+   floated number drops under its icon once a title takes the row. */
+.digest-new-topic-stat {
+  width: 60px !important;
+  min-width: 60px !important;
+  white-space: nowrap !important;
+}
+
+.digest-button {
+  padding: 9px 18px !important;
+  border-radius: 8px !important;
+  font-weight: 700 !important;
+}
+
+.header-popular-posts,
+.digest-new-header {
+  font-family: "Roboto Slab", Georgia, serif !important;
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  padding: 28px 0 12px !important;
+}
+
+.popular-post-excerpt {
+  border-radius: 0 8px 8px 0 !important;
+}
+
+.popular-post-excerpt td,
+.post-excerpt {
+  font-size: 15px !important;
+  line-height: 1.55 !important;
+}
+
+/* Core's side gutters carry a 400px accent strip that runs down behind the
+   first topics. Inside our card the band already spans the column. */
+.side-spacer {
+  display: none !important;
+}
+
+/* Core paints these #f3f3f3 for a full-bleed grey page and #fefefe for its
+   cards. Inside our card they let the card show through, in either scheme.
+   The two attribute selectors catch the classless wrappers: the popular
+   topics table and the spacer divs between topics. */
+table[style*="background:#fefefe"],
+div[style*="background-color:#f3f3f3"],
+.digest-content,
+.digest-popular-topic-wrapper,
+.digest-topic,
+.digest-topic-title-wrapper,
+.digest-topic-body,
+.digest-topic-stats,
+.header-popular-posts,
+.digest-new-header,
+.body,
+.spacer,
+.popular-post-spacer,
+.popular-post-meta {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+.summary-footer {
+  font-size: 12px !important;
+  line-height: 1.5 !important;
+  padding-top: 20px !important;
+}
+
+/* ---- Notifications (#main) and system messages -------------------------- */
+
+.username,
+.username-title,
+.user-title,
+.notification-date,
+.reply-above-line {
+  font-family: Roboto, Arial, sans-serif !important;
+}
+
+.user-avatar img {
+  border-radius: 50% !important;
+}
+
+.post-wrapper {
+  margin-bottom: 24px !important;
+}
+
+.previous-discussion {
+  font-family: "Roboto Slab", Georgia, serif !important;
+  font-size: 16px !important;
+  padding-top: 16px !important;
+}
+
+.footer {
+  font-size: 13px !important;
+}
+
+blockquote {
+  border-radius: 0 8px 8px 0 !important;
+}
+
+code {
+  border-radius: 4px !important;
+}
+
+h1,
+h2,
+h3 {
+  font-family: "Roboto Slab", Georgia, serif !important;
+}
