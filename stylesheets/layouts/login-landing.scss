@@ -47,10 +47,9 @@
   }
 
   // Sized to the 1240px hero, not to a reading column: the heading is one
-  // sentence and fits on one line at full width; `text-wrap: balance` splits
-  // it evenly wherever it does not.
+  // sentence, so it takes the hero's width, and `text-wrap: balance` splits it
+  // evenly wherever it does not fit on one line.
   &__title {
-    max-width: 60rem;
     margin: 0;
     font-family: RobotoSlab, var(--heading-font-family);
     font-size: var(--font-up-6);
@@ -59,7 +58,7 @@
   }
 
   &__subtitle {
-    max-width: 48rem;
+    max-width: 64rem;
     margin: 0;
     color: var(--ga-muted-fg);
     font-size: var(--font-up-2);
@@ -141,6 +140,10 @@
 
     &__title {
       font-size: var(--font-up-3);
+    }
+
+    &__subtitle {
+      font-size: var(--font-up-1);
     }
   }
 }
