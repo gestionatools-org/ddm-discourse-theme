@@ -19,7 +19,7 @@
     flex-direction: column;
     align-items: center;
     gap: 1rem;
-    padding: 2.5rem 2rem;
+    padding: 3.5rem 2rem 2.5rem;
     text-align: center;
     background: var(--ga-card);
     border: 1px solid var(--ga-border);
@@ -27,10 +27,15 @@
     border-radius: var(--d-border-radius-large);
   }
 
+  // The logo leads the page: larger than the header's, with its own air
+  // underneath so it reads as the masthead rather than one more line.
   &__logo {
     display: block;
-    height: 3.5rem;
+    height: 5.5rem;
     width: auto;
+    max-width: 100%;
+    margin-bottom: 1.5rem;
+    object-fit: contain;
   }
 
   &__site-title {
@@ -117,7 +122,12 @@
     padding: 1.5rem 1rem 2.5rem;
 
     &__hero {
-      padding: 1.75rem 1.25rem;
+      padding: 2.25rem 1.25rem 1.75rem;
+    }
+
+    &__logo {
+      height: 4rem;
+      margin-bottom: 0.75rem;
     }
 
     &__title {
