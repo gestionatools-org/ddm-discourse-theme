@@ -16,6 +16,12 @@ Going private is therefore not a one-click decision: it needs a read-only **depl
 
 Scaffolded from `discourse/discourse-theme-skeleton`, so upstream conventions apply verbatim.
 
+## PROD leads configuration; reconcile PRE before any theme change
+
+Since 2026-10-05 the administrators change PROD's interface, content and site configuration **directly from the admin panel**; PRE is the test bench. PRE therefore drifts behind PROD between theme changes.
+
+**Rule:** when a change to the theme's design is proposed, the **first task** — before editing any SCSS, `.gjs`, `settings.yml`, locale or `about.json` — is to diff PROD against PRE and list what PROD has that PRE lacks. Reconcile PRE to PROD first, then build and verify the theme change on PRE, so that promoting it to PROD meets no configuration difference. PROD is read-only during this step; the reconciliation writes only to PRE. Procedure and the list of surfaces to diff: `docs/operations/environment-reconciliation.md`.
+
 ## Read the vendored skills first
 
 `.claude/skills/` contains **Discourse's own authoring skills**, copied from `discourse/discourse-theme-skills`. They are the authoritative spec and far more detailed than this file:
@@ -75,82 +81,13 @@ Valid keys: `login`, `likes`, `profile`, `topics`, `topics:read`, `topics:reply`
 
 `.github/workflows/discourse-theme.yml` calls Discourse's shared reusable workflow (lint + system specs against core). It is the only workflow left: `d-compat-branch.yml` was **deleted on 2026-08-26** for the reason below.
 
-### Why this repo no longer cuts compatibility branches
+### Consulta operativa: discourse-compatibility
 
-`d-compat-branch.yml` was deleted on 2026-08-26 after it froze PRE for nine hours. The whole
-episode is worth keeping, because the failure is silent and the reasoning is not obvious.
+Antes de trabajar en este ámbito, lee `docs/operations/discourse-compatibility.md`.
 
-**What the workflow did.** It cut `d-compat/<core-version>` from a fixed base and never
-advanced it — the shared workflow's own source says `Branch #{branch} already exists on
-origin. Skipping.`, so every later run is a no-op. The 01:08 UTC run on 2026-08-26 logged
-`Cutting d-compat/2026.8 from 760df745 (2026-08-25T10:52:10Z)`, the first compat branch this
-repo ever had, and `main` was already a commit past that base. **The branch was born behind
-and stayed there.**
+### Consulta operativa: deployment
 
-**How an instance gets captured.** The theme has no branch pinned — `branch: None` on the
-`remote_theme` record. Discourse looks for a `d-compat/<its own core version>` branch on the
-remote and prefers it over the default branch, recording the result in `remote_compat_ref`.
-PRE reported `remote_compat_ref: d-compat/2026.8`, `commits_behind: 0`, `theme_version
-0.17.0` — perfectly up to date with a branch nobody chose.
-
-**The version it matches is the *current* one, not an older one.** Discourse's latest tag was
-`v2026.8.0` and PRE ran `2026.8.0-latest.1`. So there is no core upgrade that escapes the
-branch: it captures every instance, including one that is fully current. An earlier draft of
-this note claimed the opposite and it was wrong.
-
-**Why deletion rather than management.** This theme serves instances that track latest core,
-and `minimum_discourse_version` in `about.json` already states what it needs. A compat branch
-therefore protects nothing here and costs the one thing that matters on a development target:
-seeing merged work. Deleting the branch alone would not have held — the nightly run recreates
-it, since the condition is "already exists", not "ever existed" — so the workflow had to go
-with it.
-
-**What is given up.** If an instance ever has to sit on an older core, the mechanism for that
-is `.discourse-compatibility`, which maps core versions to theme commits and is currently
-empty (comments only). That is the deliberate, explicit tool; the branch was the implicit one
-that fired on its own.
-
-**The symptom, so it is recognisable.** A feature demonstrably on `main` and demonstrably
-absent from the site, with no error anywhere. A whole homepage lane failed to appear this way,
-and the missing icon it was hunted through was a red herring — neither the lane nor its
-`svg_icons` entry existed in the compiled theme. Before concluding anything about what an
-instance runs, read its `remote_theme` record:
-
-```bash
-curl -s -H "Api-Key: $KEY" -H "Api-Username: $USER" "$URL/admin/themes/<id>.json" |
-  python3 -c "import json,sys; rt=json.load(sys.stdin)['theme']['remote_theme']; \
-    print({k: rt[k] for k in ['branch','remote_compat_ref','local_version','commits_behind']})"
-```
-
-`remote_compat_ref` being non-null means the instance is not following `main`, whatever the
-admin page says.
-
-### `commits_behind: 0` is not proof of currency
-
-Same family of failure, met again on 2026-08-27 and worth its own note because the reassuring
-number is the one that lies. **A remote theme does not pull when a PR merges.** It pulls when
-Discourse next checks, and `commits_behind` reports the result of *that* check — whose time is
-in `updated_at`, right beside it.
-
-PRE sat on `149fab6` for two hours reporting `commits_behind: 0`, because its last check ran at
-10:46 and the commit that mattered merged at 11:20. In between, a tag was renamed on the
-instance and the theme kept filtering the homepage's showcase lane by the old name: **zero
-results, no error, an empty lane, and a theme record that said everything was up to date.**
-
-So read `updated_at` alongside `commits_behind`, and force the pull rather than trusting the
-number:
-
-```bash
-curl -s -X PUT -H "Api-Key: $KEY" -H "Api-Username: $USER" \
-  -H "Content-Type: application/json" -d '{"theme":{"remote_update":true}}' \
-  "$URL/admin/themes/<id>.json"
-```
-
-`POST /admin/themes/<id>/update.json` is a 404 — that route does not exist.
-
-**And a setting written straight onto the instance becomes an override.** Fixing the lane by
-`PUT /admin/themes/<id>/setting.json` works instantly and outlives the theme update, but if a
-later release changes that setting's default and the instance does not follow, this is why.
+Antes de trabajar en este ámbito, lee `docs/operations/deployment.md`.
 
 ## Architecture
 
@@ -178,25 +115,9 @@ Rules that are enforced by review, not by tooling:
 - BEM with standalone `--modifier` classes (`.topic-card__title.--highlighted`, not `.topic-card__title--highlighted`) and `is-`/`has-` state prefixes. One BEM block per Ember component — **except a shared base**: when several components render the same surface, the root may carry two blocks, a base (`highlight-card`) styled once for the shared chrome and a component-specific block (`highlight-content` / `highlight-podcast` / `highlight-member`) for what differs. The base owns `__body`, `__title`, `__media`, `__cta`, `__placeholder`; the variant blocks add only their own elements. The homepage highlights section is the precedent (`stylesheets/blocks/block-highlights.scss`). Do not reach for this to avoid a modifier — it is for a genuine shared surface across three-plus components, not a single component with states.
 - Prefer overriding core CSS custom properties over redeclaring rules. Use `light-dark()` for brand tokens so one token serves both palettes.
 
-#### Test a cascade override in the compiled theme sheet, never from the console
+### Consulta operativa: css-cascade-notes
 
-The theme's compiled stylesheet is unlayered and is the **last** `<link>` on the
-page, so a theme rule that ties core on specificity **wins**. Measured on PRE
-2026-08-28: `body.has-sidebar-page .wrap { max-width: 555px }` inserted into the
-theme sheet via `CSSStyleSheet.insertRule` takes effect; core's own rule at the
-same (0,2,1) loses.
-
-**The same rule injected as a `<style>` appended to `<head>` loses** — even
-though it is later in document order, and even with no `@layer` anywhere on the
-page. The mechanism is unexplained. What matters is the consequence: a
-console-injected `<style>` is **not** a faithful preview of a theme rule, and
-measuring one produced a confident, wrong conclusion about this instance's
-cascade that reached a commit message (`0959c2c`). Prototype geometry that way
-if it helps — it is how `layout.scss` was designed — but test any rule whose
-outcome depends on the cascade by inserting it into the theme's own sheet.
-
-Preferring a selector that outranks core rather than ties it sidesteps the whole
-question, and costs one class. `layout.scss` does that.
+Antes de trabajar en este ámbito, lee `docs/operations/css-cascade-notes.md`.
 
 ### JavaScript: prefer Blocks over plugin outlets
 
@@ -245,25 +166,9 @@ Every setting needs a description under `theme_metadata.settings.<name>` in `loc
 
 Bump `theme_version` in `about.json` on user-visible change. It is **1.0.0 since 2026-10-02**, set when the theme became PROD's default and the migration closed — nothing reads the number, so the rule is convention: **minor** (1.x.0) for a user-visible change, **patch** (1.0.x) for a fix, **major** only when something that depends on the theme breaks — renaming or removing a setting an instance overrides, or the `theme:espublico:*` block namespace. `.discourse-compatibility` maps core versions to theme commits so old Discourse versions keep resolving a working commit — needed once the theme depends on APIs newer than the oldest supported core.
 
-### The order of "Primeros pasos" is instance state, held by dates and closure
+### Consulta operativa: getting-started-order
 
-Category **78** (the sidebar's "Primeros pasos" link, `getting_started_category_id`) lists
-six numbered guides, `0.` to `5.`, then "Acerca de la categoría", then the closed 2024
-topics. Core cannot sort a category by title, so on PROD that order is held by two things
-no file in this repo records, set on 2026-10-02:
-
-- **Backdated timestamps.** Each guide's date was set with `PUT /t/<id>/change-timestamp`
-  (`timestamp` = epoch seconds, past only) to 2026-06-01, seconds apart, newest first:
-  `0.` 07:04:00 → `5.` 06:59:00. The category sorts by activity, so that is the order shown.
-  It also keeps a new guide out of `/latest` and `/new`, which both key on recency — the
-  visible post date says 1 June, and the change is in the staff action log.
-- **Closure.** All six are closed, so no reply can bump one to the top. Closing does not
-  bump (`TopicStatusUpdater` passes `bump: status.opening_topic?`). The definition topic is
-  unpinned, so it sorts by its own date, between the guides and the 2024 topics.
-
-**Adding or renumbering a guide means repeating both steps**, or it lands at the top of the
-category and on page 1 of `/latest`. The guides were also edited not to invite replies —
-a closed topic answers "Responde a este tema" with nothing.
+Antes de trabajar en este ámbito, lee `docs/operations/getting-started-order.md`.
 
 ## Reference corpus
 
@@ -292,3 +197,7 @@ The full upstream index (475 themes) lives at `discourse/all-the-themes` — `of
 - **A required check that never reports blocks every PR forever.** The CI matrix is built dynamically by `check_for_tests` from `Dir.glob`, so deleting `test/**/*.{js,gjs}` or `spec/system/**/*.rb` would stop `frontend_tests` or `system_tests` from ever reporting. The fix in that case is to drop the context from the branch protection — never to delete the tests to unblock a merge.
 - `allow_auto_merge` is on, but **`gh pr merge --auto` does not wait for the required checks from this account** — measured on #126, which merged with all four still `pending` seconds after the branch was pushed. The cause is `enforce_admins: false`, deliberately off as an escape hatch (see above): branch protection does not apply to an administrator, and `gh` merges on the spot rather than queueing. This line used to claim the opposite, and the claim held only for a non-admin author.
   **So `--auto` is not the CI gate here; running it is.** For a PR that touches anything Discourse compiles — SCSS, `.gjs`, `about.json`, `settings.yml`, locales — watch the checks report green before merging, because `main` is what every PRE user gets. #126 was docs and `bin/` only, so its early merge cost nothing; that was luck, not the mechanism working. The earlier note below it is still true and is a different failure: before the branch was protected at all, GitHub treated every PR as immediately mergeable because there were no required checks to wait for.
+
+## Context maintenance
+
+Keep this file focused on stable repo rules. Date operational observations and replace stale values rather than appending session history. Read `CLAUDE.local.md` for local safety constraints and its task-specific document index. Do not import the entire documentation tree into persistent instructions.

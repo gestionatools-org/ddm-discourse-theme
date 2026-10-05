@@ -2556,3 +2556,15 @@ reinstalar Air). La key Global de PROD se revocó y **Ricardo deshizo la revocac
 credencial**: ahora `PROD_DISCOURSE_API_KEY` llega al admin y no existe `PROD_DISCOURSE_GLOBAL_API_KEY`.
 Con ella se borraron los siete componentes huérfanos de Air: PROD tiene un único tema, el 14. Ese mismo día, en la portada y las categorías: sin etiquetas en
 «Últimas publicaciones» (#157) y sin descripciones en las listas de subcategorías (#158).
+
+## 2026-10-05 — Instruction-file reorganisation
+
+Separated stable instructions from dated operational references and history. Retained original supplied files in the delivery archive; no live repository or instance was changed. Private extracted documentation is excluded from Git. Live state and older unresolved items require verification before execution.
+
+## 2026-10-05 — Docebo login integration discovery
+
+Reviewed official Docebo and Discourse documentation: both support LTI 1.3; Docebo also provides outbound OAuth2 authorization. Read-only PROD checks confirmed an existing configured LTI integration, local login enabled, and invite-only registration. Discourse LTI supports one LMS, so replacing the current platform versus coexistence must be clarified before changing authentication. OAuth2 remains an alternative pending verification of the learner profile endpoint. No instance settings or theme code changed.
+
+## 2026-10-05 — Sidebar parity: PRE aligned with PROD
+
+Ricardo changed PROD's sidebar by hand; replicated on PRE over the API after a read-only diff of both instances (theme settings matched apart from the expected room IDs). On PRE: deleted the public custom section «Recursos de apoyo» (id 3, links to categories 73/75, absent on PROD); set the maintainer account's sidebar to PROD's tags and categories (4, 5, 14, 18, 59, 73, 75 — IDs verified identical on both); and set `default_navigation_menu_tags` to PROD's `newsletter|podcast|webinars|nueva-version-gestiona` with `update_existing_user=true`, which backfills existing users in a background job. Spot check of six recent PRE users: four carry the tags; two have no sidebar tags or categories at all, which reads as never-customised sidebars that fall back to defaults rather than a failed backfill — not verified in the UI. Prior state captured in the session scratchpad only. No theme code changed.
