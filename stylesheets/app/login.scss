@@ -170,6 +170,33 @@
     flex-basis: 100%;
   }
 
+  // The "back" link sits in the card's top corner, out of the flow, so the
+  // logo keeps the exact position it has on the landing. Small and muted: it
+  // is there when wanted and otherwise unnoticed.
+  .login-body {
+    position: relative;
+  }
+
+  .login-masthead__back {
+    position: absolute;
+    top: 1rem;
+    left: 1.25rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: var(--ga-muted-fg);
+    font-size: var(--font-down-1);
+
+    .d-icon {
+      font-size: 0.85em;
+    }
+
+    &:hover,
+    &:focus-visible {
+      color: var(--tertiary);
+    }
+  }
+
   .login-help {
     width: 100%;
     max-width: 32rem;

@@ -146,6 +146,8 @@ en:
       ideas:
         title: "Ideas and resources"
         body: "Improvement proposals, podcast and newsletter."
+  login_masthead:
+    back: "Back"
   login_help:
     title: "Can't access?"
     no_account:

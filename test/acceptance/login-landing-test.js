@@ -80,6 +80,7 @@ acceptance("Login page | help", function (needs) {
     assert
       .dom(".login-body .login-logo .login-logo__link")
       .hasAttribute("href", "/");
+    assert.dom(".login-body .login-masthead__back").hasAttribute("href", "/");
   });
 
   // LoginPageCta disappears with the email-code form; the help must not go
