@@ -2600,3 +2600,5 @@ Also on PROD: `js.code_login.email_me_code` set to "Envíame un código de acces
 **Applied.** PRE and PROD, plus `email_accent_bg_color` / `email_link_color` → `#006D87`. PROD's prior state was core default. Verified on a real PROD digest preview in light, dark and at 390px; fixed the "Nuevo para ti" counters wrapping under their icons. Notifications not yet seen rendered.
 
 Same day, site settings outside the theme: the signature tagline (copied by hand from `site_description`) was dropped from the template at the maintainer's request. The maintainer then rewrote `site_description` / `short_site_description` on PROD; the "Gestióna" typo was fixed and both values copied to PRE.
+
+Same day, later: documented how core schedules the digest (per user, on absence; no fixed send time) in `docs/operations/email-style.md`, with PROD's aggregate subscription counts. Drafted, not published, the PROD announcement of the Academy SSO in Noticias, stating that the Academy and forum email must match — consistent with `oauth2_email_verified: true` and `invite_only: true`, under which a mismatch cannot fall back to creating an account.

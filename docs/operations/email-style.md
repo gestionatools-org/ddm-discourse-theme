@@ -40,6 +40,12 @@ curl -H … "$U/admin/email/preview-digest.json?last_seen_at=2026-08-01&username
 
 The preview contains member names and avatars — keep it in the scratchpad, never in the repo. There is no preview endpoint for notifications; check one with a real email on PROD (PRE has outgoing email disabled).
 
+## When the digest goes out
+
+There is no send day or hour. `Jobs::EnqueueDigestEmails` runs every 30 minutes and picks each user whose digest is on, whose last digest attempt and last visit are both at least their frequency ago (PROD default `default_email_digest_frequency` = 10080, weekly), and who visited within `suppress_digest_email_after_days` (365). Nothing new since the last visit means no email. So it is a "you missed this" mail per user, never a weekly newsletter to everyone; a fixed-day send to all would need something outside core. `default_*` settings only reach new users unless the admin applies them to existing ones when saving.
+
+PROD on 2026-10-05 (aggregate, Data Explorer, temporary queries deleted): 336 weekly, 11 daily, 41 off; ~204 eligible that day by absence. The first digests in the 90-day email log went out that day, 66 of them between 14:00 and 15:00 UTC, right after this template was applied.
+
 ## State (2026-10-05)
 
 Applied on PRE and PROD (same files, same three settings). PROD's prior state was core default (empty CSS, default HTML), so rollback is resetting both fields to default and the two colours to `#2F70AC` / `#006699`. Digest verified on a real PROD preview (popular topics, popular posts, "Nuevo para ti"), light, dark and 390px. Notifications not yet seen rendered.
