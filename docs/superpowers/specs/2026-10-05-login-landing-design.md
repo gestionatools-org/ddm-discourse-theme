@@ -1,6 +1,6 @@
 # Login landing and a matching /login — design
 
-**Date:** 2026-10-05 · **Status:** approved in conversation, pending spec review
+**Date:** 2026-10-05 · **Status:** approved, executed and verified on PRE the same day — see *As executed*
 **Scope:** theme only (components, SCSS, locales, settings). Instance changes are listed
 under *Outside the theme* and are not made without Ricardo's explicit go-ahead.
 
@@ -180,3 +180,41 @@ Recorded for the PROD → PRE reconciliation; none is made without Ricardo's go-
 Deleting `api-initializers/login-required.gjs` restores core's splash with the instance's
 existing site texts; deleting `api-initializers/below-login-page.gjs` removes the help from
 `/login`. The SCSS is inert without them except for the `/login` card styling.
+
+## As executed (2026-10-05)
+
+Verified on PRE through a temporary theme tracking the branch (made default, then removed;
+theme 15 restored). Ricardo signed in on PRE and approved the result. Changes from the design
+above, each from his review or from measurement:
+
+- **Width.** The landing takes the forum measure, `--ga-measure` (1240px), instead of 56rem.
+  Above `md` `.wrap` supplies the side gutter; below `md` (core drops it: 0px at 767,
+  10.72px at 769) the landing adds its own 1rem.
+- **Hero copy.** Heading and subtitle have no max-width and use `text-wrap: balance`; both
+  hold one line from 1280px. Subtitle: "Comparte experiencia, resuelve dudas y sigue
+  aprendiendo con otros profesionales y con el equipo de especialistas de Gestiona", no
+  full stop, `--font-up-1`.
+- **Access note.** "Acceso exclusivo para usuarios certificados de Gestiona", `circle-info`
+  icon, faint `--ga-muted` tint, text at the lightest grey that passes AA there (60%
+  neutral-600 + 40% neutral-500, 4.60:1). 40px above the button, 32px below it.
+- **Logo.** Extracted to a shared `LoginLogo` (88px; 64px below `sm`).
+- **/login frame.** Sets `static-login` — core's own class for hiding the header on the
+  splash — and renders the logo at the top of the card through `login-before-modal-body`.
+  Card edge and logo land at the same coordinates as on the landing (1440: 48 / 107px;
+  390: 24 / 63px). Card widened to 32rem so the logo is not scaled down. A muted "← Volver"
+  link sits absolutely in the card's corner; the logo links to `/` too.
+- **/login spacing.** Core's `min-height` + centring floated the card ~120px down; removed.
+  Core's column padding and form margin no longer stack inside the card; the column keeps
+  0.75rem top padding because its `overflow: auto` otherwise clips the floating username
+  label. The hidden "email me a link" band is collapsed while hidden. Field gaps: 28px
+  between the fields and before the button, 12px from the password to "Olvidé mi
+  contraseña".
+- **Passkeys.** Hidden on mobile too (the provisional rule only reached the desktop column).
+  `enable_passkeys: false` still needs Discourse Cloud; a request was drafted.
+- **Help copy.** "¿No puedes acceder?", "¿Eres alumno o certificado y no puedes acceder a
+  tu cuenta?", "¿Quieres obtener una certificación?". Tiles reworded by Ricardo. The help
+  is a single column under the /login card.
+- **Reconciliation.** PROD→PRE diff run read-only; only `interface_color_selector=disabled`
+  was copied to PRE, by agreement. The wider drift (AI features, default categories,
+  category order) is a separate task.
+
