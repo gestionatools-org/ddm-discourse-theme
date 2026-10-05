@@ -57,11 +57,13 @@
     text-wrap: balance;
   }
 
-  // Same rule as the heading: the hero's full width, lines balanced.
+  // Same rule as the heading: the hero's full width, lines balanced. A tagline
+  // without a full stop, one size down so it holds a single line at the
+  // measure.
   &__subtitle {
     margin: 0;
     color: var(--ga-muted-fg);
-    font-size: var(--font-up-2);
+    font-size: var(--font-up-1);
     text-wrap: balance;
   }
 
@@ -148,10 +150,6 @@
 
     &__title {
       font-size: var(--font-up-3);
-    }
-
-    &__subtitle {
-      font-size: var(--font-up-1);
     }
   }
 }
