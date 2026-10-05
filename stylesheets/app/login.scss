@@ -123,6 +123,12 @@
     display: none;
   }
 
+  // With that band gone, the gap between the two fields matches the one
+  // between "forgot password" and the button, so the form keeps one rhythm.
+  #credentials > .input-group:first-child {
+    margin-bottom: 1.5rem;
+  }
+
   // "Olvidé mi contraseña" with air on both sides: off the field above, and
   // well clear of the submit button below.
   .login__password-links {
