@@ -1,14 +1,15 @@
-// The login-required splash — the only page an anonymous visitor ever reaches
-// on this instance, since `login_required` is on. Core renders it from
-// `frontend/discourse/app/templates/discovery/login-required.gjs`, whose whole
-// content is `{{trustHTML @controller.model.html}}`: logo, then a
-// `.login-welcome__title` block the server composes from two different sources.
+// Core's login-required splash — now only a fallback. The theme replaces it
+// with its own landing (components/login-landing.gjs, mounted into the
+// `login-required` wrapper outlet), whose copy lives in the theme's locales.
+// Core's version comes back only if api-initializers/login-required.gjs is
+// removed.
 //
-// Its heading and its subtitle are NOT the theme's to set — a theme's locale
-// keys resolve under `theme_translations.{themeId}.*` and cannot override core.
-// Both live in the site text `login_required.welcome_message`, which is markdown
-// and therefore holds the heading and the paragraph under it. The button is the
-// client key `js.log_in`. Change the copy there, not here.
+// When it does, its heading and subtitle are NOT the theme's to set — a
+// theme's locale keys resolve under `theme_translations.{themeId}.*` and cannot
+// override core. Both live in the site text `login_required.welcome_message`,
+// which is markdown and holds the heading and the paragraph under it; the
+// button is the client key `js.log_in`. The rule below keeps that fallback
+// tidy.
 .login-welcome {
   // The one thing that does belong here. The server appends `site_description`
   // as a second paragraph, which duplicates the subtitle now that
@@ -53,5 +54,188 @@
   .login-left-side {
     flex: 1 1 auto;
     border-inline-end: 0;
+  }
+}
+
+// Mobile has no right-hand column: core renders `#login-buttons` straight
+// into the card, above the form, so the rule above never reached it and the
+// passkey button stayed visible on phones (seen on PRE, 2026-10-05). Same
+// self-limiting condition, on the button group itself — any other login
+// button brings the group back.
+.login-body > #login-buttons:not(:has(.btn:not(.passkey-login-button))) {
+  display: none;
+}
+
+// ---------------------------------------------------------------------------
+// /login, matched to the landing: the form in a centred white card with the
+// system's 3px edge, the help under it, the header logo centred.
+//
+// Everything but the header rule is scoped under `.login-fullpage`: the
+// landing carries `body.login-page` too, so an unscoped rule would leak into
+// it. The header rule may — a centred logo is right on both pages.
+.login-page .d-header .contents {
+  justify-content: center;
+}
+
+.login-fullpage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  // Core gives `.login-fullpage` a viewport-tall min-height and centres its
+  // content in it, which — once the help became a second child and the axis
+  // turned vertical — floated the card ~120px below the header. Measured on
+  // PRE, 2026-10-05.
+  justify-content: flex-start;
+  min-height: 0;
+  gap: 1.25rem;
+
+  // Same frame as the landing (layouts/login-landing.scss): with the header
+  // hidden by `static-login`, a 3rem top puts the card's edge at the same
+  // height on both screens, and the card's own top padding below matches the
+  // hero's, so the logo lands in the same place.
+  padding: 3rem 1rem 4rem;
+
+  // The card supplies the padding now. Core's own on the column, and the top
+  // margin it keeps on the form for the heading this file hides, would
+  // otherwise stack inside it as empty bands.
+  //
+  // Not quite zero on the column's top: core makes it `overflow: auto`, and
+  // the username field's floating label sits ~8px above the input, so with no
+  // padding there the column clips the label in half.
+  .login-left-side {
+    padding: 0.75rem 0 0;
+  }
+
+  .login-welcome-header {
+    padding: 0;
+  }
+
+  #login-form {
+    margin-top: 0;
+  }
+
+  // Core keeps the "skip the password, email me a link" link in the layout
+  // while it is hidden (visibility: hidden until a username is typed), which
+  // left a two-line blank band between the two fields. Collapse it while it
+  // is hidden; it takes its room back when it appears.
+  //
+  // Accepted trade-off (Ricardo, 2026-10-05): when the first character is
+  // typed the link appears and pushes the password field down. Core 2026.8
+  // only — 2026.10 renders #one-time-code-link instead, always visible, and
+  // this rule does nothing there.
+  #email-login-link.no-login-filled {
+    display: none;
+  }
+
+  // Core 2026.10's always-visible "email me a code" link under the username
+  // field: the same distance from its field as "Olvidé mi contraseña" from
+  // its own, so both field-plus-link pairs share one rhythm.
+  #one-time-code-link {
+    margin-top: 0.5rem;
+  }
+
+  // With that band gone, the gap between the two fields matches the one
+  // between "forgot password" and the button, so the form keeps one rhythm.
+  #credentials > .input-group:first-child {
+    margin-bottom: 1.5rem;
+  }
+
+  // "Olvidé mi contraseña" with air on both sides: off the field above, and
+  // well clear of the submit button below.
+  .login__password-links {
+    margin-block: 0.5rem 0.75rem;
+  }
+
+  // Wide enough for the masthead logo at full size (88px tall, ~450px wide on
+  // PRE) inside the card's padding, so it is not scaled down here while the
+  // landing shows it whole.
+  .login-body {
+    flex-wrap: wrap;
+    width: 100%;
+    max-width: 32rem;
+    margin: 0;
+    padding: 3.5rem 2rem 2.5rem;
+    background: var(--ga-card);
+    border: 1px solid var(--ga-border);
+    border-top: var(--ga-edge-width) solid var(--ga-edge);
+    border-radius: var(--d-border-radius-large);
+  }
+
+  // "Bienvenid@" is dropped from sight but kept as the form's heading for
+  // assistive technology. The site text js.login.header_title is untouched.
+  .login-title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  // The masthead's outlet wrapper is a flex item of the card's row; it takes
+  // a whole line so the logo sits above the form rather than beside it.
+  .login-body > :has(> .login-logo) {
+    flex-basis: 100%;
+  }
+
+  // The "back" link sits in the card's top corner, out of the flow, so the
+  // logo keeps the exact position it has on the landing. Small and muted: it
+  // is there when wanted and otherwise unnoticed.
+  .login-body {
+    position: relative;
+  }
+
+  .login-masthead__back {
+    position: absolute;
+    top: 1rem;
+    left: 1.25rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    color: var(--ga-muted-fg);
+    font-size: var(--font-down-1);
+
+    .d-icon {
+      font-size: 0.85em;
+    }
+
+    &:hover,
+    &:focus-visible {
+      color: var(--tertiary);
+    }
+  }
+
+  // Core's flash (wrong password, rate limit…) is the page's first child and
+  // core caps it at 800px; held to the card's width it reads as part of the
+  // form instead of a banner across the page.
+  > .alert {
+    width: 100%;
+    max-width: 32rem;
+    border-radius: var(--d-border-radius-large);
+  }
+
+  .login-help {
+    width: 100%;
+    max-width: 32rem;
+
+    // One column under the card: at 32rem two would fit, but the address
+    // would break mid-word to do it.
+    .login-help__list {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  // On mobile core pads each child of the card 16px inline, so the card
+  // itself only adds a hair.
+  @include viewport.until(sm) {
+    padding-top: 1.5rem;
+
+    .login-body {
+      padding: 2.25rem 0.25rem 1.25rem;
+    }
   }
 }

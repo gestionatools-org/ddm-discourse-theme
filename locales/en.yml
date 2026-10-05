@@ -18,6 +18,8 @@ en:
       highlights_member_role_field_id: "Numeric id of the user field holding the member's job title, shown on the member card. 0 hides the line. Never widen this to read every user field: some carry identity documents that only administrators receive."
       getting_started_category_id: "Category linked at the top of the sidebar, labelled with its own name. Only members who can see it get the link. 0 hides it."
       getting_started_max_trust_level: "Highest trust level that still sees the sidebar link. 1 shows it to new and basic members only."
+      access_contact_email: "Address for certified users who cannot sign in. Shown on the login landing and under the /login form. Blank hides that exit."
+      certification_url: "Page about Gestiona certifications, for visitors who do not hold one yet. Opens in a new tab. Blank hides that exit."
 
   header:
     links:
@@ -125,3 +127,32 @@ en:
         since: "Member since %{date}"
         cta_empty: "Post and take part this month to show up here"
         cta_empty_button: "Write a post"
+  # The page an anonymous visitor reaches (login_required is on) and the help
+  # under the /login form. Registration is closed: these strings are all that
+  # explains what the community is and how to get in.
+  login_landing:
+    title: "The online community of Gestiona certified users"
+    subtitle: "Share experience, solve doubts and keep learning with other professionals and with the team of Gestiona specialists"
+    cta: "Enter the community"
+    restricted: "Access exclusive to Gestiona certified users"
+    inside:
+      title: "What you will find inside"
+      rooms:
+        title: "Your certification's forums"
+        body: "One space per programme to talk and share knowledge with other students."
+      events:
+        title: "Agenda and events"
+        body: "Training sessions, conferences and community meetings."
+      ideas:
+        title: "Ideas and resources"
+        body: "Improvement proposals, podcast, newsletter and resources shared by the community."
+  login_masthead:
+    back: "Back"
+  login_help:
+    title: "Can't access?"
+    no_account:
+      title: "Student or certified, and can't access your account?"
+      body: "Write to us at"
+    certify:
+      title: "Want to earn a certification?"
+      link: "Discover Gestiona certifications"

@@ -1,0 +1,145 @@
+// The login-required landing — the only page an anonymous visitor reaches.
+// Layout A: a centred hero with the access first, then what the community
+// holds, then the exits for whoever cannot get in. LoginHelp's own look lives
+// in app/login-help.scss; this file only places it.
+.login-landing {
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+
+  // The forum's own measure, so the page you sign in from is as wide as the
+  // one you land on, and follows it if the measure ever changes. On wide
+  // screens #main-outlet already caps at the measure and `.wrap` supplies the
+  // side gutter, so the landing adds none of its own there.
+  max-width: var(--ga-measure);
+  margin: 0 auto;
+  padding: 3rem 0 4rem;
+
+  &__hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 3.5rem 2rem 2.5rem;
+    text-align: center;
+    background: var(--ga-card);
+    border: 1px solid var(--ga-border);
+    border-top: var(--ga-edge-width) solid var(--ga-edge);
+    border-radius: var(--d-border-radius-large);
+  }
+
+  // Sized to the 1240px hero, not to a reading column: the heading is one
+  // sentence, so it takes the hero's width, and `text-wrap: balance` splits it
+  // evenly wherever it does not fit on one line.
+  &__title {
+    margin: 0;
+    font-family: RobotoSlab, var(--heading-font-family);
+    font-size: var(--font-up-6);
+    line-height: var(--line-height-medium);
+    text-wrap: balance;
+  }
+
+  // Same rule as the heading: the hero's full width, lines balanced. A tagline
+  // without a full stop, one size down so it holds a single line at the
+  // measure.
+  &__subtitle {
+    margin: 0;
+    color: var(--ga-muted-fg);
+    font-size: var(--font-up-1);
+    text-wrap: balance;
+  }
+
+  // Air between the copy and the one action on the page, so the button reads
+  // as its own step rather than a line of the paragraph.
+  &__cta {
+    margin-block: 1.5rem 1rem;
+  }
+
+  // A quiet note under the button: a faint tint rather than a panel with a
+  // rule (which read as a quote), and type a step lighter than the copy above
+  // so it is legible without competing with the button.
+  //
+  // The light tone is the lightest that still passes AA on --ga-muted: 60%
+  // neutral-600 + 40% neutral-500 measures 4.61:1, where neutral-500 alone is
+  // 3.77:1 and fails. Dark keeps the system's muted foreground, 5.68:1 on
+  // dark-muted.
+  &__restricted {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0.375rem 0.875rem;
+    color: light-dark(
+      color-mix(in srgb, var(--ga-neutral-600) 60%, var(--ga-neutral-500)),
+      var(--ga-dark-muted-fg)
+    );
+    background: var(--ga-muted);
+    border-radius: var(--d-border-radius);
+    font-size: var(--font-down-1);
+
+    .d-icon {
+      color: inherit;
+    }
+  }
+
+  &__section-title {
+    margin: 0 0 1rem;
+    font-size: var(--font-up-2);
+  }
+
+  &__inside-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__inside-item {
+    padding: 1.25rem;
+    background: var(--ga-card);
+    border: 1px solid var(--ga-border);
+    border-top: var(--ga-edge-width) solid var(--ga-edge);
+    border-radius: var(--d-border-radius);
+
+    .d-icon {
+      color: var(--tertiary);
+      font-size: var(--font-up-2);
+    }
+  }
+
+  &__inside-title {
+    margin: 0.5rem 0 0.25rem;
+    font-size: var(--font-0);
+  }
+
+  &__inside-body {
+    margin: 0;
+    color: var(--ga-muted-fg);
+  }
+
+  // Core only gives `.wrap` its side gutter above md (measured on PRE: 0px
+  // at 767, 10.72px at 769), so below that the landing brings its own or the
+  // cards touch the screen edge.
+  @include viewport.until(md) {
+    padding-inline: 1rem;
+
+    &__inside-list {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @include viewport.until(sm) {
+    gap: 1.5rem;
+    padding-block: 1.5rem 2.5rem;
+
+    &__hero {
+      padding: 2.25rem 1.25rem 1.75rem;
+    }
+
+    &__title {
+      font-size: var(--font-up-3);
+    }
+  }
+}
