@@ -9,7 +9,9 @@
 
   // The forum's own measure, so the page you sign in from is as wide as the
   // one you land on, and follows it if the measure ever changes.
-  max-width: var(--ga-measure);
+  // The gutter below sits inside this box, so it is added on: the content
+  // itself is exactly the measure.
+  max-width: calc(var(--ga-measure) + 2rem);
   margin: 0 auto;
 
   // The side gutter is the landing's own: it replaces core's `.container`,
