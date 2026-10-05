@@ -112,7 +112,12 @@
     color: var(--ga-muted-fg);
   }
 
+  // Core only gives `.wrap` its side gutter above md (measured on PRE: 0px
+  // at 767, 10.72px at 769), so below that the landing brings its own or the
+  // cards touch the screen edge.
   @include viewport.until(md) {
+    padding-inline: 1rem;
+
     &__inside-list {
       grid-template-columns: 1fr;
     }
@@ -120,10 +125,7 @@
 
   @include viewport.until(sm) {
     gap: 1.5rem;
-
-    // Below sm core drops the `.wrap` gutter, so the landing brings its own
-    // or the cards touch the screen edge.
-    padding: 1.5rem 1rem 2.5rem;
+    padding-block: 1.5rem 2.5rem;
 
     &__hero {
       padding: 2.25rem 1.25rem 1.75rem;
