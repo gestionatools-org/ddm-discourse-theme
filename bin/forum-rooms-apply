@@ -23,18 +23,10 @@ FORUM_READERS = {"Analiza": 3, "Developers": 3, "AdminDevelopers": 3}
 
 SECTION = 3
 RENAMES = {16: "Recursos Analítica", 19: "Recursos Developers"}
-# academy_url and demo_url as the theme held them on PRE, read 2026-09-11 before the
-# theme dropped the settings. first_steps_url held an absolute PRE URL, which would not
-# have survived PROD; the relative path does. Icons come from core's default subset,
-# because SvgSprite.all_icons never reads sidebar links: anything else renders blank.
-NEW_LINKS = [
-    # `book`, not `book-open`: the default subset has `book` and `book-open-reader` and no
-    # `book-open`, so that one rendered as nothing on PRE — silently, exactly as the note
-    # about SvgSprite predicted, and it was caught by eye rather than by any check.
-    {"name": "Academy", "value": "https://espublico.gestiona.academy", "icon": "book"},
-    {"name": "Demo Gestiona", "value": "https://demo-a.gestiona.espublico.com", "icon": "desktop"},
-    {"name": "Primeros pasos", "value": "/c/primeros-pasos/78", "icon": "flag"},
-]
+# Academy, Demo Gestiona and Primeros pasos were added here from the theme's old academy_url,
+# demo_url and first_steps_url settings, and removed on 2026-10-05. This script must not
+# bring them back; bin/chrome-apply owns section 3 and deletes them where they remain.
+NEW_LINKS = []
 
 # (value, backfill existing users). The sidebar default only seeds new accounts unless
 # backfilled: core creates each user's sidebar links once, at signup.
