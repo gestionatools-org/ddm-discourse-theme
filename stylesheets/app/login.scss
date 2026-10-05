@@ -153,6 +153,12 @@
   .login-help {
     width: 100%;
     max-width: 32rem;
+
+    // One column under the card: at 32rem two would fit, but the address
+    // would break mid-word to do it.
+    .login-help__list {
+      grid-template-columns: 1fr;
+    }
   }
 
   // On mobile core pads each child of the card 16px inline, so the card
