@@ -72,8 +72,27 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  // Core gives `.login-fullpage` a viewport-tall min-height and centres its
+  // content in it, which — once the help became a second child and the axis
+  // turned vertical — floated the card ~120px below the header. Measured on
+  // PRE, 2026-10-05.
+  justify-content: flex-start;
+  min-height: 0;
   gap: 1.25rem;
   padding: 2rem 1rem 3rem;
+
+  // The card supplies the padding now. Core's own on the column, and the top
+  // margin it keeps on the form for the heading this file hides, would
+  // otherwise stack inside it as empty bands.
+  .login-left-side,
+  .login-welcome-header {
+    padding: 0;
+  }
+
+  #login-form {
+    margin-top: 0;
+  }
 
   .login-body {
     width: 100%;
@@ -105,11 +124,13 @@
     max-width: 28rem;
   }
 
+  // On mobile core pads each child of the card 16px inline, so the card
+  // itself only adds a hair.
   @include viewport.until(sm) {
     padding-top: 1rem;
 
     .login-body {
-      padding: 1.25rem;
+      padding: 1.25rem 0.25rem;
     }
   }
 }
