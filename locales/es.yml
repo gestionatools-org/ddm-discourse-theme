@@ -149,7 +149,7 @@ es:
   login_help:
     title: "¿No puedes acceder?"
     no_account:
-      title: "¿Tienes la certificación y no tu cuenta?"
+      title: "¿Eres alumno de alguna certificación y no puedes acceder a tu cuenta?"
       body: "Escríbenos a"
     certify:
       title: "¿Quieres certificarte?"
