@@ -55,3 +55,60 @@
     border-inline-end: 0;
   }
 }
+
+// ---------------------------------------------------------------------------
+// /login, matched to the landing: the form in a centred white card with the
+// system's 3px edge, the help under it, the header logo centred.
+//
+// Everything but the header rule is scoped under `.login-fullpage`: the
+// landing carries `body.login-page` too, so an unscoped rule would leak into
+// it. The header rule may — a centred logo is right on both pages.
+.login-page .d-header .contents {
+  justify-content: center;
+}
+
+.login-fullpage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 2rem 1rem 3rem;
+
+  .login-body {
+    width: 100%;
+    max-width: 28rem;
+    margin: 0;
+    padding: 2rem;
+    background: var(--ga-card);
+    border: 1px solid var(--ga-border);
+    border-top: var(--ga-edge-width) solid var(--ga-edge);
+    border-radius: var(--d-border-radius-large);
+  }
+
+  // "Bienvenid@" is dropped from sight but kept as the form's heading for
+  // assistive technology. The site text js.login.header_title is untouched.
+  .login-title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .login-help {
+    width: 100%;
+    max-width: 28rem;
+  }
+
+  @include viewport.until(sm) {
+    padding-top: 1rem;
+
+    .login-body {
+      padding: 1.25rem;
+    }
+  }
+}

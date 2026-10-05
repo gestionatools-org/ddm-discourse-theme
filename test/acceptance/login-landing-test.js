@@ -54,3 +54,28 @@ acceptance("Login landing | no site logo", function (needs) {
     assert.dom(".login-landing__site-title").hasText("Gestiona Avanza");
   });
 });
+
+acceptance("Login page | help", function (needs) {
+  needs.settings({
+    login_required: true,
+    enable_local_logins_via_email: true,
+    enable_local_logins_via_code: true,
+  });
+  needs.pretender(stubAbout);
+
+  test("is under the form", async function (assert) {
+    await visit("/login");
+
+    assert.dom(".login-fullpage .login-help").exists();
+  });
+
+  // LoginPageCta disappears with the email-code form; the help must not go
+  // with it — that is why it sits in `below-login-page`.
+  test("stays with the email-code form open", async function (assert) {
+    await visit("/login");
+    await click("#one-time-code-link");
+
+    assert.dom(".login-page-cta").doesNotExist();
+    assert.dom(".login-fullpage .login-help").exists();
+  });
+});
