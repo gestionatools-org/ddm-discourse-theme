@@ -115,6 +115,20 @@
     margin-top: 0;
   }
 
+  // Core keeps the "skip the password, email me a link" link in the layout
+  // while it is hidden (visibility: hidden until a username is typed), which
+  // left a two-line blank band between the two fields. Collapse it while it
+  // is hidden; it takes its room back when it appears.
+  #email-login-link.no-login-filled {
+    display: none;
+  }
+
+  // "Olvidé mi contraseña" with air on both sides: off the field above, and
+  // well clear of the submit button below.
+  .login__password-links {
+    margin-block: 0.5rem 0.75rem;
+  }
+
   // Wide enough for the masthead logo at full size (88px tall, ~450px wide on
   // PRE) inside the card's padding, so it is not scaled down here while the
   // landing shows it whole.
