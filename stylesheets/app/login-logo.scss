@@ -1,0 +1,36 @@
+// The masthead logo shared by the login landing and /login. One size, one
+// place: the two screens line up on it, so moving between them only changes
+// what sits under the logo.
+.login-logo {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+
+  &__link {
+    display: block;
+  }
+
+  // Larger than the header's mark, so it reads as the page's masthead.
+  &__image {
+    display: block;
+    height: 5.5rem;
+    width: auto;
+    max-width: 100%;
+    object-fit: contain;
+  }
+
+  &__title {
+    font-family: var(--heading-font-family);
+    font-size: var(--font-up-3);
+    font-weight: bold;
+    color: var(--primary);
+  }
+
+  @include viewport.until(sm) {
+    margin-bottom: 0.75rem;
+
+    &__image {
+      height: 4rem;
+    }
+  }
+}

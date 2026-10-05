@@ -21,7 +21,9 @@ acceptance("Login landing", function (needs) {
     await visit("/");
 
     assert.dom(".login-landing").exists();
-    assert.dom(".login-landing__logo").hasAttribute("src", "/images/logo.png");
+    assert
+      .dom(".login-landing .login-logo__image")
+      .hasAttribute("src", "/images/logo.png");
     assert.dom(".login-landing__restricted").exists();
     assert.dom(".login-landing__inside-item").exists({ count: 3 });
     assert.dom(".login-landing .login-help").exists();
@@ -50,8 +52,8 @@ acceptance("Login landing | no site logo", function (needs) {
   test("falls back to the site title as text", async function (assert) {
     await visit("/");
 
-    assert.dom(".login-landing__logo").doesNotExist();
-    assert.dom(".login-landing__site-title").hasText("Gestiona Avanza");
+    assert.dom(".login-landing .login-logo__image").doesNotExist();
+    assert.dom(".login-landing .login-logo__title").hasText("Gestiona Avanza");
   });
 });
 
@@ -67,6 +69,17 @@ acceptance("Login page | help", function (needs) {
     await visit("/login");
 
     assert.dom(".login-fullpage .login-help").exists();
+  });
+
+  // Same frame as the landing: no site header, the logo at the top of the
+  // card, linking back to the landing.
+  test("has the landing's masthead instead of the header", async function (assert) {
+    await visit("/login");
+
+    assert.dom(document.body).hasClass("static-login");
+    assert
+      .dom(".login-body .login-logo .login-logo__link")
+      .hasAttribute("href", "/");
   });
 
   // LoginPageCta disappears with the email-code form; the help must not go

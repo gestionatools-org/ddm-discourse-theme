@@ -89,7 +89,12 @@
   justify-content: flex-start;
   min-height: 0;
   gap: 1.25rem;
-  padding: 2rem 1rem 3rem;
+
+  // Same frame as the landing (layouts/login-landing.scss): with the header
+  // hidden by `static-login`, a 3rem top puts the card's edge at the same
+  // height on both screens, and the card's own top padding below matches the
+  // hero's, so the logo lands in the same place.
+  padding: 3rem 1rem 4rem;
 
   // The card supplies the padding now. Core's own on the column, and the top
   // margin it keeps on the form for the heading this file hides, would
@@ -110,11 +115,15 @@
     margin-top: 0;
   }
 
+  // Wide enough for the masthead logo at full size (88px tall, ~450px wide on
+  // PRE) inside the card's padding, so it is not scaled down here while the
+  // landing shows it whole.
   .login-body {
+    flex-wrap: wrap;
     width: 100%;
-    max-width: 28rem;
+    max-width: 32rem;
     margin: 0;
-    padding: 2rem;
+    padding: 3.5rem 2rem 2.5rem;
     background: var(--ga-card);
     border: 1px solid var(--ga-border);
     border-top: var(--ga-edge-width) solid var(--ga-edge);
@@ -135,18 +144,24 @@
     border: 0;
   }
 
+  // The masthead's outlet wrapper is a flex item of the card's row; it takes
+  // a whole line so the logo sits above the form rather than beside it.
+  .login-body > :has(> .login-logo) {
+    flex-basis: 100%;
+  }
+
   .login-help {
     width: 100%;
-    max-width: 28rem;
+    max-width: 32rem;
   }
 
   // On mobile core pads each child of the card 16px inline, so the card
   // itself only adds a hair.
   @include viewport.until(sm) {
-    padding-top: 1rem;
+    padding-top: 1.5rem;
 
     .login-body {
-      padding: 1.25rem 0.25rem;
+      padding: 2.25rem 0.25rem 1.25rem;
     }
   }
 }
