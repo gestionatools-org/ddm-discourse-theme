@@ -40,7 +40,7 @@ const DEFAULT_ARGS = {
   title: "homepage.highlights.title",
   podcastTag: "podcast",
   newsletterTag: "newsletter",
-  newsTag: "nueva-version-gestiona",
+  newsTag: "version-gestiona",
   memberPeriod: "monthly",
 };
 
@@ -401,7 +401,7 @@ module(
             image_url: null,
           },
         ],
-        "tag/nueva-version-gestiona/l/latest": [
+        "tag/version-gestiona/l/latest": [
           {
             id: 900102,
             fancy_title: "Gestiona V9.3",
@@ -447,7 +447,7 @@ module(
         response(403, { errors: ["forbidden"] })
       );
       stubStore(this.owner, {
-        "tag/nueva-version-gestiona/l/latest": [
+        "tag/version-gestiona/l/latest": [
           {
             id: 900102,
             fancy_title: "Gestiona V9.3",
@@ -859,7 +859,7 @@ module(
         ...DEFAULT_ARGS,
         podcastTag: "",
         newsletterTag: "",
-        newsTag: "nueva-version-gestiona",
+        newsTag: "version-gestiona",
       });
       // (newsTag kept non-empty only so the section renders; its cell is a placeholder)
 
