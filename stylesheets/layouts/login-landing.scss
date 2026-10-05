@@ -3,11 +3,13 @@
 // holds, then the exits for whoever cannot get in. LoginHelp's own look lives
 // in app/login-help.scss; this file only places it.
 .login-landing {
-  --login-landing-width: 56rem;
   display: flex;
   flex-direction: column;
   gap: 2.5rem;
-  max-width: var(--login-landing-width);
+
+  // The forum's own measure, so the page you sign in from is as wide as the
+  // one you land on, and follows it if the measure ever changes.
+  max-width: var(--ga-measure);
   margin: 0 auto;
 
   // The side gutter is the landing's own: it replaces core's `.container`,
