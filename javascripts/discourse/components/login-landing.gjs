@@ -1,8 +1,12 @@
 import Component from "@glimmer/component";
+import { fn } from "@ember/helper";
+import { action } from "@ember/object";
+import { service } from "@ember/service";
 import bodyClass from "discourse/helpers/body-class";
 import hideApplicationHeaderButtons from "discourse/helpers/hide-application-header-buttons";
 import hideApplicationSidebar from "discourse/helpers/hide-application-sidebar";
 import routeAction from "discourse/helpers/route-action";
+import { findAll } from "discourse/models/login-method";
 import DButton from "discourse/ui-kit/d-button";
 import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
@@ -22,6 +26,26 @@ const INSIDE = [
 // anonymous visitor cannot read anything from the forum, so every word comes
 // from the theme's locales and the two exits from its settings.
 export default class LoginLanding extends Component {
+  @service siteSettings;
+
+  // External providers (Academy's OAuth2 on PROD). When there is one, the
+  // landing launches it directly, so whoever signs in with it never sees
+  // /login; the form stays one quieter step away. Their labels are the
+  // instance's own (`oauth2_button_title`), not theme copy.
+  get ssoMethods() {
+    return findAll();
+  }
+
+  get localLoginEnabled() {
+    return this.siteSettings.enable_local_logins;
+  }
+
+  // The same call core's login buttons make: a POST to /auth/<provider>.
+  @action
+  ssoLogin(method) {
+    method.doLogin();
+  }
+
   get insideItems() {
     return INSIDE.map(({ key, icon }) => ({
       key,
@@ -48,11 +72,28 @@ export default class LoginLanding extends Component {
           {{i18n (themePrefix "login_landing.subtitle")}}
         </p>
 
-        <DButton
-          class="btn-primary login-button login-landing__cta"
-          @action={{routeAction "showLogin"}}
-          @translatedLabel={{i18n (themePrefix "login_landing.cta")}}
-        />
+        {{#if this.ssoMethods.length}}
+          {{#each this.ssoMethods as |method|}}
+            <DButton
+              class="btn-primary login-landing__cta login-landing__sso"
+              @action={{fn this.ssoLogin method}}
+              @translatedLabel={{method.title}}
+            />
+          {{/each}}
+          {{#if this.localLoginEnabled}}
+            <DButton
+              class="btn-flat login-button login-landing__local"
+              @action={{routeAction "showLogin"}}
+              @translatedLabel={{i18n (themePrefix "login_landing.cta_local")}}
+            />
+          {{/if}}
+        {{else}}
+          <DButton
+            class="btn-primary login-button login-landing__cta"
+            @action={{routeAction "showLogin"}}
+            @translatedLabel={{i18n (themePrefix "login_landing.cta")}}
+          />
+        {{/if}}
 
         <p class="login-landing__restricted">
           {{dIcon "circle-info"}}
