@@ -140,7 +140,9 @@ header_room_category_ids:
 # Emptying all three hides it, the same idiom as events_category_id: 0.
 #
 # A renamed tag empties its card in silence, the same failure mode the category
-# IDs above carry. Re-check the three slugs after any tag reorganisation.
+# IDs above carry. Re-check the three slugs after any tag reorganisation, and
+# point them at the base tag: a synonym's listing 301s, so keeping the old name
+# as a synonym does not keep the card alive.
 highlights_podcast_tag:
   type: string
   default: "podcast"
@@ -149,11 +151,11 @@ highlights_newsletter_tag:
   type: string
   default: "newsletter"
 
-# Ricardo is creating this tag in admin; until it exists and carries topics the
-# card shows "coming soon". Set empty to drop the card entirely.
+# Renamed from nueva-version-gestiona on 2026-10-05; the old name and
+# nuevas-versiones survive as synonyms. Set empty to drop the card entirely.
 highlights_news_tag:
   type: string
-  default: "nueva-version-gestiona"
+  default: "version-gestiona"
 
 # Rolling window for the "most active member" ranking. Discourse's directory has
 # no calendar-month period — "monthly" is the last 30 days, the same window the
