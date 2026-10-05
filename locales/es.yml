@@ -18,6 +18,8 @@ es:
       highlights_member_role_field_id: "Id numérico del campo de usuario que guarda el cargo del miembro, mostrado en su tarjeta. 0 oculta la línea. Nunca amplíes esto a leer todos los campos de usuario: algunos guardan documentos de identidad que solo reciben los administradores."
       getting_started_category_id: "Categoría enlazada en la parte superior de la barra lateral, con su propio nombre. Solo ven el enlace los miembros que tienen acceso a ella. 0 lo oculta."
       getting_started_max_trust_level: "Nivel de confianza más alto que todavía ve el enlace de la barra lateral. 1 lo muestra solo a miembros nuevos y básicos."
+      access_contact_email: "Correo al que escribe quien tiene la certificación pero no puede entrar. Se muestra en la portada de acceso y bajo el formulario de /login. Vacío oculta esa salida."
+      certification_url: "Página con la información de las certificaciones de Gestiona, para quien todavía no la tiene. Se abre en una pestaña nueva. Vacío oculta esa salida."
 
   header:
     links:
@@ -125,3 +127,30 @@ es:
         since: "Miembro desde %{date}"
         cta_empty: "Publica y participa este mes para aparecer aquí"
         cta_empty_button: "Escribir una publicación"
+  # La portada que ve quien llega sin sesión (login_required está activo) y la
+  # ayuda bajo el formulario de /login. El registro está cerrado: estos textos
+  # son lo único que explica qué es la comunidad y cómo se entra.
+  login_landing:
+    title: "La comunidad online de usuarios certificados de Gestiona"
+    subtitle: "Comparte experiencia, resuelve dudas y sigue aprendiendo con otros profesionales y con el equipo de Gestiona."
+    cta: "Accede a la comunidad"
+    restricted: "Acceso exclusivo para personas certificadas en los programas de Gestiona."
+    inside:
+      title: "Qué encontrarás dentro"
+      rooms:
+        title: "Foros de tu certificación"
+        body: "Un espacio por programa para compartir con quienes lo cursaron contigo."
+      events:
+        title: "Agenda y eventos"
+        body: "Sesiones, congresos y encuentros de la comunidad."
+      ideas:
+        title: "Ideas y recursos"
+        body: "Propuestas de mejora, podcast y newsletter."
+  login_help:
+    title: "¿No puedes entrar?"
+    no_account:
+      title: "¿Tienes la certificación y no tu cuenta?"
+      body: "Escríbenos a"
+    certify:
+      title: "¿Quieres certificarte?"
+      link: "Conoce las certificaciones de Gestiona"

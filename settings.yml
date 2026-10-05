@@ -199,3 +199,15 @@ getting_started_max_trust_level:
   default: 1
   min: 0
   max: 4
+
+# The two ways out for a visitor who cannot sign in, shown on the login landing
+# and under the /login form. Registration is closed, so these are the only
+# answers the site gives to "how do I get in?". Blank hides that exit; both
+# blank hides the whole "¿No puedes entrar?" section.
+access_contact_email:
+  type: string
+  default: "certificaciongestiona@espublico.com"
+
+certification_url:
+  type: string
+  default: "https://www.espublicogestiona.com/es/certificaciones-espublico/"
