@@ -87,7 +87,7 @@ export default class LoginLanding extends Component {
         />
 
         <p class="login-landing__restricted">
-          {{dIcon "lock"}}
+          {{dIcon "circle-info"}}
           <span>{{i18n (themePrefix "login_landing.restricted")}}</span>
         </p>
       </section>

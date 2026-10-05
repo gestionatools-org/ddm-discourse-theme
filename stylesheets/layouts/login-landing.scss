@@ -57,25 +57,32 @@
     text-wrap: balance;
   }
 
+  // Same rule as the heading: the hero's full width, lines balanced.
   &__subtitle {
-    max-width: 64rem;
     margin: 0;
     color: var(--ga-muted-fg);
     font-size: var(--font-up-2);
     text-wrap: balance;
   }
 
+  // Air between the copy and the one action on the page, so the button reads
+  // as its own step rather than a line of the paragraph.
+  &__cta {
+    margin-top: 1.5rem;
+  }
+
+  // A plain note under the button — no panel or rule, which read as a quote.
   &__restricted {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
     margin: 0;
-    padding: 0.5rem 0.875rem;
-    color: var(--primary-high);
-    background: var(--ga-accent-surface);
-    border-inline-start: var(--ga-edge-width) solid var(--ga-edge);
-    border-radius: var(--d-border-radius);
+    color: var(--ga-muted-fg);
     font-size: var(--font-down-1);
+
+    .d-icon {
+      color: var(--tertiary);
+    }
   }
 
   &__section-title {
