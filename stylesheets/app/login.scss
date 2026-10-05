@@ -119,8 +119,20 @@
   // while it is hidden (visibility: hidden until a username is typed), which
   // left a two-line blank band between the two fields. Collapse it while it
   // is hidden; it takes its room back when it appears.
+  //
+  // Accepted trade-off (Ricardo, 2026-10-05): when the first character is
+  // typed the link appears and pushes the password field down. Core 2026.8
+  // only — 2026.10 renders #one-time-code-link instead, always visible, and
+  // this rule does nothing there.
   #email-login-link.no-login-filled {
     display: none;
+  }
+
+  // Core 2026.10's always-visible "email me a code" link under the username
+  // field: the same distance from its field as "Olvidé mi contraseña" from
+  // its own, so both field-plus-link pairs share one rhythm.
+  #one-time-code-link {
+    margin-top: 0.5rem;
   }
 
   // With that band gone, the gap between the two fields matches the one
@@ -195,6 +207,15 @@
     &:focus-visible {
       color: var(--tertiary);
     }
+  }
+
+  // Core's flash (wrong password, rate limit…) is the page's first child and
+  // core caps it at 800px; held to the card's width it reads as part of the
+  // form instead of a banner across the page.
+  > .alert {
+    width: 100%;
+    max-width: 32rem;
+    border-radius: var(--d-border-radius-large);
   }
 
   .login-help {

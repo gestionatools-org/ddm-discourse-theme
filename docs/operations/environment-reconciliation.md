@@ -24,6 +24,7 @@ PROD is never written during reconciliation. If something on PROD looks wrong, r
 | Tags and tag groups | `GET /tags.json`, `GET /tag_groups.json` | Tags referenced by settings must exist on PRE. |
 | Color schemes | `GET /admin/color_schemes.json` | |
 | Theme version | `GET /admin/themes/<id>.json` → `remote_theme` | Both should be on the same `main` commit; check `remote_version` and `updated_at`, not `commits_behind`. |
+| **Discourse core version** | `<meta name="generator">` on any page, anonymous | Not a setting, so the settings diff never shows it. On 2026-10-05 PROD ran 2026.10.0 and PRE 2026.8.0, and `/login` rendered different markup on each (PROD `#one-time-code-link`, PRE `#email-login-link`): a layout verified on PRE did not hold on PROD. Upgrading PRE is a request to Discourse Cloud. |
 
 ## Cautions
 

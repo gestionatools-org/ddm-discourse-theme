@@ -16,6 +16,14 @@ module("Espublico Theme | Integration | login help", function (hooks) {
     settings.certification_url = URL;
   });
 
+  // …and leaves them as it found them: the acceptance tests for /login read
+  // the shipped defaults, so a blank left behind here would fail them
+  // depending on run order.
+  hooks.afterEach(function () {
+    settings.access_contact_email = EMAIL;
+    settings.certification_url = URL;
+  });
+
   test("both exits render with their links", async function (assert) {
     await render(<template><LoginHelp /></template>);
 
