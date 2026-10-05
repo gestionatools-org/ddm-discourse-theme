@@ -8,15 +8,12 @@
   gap: 2.5rem;
 
   // The forum's own measure, so the page you sign in from is as wide as the
-  // one you land on, and follows it if the measure ever changes.
-  // The gutter below sits inside this box, so it is added on: the content
-  // itself is exactly the measure.
-  max-width: calc(var(--ga-measure) + 2rem);
+  // one you land on, and follows it if the measure ever changes. On wide
+  // screens #main-outlet already caps at the measure and `.wrap` supplies the
+  // side gutter, so the landing adds none of its own there.
+  max-width: var(--ga-measure);
   margin: 0 auto;
-
-  // The side gutter is the landing's own: it replaces core's `.container`,
-  // so nothing outside it keeps the cards off the screen edge on a phone.
-  padding: 3rem 1rem 4rem;
+  padding: 3rem 0 4rem;
 
   &__hero {
     display: flex;
@@ -123,6 +120,9 @@
 
   @include viewport.until(sm) {
     gap: 1.5rem;
+
+    // Below sm core drops the `.wrap` gutter, so the landing brings its own
+    // or the cards touch the screen edge.
     padding: 1.5rem 1rem 2.5rem;
 
     &__hero {
