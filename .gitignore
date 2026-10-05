@@ -33,3 +33,27 @@ docs/superpowers/plans/data/*-title-proposals.json
 
 # Database dumps: member data, never in this public repo
 backup/
+
+# Append these entries to the existing .gitignore; do not replace it.
+/CLAUDE.local.md
+/.env.local
+/docs/history/
+/docs/operations/prod-safety.md
+/docs/operations/environment.md
+/docs/operations/git-identity.md
+/docs/operations/project-decisions.md
+/docs/operations/pre-prod-state.md
+/docs/operations/brand-assets.md
+/docs/operations/fonts.md
+/docs/operations/lint-pipelines.md
+/docs/operations/layout-verification.md
+/docs/operations/discourse-api.md
+/docs/operations/search-and-tags.md
+/docs/operations/topic-sidebar.md
+/docs/operations/calendar.md
+/docs/operations/uploads.md
+/docs/operations/login.md
+/docs/operations/lint-autofix.md
+/docs/operations/git-untracking.md
+/docs/operations/current-state.md
+/docs/operations/pending.md
