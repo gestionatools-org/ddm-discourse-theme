@@ -1,0 +1,402 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!--
+  Gestiona Avanza — email wrapper (Admin → Personalizar → Estilo de email → HTML).
+  Wraps every outgoing email: digest, notifications and system messages.
+  Source of truth is this file; see docs/operations/email-style.md.
+-->
+<html
+  xmlns="http://www.w3.org/1999/xhtml"
+  lang="%{html_lang}"
+  xml:lang="%{html_lang}"
+>
+  <head>
+    <meta
+      http-equiv="Content-type"
+      name="viewport"
+      content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no, width=device-width"
+    />
+    %{dark_mode_meta_tags}
+    <!-- prevent ios zooming + autoscaling -->
+    <meta name="x-apple-disable-message-reformatting" />
+    <title></title>
+    <!-- Only Apple Mail / iOS honour web fonts; everyone else falls back to Arial / Georgia. -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Roboto+Slab:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style type="text/css">
+      /* Core's digest paints html #f3f3f3; keep the brand floor. */
+      html {
+        background: #f9fbfd !important;
+      }
+
+      body {
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #f9fbfd;
+        -webkit-text-size-adjust: 100%;
+      }
+
+      /*
+        Light colours. They live here, not in the CSS field, because the CSS
+        field is inlined and an inline !important would lock dark mode out.
+        Palette from stylesheets/brand/colors.scss.
+      */
+      .summary-email,
+      .digest-topic-title a,
+      .digest-new-topic-title a,
+      .digest-topic-username,
+      h1,
+      h2,
+      h3 {
+        color: #112127 !important;
+      }
+
+      .post-excerpt,
+      .popular-post-excerpt td,
+      .previous-discussion {
+        color: #3d4e55 !important;
+      }
+
+      .digest-topic-name,
+      .digest-created-at,
+      .digest-topic-stat span,
+      .digest-new-topic-stat p,
+      .username-title,
+      .user-title,
+      .notification-date {
+        color: #717f86 !important;
+      }
+
+      .summary-footer,
+      .footer {
+        color: #58686e !important;
+      }
+
+      .username-link {
+        color: #006d87 !important;
+      }
+
+      .digest-topic-body {
+        border-bottom: 0 !important;
+      }
+
+      .digest-topic-stats {
+        border-bottom: 1px solid #e2e8eb !important;
+      }
+
+      .previous-discussion,
+      .header-popular-posts,
+      .digest-new-header {
+        border-top: 1px solid #e2e8eb !important;
+      }
+
+      /* Quote surfaces: muted fill with the system's 3px edge. */
+      .popular-post-excerpt,
+      blockquote {
+        background: #f1f5f7 !important;
+        border-left: 3px solid #00839e !important;
+      }
+
+      [dm="triangle"] {
+        border-top-color: #f1f5f7 !important;
+      }
+
+      code,
+      pre code {
+        background: #f1f5f7 !important;
+      }
+
+      hr {
+        background-color: #e2e8eb !important;
+      }
+
+      @media only screen and (max-width: 720px) {
+        .ga-shell {
+          padding: 12px 0 !important;
+        }
+
+        .ga-masthead,
+        .ga-card {
+          border-radius: 0 !important;
+          border-left: 0 !important;
+          border-right: 0 !important;
+        }
+
+        .ga-card {
+          padding: 4px 16px 24px !important;
+        }
+
+        .ga-masthead {
+          padding: 20px 16px 12px !important;
+        }
+      }
+    </style>
+  </head>
+
+  <body style="margin: 0; padding: 0; background: #f9fbfd">
+    <!--[if mso]>
+      <style type="text/css">
+        body,
+        table,
+        td,
+        th,
+        h1,
+        h2,
+        h3 {
+          font-family: Arial, sans-serif !important;
+        }
+      </style>
+    <![endif]-->
+
+    <div style="display: none">%{email_preview}</div>
+
+    <table
+      role="presentation"
+      class="ga-page"
+      width="100%"
+      bgcolor="#f9fbfd"
+      style="width: 100%; background: #f9fbfd; border-collapse: collapse"
+    >
+      <tr>
+        <td class="ga-shell" align="center" style="padding: 32px 12px">
+          <!--[if mso]><table role="presentation" width="700" align="center"><tr><td><![endif]-->
+          <table
+            role="presentation"
+            width="100%"
+            style="width: 100%; max-width: 700px; border-collapse: separate"
+          >
+            <!-- Masthead: white card top, the system's 3px cyan edge, logo. -->
+            <tr>
+              <td
+                class="ga-masthead"
+                align="left"
+                bgcolor="#ffffff"
+                style="
+                  background: #ffffff;
+                  border: 1px solid #d1d8db;
+                  border-top: 3px solid #00839e;
+                  border-bottom: 0;
+                  border-radius: 14px 14px 0 0;
+                  padding: 28px 24px 16px;
+                "
+              >
+                <a href="/" style="text-decoration: none; border: 0">
+                  <img
+                    class="site-logo ga-logo-light"
+                    src="https://cdck-file-uploads-europe1.s3.dualstack.eu-west-1.amazonaws.com/flex013/uploads/gestionaavanza/original/2X/d/dbbcbe9491297cd8f9e16eeb48334dfa54f44d3c.png"
+                    width="178"
+                    height="40"
+                    alt="Gestiona Avanza"
+                    style="display: block; width: 178px; height: 40px; border: 0; outline: 0"
+                  />
+                  <!--[if !mso]><!-->
+                  <img
+                    class="site-logo ga-logo-dark"
+                    src="https://cdck-file-uploads-europe1.s3.dualstack.eu-west-1.amazonaws.com/flex013/uploads/gestionaavanza/original/2X/c/c3f5cffbce4b1f894d5577b593dd0fd23d588441.png"
+                    width="178"
+                    height="40"
+                    alt="Gestiona Avanza"
+                    style="display: none; width: 178px; height: 40px; max-height: 0; border: 0; outline: 0"
+                  />
+                  <!--<![endif]-->
+                </a>
+              </td>
+            </tr>
+
+            <!-- Body card. 700 - 2 border - 48 padding = 650, the digest's own column. -->
+            <tr>
+              <td
+                class="ga-card"
+                bgcolor="#ffffff"
+                style="
+                  background: #ffffff;
+                  border: 1px solid #d1d8db;
+                  border-top: 0;
+                  border-radius: 0 0 14px 14px;
+                  padding: 4px 24px 32px;
+                  color: #112127;
+                  font-family: Roboto, Arial, sans-serif;
+                  font-size: 15px;
+                  line-height: 1.55;
+                "
+              >
+                %{email_content}
+              </td>
+            </tr>
+
+            <!-- Signature. Relative hrefs are made absolute by core per instance. -->
+            <tr>
+              <td
+                class="ga-signature"
+                align="center"
+                style="
+                  padding: 24px 24px 8px;
+                  color: #58686e;
+                  font-family: Roboto, Arial, sans-serif;
+                  font-size: 12px;
+                  line-height: 1.5;
+                  text-align: center;
+                "
+              >
+                <p style="margin: 0 0 6px">
+                  <strong style="color: #3d4e55">Comunidad Gestiona Avanza</strong>
+                  · Programa de certificación oficial de esPublico
+                </p>
+                <p style="margin: 0">
+                  <a href="/" style="color: #006d87; font-weight: 700; text-decoration: none">Ir al foro</a>
+                  &nbsp;·&nbsp;
+                  <a href="/my/preferences/emails" style="color: #006d87; font-weight: 700; text-decoration: none">Preferencias de correo</a>
+                </p>
+              </td>
+            </tr>
+          </table>
+          <!--[if mso]></td></tr></table><![endif]-->
+        </td>
+      </tr>
+    </table>
+
+    <!-- prevent Gmail on iOS font size manipulation -->
+    <div
+      style="
+        display: none;
+        white-space: nowrap;
+        font: 15px courier;
+        line-height: 0;
+      "
+    >
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+      &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+    </div>
+    %{dark_mode_styles}
+    <!--
+      Brand dark scheme, after core's so it wins at equal specificity. Honoured by
+      Apple Mail / iOS / Outlook.com; Gmail ignores prefers-color-scheme.
+    -->
+    <style type="text/css">
+      @media (prefers-color-scheme: dark) {
+        html,
+        body,
+        .ga-page {
+          background: #071318 !important;
+        }
+
+        .ga-masthead,
+        .ga-card {
+          background: #0f1e24 !important;
+          border-color: #28353b !important;
+          color: #ecf1f3 !important;
+        }
+
+        .ga-masthead {
+          border-top-color: #00b4d3 !important;
+        }
+
+        .ga-logo-light {
+          display: none !important;
+        }
+
+        .ga-logo-dark {
+          display: block !important;
+          max-height: none !important;
+        }
+
+        .ga-signature,
+        [dm="text-color"] {
+          color: #99a7ad !important;
+        }
+
+        .ga-signature strong {
+          color: #ecf1f3 !important;
+        }
+
+        .ga-signature a,
+        .ga-card a:not(.digest-button) {
+          color: #4cc4e0 !important;
+        }
+
+        [dm="header"],
+        [dm="body"],
+        [dm="topic-body"] {
+          background: transparent !important;
+          color: #ecf1f3 !important;
+        }
+
+        [dm="body_primary"] {
+          background: #153843 !important;
+          color: #ecf1f3 !important;
+        }
+
+        /* The action inverts as in the forum: brand cyan on dark, ink text. */
+        .digest-button,
+        .mso-accent-link {
+          background: #00b4d3 !important;
+          color: #071318 !important;
+        }
+
+        .summary-email,
+        .digest-topic-title a,
+        .digest-new-topic-title a,
+        .digest-topic-username,
+        h1,
+        h2,
+        h3 {
+          color: #ecf1f3 !important;
+        }
+
+        .post-excerpt,
+        .popular-post-excerpt td,
+        .previous-discussion {
+          color: #c8d2d6 !important;
+        }
+
+        .digest-topic-name,
+        .digest-created-at,
+        .digest-topic-stat span,
+        .digest-new-topic-stat p,
+        .username-title,
+        .user-title,
+        .notification-date,
+        .summary-footer,
+        .footer {
+          color: #99a7ad !important;
+        }
+
+        .digest-topic-body {
+          border-bottom: 0 !important;
+        }
+
+        .digest-topic-stats {
+          border-bottom-color: #28353b !important;
+        }
+
+        .previous-discussion,
+        .header-popular-posts,
+        .digest-new-header {
+          border-top-color: #28353b !important;
+        }
+
+        .popular-post-excerpt,
+        blockquote {
+          background: #1d2e35 !important;
+          border-left-color: #00b4d3 !important;
+        }
+
+        code,
+        pre code {
+          background: #1d2e35 !important;
+          border-color: #28353b !important;
+        }
+
+        [dm="triangle"] {
+          border-top-color: #1d2e35 !important;
+        }
+
+        hr {
+          background-color: #28353b !important;
+        }
+      }
+    </style>
+  </body>
+</html>

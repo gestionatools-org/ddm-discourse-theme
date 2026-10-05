@@ -2590,3 +2590,11 @@ Ricardo enabled OAuth2 against Academy (Docebo, `espublico.gestiona.academy`) on
 The landing now launches the provider directly through core's `LoginMethod.doLogin()` (label from `oauth2_button_title`) with a quieter "Acceder con usuario y contraseña" to /login; without a provider it keeps the single button, and with local logins off the form link disappears. /login hides every external button and the right-hand column while the form is present, replacing both provisional passkey rules. Verified on PRE with a temporary theme and OAuth2 enabled render-only (no secret; a captured `POST /auth/oauth2_basic` carried the CSRF token, then aborted); PRE's theme default and OAuth2 settings restored. After the merge Ricardo confirmed the SSO end to end on PROD.
 
 Also on PROD: `js.code_login.email_me_code` set to "Envíame un código de acceso por correo" (core had no Spanish string). Passkey disabling requested from Discourse by Ricardo, awaiting confirmation. Open items moved to the private `docs/operations/pending.md`.
+
+## 2026-10-05 — Branded email template
+
+**Goal.** One design for every outgoing email ahead of the weekly digest, matching the forum: neutral-50 floor, white card with the 3px cyan edge, Roboto Slab titles, petrol actions, brand dark scheme.
+
+**Decision.** Email style is site configuration, not theme, so `email/template.html` + `email/style.css` are kept here as source of truth and pushed per instance through `/admin/customize/email_style`. Core inlines the CSS field *prepended* to existing styles, which forces `!important`, first-rule-wins ordering, no `@media`, and — because inline `!important` locks dark mode out — colours in the template's `<style>` rather than the CSS field. Details in `docs/operations/email-style.md`.
+
+**Applied.** PRE and PROD, plus `email_accent_bg_color` / `email_link_color` → `#006D87`. PROD's prior state was core default. Verified on a real PROD digest preview in light, dark and at 390px; fixed the "Nuevo para ti" counters wrapping under their icons. Notifications not yet seen rendered.
