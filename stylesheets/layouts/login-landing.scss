@@ -1,0 +1,124 @@
+// The login-required landing — the only page an anonymous visitor reaches.
+// Layout A: a centred hero with the access first, then what the community
+// holds, then the exits for whoever cannot get in. LoginHelp's own look lives
+// in app/login-help.scss; this file only places it.
+.login-landing {
+  --login-landing-width: 56rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2.5rem;
+  max-width: var(--login-landing-width);
+  margin: 0 auto;
+  padding: 3rem 0 4rem;
+
+  &__hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+    padding: 2.5rem 2rem;
+    text-align: center;
+    background: var(--ga-card);
+    border: 1px solid var(--ga-border);
+    border-top: var(--ga-edge-width) solid var(--ga-edge);
+    border-radius: var(--d-border-radius-large);
+  }
+
+  &__logo {
+    display: block;
+    height: 3.5rem;
+    width: auto;
+  }
+
+  &__site-title {
+    margin: 0;
+    font-family: var(--heading-font-family);
+    font-size: var(--font-up-3);
+    font-weight: bold;
+  }
+
+  &__title {
+    max-width: 36rem;
+    margin: 0;
+    font-family: RobotoSlab, var(--heading-font-family);
+    font-size: var(--font-up-5);
+    line-height: var(--line-height-medium);
+    text-wrap: balance;
+  }
+
+  &__subtitle {
+    max-width: 36rem;
+    margin: 0;
+    color: var(--ga-muted-fg);
+    font-size: var(--font-up-1);
+  }
+
+  &__restricted {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0;
+    padding: 0.5rem 0.875rem;
+    color: var(--primary-high);
+    background: var(--ga-accent-surface);
+    border-inline-start: var(--ga-edge-width) solid var(--ga-edge);
+    border-radius: var(--d-border-radius);
+    font-size: var(--font-down-1);
+  }
+
+  &__section-title {
+    margin: 0 0 1rem;
+    font-size: var(--font-up-2);
+  }
+
+  &__inside-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__inside-item {
+    padding: 1.25rem;
+    background: var(--ga-card);
+    border: 1px solid var(--ga-border);
+    border-top: var(--ga-edge-width) solid var(--ga-edge);
+    border-radius: var(--d-border-radius);
+
+    .d-icon {
+      color: var(--tertiary);
+      font-size: var(--font-up-2);
+    }
+  }
+
+  &__inside-title {
+    margin: 0.5rem 0 0.25rem;
+    font-size: var(--font-0);
+  }
+
+  &__inside-body {
+    margin: 0;
+    color: var(--ga-muted-fg);
+  }
+
+  @include viewport.until(md) {
+    &__inside-list {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @include viewport.until(sm) {
+    gap: 1.5rem;
+    padding: 1.5rem 0 2.5rem;
+
+    &__hero {
+      padding: 1.75rem 1.25rem;
+    }
+
+    &__title {
+      font-size: var(--font-up-3);
+    }
+  }
+}
