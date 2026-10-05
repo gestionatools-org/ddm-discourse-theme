@@ -2602,3 +2602,9 @@ Also on PROD: `js.code_login.email_me_code` set to "Envíame un código de acces
 Same day, site settings outside the theme: the signature tagline (copied by hand from `site_description`) was dropped from the template at the maintainer's request. The maintainer then rewrote `site_description` / `short_site_description` on PROD; the "Gestióna" typo was fixed and both values copied to PRE.
 
 Same day, later: documented how core schedules the digest (per user, on absence; no fixed send time) in `docs/operations/email-style.md`, with PROD's aggregate subscription counts. Drafted, not published, the PROD announcement of the Academy SSO in Noticias, stating that the Academy and forum email must match — consistent with `oauth2_email_verified: true` and `invite_only: true`, under which a mismatch cannot fall back to creating an account.
+
+## 2026-10-05 — Tag vocabulary depuration on PROD
+
+PROD had kept the full long tail that PRE pruned on 2026-09-04 (its merges and accent synonyms had been carried over, the deletions had not). Reviewed with the maintainer in blocks of five, most evident first — typos, duplicates, mis-tags, terms already in the topic's title or body — and applied over the API: **210 → 149 base tags, tags with ≤2 uses 101 → 40**. Merges went through synonyms (raw SQL, no topic revision), so the old names keep filtering. Every touched topic's tags were captured beforehand; afterwards no thumbnail was lost, no topic was bumped and no protected topic was touched.
+
+Learned: deleting a base tag deletes its synonyms; unlinking a synonym that shares its accented base's slug fails with 422, and is unnecessary because posting the synonym to the new target re-targets it. Decided: `forum` marks topics about the platform itself (retagging is pending), `ideas-v9` stays, and the remaining low-use tags are coherent subject tags to keep and assign to module groups. Details in the private `docs/operations/search-and-tags.md`.
