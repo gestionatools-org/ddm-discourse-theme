@@ -149,7 +149,7 @@ en:
   login_help:
     title: "Can't access?"
     no_account:
-      title: "Enrolled in a certification and can't access your account?"
+      title: "Student or certified, and can't access your account?"
       body: "Write to us at"
     certify:
       title: "Want to earn a certification?"
