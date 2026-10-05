@@ -57,6 +57,15 @@
   }
 }
 
+// Mobile has no right-hand column: core renders `#login-buttons` straight
+// into the card, above the form, so the rule above never reached it and the
+// passkey button stayed visible on phones (seen on PRE, 2026-10-05). Same
+// self-limiting condition, on the button group itself — any other login
+// button brings the group back.
+.login-body > #login-buttons:not(:has(.btn:not(.passkey-login-button))) {
+  display: none;
+}
+
 // ---------------------------------------------------------------------------
 // /login, matched to the landing: the form in a centred white card with the
 // system's 3px edge, the help under it, the header logo centred.
