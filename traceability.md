@@ -2582,3 +2582,11 @@ Before coding, a read-only PROD→PRE diff: login texts and theme commit matched
 Found after merge: PRE runs core 2026.8.0 and PROD 2026.10.0, and /login renders different markup on each (`#email-login-link` vs `#one-time-code-link`), so a layout verified on PRE is not proof for PROD; the core version is now a row in `docs/operations/environment-reconciliation.md`. On PROD, confirmed with Ricardo, the "Forum" logo and its dark variant were re-uploaded cropped (600×80 → 355×80; 41% of the canvas was transparent on the right, pulling the centred logo left); prior URLs kept in the session scratchpad. Measured centred to 0px on both screens, both schemes, 1440 and 390.
 
 Pending: passkeys request to Discourse Cloud; PRE core upgrade to 2026.10; a Spanish site text for "Email me a one-time login code"; `logo_small` still uses the uncropped file.
+
+## 2026-10-05 — Academy SSO from the landing; /login is the form only (PR #170, theme 1.4.0)
+
+Ricardo enabled OAuth2 against Academy (Docebo, `espublico.gestiona.academy`) on PROD; local logins stay on for now. On /login the provider's button pulled the right-hand column back under the 32rem card with a stray divider, and brought the passkey button back with it, since the provisional rule only held while passkeys were the sole alternative. Decision: Academy first, the form as the alternative, and Academy only once the data is reconciled.
+
+The landing now launches the provider directly through core's `LoginMethod.doLogin()` (label from `oauth2_button_title`) with a quieter "Acceder con usuario y contraseña" to /login; without a provider it keeps the single button, and with local logins off the form link disappears. /login hides every external button and the right-hand column while the form is present, replacing both provisional passkey rules. Verified on PRE with a temporary theme and OAuth2 enabled render-only (no secret; a captured `POST /auth/oauth2_basic` carried the CSRF token, then aborted); PRE's theme default and OAuth2 settings restored. After the merge Ricardo confirmed the SSO end to end on PROD.
+
+Also on PROD: `js.code_login.email_me_code` set to "Envíame un código de acceso por correo" (core had no Spanish string). Passkey disabling requested from Discourse by Ricardo, awaiting confirmation. Open items moved to the private `docs/operations/pending.md`.
