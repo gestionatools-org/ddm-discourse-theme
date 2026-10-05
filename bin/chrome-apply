@@ -17,13 +17,13 @@ import _discourse as d  # noqa: E402
 SECTION = 3
 TITLE = "Recursos de apoyo"
 RENAMES = {"/c/documentacion-analiza/73": "Recursos Analítica", "/c/doc-developers/75": "Recursos Developers"}
-# Icons from core's default subset, matched literally: sidebar link icons never reach the
-# sprite, and `book-open` (absent) rendered blank on PRE while a word-boundary grep said fine.
-NEW_LINKS = [
-    {"name": "Academy", "value": "https://espublico.gestiona.academy", "icon": "book"},
-    {"name": "Demo Gestiona", "value": "https://demo-a.gestiona.espublico.com", "icon": "desktop"},
-    {"name": "Primeros pasos", "value": "/c/primeros-pasos/78", "icon": "flag"},
-]
+# Academy, Demo Gestiona and Primeros pasos were added here during the migration and removed
+# on 2026-10-05 (PROD by hand, PRE by this script). NEW_LINKS stays as the hook for a future
+# link; its icons must come from core's default subset, matched literally — sidebar link
+# icons never reach the sprite, and `book-open` (absent) rendered blank on PRE.
+NEW_LINKS = []
+SECTION_DROP = {"https://espublico.gestiona.academy", "https://demo-a.gestiona.espublico.com",
+                "/c/primeros-pasos/78"}
 COMMUNITY = 1
 DROP = {"/c/documentacion-analiza/74"}  # category 74 exists on neither instance (F4)
 TEXTS = {
@@ -63,24 +63,35 @@ def self_test():
     prod = [{"id": 16, "name": "Analítica de Datos", "value": "/c/documentacion-analiza/73", "icon": "file"},
             {"id": 19, "name": "Gestiona for Developers", "value": "/c/doc-developers/75", "icon": "file"}]
     got = sidebar_links(prod, RENAMES, NEW_LINKS, set())
-    assert [l["name"] for l in got] == ["Recursos Analítica", "Recursos Developers", "Academy", "Demo Gestiona", "Primeros pasos"], got
-    assert [l.get("id") for l in got[:2]] == [16, 19]
-    # keeps foreign links in order
+    assert [l["name"] for l in got] == ["Recursos Analítica", "Recursos Developers"], got
+    assert [l.get("id") for l in got] == [16, 19]
+    # a new link is appended after foreign links, which keep their order
+    extra = [{"name": "Academy", "value": "https://a", "icon": "book"}]
     foreign = [{"id": 7, "name": "X", "value": "/x", "icon": "file"}] + prod
-    assert [l["value"] for l in sidebar_links(foreign, RENAMES, NEW_LINKS, set())][:3] == ["/x", "/c/documentacion-analiza/73", "/c/doc-developers/75"]
-    # idempotent: PRE's final list produces itself
-    pre = [{**l, "id": i} for i, l in enumerate(got)]
-    assert [(l["name"], l["value"], l["icon"]) for l in sidebar_links(pre, RENAMES, NEW_LINKS, set())] == \
-        [(l["name"], l["value"], l["icon"]) for l in got]
+    assert [l["value"] for l in sidebar_links(foreign, RENAMES, extra, set())] == \
+        ["/x", "/c/documentacion-analiza/73", "/c/doc-developers/75", "https://a"]
+    # idempotent: a list that already holds the new link produces itself
+    pre = [{**l, "id": i} for i, l in enumerate(sidebar_links(prod, RENAMES, extra, set()))]
+    assert [(l["name"], l["value"], l["icon"]) for l in sidebar_links(pre, RENAMES, extra, set())] == \
+        [(l["name"], l["value"], l["icon"]) for l in pre]
     # a wrong icon on an owned link is corrected, not kept
-    bad = pre[:2] + [{**pre[2], "icon": "book-open"}] + pre[3:]
-    assert sidebar_links(bad, RENAMES, NEW_LINKS, set())[2]["icon"] == "book"
+    bad = pre[:2] + [{**pre[2], "icon": "book-open"}]
+    assert sidebar_links(bad, RENAMES, extra, set())[2]["icon"] == "book"
     # drop removes only what it names
     wiki = prod + [{"id": 30, "name": "Wiki", "value": "/c/documentacion-analiza/74", "icon": "anchor"}]
     dropped = sidebar_links(wiki, {}, [], DROP)
     assert [l["value"] for l in dropped if not l.get("_destroy")] == [l["value"] for l in prod]
     assert dropped[-1] == {**wiki[-1], "segment": "primary", "_destroy": True}
-    print("self-test OK: 5 cases")
+    # PRE's 2026-10-05 section 3 loses the three migration links and keeps the renamed two
+    before = [{"id": 24, "name": "Recursos Analítica", "value": "/c/documentacion-analiza/73", "icon": "file"},
+              {"id": 25, "name": "Recursos Developers", "value": "/c/doc-developers/75", "icon": "file"},
+              {"id": 21, "name": "Academy", "value": "https://espublico.gestiona.academy", "icon": "book"},
+              {"id": 22, "name": "Demo Gestiona", "value": "https://demo-a.gestiona.espublico.com", "icon": "desktop"},
+              {"id": 23, "name": "Primeros pasos", "value": "/c/primeros-pasos/78", "icon": "flag"}]
+    after = sidebar_links(before, RENAMES, NEW_LINKS, SECTION_DROP)
+    assert [l["id"] for l in after if not l.get("_destroy")] == [24, 25]
+    assert [l["id"] for l in after if l.get("_destroy")] == [21, 22, 23]
+    print("self-test OK: 6 cases")
 
 
 if __name__ == "__main__" and "--self-test" in sys.argv:
@@ -143,7 +154,7 @@ def main():
     community = section(COMMUNITY)
     apply_section(COMMUNITY, community["title"], {}, [], DROP, write) if any(
         l["value"] in DROP for l in community["links"]) else print(f"sidebar section {COMMUNITY}: nothing to drop")
-    apply_section(SECTION, TITLE, RENAMES, NEW_LINKS, set(), write)
+    apply_section(SECTION, TITLE, RENAMES, NEW_LINKS, SECTION_DROP, write)
     apply_texts(write)
     if not write:
         print("(dry run — nothing written; add --write)")
