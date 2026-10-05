@@ -85,7 +85,14 @@
   // The card supplies the padding now. Core's own on the column, and the top
   // margin it keeps on the form for the heading this file hides, would
   // otherwise stack inside it as empty bands.
-  .login-left-side,
+  //
+  // Not quite zero on the column's top: core makes it `overflow: auto`, and
+  // the username field's floating label sits ~8px above the input, so with no
+  // padding there the column clips the label in half.
+  .login-left-side {
+    padding: 0.75rem 0 0;
+  }
+
   .login-welcome-header {
     padding: 0;
   }
