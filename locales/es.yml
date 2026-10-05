@@ -147,7 +147,7 @@ es:
         title: "Ideas y recursos"
         body: "Propuestas de mejora, podcast y newsletter."
   login_help:
-    title: "¿No puedes entrar?"
+    title: "¿No puedes acceder?"
     no_account:
       title: "¿Tienes la certificación y no tu cuenta?"
       body: "Escríbenos a"
