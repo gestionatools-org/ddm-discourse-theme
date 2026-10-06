@@ -468,6 +468,25 @@ acceptance(
       assert.strictEqual(topic.id, 900001);
     });
 
+    test("asks for the tag's topics newest-created first", async function (assert) {
+      let query;
+      const store = {
+        findFiltered: async (_type, opts) => {
+          query = opts;
+          return { topics: [] };
+        },
+      };
+      await loadLatestTaggedTopic(store, "version-gestiona");
+      assert.deepEqual(
+        query,
+        {
+          filter: "tag/version-gestiona/l/latest",
+          params: { order: "created" },
+        },
+        "a reply to an older topic must not move it into the card"
+      );
+    });
+
     test("returns null when the tag has no topics", async function (assert) {
       const store = { findFiltered: async () => ({ topics: [] }) };
       assert.strictEqual(await loadLatestTaggedTopic(store, "podcast"), null);
