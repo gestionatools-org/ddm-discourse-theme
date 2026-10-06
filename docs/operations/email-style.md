@@ -23,7 +23,7 @@ The outgoing email design is **site configuration, not theme**: Discourse does n
 ## Hardcoded values
 
 - Logo URLs point at PROD's `logo` / `logo_dark` uploads on S3 (absolute; PRE's `/uploads/**` 404s). If PROD replaces its logo, update both `src`.
-- Footer links are relative (`/`, `/my/preferences/emails`); core makes them absolute per instance.
+- Links are relative (`/?`, `/my/preferences/emails`); core makes them absolute per instance. Only paths matching `\A/[^/]` qualify (`UrlHelper.absolute`): a bare `/` stays relative and Outlook prints it as a literal `[/]` before the logo and "Ir al foro" (seen 2026-10-06). The root is therefore written `/?`.
 
 ## Push and preview
 

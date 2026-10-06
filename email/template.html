@@ -181,7 +181,7 @@
                   padding: 28px 24px 16px;
                 "
               >
-                <a href="/" style="text-decoration: none; border: 0">
+                <a href="/?" style="text-decoration: none; border: 0">
                   <img
                     class="site-logo ga-logo-light"
                     src="https://cdck-file-uploads-europe1.s3.dualstack.eu-west-1.amazonaws.com/flex013/uploads/gestionaavanza/original/2X/d/dbbcbe9491297cd8f9e16eeb48334dfa54f44d3c.png"
@@ -225,7 +225,11 @@
               </td>
             </tr>
 
-            <!-- Signature. Relative hrefs are made absolute by core per instance. -->
+            <!--
+              Signature. Relative hrefs are made absolute by core per instance, but
+              only when they match \A/[^/] (UrlHelper.absolute): a bare "/" stays
+              relative and Outlook prints it as "[/]". Hence "/?" for the root.
+            -->
             <tr>
               <td
                 class="ga-signature"
@@ -240,10 +244,10 @@
                 "
               >
                 <p style="margin: 0 0 6px">
-                  <strong style="color: #3d4e55">Comunidad Gestiona Avanza</strong>
+                  <strong style="color: #3d4e55">Comunidad de usuarios certificados de Gestiona</strong>
                 </p>
                 <p style="margin: 0">
-                  <a href="/" style="color: #006d87; font-weight: 700; text-decoration: none">Ir al foro</a>
+                  <a href="/?" style="color: #006d87; font-weight: 700; text-decoration: none">Ir al foro</a>
                   &nbsp;·&nbsp;
                   <a href="/my/preferences/emails" style="color: #006d87; font-weight: 700; text-decoration: none">Preferencias de correo</a>
                 </p>
