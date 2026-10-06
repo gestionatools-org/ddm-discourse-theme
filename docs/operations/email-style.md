@@ -38,7 +38,7 @@ curl -X PUT -H "Api-Key: $PRE_DISCOURSE_GLOBAL_API_KEY" -H "Api-Username: $PRE_D
 curl -H … "$U/admin/email/preview-digest.json?last_seen_at=2026-08-01&username=<user>" | jq -r .html_content
 ```
 
-The preview contains member names and avatars — keep it in the scratchpad, never in the repo. There is no preview endpoint for notifications; check one with a real email on PROD (PRE has outgoing email disabled).
+The preview contains member names and avatars — keep it in the scratchpad, never in the repo. There is no preview endpoint for notifications. Email logs moved in 2026.10 to `/admin/email-logs/{sent,skipped}.json` (the old `/admin/email/sent.json` 404s). A mention added by an edit created the notification but no email (2026-10-06, cause unknown), so do not use that to test; check one with a real email on PROD (PRE has outgoing email disabled).
 
 ## When the digest goes out
 
@@ -48,4 +48,4 @@ PROD on 2026-10-05 (aggregate, Data Explorer, temporary queries deleted): 336 we
 
 ## State (2026-10-05)
 
-Applied on PRE and PROD (same files, same three settings). PROD's prior state was core default (empty CSS, default HTML), so rollback is resetting both fields to default and the two colours to `#2F70AC` / `#006699`. Digest verified on a real PROD preview (popular topics, popular posts, "Nuevo para ti"), light, dark and 390px. Notifications not yet seen rendered.
+Applied on PRE and PROD (same files, same three settings). PROD's prior state was core default (empty CSS, default HTML), so rollback is resetting both fields to default and the two colours to `#2F70AC` / `#006699`. Digest verified on a real PROD preview (popular topics, popular posts, "Nuevo para ti"), light, dark and 390px. Notifications verified 2026-10-06 in Outlook on a real PROD email, after the `/?` root-link fix and the "Comunidad de usuarios certificados de Gestiona" signature.
