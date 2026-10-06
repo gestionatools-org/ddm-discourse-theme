@@ -12,6 +12,8 @@ Since 2026-10-05 administrators change PROD (interface, content, site configurat
 
 PROD is never written during reconciliation. If something on PROD looks wrong, report it — do not "fix" it from here.
 
+**PRE mirrors PROD's structure, never its content** (Ricardo, 2026-10-06). Categories, tags, synonyms and tag groups that exist on PROD are created on PRE even with no topics behind them; topic counts and posts are never compared or copied. A tag can be born without a topic through a throwaway tag group (`POST /tag_groups.json` with `tag_names[]`, then delete the group). Tag group writes that carry `permissions` must be **JSON with integer values** — form-encoded answers 500.
+
 ## Surfaces to diff
 
 | Surface | Endpoint | Notes |
