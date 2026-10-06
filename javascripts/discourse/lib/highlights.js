@@ -7,7 +7,10 @@ import { definitionTopicIds } from "./category-topics";
 export const WEIGHTS = { posts: 0.5, likes: 0.35, days: 0.15 };
 
 /**
- * The most recent non-definition topic carrying `tag`, or null.
+ * The newest-created non-definition topic carrying `tag`, or null.
+ *
+ * Ordered by creation, not activity: `l/latest` alone sorts by bump, so a late
+ * reply to an older release, episode or newsletter would take over the card.
  *
  * An empty `tag` returns null without touching the network — the guard that
  * stops an unset setting becoming the filter `tag//l/latest`. Definition topics
@@ -25,6 +28,7 @@ export async function loadLatestTaggedTopic(store, tag) {
 
   const topicList = await store.findFiltered("topicList", {
     filter: `tag/${tag}/l/latest`,
+    params: { order: "created" },
   });
 
   const definitions = definitionTopicIds();
