@@ -14,6 +14,8 @@ PROD is never written during reconciliation. If something on PROD looks wrong, r
 
 **PRE mirrors PROD's structure, never its content** (Ricardo, 2026-10-06). Categories, tags, synonyms and tag groups that exist on PROD are created on PRE even with no topics behind them; topic counts and posts are never compared or copied. A tag can be born without a topic through a throwaway tag group (`POST /tag_groups.json` with `tag_names[]`, then delete the group). Tag group writes that carry `permissions` must be **JSON with integer values** — form-encoded answers 500.
 
+**PRE runs `automatically_clean_unused_tags = false`; PROD keeps `true`** (deliberate difference, 2026-10-07). Core's daily job deletes every tag with no topics, which on PRE means exactly the structure-only tags this rule creates: on 2026-10-06 and 2026-10-07 `system` (`deleted_unused_tags` in the staff log) removed 49 of them and, with them, their synonyms. Do not "reconcile" this setting back to PROD's value. After re-creating tags, diff base tags, synonyms (`/tag/<name>/info.json`) and tag groups — `/tags.json` lists base tags only.
+
 ## Surfaces to diff
 
 | Surface | Endpoint | Notes |

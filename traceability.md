@@ -2618,3 +2618,10 @@ The highlights cards (podcast, newsletter, news) now show the newest-created top
 New rule from the maintainer: PRE mirrors PROD's structure, never its content. PRE's tag vocabulary, synonyms and tag groups were rebuilt to match PROD exactly (135 tags, 79 synonyms), recorded in `docs/operations/environment-reconciliation.md`.
 
 Measured on the way: deleting a base tag deletes its synonyms; unlinking a synonym that shares its accented base's slug fails with 422, and posting it to a new target re-targets it instead; tag listings page at 30; an empty `tags[]` on a topic PUT is ignored (clearing needs an explicit empty value); a 429 mid read-modify-write can wipe tags unless the read is guarded; a tag write bumped two non-wiki topics in a category with `all_topics_wiki`, repaired with `reset-bump-date`. Also found and restored: `main` had lost its branch protection.
+
+## 2026-10-07 — Tag review of «Tengo una idea» on PROD; PRE's empty tags purged by core
+
+Reviewed the tags of the 447 topics in «Tengo una idea» with the maintainer, block by block, on PROD over the API. Removed the tags that classified the channel rather than the content — `ideas` (it repeats the category), `administracion-avanzada` (on every non-campaign idea) and `version-gestiona` on feedback ideas (`v9`/`v10` kept). Subjects added from the campaign module codes and, for the rest, from each topic's text; new tags `avisos-alertas`, `notificaciones` and `función-interventora`. New rule: `tramitación-reglada` is redundant next to `tareas-regladas`. One topic that was not an idea moved to «Comparte». Every write was guarded by a fresh read; no thumbnail lost, no topic bumped, protected topics untouched.
+
+Found on the way: 49 tags created empty on PRE to mirror PROD had been deleted by core's daily `automatically_clean_unused_tags` job. Turned the setting off on PRE only (a deliberate difference, recorded in `docs/operations/environment-reconciliation.md`) and recreated the tags and synonyms; PRE and PROD verified identical afterwards (129 tags, 82 synonyms, 11 groups). No theme code changed.
+
