@@ -34,4 +34,4 @@ PROD is never written during reconciliation. If something on PROD looks wrong, r
 
 - Protected PROD topics and member data rules in `prod-safety.md` still apply; reconciliation copies configuration, not member data.
 - Content (topics, pinned posts, banners) is copied only when the theme change depends on it; ask first.
-- Credentials: PROD `PROD_DISCOURSE_API_KEY`; PRE admin reads need `PRE_DISCOURSE_GLOBAL_API_KEY` (`PRE_DISCOURSE_API_KEY` returns 404 on admin routes, observed 2026-10-05).
+- Credentials: PROD `PROD_DISCOURSE_API_KEY`; PRE uses `PRE_DISCOURSE_GLOBAL_API_KEY` only (the granular PRE keys were dropped on 2026-10-08).
