@@ -187,20 +187,13 @@ highlights_member_role_field_id:
   type: integer
   default: 4
 
-# The "Primeros pasos" row at the top of the sidebar, by category id. Its label
+# The "Centro de ayuda" row at the top of the sidebar, by category id. Its label
 # and URL are the category's own. 78 predates PRE's restore, so it is the same
 # category on both instances. 0 hides the row.
 getting_started_category_id:
   type: integer
   default: 78
   min: 0
-
-# Members above this trust level no longer see the row. 1 = new and basic.
-getting_started_max_trust_level:
-  type: integer
-  default: 1
-  min: 0
-  max: 4
 
 # The two ways out for a visitor who cannot sign in, shown on the login landing
 # and under the /login form. Registration is closed, so these are the only

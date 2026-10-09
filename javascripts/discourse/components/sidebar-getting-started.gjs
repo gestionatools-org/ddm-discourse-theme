@@ -2,7 +2,7 @@ import Component from "@glimmer/component";
 import { service } from "@ember/service";
 import SectionLink from "discourse/components/sidebar/section-link";
 
-// A single "Primeros pasos" row at the top of the sidebar, for newcomers only.
+// A single "Centro de ayuda" row at the top of the sidebar, for every member.
 //
 // Core's own `SectionLink` renders the row, so it inherits every sidebar link
 // style — hover, focus, the filo in `sidebar.scss` — without a second copy of
@@ -14,12 +14,12 @@ import SectionLink from "discourse/components/sidebar/section-link";
 // `header-links` resolves its rooms: that list is guardian-scoped, so a member
 // who cannot see the category gets no row rather than an access error, and the
 // label and href are the category's own, so a rename or a slug change in admin
-// reaches the sidebar without a deploy. Category 78 "Primeros pasos" predates
-// PRE's restore, so the default holds on both instances.
+// reaches the sidebar without a deploy. Category 78 (renamed from "Primeros
+// pasos" to "Centro de ayuda" on 2026-10-09) predates PRE's restore, so the
+// default holds on both instances.
 //
-// Shown up to `getting_started_max_trust_level` (default 1). Trust level is the
-// one signal core exposes that means "still new here"; it says nothing about
-// staff, so an administrator at trust level 0–1 sees the row too.
+// Until 2026-10-09 the row stopped at trust level 1; the category became the
+// forum's general help, so every signed-in member gets it.
 export default class SidebarGettingStarted extends Component {
   @service currentUser;
   @service site;
@@ -33,11 +33,7 @@ export default class SidebarGettingStarted extends Component {
   }
 
   get shouldRender() {
-    return (
-      this.category &&
-      this.currentUser &&
-      this.currentUser.trust_level <= settings.getting_started_max_trust_level
-    );
+    return this.category && this.currentUser;
   }
 
   <template>
@@ -52,7 +48,7 @@ export default class SidebarGettingStarted extends Component {
             @href={{this.category.url}}
             @content={{this.category.name}}
             @prefixType="icon"
-            @prefixValue="rocket"
+            @prefixValue="circle-question"
           />
         </ul>
       </div>

@@ -16,8 +16,8 @@ import SidebarGettingStarted from "../../discourse/components/sidebar-getting-st
 // the real service and restored after, as header-links-test does.
 const GETTING_STARTED = {
   id: 78,
-  name: "Primeros pasos",
-  url: "/c/primeros-pasos/78",
+  name: "Centro de ayuda",
+  url: "/c/centro-de-ayuda/78",
 };
 
 function stubCurrentUser(owner, user) {
@@ -37,46 +37,28 @@ module(
       this.originalCategories = this.site.categories;
       this.site.categories = [GETTING_STARTED];
       settings.getting_started_category_id = 78;
-      settings.getting_started_max_trust_level = 1;
     });
 
     hooks.afterEach(function () {
       this.site.categories = this.originalCategories;
     });
 
-    test("a new member sees the category, under its own name", async function (assert) {
+    test("a member sees the category, under its own name", async function (assert) {
       stubCurrentUser(this.owner, { trust_level: 0 });
 
       await render(<template><SidebarGettingStarted /></template>);
 
       assert
         .dom(".sidebar-getting-started .sidebar-section-link")
-        .hasAttribute("href", "/c/primeros-pasos/78");
+        .hasAttribute("href", "/c/centro-de-ayuda/78");
       assert
         .dom(".sidebar-getting-started .sidebar-section-link-content-text")
-        .hasText("Primeros pasos");
-      assert.dom(".sidebar-getting-started .d-icon-rocket").exists();
+        .hasText("Centro de ayuda");
+      assert.dom(".sidebar-getting-started .d-icon-circle-question").exists();
     });
 
-    test("the cap is inclusive", async function (assert) {
-      stubCurrentUser(this.owner, { trust_level: 1 });
-
-      await render(<template><SidebarGettingStarted /></template>);
-
-      assert.dom(".sidebar-getting-started").exists();
-    });
-
-    test("a member above the cap does not see it", async function (assert) {
-      stubCurrentUser(this.owner, { trust_level: 2 });
-
-      await render(<template><SidebarGettingStarted /></template>);
-
-      assert.dom(".sidebar-getting-started").doesNotExist();
-    });
-
-    test("the cap is a setting", async function (assert) {
-      settings.getting_started_max_trust_level = 2;
-      stubCurrentUser(this.owner, { trust_level: 2 });
+    test("trust level does not hide it", async function (assert) {
+      stubCurrentUser(this.owner, { trust_level: 4 });
 
       await render(<template><SidebarGettingStarted /></template>);
 
