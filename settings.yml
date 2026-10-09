@@ -79,9 +79,9 @@ certified_category_id:
   default: 85
   min: 1
 
-# The panel is ~430px wide and poster titles are long (programme, name and
-# entity), so most rows take two lines. Tune against the live page so the panel
-# ends near the foot of the latest list beside it.
+# Rows are fixed-height (a 2.75rem chip, one-line title, grey line), like the
+# events lane. Six matched the ideas lane this replaced: measured 2026-10-09 with
+# PROD's compiled CSS, 529px vs 520px at a 428px panel, 578px vs 611px at 324px.
 certified_count:
   type: integer
   default: 6

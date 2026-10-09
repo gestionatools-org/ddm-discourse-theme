@@ -19,12 +19,54 @@
     @include lane-list;
   }
 
-  // Poster titles carry programme, name and entity ("CAAG 31 - Nuevo alumno
-  // certificado - … - Ayto. de …"), so they run long. Two lines keep the name,
-  // which comes early, and stop one title from setting the panel's height.
-  // Bold at body size, like the event titles above, so the two lists read as
-  // one tier.
+  // The row is the events lane's, measured there and copied rather than shared
+  // through a mixin: the two blocks have evolved separately so far and a mixin
+  // would couple every future tweak to both. Chip, then a column holding the
+  // title over a grey line, top-aligned so the two lines hang off the chip.
   &__item-link {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--space-3);
+    color: inherit;
+
+    &:hover .block-certified__item-title,
+    &:focus-visible .block-certified__item-title {
+      color: var(--tertiary);
+    }
+  }
+
+  // Same 2.75rem square, border and radius as the events date chip. The icon
+  // takes `--tertiary`, the accent the events chip reserves for a scheduled
+  // date: here every row is a certification, so every chip carries it.
+  &__item-icon {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid var(--ga-border);
+    border-radius: var(--d-border-radius);
+    background: var(--ga-card);
+    color: var(--tertiary);
+
+    .d-icon {
+      font-size: var(--font-up-1);
+    }
+  }
+
+  // `flex: 1` and `min-width: 0` for the reasons block-events.scss records:
+  // without them the grey line sizes the column and the title truncates early.
+  &__item-content {
+    display: flex;
+    min-width: 0;
+    flex: 1 1 auto;
+    flex-direction: column;
+  }
+
+  // One line, clamped, like the event titles: the grey line underneath
+  // carries the programme and the date, so a truncated title is still placed.
+  &__item-title {
     display: -webkit-box;
     overflow: hidden;
     color: var(--primary);
@@ -32,13 +74,15 @@
     font-weight: 700;
     line-height: var(--line-height-medium);
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
+    -webkit-line-clamp: 1;
     transition: color var(--ga-duration-fast) var(--ga-ease);
+  }
 
-    &:hover,
-    &:focus-visible {
-      color: var(--tertiary);
-    }
+  &__item-meta {
+    margin-block-start: 1px;
+    color: var(--ga-muted-fg);
+    font-size: var(--font-down-2);
+    line-height: var(--line-height-large);
   }
 
   &__footer {

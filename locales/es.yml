@@ -85,7 +85,7 @@ es:
       upcoming: "Próximamente"
       past: "Celebrados"
     certified:
-      title: "Últimos usuarios certificados"
+      title: "Recursos compartidos"
       link_text: "Ver en Comparte"
       empty: "Todavía no hay pósteres de certificación."
     highlights:

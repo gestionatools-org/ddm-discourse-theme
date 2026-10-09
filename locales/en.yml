@@ -85,7 +85,7 @@ en:
       upcoming: "Coming up"
       past: "Past events"
     certified:
-      title: "Latest certified users"
+      title: "Shared resources"
       link_text: "See them in Comparte"
       empty: "No certification posters yet."
     highlights:
