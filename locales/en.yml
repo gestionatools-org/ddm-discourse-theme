@@ -21,7 +21,7 @@ en:
       poster_carousel_category_ids: "Categories that show the poster carousel above their topic list. A category shows the posters of its subcategories too. Empty hides the carousel."
       poster_carousel_tag: "Only topics carrying this tag become posters, newest first. Topics without an image are skipped."
       poster_carousel_count: "Maximum number of posters in the carousel."
-      poster_carousel_min: "Below this many posters with an image the carousel is hidden."
+      poster_carousel_min: "Below this many posters with an image the carousel is hidden. Keep it at or below the maximum number of posters, or the carousel never shows."
 
   header:
     links:
@@ -155,3 +155,4 @@ en:
     title: "Newly certified users"
     previous: "Previous posters"
     next: "Next posters"
+    enlarge: "Enlarge poster: %{title}"

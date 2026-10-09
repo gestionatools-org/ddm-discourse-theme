@@ -18,7 +18,8 @@ function stubStore(owner, byCategory, { reject = false } = {}) {
           throw new Error("403");
         }
         const id = Number(filter.split("/")[1]);
-        return { topics: byCategory[id] ?? [], more_topics_url: null };
+        // A value may be a promise, to hold one category's response back.
+        return { topics: (await byCategory[id]) ?? [], more_topics_url: null };
       },
     },
     { instantiate: false }
@@ -108,7 +109,14 @@ module("Espublico Theme | Integration | poster carousel", function (hooks) {
     assert
       .dom(".poster-carousel__item:first-child img")
       .hasAttribute("src", "/img/9001-600.jpg", "slide shows the thumbnail")
-      .hasAttribute("alt", "Poster 9001");
+      .hasAttribute("alt", "", "the link names the poster, not the image");
+    assert
+      .dom(".poster-carousel__item:first-child a.lightbox")
+      .hasAttribute(
+        "aria-label",
+        "Enlarge poster: Poster 9001",
+        "says what activating it does, without repeating the caption link"
+      );
     assert
       .dom(".poster-carousel__item:first-child .poster-carousel__caption")
       .hasAttribute("href", "/t/poster-9001/9001")
@@ -146,7 +154,30 @@ module("Espublico Theme | Integration | poster carousel", function (hooks) {
 
     assert.dom(".poster-carousel__item").exists({ count: 3 });
     assert
-      .dom(".poster-carousel__item:first-child img")
-      .hasAttribute("alt", "Poster 9101");
+      .dom(".poster-carousel__item:first-child .poster-carousel__caption")
+      .hasText("Poster 9101 & co");
+  });
+
+  test("a slow response for a category already left is never shown", async function (assert) {
+    let releaseFirst;
+    const firstHeld = new Promise((resolve) => (releaseFirst = resolve));
+    stubStore(this.owner, { 85: firstHeld, 94: posters(9101, 3) });
+    const state = new (class {
+      @tracked category = { id: 85 };
+    })();
+    // Not awaited: the first category's response is still held back.
+    const rendered = render(
+      <template><PosterCarousel @category={{state.category}} /></template>
+    );
+
+    state.category = { id: 94 };
+    releaseFirst(posters(9001, 4));
+    await rendered;
+    await settled();
+
+    assert.dom(".poster-carousel__item").exists({ count: 3 });
+    assert
+      .dom(".poster-carousel__item:first-child .poster-carousel__caption")
+      .hasText("Poster 9101 & co");
   });
 });

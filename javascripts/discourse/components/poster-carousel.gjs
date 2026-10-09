@@ -34,7 +34,20 @@ export default class PosterCarousel extends Component {
   track = null;
 
   bindLightbox = modifier((element) => {
-    lightbox(element);
+    // Until core's lightbox module has loaded and bound, an anchor click would
+    // follow `href` to the bare image file. Hold those clicks back instead.
+    let ready = false;
+    const holdEarlyClicks = (event) => {
+      if (!ready && event.target.closest?.(".lightbox")) {
+        event.preventDefault();
+      }
+    };
+    element.addEventListener("click", holdEarlyClicks, true);
+    Promise.resolve(lightbox(element)).then(
+      () => (ready = true),
+      () => (ready = true)
+    );
+    return () => element.removeEventListener("click", holdEarlyClicks, true);
   });
 
   registerTrack = modifier((element) => {
@@ -44,8 +57,13 @@ export default class PosterCarousel extends Component {
     // and writing them now would trip Glimmer's backtracking assertion.
     schedule("afterRender", update);
     element.addEventListener("scroll", update, { passive: true });
+    // Widening or narrowing the window changes whether there is anything left
+    // to scroll to, with no scroll event to say so.
+    const resizes = window.ResizeObserver ? new ResizeObserver(update) : null;
+    resizes?.observe(element);
     return () => {
       element.removeEventListener("scroll", update);
+      resizes?.disconnect();
       this.track = null;
     };
   });
@@ -85,8 +103,16 @@ export default class PosterCarousel extends Component {
     if (!track) {
       return;
     }
-    this.atStart = track.scrollLeft <= 1;
-    this.atEnd = track.scrollLeft + track.clientWidth >= track.scrollWidth - 1;
+    const atStart = track.scrollLeft <= 1;
+    const atEnd = track.scrollLeft + track.clientWidth >= track.scrollWidth - 1;
+    // Scroll fires every frame; assigning an unchanged value would still
+    // dirty the buttons that read it.
+    if (atStart !== this.atStart) {
+      this.atStart = atStart;
+    }
+    if (atEnd !== this.atEnd) {
+      this.atEnd = atEnd;
+    }
   }
 
   @action
@@ -142,14 +168,14 @@ export default class PosterCarousel extends Component {
                       class="lightbox poster-carousel__media"
                       href={{topic.image_url}}
                       title={{topic.title}}
+                      aria-label={{i18n
+                        (themePrefix "poster_carousel.enlarge")
+                        title=topic.title
+                      }}
                       data-target-width={{size.width}}
                       data-target-height={{size.height}}
                     >
-                      <img
-                        src={{posterImage topic}}
-                        alt={{topic.title}}
-                        loading="lazy"
-                      />
+                      <img src={{posterImage topic}} alt="" loading="lazy" />
                     </a>
                   {{/let}}
                   <a class="poster-carousel__caption" href={{topic.url}}>
