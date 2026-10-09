@@ -50,7 +50,7 @@ the one visual object each topic exists for, is never seen until the topic is op
 
 | Unit | Responsibility |
 |---|---|
-| `javascripts/discourse/lib/posters.js` | Pure functions, no Ember. `pickPosters(topics, { limit, excludeIds })` keeps topics with `image_url`, drops category definition topics, caps at `limit`. `posterImage(topic)` returns the carousel source: the `thumbnails` entry closest to 400px wide, else `image_url`. |
+| `javascripts/discourse/lib/posters.js` | Pure functions, no Ember. `pickPosters(topics, { limit, excludeIds })` keeps topics with `image_url`, drops category definition topics, caps at `limit`. `posterImage(topic)` returns the carousel source: the narrowest `thumbnails` entry at least 360px wide (a ~180px slide at 2× density; on PROD that is the 424×600 rendition), else `image_url`. `loadPosters(store, categoryId, options)` pages the listing. |
 | `javascripts/discourse/components/poster-carousel.gjs` | Takes `@category`. Decides whether to render, loads, renders the strip, binds the lightbox, drives the prev/next buttons. |
 | `javascripts/discourse/api-initializers/discovery-list-controls-above.gjs` | Renders `<PosterCarousel @category={{@outletArgs.category}} />` after the existing `DiscoveryHero`. Same outlet, same file — one outlet per initializer holds. |
 | `settings.yml` | `poster_carousel_category_ids` (list, default `85\|94\|83\|93`), `poster_carousel_tag` (string, `poster-evf`), `poster_carousel_count` (integer, 12), `poster_carousel_min` (integer, 3). Ids are settings because PRE and PROD ids differ. |
@@ -69,9 +69,11 @@ from the same file supplies `excludeIds`. No new helper duplicates either.
    `poster_carousel_count` posters and the list has more pages, load the next one, up to a
    hard cap of **5 pages** (~150 topics). On PROD today this is one request for 85, 94 and
    83.
-3. **State.** A `@tracked posters` local to the component; no service. The load is keyed
-   on the category id: when the user moves between categories the argument changes, a new
-   load starts, and any response for a category that is no longer current is discarded.
+3. **State.** A `@cached` getter returning the load's promise, handed to core's
+   `<DAsyncContent>`; no service. The getter reads the category id, so moving between
+   categories yields a new promise, and `DAsyncContent` renders only the current one —
+   a response for a category that is no longer current is never shown. (`@context` is
+   not used: the pinned `@discourse/types` predate it and PRE runs 2026.8.)
 4. **Consumption.** Each slide shows `posterImage(topic)`; its lightbox anchor points at
    `image_url` (the optimised ~723×1024 rendition), with the topic title as caption.
 
@@ -112,7 +114,7 @@ from the same file supplies `excludeIds`. No new helper duplicates either.
 ## Testing
 
 - `test/unit/posters-test.js`: `pickPosters` drops topics without an image, excludes
-  definition topics, respects `limit`; `posterImage` prefers the ~400px thumbnail and falls
+  definition topics, respects `limit`; `posterImage` prefers the narrowest thumbnail ≥360px and falls
   back to `image_url`.
 - `test/integration/poster-carousel-test.gjs` with pretender-stubbed listings: unlisted
   category renders nothing and requests nothing; below the minimum renders nothing; 12
