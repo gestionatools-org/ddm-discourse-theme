@@ -4,6 +4,7 @@ import {
   pickPosters,
   POSTER_MAX_PAGES,
   posterImage,
+  posterSize,
 } from "../../discourse/lib/posters";
 
 // Pure functions plus one loader that only talks to the store it is handed, so
@@ -67,6 +68,37 @@ module("Espublico Theme | Unit | posters | posterImage", function () {
   test("returns null for a topic with no image at all", function (assert) {
     assert.strictEqual(posterImage({ image_url: null }), null);
     assert.strictEqual(posterImage(null), null);
+  });
+});
+
+module("Espublico Theme | Unit | posters | posterSize", function () {
+  // Core's lightbox preloads every anchor's full image unless it is told the
+  // size up front, so the size has to come from data the list already holds.
+  test("reads the size of the thumbnail that image_url points at", function (assert) {
+    assert.deepEqual(
+      posterSize({
+        image_url: "/1024.jpg",
+        thumbnails: [
+          { url: "/o.jpg", width: 1587, height: 2245 },
+          { url: "/1024.jpg", width: 723, height: 1024 },
+        ],
+      }),
+      { width: 723, height: 1024 }
+    );
+  });
+
+  test("falls back to the portrait poster size", function (assert) {
+    assert.deepEqual(posterSize({ image_url: "/x.jpg" }), {
+      width: 723,
+      height: 1024,
+    });
+    assert.deepEqual(
+      posterSize({
+        image_url: "/x.jpg",
+        thumbnails: [{ url: "/other.jpg", width: 10, height: 10 }],
+      }),
+      { width: 723, height: 1024 }
+    );
   });
 });
 

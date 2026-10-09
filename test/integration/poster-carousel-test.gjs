@@ -98,7 +98,10 @@ module("Espublico Theme | Integration | poster carousel", function (hooks) {
     assert.dom(".poster-carousel__item").exists({ count: 12 });
     assert
       .dom(".poster-carousel__item:first-child a.lightbox")
-      .hasAttribute("href", "/img/1.jpg", "lightbox opens the full image");
+      .hasAttribute("href", "/img/1.jpg", "lightbox opens the full image")
+      // Without a size core's lightbox preloads every full image on render.
+      .hasAttribute("data-target-width", "723")
+      .hasAttribute("data-target-height", "1024");
     assert
       .dom(".poster-carousel__item:first-child img")
       .hasAttribute("src", "/img/1-600.jpg", "slide shows the thumbnail")

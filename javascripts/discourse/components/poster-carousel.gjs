@@ -2,7 +2,6 @@ import Component from "@glimmer/component";
 import { cached, tracked } from "@glimmer/tracking";
 import { fn } from "@ember/helper";
 import { action } from "@ember/object";
-import { guidFor } from "@ember/object/internals";
 import { schedule } from "@ember/runloop";
 import { service } from "@ember/service";
 import { trustHTML } from "@ember/template";
@@ -23,13 +22,17 @@ import { loadPosters, posterImage } from "../lib/posters";
 // every `.lightbox` anchor inside the track); the caption links to the topic.
 // A portrait poster is unreadable at slide size, so the lightbox is how it is
 // read without leaving the listing.
+// Themes cannot import `@ember/object/internals` (CI: "Could not find module"),
+// and one instance per page needs nothing stronger than a counter.
+let nextTitleId = 0;
+
 export default class PosterCarousel extends Component {
   @service store;
 
   @tracked atStart = true;
   @tracked atEnd = false;
 
-  titleId = `poster-carousel-title-${guidFor(this)}`;
+  titleId = `poster-carousel-title-${++nextTitleId}`;
   track = null;
 
   bindLightbox = modifier((element) => {

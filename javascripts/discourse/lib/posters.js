@@ -24,6 +24,32 @@ export function posterImage(topic, minWidth = POSTER_THUMBNAIL_MIN_WIDTH) {
   return fit?.url ?? topic?.image_url ?? null;
 }
 
+// What the posters on PROD are (2026-10-09): 723×1024 renditions of an
+// A-series sheet. Used when the list carries no size for the image.
+const POSTER_FALLBACK_SIZE = { width: 723, height: 1024 };
+
+/**
+ * The pixel size of the image the lightbox opens (`image_url`).
+ *
+ * Core's lightbox preloads the full image of every anchor it is not given a
+ * size for, which on a strip of twelve posters means twelve full-size
+ * downloads the moment the listing renders. Only the ratio matters to it, so
+ * the portrait fallback is safe when the list carries no match.
+ *
+ * @param {Object} topic
+ * @returns {{width: Number, height: Number}}
+ */
+export function posterSize(topic) {
+  const match = (topic?.thumbnails ?? []).find(
+    (thumbnail) =>
+      thumbnail.url === topic.image_url && thumbnail.width && thumbnail.height
+  );
+
+  return match
+    ? { width: match.width, height: match.height }
+    : { ...POSTER_FALLBACK_SIZE };
+}
+
 /**
  * Topics that can be shown as a poster: they carry an image and are not
  * excluded (category definition topics). Order is preserved.
