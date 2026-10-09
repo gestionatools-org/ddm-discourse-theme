@@ -1,0 +1,107 @@
+// Certified users' posters above Comparte's topic list. A strip, not a grid:
+// it scrolls on its own axis with native snap, so touch and trackpad need no
+// script; the buttons are a desktop convenience on top.
+.poster-carousel {
+  // Visible slides at once. A fraction of the next one shows at every width —
+  // that partial slide is what says "this scrolls".
+  --poster-carousel-columns: 2.3;
+  --poster-carousel-gap: 0.75rem;
+  margin-block: 1.5rem;
+
+  @include viewport.from(md) {
+    --poster-carousel-columns: 4.3;
+  }
+
+  @include viewport.from(xl) {
+    --poster-carousel-columns: 6.3;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-block-end: 0.75rem;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: var(--font-up-1);
+  }
+
+  // Touch users swipe; the buttons would only take room from the title.
+  &__nav {
+    display: none;
+    gap: 0.25rem;
+
+    @include viewport.from(md) {
+      display: flex;
+    }
+  }
+
+  &__track {
+    display: grid;
+    grid-auto-columns: calc(
+      (
+          100% - (var(--poster-carousel-columns) - 1) *
+            var(--poster-carousel-gap)
+        ) /
+        var(--poster-carousel-columns)
+    );
+    grid-auto-flow: column;
+    gap: var(--poster-carousel-gap);
+    margin: 0;
+    padding: 0 0 0.5rem;
+    list-style: none;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+
+    @media (prefers-reduced-motion: reduce) {
+      scroll-behavior: auto;
+    }
+  }
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    min-width: 0;
+    scroll-snap-align: start;
+  }
+
+  &__media {
+    display: block;
+    overflow: hidden;
+    border: 1px solid var(--ga-border);
+    border-radius: var(--d-border-radius);
+    background: var(--ga-muted);
+    box-shadow: var(--ga-shadow-lane);
+
+    img {
+      display: block;
+      width: 100%;
+      height: auto;
+
+      // PROD's posters are 723×1024 renditions of an A-series sheet.
+      aspect-ratio: 723 / 1024;
+      object-fit: cover;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--tertiary);
+      outline-offset: 2px;
+    }
+  }
+
+  &__caption {
+    display: -webkit-box;
+    overflow: hidden;
+    color: var(--primary);
+    font-size: var(--font-down-1);
+    line-height: var(--line-height-medium);
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+}
