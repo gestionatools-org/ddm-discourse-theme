@@ -2,9 +2,10 @@ import { render } from "@ember/test-helpers";
 import { module, test } from "qunit";
 import BlockOutlet from "discourse/blocks/block-outlet";
 import { withPluginApi } from "discourse/lib/plugin-api";
+import Category from "discourse/models/category";
 import { setupRenderingTest } from "discourse/tests/helpers/component-test";
+import BlockCertified from "../../discourse/blocks/block-certified";
 import BlockEvents from "../../discourse/blocks/block-events";
-import BlockForum from "../../discourse/blocks/block-forum";
 import BlockHero from "../../discourse/blocks/block-hero";
 import BlockLatest from "../../discourse/blocks/block-latest";
 
@@ -447,121 +448,40 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
     });
   });
 
-  module("ideas lane", function () {
-    test("takes its icon as an arg rather than hardcoding one", async function (assert) {
-      // "Tengo una idea" reuses BlockForum wholesale — same shape, same reply
-      // count promotion, 3.6 replies/topic — and passes its own `lightbulb`.
-      // The icon was hardcoded once, back when this component also backed the
-      // forum lane and the two read as one lane split in half.
-      stubStore(this.owner, [topic({ id: 900013 })]);
+  module("certified-users lane", function () {
+    // Core's site fixture, not a theme one: any category whose definition topic
+    // is known stands in for Comparte.
+    function fixtureCategory() {
+      return Category.list().find((category) => category.topic_url);
+    }
 
+    function renderLane(args) {
       withPluginApi((api) =>
         api.renderBlocks("main-outlet-blocks", [
           {
-            block: BlockForum,
+            block: BlockCertified,
             args: {
-              title: "homepage.ideas.title",
-              icon: "lightbulb",
-              categoryId: 18,
+              title: "homepage.certified.title",
+              linkText: "homepage.certified.link_text",
+              emptyText: "homepage.certified.empty",
+              tag: "poster-evf",
               count: 6,
+              ...args,
             },
           },
         ])
       );
 
-      await render(
+      return render(
         <template><BlockOutlet @name="main-outlet-blocks" /></template>
       );
+    }
 
-      assert.dom(".block-forum__title .d-icon-lightbulb").exists();
-    });
-
-    test("says it has no ideas, not that it has no conversations", async function (assert) {
-      // The empty string was the second thing BlockForum hardcoded. Sharing it
-      // is nearly invisible — a category at 318 topics does not render its
-      // empty state — but a lane that announces the wrong absence is the kind
-      // of thing nobody notices and nobody can explain later.
-      stubStore(this.owner, []);
-
-      withPluginApi((api) =>
-        api.renderBlocks("main-outlet-blocks", [
-          {
-            block: BlockForum,
-            args: {
-              title: "homepage.ideas.title",
-              emptyText: "homepage.ideas.empty",
-              categoryId: 18,
-              count: 6,
-            },
-          },
-        ])
-      );
-
-      await render(
-        <template><BlockOutlet @name="main-outlet-blocks" /></template>
-      );
-
-      assert.dom(".block-forum__empty").hasText("No ideas yet.");
-    });
-
-    test("keeps BlockForum's own icon when none is given", async function (assert) {
-      // No production call site omits the icon any more — the ideas lane always
-      // passes `lightbulb` — but the `far-comments` default is still part of
-      // the component contract, and it is the thing that told the forum and
-      // ideas lanes apart while both were on the page.
-      stubStore(this.owner, [topic({ id: 900014 })]);
-
-      withPluginApi((api) =>
-        api.renderBlocks("main-outlet-blocks", [
-          {
-            block: BlockForum,
-            args: {
-              title: "homepage.ideas.title",
-              categoryId: 18,
-              count: 6,
-            },
-          },
-        ])
-      );
-
-      await render(
-        <template><BlockOutlet @name="main-outlet-blocks" /></template>
-      );
-
-      assert.dom(".block-forum__title .d-icon-far-comments").exists();
-    });
-
-    test("promotes the reply count, which is this lane's reason to exist", async function (assert) {
-      // "Tengo una idea" averages 3.6 replies/topic; the number beside each
-      // title is the proof the category is alive.
-      stubStore(this.owner, [topic({ id: 900020, reply_count: 7 })]);
-
-      withPluginApi((api) =>
-        api.renderBlocks("main-outlet-blocks", [
-          {
-            block: BlockForum,
-            args: { title: "homepage.ideas.title", categoryId: 18, count: 6 },
-          },
-        ])
-      );
-
-      await render(
-        <template><BlockOutlet @name="main-outlet-blocks" /></template>
-      );
-
-      assert.dom(".block-forum__item-replies").includesText("7");
-    });
-
-    test("filters the lane by the registered-idea tag", async function (assert) {
-      // The lane used to show the whole of category 18. It now shows what the
-      // team has marked as taken in — `idea-registrada`, 9 topics the day it
-      // was introduced — so the filter has to reach the **server**: a
-      // client-side pass over one fetched page would show only the registered
-      // ideas that happened to be among the 30 most recently bumped.
-      //
-      // `stubStore` above cannot answer this: it discards its arguments. This
-      // one keeps them, because what is under test is the query, not the
-      // markup it produces.
+    test("lists the newest posters by creation date, filtered server-side by tag", async function (assert) {
+      // By creation, not activity: a reply to an old poster must not put it
+      // at the head of a lane announcing the latest certifications. And by
+      // tag on the server, because 176 posters sit among Comparte's other
+      // topics and one fetched page would not hold them.
       const queries = [];
       this.owner.unregister("service:store");
       this.owner.register(
@@ -569,65 +489,71 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
         {
           findFiltered: async (type, options) => {
             queries.push(options);
-            return { topics: [topic({ id: 900050 })] };
+            return { topics: [topic({ id: 900060 })] };
           },
         },
         { instantiate: false }
       );
 
-      withPluginApi((api) =>
-        api.renderBlocks("main-outlet-blocks", [
-          {
-            block: BlockForum,
-            args: {
-              title: "homepage.ideas.title",
-              categoryId: 18,
-              count: 6,
-              tag: "idea-registrada",
-            },
-          },
-        ])
-      );
+      await renderLane({ categoryId: 85 });
 
-      await render(
-        <template><BlockOutlet @name="main-outlet-blocks" /></template>
-      );
-
-      assert.deepEqual(
-        queries[0]?.params?.tags,
-        ["idea-registrada"],
-        "the tag reaches the server-side query"
-      );
+      assert.deepEqual(queries[0], {
+        filter: "c/85/l/latest",
+        params: { tags: ["poster-evf"], order: "created" },
+      });
     });
 
-    test("drops the section heading link in compact form", async function (assert) {
-      // In the panel the lane is a list, not a section: at ~430px a heading
-      // with a trailing link wraps onto two lines and reads as a second
-      // section rather than as part of this one.
-      stubStore(this.owner, [topic({ id: 900050 })]);
+    test("renders one link per poster, to its topic", async function (assert) {
+      // No image filter: most posters are attached as a PDF and carry no
+      // `image_url`, and they are certifications all the same.
+      stubStore(this.owner, [
+        topic({
+          id: 900061,
+          fancy_title: "Nueva alumna certificada",
+          url: "/t/a/900061",
+        }),
+        topic({
+          id: 900062,
+          fancy_title: "Nuevo alumno certificado",
+          url: "/t/b/900062",
+        }),
+      ]);
 
-      withPluginApi((api) =>
-        api.renderBlocks("main-outlet-blocks", [
-          {
-            block: BlockForum,
-            args: {
-              title: "homepage.ideas.title",
-              linkText: "homepage.ideas.link_text",
-              linkUrl: "/c/18",
-              categoryId: 18,
-              count: 5,
-              compact: true,
-            },
-          },
-        ])
-      );
+      await renderLane({ categoryId: fixtureCategory().id });
 
-      await render(
-        <template><BlockOutlet @name="main-outlet-blocks" /></template>
-      );
+      assert
+        .dom(".block-certified__title")
+        .includesText("Latest certified users");
+      assert.dom(".block-certified__title .d-icon-certificate").exists();
+      assert.dom(".block-certified__item").exists({ count: 2 });
+      assert
+        .dom(".block-certified__item-link")
+        .hasAttribute("href", "/t/a/900061")
+        .hasText("Nueva alumna certificada");
+    });
 
-      assert.dom(".block-forum.--compact").exists("carries the modifier");
-      assert.dom(".block-forum__link").doesNotExist("no trailing link");
+    test("links to the category's own About topic, not to its listing", async function (assert) {
+      // The topic is read off the preloaded category rather than configured,
+      // so the link follows the instance the theme is installed on.
+      const category = fixtureCategory();
+      stubStore(this.owner, [topic({ id: 900063 })]);
+
+      await renderLane({ categoryId: category.id });
+
+      assert
+        .dom(".block-certified__footer .block-certified__link")
+        .hasAttribute("href", category.topic_url)
+        .hasText("See them in Comparte");
+    });
+
+    test("says there are no posters when the listing is empty", async function (assert) {
+      stubStore(this.owner, []);
+
+      await renderLane({ categoryId: fixtureCategory().id });
+
+      assert
+        .dom(".block-certified__empty")
+        .hasText("No certification posters yet.");
     });
   });
 });

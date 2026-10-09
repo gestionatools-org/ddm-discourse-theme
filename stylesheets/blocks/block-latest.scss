@@ -1,5 +1,5 @@
 // The latest-topics section: a heading and then core's own topic list, in the
-// same `lane-frame` the events and ideas lanes wear.
+// same `lane-frame` the events and certified-users lanes wear.
 //
 // Deliberately thin. The list itself is styled once, site-wide, in
 // stylesheets/app/topic-list.scss — brand hairlines, tabular figures — and it
@@ -25,7 +25,7 @@
 
   .topic-list {
     // No margin of its own: `lane-header`'s `margin-bottom` is the gap above the
-    // list, the same as in the events and ideas lanes. The table draws its own
+    // list, the same as in the events and certified-users lanes. The table draws its own
     // top border, so it needs nothing more to sit against.
     margin-block-start: 0;
 

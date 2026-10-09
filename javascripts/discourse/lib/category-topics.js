@@ -77,13 +77,15 @@ export function categoryStats(category) {
  * @param {Object} [options]
  * @param {Boolean} [options.requireImage] - drop topics with no cover image
  * @param {String} [options.tag] - restrict to topics carrying this tag
+ * @param {String} [options.order] - server-side sort; `"created"` for newest
+ *   first by creation date instead of the listing's default last activity
  * @returns {Promise<Array|null>}
  */
 export async function loadCategoryTopics(
   store,
   categoryId,
   count,
-  { requireImage = false, tag = "" } = {}
+  { requireImage = false, tag = "", order = "" } = {}
 ) {
   if (!categoryId) {
     return null;
@@ -97,8 +99,19 @@ export async function loadCategoryTopics(
   //
   // The empty-string guard is what keeps an unset setting from becoming
   // `tags: [""]`, which matches nothing and would empty the lane in silence.
+  const params = {};
   if (tag) {
-    options.params = { tags: [tag] };
+    params.tags = [tag];
+  }
+
+  // A reply bumps a topic to the head of a plain `latest` listing, so a lane
+  // that means "most recently published" has to ask for creation order.
+  if (order) {
+    params.order = order;
+  }
+
+  if (Object.keys(params).length) {
+    options.params = params;
   }
 
   const topicList = await store.findFiltered("topicList", options);

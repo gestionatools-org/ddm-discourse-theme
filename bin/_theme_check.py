@@ -7,8 +7,8 @@ off reads a national ID onto the front page.
 """
 import copy
 
-CATEGORY_SETTINGS = ("events_category_id", "ideas_category_id", "hero_default_category_id")
-TAG_SETTINGS = ("ideas_tag", "highlights_podcast_tag", "highlights_newsletter_tag", "highlights_news_tag")
+CATEGORY_SETTINGS = ("events_category_id", "certified_category_id", "hero_default_category_id")
+TAG_SETTINGS = ("poster_carousel_tag", "highlights_podcast_tag", "highlights_newsletter_tag", "highlights_news_tag")
 FIELD_SETTINGS = ("highlights_member_entity_field_id", "highlights_member_role_field_id")
 ROOMS_SETTING = "header_room_category_ids"
 
@@ -95,20 +95,20 @@ def _good():
             "id": 20, "default": False, "remote_url": expect["remote_url"],
             "remote_compat_ref": None, "local_version": "a" * 40,
             "settings": {
-                "events_category_id": 59, "ideas_category_id": 18, "hero_default_category_id": 5,
+                "events_category_id": 59, "certified_category_id": 85, "hero_default_category_id": 5,
                 "header_room_category_ids": "90|91|92",
-                "ideas_tag": "idea-registrada", "highlights_podcast_tag": "podcast",
+                "poster_carousel_tag": "poster-evf", "highlights_podcast_tag": "podcast",
                 "highlights_newsletter_tag": "newsletter", "highlights_news_tag": "nueva-version-gestiona",
                 "highlights_member_entity_field_id": 2, "highlights_member_role_field_id": 4,
             },
             "site_settings": {"enable_welcome_banner": "false", "search_experience": "search_icon"},
         },
         "categories": {
-            59: {"parent": None, "topic_count": 50}, 18: {"parent": None, "topic_count": 445},
+            59: {"parent": None, "topic_count": 50}, 85: {"parent": None, "topic_count": 2},
             5: {"parent": None, "topic_count": 169}, 90: {"parent": 5, "topic_count": 0},
             91: {"parent": 5, "topic_count": 0}, 92: {"parent": 5, "topic_count": 0},
         },
-        "tags": {"idea-registrada": 10, "podcast": 6, "newsletter": 30, "nueva-version-gestiona": 14},
+        "tags": {"poster-evf": 178, "podcast": 6, "newsletter": 30, "nueva-version-gestiona": 14},
         "user_fields": {
             1: {"name": "NIF", "show_on_profile": False},
             2: {"name": "Nombre y tipo de entidad", "show_on_profile": True},
@@ -141,9 +141,9 @@ def self_test():
          "89 is not a room under 5")
     case("site setting", lambda s, e: s["theme"]["site_settings"].update(enable_welcome_banner="true"), "enable_welcome_banner")
     case("missing category", lambda s, e: s["categories"].update({59: None}), "events_category_id 59 does not exist")
-    case("nested category", lambda s, e: s["categories"].update({18: {"parent": 5, "topic_count": 445}}), "ideas_category_id 18 is not top level")
+    case("nested category", lambda s, e: s["categories"].update({85: {"parent": 5, "topic_count": 2}}), "certified_category_id 85 is not top level")
     case("empty category", lambda s, e: s["categories"].update({5: {"parent": None, "topic_count": 0}}), "hero_default_category_id 5 has no topics")
-    case("missing tag", lambda s, e: s["tags"].update({"idea-registrada": None}), "ideas_tag 'idea-registrada' does not exist")
+    case("missing tag", lambda s, e: s["tags"].update({"poster-evf": None}), "poster_carousel_tag 'poster-evf' does not exist")
     case("empty tag", lambda s, e: s["tags"].update({"nueva-version-gestiona": 0}), "highlights_news_tag 'nueva-version-gestiona' has no topics")
     case("hidden field", lambda s, e: s["theme"]["settings"].update(highlights_member_entity_field_id=1), "field 1")
     case("wrong field name", lambda s, e: s["user_fields"].update({4: {"name": "Puesto", "show_on_profile": True}}), "field 4")

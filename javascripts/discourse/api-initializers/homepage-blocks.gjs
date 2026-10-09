@@ -1,15 +1,15 @@
 import BlockGroup from "discourse/blocks/builtin/block-group";
 import { apiInitializer } from "discourse/lib/api";
+import BlockCertified from "../blocks/block-certified";
 import BlockEvents from "../blocks/block-events";
-import BlockForum from "../blocks/block-forum";
 import BlockHero from "../blocks/block-hero";
 import BlockHighlights from "../blocks/block-highlights";
 import BlockLatest from "../blocks/block-latest";
 
 // The homepage is a heading band, then section 1 — a reading column and a panel
 // beside it — then section 2, the community-highlights bento. The panel holds
-// two cards, the events lane ("Agenda del certificado") and the ideas lane
-// ("Últimas ideas registradas"), stacked against the site-wide latest list;
+// two cards, the events lane ("Agenda del certificado") and the certified-users
+// lane ("Últimos usuarios certificados"), stacked against the site-wide latest list;
 // section 2 is a four-card grid (podcast · newsletter · novedad · member of
 // the month) that renders only when at least one of its content tags is set.
 //
@@ -19,7 +19,7 @@ import BlockLatest from "../blocks/block-latest";
 // nothing declared that container — not the theme, not core — so the query
 // never matched and the page was a single stacked column for its whole life.
 //
-// The events and ideas lanes are keyed by category ID because this instance's
+// The events and certified-users lanes are keyed by category ID because this instance's
 // slugs are legacy and no longer match their category; the latest list is
 // site-wide and has no category to lose.
 //
@@ -84,24 +84,22 @@ export default apiInitializer((api) => {
               },
             },
             {
-              // The ideas lane. Category 18 is the largest on the site, but the
-              // lane no longer shows all of it: `ideas_tag` narrows it to the
-              // ideas the team has marked as registered. That trades the one
-              // panel slot that could never be empty for one that can, so the
-              // tag and the count are kept in step — nine tagged topics, nine
-              // rows — and the setting's own note carries the warning.
-              block: BlockForum,
-              id: "panel-ideas",
+              // The certified-users lane, in the slot the ideas lane held until
+              // 2026-10-09: the newest certification posters across Comparte
+              // and its subcategories. The tag is the carousel's, so one
+              // setting says what a poster is. Each subcategory is restricted
+              // to its programme's group, so a member sees the posters of the
+              // programmes they belong to — permissions are enforced by the
+              // listing, not here.
+              block: BlockCertified,
+              id: "panel-certified",
               args: {
-                title: "homepage.ideas.title",
-                linkText: "homepage.ideas.link_text",
-                linkUrl: `/c/${settings.ideas_category_id}`,
-                icon: "lightbulb",
-                emptyText: "homepage.ideas.empty",
-                categoryId: settings.ideas_category_id,
-                count: settings.panel_ideas_count,
-                tag: settings.ideas_tag,
-                compact: true,
+                title: "homepage.certified.title",
+                linkText: "homepage.certified.link_text",
+                emptyText: "homepage.certified.empty",
+                categoryId: settings.certified_category_id,
+                count: settings.certified_count,
+                tag: settings.poster_carousel_tag,
               },
             },
           ],

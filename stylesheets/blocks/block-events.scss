@@ -1,4 +1,4 @@
-// Shares `lane-frame` with the ideas lane below it and the latest list beside
+// Shares `lane-frame` with the certified-users lane below it and the latest list beside
 // them: same frame, no background tint, no hierarchy between them. The internal
 // upcoming/past split is events being events, not a second tier.
 .block-events {
@@ -138,7 +138,7 @@
   // affordance lives.
   //
   // `font-weight: 700` is the one place this row departs from AMD, whose name
-  // runs at 400. The ideas lane directly below shares this panel and sets its
+  // runs at 400. The certified-users lane below shares this panel and sets its
   // titles bold; a column of regular titles over a column of bold ones reads
   // as two tiers rather than as one list.
   //

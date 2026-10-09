@@ -1,0 +1,47 @@
+// The panel's second card, under the events lane. Same frame, header and row
+// rhythm as that lane, so the panel reads as one column of two lists.
+.block-certified {
+  @include lane-frame;
+
+  &__header {
+    @include lane-header;
+  }
+
+  &__title {
+    @include lane-title;
+  }
+
+  &__empty {
+    @include lane-empty;
+  }
+
+  &__list {
+    @include lane-list;
+  }
+
+  // Poster titles carry programme, name and entity ("CAAG 31 - Nuevo alumno
+  // certificado - … - Ayto. de …"), so they run long. Two lines keep the name,
+  // which comes early, and stop one title from setting the panel's height.
+  // Bold at body size, like the event titles above, so the two lists read as
+  // one tier.
+  &__item-link {
+    display: -webkit-box;
+    overflow: hidden;
+    color: var(--primary);
+    font-size: var(--font-0);
+    font-weight: 700;
+    line-height: var(--line-height-medium);
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    transition: color var(--ga-duration-fast) var(--ga-ease);
+
+    &:hover,
+    &:focus-visible {
+      color: var(--tertiary);
+    }
+  }
+
+  &__footer {
+    margin-top: var(--space-3);
+  }
+}

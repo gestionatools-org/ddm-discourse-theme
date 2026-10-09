@@ -6,9 +6,8 @@ en:
       latest_count: "How many topics to show in the latest list."
       events_category_id: "Category shown in the events lane in the panel. Its subcategories are included. 0 hides the lane."
       events_count: "How many events to show in the panel lane."
-      ideas_category_id: "Category shown in the panel beside the latest list. Its subcategories are included. 0 hides it."
-      panel_ideas_count: "How many ideas to show in the panel beside the latest list."
-      ideas_tag: "Only topics carrying this tag fill the ideas panel. Matched server-side across the whole category. Empty shows the whole category instead."
+      certified_category_id: "Category whose newest certification posters fill the panel beside the latest list. Its subcategories are included; the lane links to its About topic."
+      certified_count: "How many certification posters to show in the panel beside the latest list."
       header_room_category_ids: "Programme rooms linked from the site header, in order. Each link shows only to members who can see that category, and is labelled with the category's name. Empty hides the links."
       highlights_podcast_tag: "Tag whose most recent topic fills the podcast card. Matched by slug. Empty hides the card."
       highlights_newsletter_tag: "Tag whose most recent topic fills the newsletter card. Matched by slug. Empty hides the card."
@@ -85,18 +84,10 @@ en:
       # both halves are labelled rather than merged into one undated run.
       upcoming: "Coming up"
       past: "Past events"
-    ideas:
-      title: "Latest ideas posted"
-      link_text: "Share an idea"
-      empty: "No ideas yet."
-    # Rendered by BlockForum for the ideas lane. `empty` is the component's arg
-    # default (the ideas lane overrides it with `ideas.empty`); `replies` is
-    # read straight from the template.
-    forum:
-      empty: "No conversations yet."
-      replies:
-        one: "%{count} reply"
-        other: "%{count} replies"
+    certified:
+      title: "Latest certified users"
+      link_text: "See them in Comparte"
+      empty: "No certification posters yet."
     highlights:
       title: "Community highlights"
       soon: "Coming soon"
