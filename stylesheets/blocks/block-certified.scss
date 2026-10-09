@@ -19,16 +19,18 @@
     @include lane-list;
   }
 
-  // A row is the title over a grey line, set behind the 3px brand edge
-  // (`--ga-edge`, the signature rule of the system — see colors.scss for why
-  // its colour clears 3:1 on both surfaces). The edge is what marks each
-  // entry; the lane-list spacing is what separates them.
+  // A row is the title over a grey line, behind a 3px rule in `--ga-mark`, the
+  // same brand cyan as the medal in the lane heading, so the rule reads as that
+  // mark carried down the list. Decorative, like the icon: each entry is
+  // identified by its text, so the 3:1 floor that `--ga-edge` exists to meet
+  // (WCAG 1.4.11, for edges that carry meaning) does not apply here. The rule
+  // marks each entry; the lane-list spacing separates them.
   &__item-link {
     display: flex;
     flex-direction: column;
     min-width: 0;
     padding-inline-start: var(--space-3);
-    border-inline-start: 3px solid var(--ga-edge);
+    border-inline-start: 3px solid var(--ga-mark);
     color: inherit;
 
     &:hover .block-certified__item-title,

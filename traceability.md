@@ -2686,3 +2686,7 @@ At the maintainer's request the medal moved from every row to the lane heading, 
 ## 2026-10-09 — Panel lane shows 7 rows (theme 1.10.1)
 
 Without the chip each row is fixed-height, so the lane's height no longer depends on the panel width. Measured with PROD's compiled CSS: 6 rows come to 476px, 7 to 538px and 8 to 599px. The ideas lane it replaced measured 520px at a 428px panel and 611px at 324px. `certified_count` went from 6 to 7 at the maintainer's request; neither instance overrode it.
+
+## 2026-10-09 — Panel lane rule matches the heading medal (theme 1.10.2)
+
+At the maintainer's request the rows' 3px rule now uses `--ga-mark`, the brand cyan of the medal in the lane heading, in place of `--ga-edge` (a darker cyan on light surfaces). The rule is decorative, like the icon, so the 3:1 contrast floor that `--ga-edge` exists to meet does not apply.
