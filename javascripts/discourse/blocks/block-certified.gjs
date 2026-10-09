@@ -10,13 +10,61 @@ import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
 import { loadCategoryTopics } from "../lib/category-topics";
 
-// The newest certification posters, as a list of titles. It replaced the ideas
-// lane in the homepage panel on 2026-10-09.
+// The newest certification posters. It replaced the ideas lane in the homepage
+// panel on 2026-10-09.
 //
 // Titles, not images: even after the 2026-10-09 backfill only 83 of
 // Comparte's ~178 `poster-evf` topics on PROD carry an `image_url`, so a
 // thumbnail list would skip most new certifications — and images appear only
 // in the carousel above Comparte's own listing, by agreement.
+// "Administración Avanzada · 8 de octubre de 2026": the programme is the
+// poster's subcategory and the date is when it was posted. Same long date as
+// the events lane's grey line above it, from `<html lang>` so it follows the
+// Discourse UI rather than the browser.
+function posterMeta(topic) {
+  const programme = Category.findById(topic.category_id)?.name;
+  const date = new Intl.DateTimeFormat(
+    document.documentElement.lang || undefined,
+    {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    }
+  ).format(new Date(topic.created_at));
+
+  return {
+    text: programme ? `${programme} · ${date}` : date,
+    iso: new Date(topic.created_at).toISOString(),
+  };
+}
+
+// One row, built like the events lane's directly above it in the same panel:
+// a 2.75rem chip, then a column holding the title over a grey line. The chip
+// carries the certificate icon rather than a date, so the two lists share a
+// shape without reading as one list continued. No avatar: the posters are
+// published by tutors and staff on the certified user's behalf, so the avatar
+// would show the wrong person.
+const CertifiedItem = <template>
+  <li class="block-certified__item">
+    <a class="block-certified__item-link" href={{@topic.url}}>
+      <span class="block-certified__item-icon" aria-hidden="true">
+        {{dIcon "certificate"}}
+      </span>
+      {{#let (posterMeta @topic) as |meta|}}
+        <span class="block-certified__item-content">
+          <span class="block-certified__item-title">
+            {{! `fancy_title` is already HTML; core renders it raw too. }}
+            {{trustHTML @topic.fancy_title}}
+          </span>
+          <time class="block-certified__item-meta" datetime={{meta.iso}}>
+            {{meta.text}}
+          </time>
+        </span>
+      {{/let}}
+    </a>
+  </li>
+</template>;
+
 @block("theme:espublico:certified", {
   description: "Newest certification posters, linked to their topics",
   args: {
@@ -56,7 +104,7 @@ export default class BlockCertified extends Component {
     <section class="block-certified">
       <header class="block-certified__header">
         <h2 class="block-certified__title">
-          {{dIcon "certificate"}}
+          {{dIcon "share"}}
           {{i18n (themePrefix @title)}}
         </h2>
       </header>
@@ -75,12 +123,7 @@ export default class BlockCertified extends Component {
         <:content as |topics|>
           <ul class="block-certified__list">
             {{#each topics key="id" as |topic|}}
-              <li class="block-certified__item">
-                <a class="block-certified__item-link" href={{topic.url}}>
-                  {{! `fancy_title` is already HTML; core renders it raw too. }}
-                  {{trustHTML topic.fancy_title}}
-                </a>
-              </li>
+              <CertifiedItem @topic={{topic}} />
             {{/each}}
           </ul>
         </:content>

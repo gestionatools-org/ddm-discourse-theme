@@ -521,15 +521,38 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
 
       await renderLane({ categoryId: fixtureCategory().id });
 
+      assert.dom(".block-certified__title").includesText("Shared resources");
+      assert.dom(".block-certified__title .d-icon-share").exists();
       assert
-        .dom(".block-certified__title")
-        .includesText("Latest certified users");
-      assert.dom(".block-certified__title .d-icon-certificate").exists();
+        .dom(".block-certified__item-icon .d-icon-certificate")
+        .exists({ count: 2 });
       assert.dom(".block-certified__item").exists({ count: 2 });
       assert
         .dom(".block-certified__item-link")
-        .hasAttribute("href", "/t/a/900061")
+        .hasAttribute("href", "/t/a/900061");
+      assert
+        .dom(".block-certified__item-title")
         .hasText("Nueva alumna certificada");
+    });
+
+    test("names the programme and the posting date under each title", async function (assert) {
+      // The programme is the poster's subcategory, read off the preloaded
+      // category list; the date is creation, matching the lane's order.
+      const category = fixtureCategory();
+      stubStore(this.owner, [
+        topic({
+          id: 900064,
+          category_id: category.id,
+          created_at: "2026-10-08T09:00:00.000Z",
+        }),
+      ]);
+
+      await renderLane({ categoryId: category.id });
+
+      assert
+        .dom(".block-certified__item-meta")
+        .includesText(category.name)
+        .hasAttribute("datetime", "2026-10-08T09:00:00.000Z");
     });
 
     test("links to the category's own About topic, not to its listing", async function (assert) {
