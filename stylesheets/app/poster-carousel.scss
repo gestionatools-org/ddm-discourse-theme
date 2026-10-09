@@ -50,8 +50,13 @@
     );
     grid-auto-flow: column;
     gap: var(--poster-carousel-gap);
-    margin: 0;
-    padding: 0 0 0.5rem;
+
+    // `overflow-x: auto` clips the y axis too, which cut the focus outline
+    // and the card shadow. The padding is the room they need; the negative
+    // margin keeps the slides on the content edge.
+    margin: -0.375rem;
+    padding: 0.375rem 0.375rem 0.875rem;
+    scroll-padding-inline: 0.375rem;
     list-style: none;
     overflow-x: auto;
     overscroll-behavior-x: contain;

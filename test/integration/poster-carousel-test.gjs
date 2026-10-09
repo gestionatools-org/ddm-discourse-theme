@@ -34,6 +34,9 @@ const poster = (id) => ({
   image_url: `/img/${id}.jpg`,
   thumbnails: [{ url: `/img/${id}-600.jpg`, width: 424 }],
 });
+// Ids far above the test site's fixtures: the component drops category
+// definition topics, and a fixture category's definition topic has a low id
+// that collided with poster 1–4 (CI 2026-10-09: 3 rendered instead of 4).
 const posters = (from, n) =>
   Array.from({ length: n }, (_, i) => poster(from + i));
 
@@ -49,7 +52,7 @@ module("Espublico Theme | Integration | poster carousel", function (hooks) {
   });
 
   test("renders nothing and requests nothing for an unlisted category", async function (assert) {
-    const calls = stubStore(this.owner, { 4: posters(1, 5) });
+    const calls = stubStore(this.owner, { 4: posters(9001, 5) });
     const category = { id: 4 };
     await render(
       <template><PosterCarousel @category={{category}} /></template>
@@ -68,7 +71,7 @@ module("Espublico Theme | Integration | poster carousel", function (hooks) {
   });
 
   test("renders nothing below the minimum", async function (assert) {
-    stubStore(this.owner, { 85: posters(1, 2) });
+    stubStore(this.owner, { 85: posters(9001, 2) });
     const category = { id: 85 };
     await render(
       <template><PosterCarousel @category={{category}} /></template>
@@ -89,7 +92,7 @@ module("Espublico Theme | Integration | poster carousel", function (hooks) {
   });
 
   test("renders up to the count, each with a lightbox image and a topic link", async function (assert) {
-    stubStore(this.owner, { 85: posters(1, 15) });
+    stubStore(this.owner, { 85: posters(9001, 15) });
     const category = { id: 85 };
     await render(
       <template><PosterCarousel @category={{category}} /></template>
@@ -98,22 +101,22 @@ module("Espublico Theme | Integration | poster carousel", function (hooks) {
     assert.dom(".poster-carousel__item").exists({ count: 12 });
     assert
       .dom(".poster-carousel__item:first-child a.lightbox")
-      .hasAttribute("href", "/img/1.jpg", "lightbox opens the full image")
+      .hasAttribute("href", "/img/9001.jpg", "lightbox opens the full image")
       // Without a size core's lightbox preloads every full image on render.
       .hasAttribute("data-target-width", "723")
       .hasAttribute("data-target-height", "1024");
     assert
       .dom(".poster-carousel__item:first-child img")
-      .hasAttribute("src", "/img/1-600.jpg", "slide shows the thumbnail")
-      .hasAttribute("alt", "Poster 1");
+      .hasAttribute("src", "/img/9001-600.jpg", "slide shows the thumbnail")
+      .hasAttribute("alt", "Poster 9001");
     assert
       .dom(".poster-carousel__item:first-child .poster-carousel__caption")
-      .hasAttribute("href", "/t/poster-1/1")
-      .hasText("Poster 1 & co", "entities render as characters");
+      .hasAttribute("href", "/t/poster-9001/9001")
+      .hasText("Poster 9001 & co", "entities render as characters");
   });
 
   test("is labelled by its heading and has translated nav buttons", async function (assert) {
-    stubStore(this.owner, { 85: posters(1, 4) });
+    stubStore(this.owner, { 85: posters(9001, 4) });
     const category = { id: 85 };
     await render(
       <template><PosterCarousel @category={{category}} /></template>
@@ -129,7 +132,7 @@ module("Espublico Theme | Integration | poster carousel", function (hooks) {
   });
 
   test("moving to another listed category shows that category's posters", async function (assert) {
-    stubStore(this.owner, { 85: posters(1, 4), 94: posters(100, 3) });
+    stubStore(this.owner, { 85: posters(9001, 4), 94: posters(9101, 3) });
     const state = new (class {
       @tracked category = { id: 85 };
     })();
@@ -144,6 +147,6 @@ module("Espublico Theme | Integration | poster carousel", function (hooks) {
     assert.dom(".poster-carousel__item").exists({ count: 3 });
     assert
       .dom(".poster-carousel__item:first-child img")
-      .hasAttribute("alt", "Poster 100");
+      .hasAttribute("alt", "Poster 9101");
   });
 });

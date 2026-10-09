@@ -11,7 +11,7 @@ import DAsyncContent from "discourse/ui-kit/d-async-content";
 import DButton from "discourse/ui-kit/d-button";
 import { i18n } from "discourse-i18n";
 import { definitionTopicIds, parseCategoryIds } from "../lib/category-topics";
-import { loadPosters, posterImage } from "../lib/posters";
+import { loadPosters, posterImage, posterSize } from "../lib/posters";
 
 // Certified users' posters above the topic list of Comparte and its
 // subcategories. Mounted next to `DiscoveryHero` in
@@ -137,17 +137,23 @@ export default class PosterCarousel extends Component {
             >
               {{#each topics key="id" as |topic|}}
                 <li class="poster-carousel__item">
-                  <a
-                    class="lightbox poster-carousel__media"
-                    href={{topic.image_url}}
-                    title={{topic.title}}
-                  >
-                    <img
-                      src={{posterImage topic}}
-                      alt={{topic.title}}
-                      loading="lazy"
-                    />
-                  </a>
+                  {{! The size spares core's lightbox from preloading every full
+                      image on render to measure it. }}
+                  {{#let (posterSize topic) as |size|}}
+                    <a
+                      class="lightbox poster-carousel__media"
+                      href={{topic.image_url}}
+                      title={{topic.title}}
+                      data-target-width={{size.width}}
+                      data-target-height={{size.height}}
+                    >
+                      <img
+                        src={{posterImage topic}}
+                        alt={{topic.title}}
+                        loading="lazy"
+                      />
+                    </a>
+                  {{/let}}
                   <a class="poster-carousel__caption" href={{topic.url}}>
                     {{trustHTML topic.fancy_title}}
                   </a>
