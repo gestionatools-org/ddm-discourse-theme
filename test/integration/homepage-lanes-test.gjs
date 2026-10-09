@@ -522,10 +522,10 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       await renderLane({ categoryId: fixtureCategory().id });
 
       assert.dom(".block-certified__title").includesText("Shared resources");
-      assert.dom(".block-certified__title .d-icon-share").exists();
+      assert.dom(".block-certified__title .d-icon-medal").exists();
       assert
-        .dom(".block-certified__item-icon .d-icon-medal")
-        .exists({ count: 2 });
+        .dom(".block-certified__item .d-icon")
+        .doesNotExist("the medal heads the lane once, not every row");
       assert.dom(".block-certified__item").exists({ count: 2 });
       assert
         .dom(".block-certified__item-link")

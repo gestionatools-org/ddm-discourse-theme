@@ -17,19 +17,15 @@ import { loadCategoryTopics } from "../lib/category-topics";
 // Comparte's ~178 `poster-evf` topics on PROD carry an `image_url`, so a
 // thumbnail list would skip most new certifications — and images appear only
 // in the carousel above Comparte's own listing, by agreement.
-// "Administración Avanzada · 8 de octubre de 2026": the programme is the
-// poster's subcategory and the date is when it was posted. Same long date as
-// the events lane's grey line above it, from `<html lang>` so it follows the
-// Discourse UI rather than the browser.
+// "Administración Avanzada · 8 oct 2026": the programme is the poster's
+// subcategory and the date is when it was posted. Short month so the line fits
+// on one row at the panel's narrowest width; locale from `<html lang>` so it
+// follows the Discourse UI rather than the browser.
 function posterMeta(topic) {
   const programme = Category.findById(topic.category_id)?.name;
   const date = new Intl.DateTimeFormat(
     document.documentElement.lang || undefined,
-    {
-      day: "numeric",
-      month: "long",
-      year: "numeric",
-    }
+    { day: "numeric", month: "short", year: "numeric" }
   ).format(new Date(topic.created_at));
 
   return {
@@ -38,30 +34,21 @@ function posterMeta(topic) {
   };
 }
 
-// One row, built like the events lane's directly above it in the same panel:
-// a 2.75rem chip, then a column holding the title over a grey line. The chip
-// carries a medal rather than a date, so the two lists share a shape without
-// reading as one list continued. `medal` is outside core's default icon subset
-// and is listed in about.json's `svg_icons` — without that it renders as an
-// empty box and every test still passes. No avatar: the posters are
+// One row: the title over a grey line, behind the 3px brand edge. No icon per
+// row — the medal heads the lane once — and no avatar: the posters are
 // published by tutors and staff on the certified user's behalf, so the avatar
 // would show the wrong person.
 const CertifiedItem = <template>
   <li class="block-certified__item">
     <a class="block-certified__item-link" href={{@topic.url}}>
-      <span class="block-certified__item-icon" aria-hidden="true">
-        {{dIcon "medal"}}
-      </span>
       {{#let (posterMeta @topic) as |meta|}}
-        <span class="block-certified__item-content">
-          <span class="block-certified__item-title">
-            {{! `fancy_title` is already HTML; core renders it raw too. }}
-            {{trustHTML @topic.fancy_title}}
-          </span>
-          <time class="block-certified__item-meta" datetime={{meta.iso}}>
-            {{meta.text}}
-          </time>
+        <span class="block-certified__item-title">
+          {{! `fancy_title` is already HTML; core renders it raw too. }}
+          {{trustHTML @topic.fancy_title}}
         </span>
+        <time class="block-certified__item-meta" datetime={{meta.iso}}>
+          {{meta.text}}
+        </time>
       {{/let}}
     </a>
   </li>
@@ -105,8 +92,11 @@ export default class BlockCertified extends Component {
   <template>
     <section class="block-certified">
       <header class="block-certified__header">
+        {{! `medal` is outside core's default icon subset and is listed in
+            about.json's `svg_icons` — without that it renders as an empty box
+            and every test still passes. }}
         <h2 class="block-certified__title">
-          {{dIcon "share"}}
+          {{dIcon "medal"}}
           {{i18n (themePrefix @title)}}
         </h2>
       </header>

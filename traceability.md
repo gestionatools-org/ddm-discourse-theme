@@ -2678,3 +2678,7 @@ The follow-ups deferred from the carousel review shipped: the image link now nam
 ## 2026-10-09 — Panel lane chip: medal icon, centred on its text (theme 1.9.1)
 
 At the maintainer's request the row chip now shows `medal` in place of `certificate`; `medal` was added to `svg_icons`. The chip is also centred vertically on the title and grey line. When top-aligned, its 44px box sat about 4px off the centre of the ~37px text column, which is two lines at a 428px panel and wraps to three at 324px; centred, the offset measured 0px at both widths with PROD's compiled CSS.
+
+## 2026-10-09 — Panel lane: medal heads the lane, rows behind the brand edge (theme 1.10.0)
+
+At the maintainer's request the medal moved from every row to the lane heading, replacing `share`. Rows lost their chip: each is now a one-line bold title over a grey line ("Administración Avanzada · 8 oct 2026", short month so it fits at the panel's narrowest width), set behind the 3px `--ga-edge` rule, the brand's signature edge that clears 3:1 on both surfaces. The maintainer chose this over hairline separators with a category badge. Before the change PROD→PRE was re-checked and the theme surfaces matched. The row is about 7px shorter, so `certified_count` (6) needs re-measuring against the live page.
