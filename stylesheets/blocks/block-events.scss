@@ -49,12 +49,16 @@
   // lane's own structure is untouched around it: two labelled groups, footer
   // link.
   //
-  // `flex-start`, not `center`: the title sits level with the top of the
-  // square and the date hangs below it, which is what makes the two lines read
-  // as one block hung off the chip rather than as a centred pair.
+  // Centred on the chip (2026-10-09, at the maintainer's request, matching the
+  // certified-users lane below). This was `flex-start`, hanging the title off
+  // the top of the square, but the text column is ~37px against the 46px chip,
+  // so top-aligned it left the chip's lower edge below the date and the row
+  // read as misaligned. A date that wraps to a second line makes the column
+  // taller than the chip, and centring then lets the chip sit level with the
+  // middle of the text.
   &__item-link {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: var(--space-3);
     color: inherit;
 
