@@ -206,3 +206,31 @@ access_contact_email:
 certification_url:
   type: string
   default: "https://www.espublicogestiona.com/es/certificaciones-espublico/"
+
+# The poster carousel above the topic list, by category id. Each listed
+# category shows the posters of its whole subtree, so the parent shows all of
+# them and each child only its own. Ids rather than names because they are
+# per-instance: PROD's Comparte is 85 with children 94, 83 and 93; PRE's are
+# 85, 93, 83 and 92. Empty hides the carousel everywhere.
+poster_carousel_category_ids:
+  type: list
+  list_type: category
+  default: "85|94|83|93"
+
+# Only topics carrying this tag become posters. Matched server-side.
+poster_carousel_tag:
+  type: string
+  default: "poster-evf"
+
+poster_carousel_count:
+  type: integer
+  default: 12
+  min: 1
+  max: 30
+
+# Below this many posters with an image the carousel is not shown: a strip of
+# one or two reads as broken rather than as a gallery.
+poster_carousel_min:
+  type: integer
+  default: 3
+  min: 1
