@@ -2690,3 +2690,7 @@ Without the chip each row is fixed-height, so the lane's height no longer depend
 ## 2026-10-09 — Panel lane rule matches the heading medal (theme 1.10.2)
 
 At the maintainer's request the rows' 3px rule now uses `--ga-mark`, the brand cyan of the medal in the lane heading, in place of `--ga-edge` (a darker cyan on light surfaces). The rule is decorative, like the icon, so the 3:1 contrast floor that `--ga-edge` exists to meet does not apply.
+
+## 2026-10-09 — Events lane chip centred on its text (theme 1.10.3)
+
+At the maintainer's request the events lane's date chip is now centred vertically on the title and date, as the panel's other lane already was. Top-aligned, the centre of the 46px chip sat 4.4px off the centre of the ~37px text column; centred, the offset measured 0px at 428px and 324px with PROD's compiled CSS. PROD→PRE was re-checked first and the theme surfaces matched.
