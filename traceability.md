@@ -2682,3 +2682,7 @@ At the maintainer's request the row chip now shows `medal` in place of `certific
 ## 2026-10-09 — Panel lane: medal heads the lane, rows behind the brand edge (theme 1.10.0)
 
 At the maintainer's request the medal moved from every row to the lane heading, replacing `share`. Rows lost their chip: each is now a one-line bold title over a grey line ("Administración Avanzada · 8 oct 2026", short month so it fits at the panel's narrowest width), set behind the 3px `--ga-edge` rule, the brand's signature edge that clears 3:1 on both surfaces. The maintainer chose this over hairline separators with a category badge. Before the change PROD→PRE was re-checked and the theme surfaces matched. The row is about 7px shorter, so `certified_count` (6) needs re-measuring against the live page.
+
+## 2026-10-09 — Panel lane shows 7 rows (theme 1.10.1)
+
+Without the chip each row is fixed-height, so the lane's height no longer depends on the panel width. Measured with PROD's compiled CSS: 6 rows come to 476px, 7 to 538px and 8 to 599px. The ideas lane it replaced measured 520px at a 428px panel and 611px at 324px. `certified_count` went from 6 to 7 at the maintainer's request; neither instance overrode it.
