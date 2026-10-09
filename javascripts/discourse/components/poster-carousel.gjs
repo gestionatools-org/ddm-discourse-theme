@@ -24,7 +24,8 @@ import { loadPosters, posterImage, posterSize } from "../lib/posters";
 // read without leaving the listing.
 //
 // No visible heading: the posters speak for themselves above the list. The
-// region keeps its name for screen readers through `aria-label`.
+// region keeps its name for screen readers through `aria-label`, and the nav
+// buttons float over the strip's edges instead of taking a row of their own.
 export default class PosterCarousel extends Component {
   @service store;
 
@@ -136,24 +137,20 @@ export default class PosterCarousel extends Component {
             class="poster-carousel"
             aria-label={{i18n (themePrefix "poster_carousel.title")}}
           >
-            <header class="poster-carousel__header">
-              <div class="poster-carousel__nav">
-                <DButton
-                  class="btn-flat poster-carousel__prev"
-                  @icon="chevron-left"
-                  @ariaLabel={{themePrefix "poster_carousel.previous"}}
-                  @disabled={{this.atStart}}
-                  @action={{fn this.scroll -1}}
-                />
-                <DButton
-                  class="btn-flat poster-carousel__next"
-                  @icon="chevron-right"
-                  @ariaLabel={{themePrefix "poster_carousel.next"}}
-                  @disabled={{this.atEnd}}
-                  @action={{fn this.scroll 1}}
-                />
-              </div>
-            </header>
+            <DButton
+              class="poster-carousel__nav poster-carousel__prev"
+              @icon="chevron-left"
+              @ariaLabel={{themePrefix "poster_carousel.previous"}}
+              @disabled={{this.atStart}}
+              @action={{fn this.scroll -1}}
+            />
+            <DButton
+              class="poster-carousel__nav poster-carousel__next"
+              @icon="chevron-right"
+              @ariaLabel={{themePrefix "poster_carousel.next"}}
+              @disabled={{this.atEnd}}
+              @action={{fn this.scroll 1}}
+            />
             <ul
               class="poster-carousel__track"
               {{this.registerTrack}}
