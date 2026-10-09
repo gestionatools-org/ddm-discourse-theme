@@ -21,7 +21,7 @@ es:
       poster_carousel_category_ids: "Categorías que muestran el carrusel de pósteres encima de su lista de temas. Una categoría muestra también los pósteres de sus subcategorías. Vacío oculta el carrusel."
       poster_carousel_tag: "Solo los temas con esta etiqueta se muestran como póster, del más reciente al más antiguo. Los temas sin imagen se omiten."
       poster_carousel_count: "Número máximo de pósteres en el carrusel."
-      poster_carousel_min: "Con menos pósteres con imagen que este número, el carrusel se oculta."
+      poster_carousel_min: "Con menos pósteres con imagen que este número, el carrusel se oculta. Debe ser igual o menor que el número máximo de pósteres, o el carrusel no se mostrará nunca."
 
   header:
     links:
@@ -155,3 +155,4 @@ es:
     title: "Nuevos usuarios certificados"
     previous: "Pósteres anteriores"
     next: "Pósteres siguientes"
+    enlarge: "Ampliar póster: %{title}"
