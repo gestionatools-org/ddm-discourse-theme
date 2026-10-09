@@ -115,15 +115,15 @@ module("Espublico Theme | Integration | poster carousel", function (hooks) {
       .hasText("Poster 9001 & co", "entities render as characters");
   });
 
-  test("is labelled by its heading and has translated nav buttons", async function (assert) {
+  test("is labelled without a visible heading and has translated nav buttons", async function (assert) {
     stubStore(this.owner, { 85: posters(9001, 4) });
     const category = { id: 85 };
     await render(
       <template><PosterCarousel @category={{category}} /></template>
     );
 
-    const heading = document.querySelector(".poster-carousel__title");
-    assert.dom(".poster-carousel").hasAttribute("aria-labelledby", heading.id);
+    assert.dom(".poster-carousel h2").doesNotExist("no visible title");
+    assert.dom(".poster-carousel").hasAttribute("aria-label");
     assert.dom(".poster-carousel__prev").hasAttribute("aria-label");
     assert.dom(".poster-carousel__next").hasAttribute("aria-label");
     assert

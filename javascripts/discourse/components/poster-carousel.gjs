@@ -22,17 +22,15 @@ import { loadPosters, posterImage, posterSize } from "../lib/posters";
 // every `.lightbox` anchor inside the track); the caption links to the topic.
 // A portrait poster is unreadable at slide size, so the lightbox is how it is
 // read without leaving the listing.
-// Themes cannot import `@ember/object/internals` (CI: "Could not find module"),
-// and one instance per page needs nothing stronger than a counter.
-let nextTitleId = 0;
-
+//
+// No visible heading: the posters speak for themselves above the list. The
+// region keeps its name for screen readers through `aria-label`.
 export default class PosterCarousel extends Component {
   @service store;
 
   @tracked atStart = true;
   @tracked atEnd = false;
 
-  titleId = `poster-carousel-title-${++nextTitleId}`;
   track = null;
 
   bindLightbox = modifier((element) => {
@@ -108,11 +106,11 @@ export default class PosterCarousel extends Component {
         <:loading></:loading>
         <:empty></:empty>
         <:content as |topics|>
-          <section class="poster-carousel" aria-labelledby={{this.titleId}}>
+          <section
+            class="poster-carousel"
+            aria-label={{i18n (themePrefix "poster_carousel.title")}}
+          >
             <header class="poster-carousel__header">
-              <h2 id={{this.titleId}} class="poster-carousel__title">
-                {{i18n (themePrefix "poster_carousel.title")}}
-              </h2>
               <div class="poster-carousel__nav">
                 <DButton
                   class="btn-flat poster-carousel__prev"
