@@ -169,7 +169,7 @@
 
   // `--space-2` (8px), not the `--space-half` (2px) this started at: at 2px the
   // icon read as stuck to the first letter. Deliberately not matched to the
-  // lanes' own icon gaps in `block-events`/`block-forum`, which sit at
+  // lanes' own icon gaps in `block-events`/`block-certified`, which sit at
   // `--space-half` inside dense list rows rather than under a card heading.
   &__label {
     display: flex;

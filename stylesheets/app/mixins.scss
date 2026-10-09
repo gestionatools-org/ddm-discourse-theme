@@ -31,7 +31,7 @@
   gap: var(--space-2);
   margin: 0;
 
-  // One size for all three lane headings — latest, events, ideas. `--font-0`
+  // One size for all three lane headings — latest, events, certified users. `--font-0`
   // rather than `--font-up-1`: the frame and the filo edge already say
   // "section", so the heading can stay a compact bold label and leave the
   // larger step to the content it heads (the latest list's topic links run at
@@ -80,7 +80,7 @@
   }
 }
 
-// The frame around a homepage lane — latest, events, ideas. Bordered, no
+// The frame around a homepage lane — latest, events, certified users. Bordered, no
 // background tint, and lifted off the near-white page floor by
 // `--ga-shadow-lane` (the one content surface that carries a shadow — see
 // app/elevation.scss). All three lanes wear it identically; there is no
@@ -110,7 +110,7 @@
 }
 
 // Rows that read as a list of links: no bullets, no separators. Used by the
-// events and ideas lanes (the latest lane renders core's table instead).
+// events and certified-users lanes (the latest lane renders core's table instead).
 //
 // The hairline between rows is deliberately gone. Each row is already a bold
 // title — in the events lane, a bold title beside a bordered date chip — so a
@@ -120,7 +120,7 @@
 // The space is what separates rows now, and it had to grow to do that job:
 // `--space-3` rather than `--space-2`, so a row is 24px clear of its
 // neighbours instead of 16px. That costs height in a lane whose row count is a
-// setting — `panel_ideas_count` is the dial if the panel outgrows the reading
+// setting — `certified_count` is the dial if the panel outgrows the reading
 // column beside it.
 @mixin lane-list {
   margin: 0;

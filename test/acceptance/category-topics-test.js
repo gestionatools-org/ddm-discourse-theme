@@ -294,6 +294,22 @@ acceptance(
       });
     });
 
+    test("asks for creation order when told to, alongside the tag", async function (assert) {
+      // The certified-users lane is "newest posters": a reply to an old one
+      // must not bump it to the top, so the sort has to reach the server.
+      const store = fakeStore([topic({ id: 10 })]);
+
+      await loadCategoryTopics(store, 85, 6, {
+        tag: "poster-evf",
+        order: "created",
+      });
+
+      assert.deepEqual(store.calls[0].options, {
+        filter: "c/85/l/latest",
+        params: { tags: ["poster-evf"], order: "created" },
+      });
+    });
+
     test("sends no tags param when the tag setting is unset", async function (assert) {
       // A guard, not a behaviour change: `tags: [""]` matches nothing, so a
       // naive `if (tag !== undefined)` would empty the lane the moment the
