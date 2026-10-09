@@ -2641,3 +2641,11 @@ Extended the forum review to the whole community with the maintainer. No topic i
 ## 2026-10-09 — Tag-group redesign on PROD and PRE
 
 Every tag now belongs to a group, in two layers: subject groups that follow Gestiona's menu sections (Inicio, Atención a la ciudadanía, Registro electrónico, Tramitación administrativa, Gestión económica, Aplicaciones y servicios, Configuración, Analítica, plus cross-cutting topics), and non-subject groups for events, community posts, training, Gestiona version and idea campaigns, alongside the existing staff-only groups. The certification-programme group was dissolved and its three tags deleted, since the category already states the programme. A new group was named «Eventos y encuentros» so its slug does not collide with the `eventos` category on the `#` filter. `tags_listed_by_group` enabled so /tags shows the vocabulary by group. PROD and PRE verified identical: 112 tags, 16 groups. The theme's tag settings (`idea-registrada`, `podcast`, `newsletter`, `version-gestiona`) are unaffected. No theme code changed.
+
+## 2026-10-09 — "Primeros pasos" becomes "Centro de ayuda" (PR #186, theme 1.5.0)
+
+Category 78 was renamed to **Centro de ayuda**, slug `centro-de-ayuda`, on PROD and PRE through `PUT /categories/78.json`. The change touched only `name` and `slug`; permissions were left as they were. Discourse created the permalink `c/primeros-pasos/78` → category 78 on its own, so old links that include the id answer 301. A bare `/c/primeros-pasos` answers 404, and a search found no posts linking to it.
+
+The category is now the forum's general help section, so the sidebar row that links to it no longer stops at trust level 1. The `getting_started_max_trust_level` setting was removed; neither instance overrode it. The icon changed from `rocket` to `circle-question`, and the row's label still comes from the category name.
+
+Pending on PRE, to show Ricardo before reconciling: category 78 there has `create` for everyone (PROD has `see`), plus a different description and position. Separately, the full site-settings diff shows broad plugin and default-category differences between the instances that predate this change.
