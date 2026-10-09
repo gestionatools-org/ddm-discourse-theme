@@ -524,7 +524,7 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
       assert.dom(".block-certified__title").includesText("Shared resources");
       assert.dom(".block-certified__title .d-icon-share").exists();
       assert
-        .dom(".block-certified__item-icon .d-icon-certificate")
+        .dom(".block-certified__item-icon .d-icon-medal")
         .exists({ count: 2 });
       assert.dom(".block-certified__item").exists({ count: 2 });
       assert
