@@ -40,15 +40,17 @@ function posterMeta(topic) {
 
 // One row, built like the events lane's directly above it in the same panel:
 // a 2.75rem chip, then a column holding the title over a grey line. The chip
-// carries the certificate icon rather than a date, so the two lists share a
-// shape without reading as one list continued. No avatar: the posters are
+// carries a medal rather than a date, so the two lists share a shape without
+// reading as one list continued. `medal` is outside core's default icon subset
+// and is listed in about.json's `svg_icons` — without that it renders as an
+// empty box and every test still passes. No avatar: the posters are
 // published by tutors and staff on the certified user's behalf, so the avatar
 // would show the wrong person.
 const CertifiedItem = <template>
   <li class="block-certified__item">
     <a class="block-certified__item-link" href={{@topic.url}}>
       <span class="block-certified__item-icon" aria-hidden="true">
-        {{dIcon "certificate"}}
+        {{dIcon "medal"}}
       </span>
       {{#let (posterMeta @topic) as |meta|}}
         <span class="block-certified__item-content">
