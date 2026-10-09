@@ -19,6 +19,10 @@ es:
       getting_started_category_id: "Categoría enlazada en la parte superior de la barra lateral, con su propio nombre. Solo ven el enlace los miembros que tienen acceso a ella. 0 lo oculta."
       access_contact_email: "Correo al que escribe quien tiene la certificación pero no puede entrar. Se muestra en la portada de acceso y bajo el formulario de /login. Vacío oculta esa salida."
       certification_url: "Página con la información de las certificaciones de Gestiona, para quien todavía no la tiene. Se abre en una pestaña nueva. Vacío oculta esa salida."
+      poster_carousel_category_ids: "Categorías que muestran el carrusel de pósteres encima de su lista de temas. Una categoría muestra también los pósteres de sus subcategorías. Vacío oculta el carrusel."
+      poster_carousel_tag: "Solo los temas con esta etiqueta se muestran como póster, del más reciente al más antiguo. Los temas sin imagen se omiten."
+      poster_carousel_count: "Número máximo de pósteres en el carrusel."
+      poster_carousel_min: "Con menos pósteres con imagen que este número, el carrusel se oculta."
 
   header:
     links:
@@ -156,3 +160,7 @@ es:
     certify:
       title: "¿Quieres obtener una certificación?"
       link: "Conoce las certificaciones de Gestiona"
+  poster_carousel:
+    title: "Nuevos usuarios certificados"
+    previous: "Pósteres anteriores"
+    next: "Pósteres siguientes"

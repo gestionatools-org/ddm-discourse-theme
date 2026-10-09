@@ -1,5 +1,6 @@
 import { apiInitializer } from "discourse/lib/api";
 import DiscoveryHero from "../components/discovery-hero";
+import PosterCarousel from "../components/poster-carousel";
 
 // The heading band above every listing: categories, tags, /latest, /top,
 // /unread. The homepage keeps its own copy, mounted as a Block — see
@@ -27,6 +28,10 @@ import DiscoveryHero from "../components/discovery-hero";
 // rendering once high and filtering by route name: Ember's autotracking
 // updates the band when the argument changes as the user moves between
 // categories, with no remount and no subscription to maintain.
+//
+// The poster carousel shares the outlet for the same reason the band uses it:
+// it needs `category` as an argument and must sit above the nav tabs. It
+// decides for itself whether the category is one it shows on.
 export default apiInitializer((api) => {
   api.renderInOutlet(
     "discovery-list-controls-above",
@@ -35,6 +40,7 @@ export default apiInitializer((api) => {
         @category={{@outletArgs.category}}
         @tag={{@outletArgs.tag}}
       />
+      <PosterCarousel @category={{@outletArgs.category}} />
     </template>
   );
 });

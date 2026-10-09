@@ -19,6 +19,10 @@ en:
       getting_started_category_id: "Category linked at the top of the sidebar, labelled with its own name. Only members who can see it get the link. 0 hides it."
       access_contact_email: "Address for certified users who cannot sign in. Shown on the login landing and under the /login form. Blank hides that exit."
       certification_url: "Page about Gestiona certifications, for visitors who do not hold one yet. Opens in a new tab. Blank hides that exit."
+      poster_carousel_category_ids: "Categories that show the poster carousel above their topic list. A category shows the posters of its subcategories too. Empty hides the carousel."
+      poster_carousel_tag: "Only topics carrying this tag become posters, newest first. Topics without an image are skipped."
+      poster_carousel_count: "Maximum number of posters in the carousel."
+      poster_carousel_min: "Below this many posters with an image the carousel is hidden."
 
   header:
     links:
@@ -156,3 +160,7 @@ en:
     certify:
       title: "Want to earn a certification?"
       link: "Discover Gestiona certifications"
+  poster_carousel:
+    title: "Newly certified users"
+    previous: "Previous posters"
+    next: "Next posters"
