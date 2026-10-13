@@ -196,3 +196,14 @@
 .sidebar-section-wrapper.sidebar-getting-started {
   padding-block: 0.75rem;
 }
+
+// The outlet renders the row *before* `.sidebar-sections`, not inside it, so on
+// the desktop rail it misses the inline padding core gives every section there
+// (`--sidebar-section-wrapper-padding`, whose inline part is `--space-2`). Left
+// alone the row sat 8px left of Community: link at 0 against 8, icon at 8
+// against 16 (PRE, 2026-10-13). Scoped to `.sidebar-wrapper`, core's own scope
+// for that padding: the mobile hamburger zeroes it on `.sidebar-sections`, the
+// row already lines up there, and the same padding would push it 8px right.
+.sidebar-wrapper .sidebar-section-wrapper.sidebar-getting-started {
+  padding-inline: var(--space-2);
+}
