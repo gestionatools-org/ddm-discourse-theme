@@ -2,19 +2,17 @@ import { module, test } from "qunit";
 import { acceptance } from "discourse/tests/helpers/qunit-helpers";
 import { definitionTopicIds } from "../../discourse/lib/category-topics";
 import {
+  directoryRowFor,
   extractCoverImage,
   extractPdfUrl,
   extractVideoId,
   extractVideoThumbnail,
+  leaderboardLeader,
   loadLatestTaggedTopic,
-  memberHasActivity,
   monthAndYear,
   paragraphsFromCooked,
   profileDetails,
-  rankTopMember,
   uploadRefFromShortUrl,
-  WEIGHTS,
-  withoutStaff,
   youtubeThumbnail,
 } from "../../discourse/lib/highlights";
 
@@ -357,117 +355,43 @@ module("Espublico Theme | Unit | highlights | monthAndYear", function () {
   });
 });
 
-module("Espublico Theme | Unit | highlights | rankTopMember", function () {
-  test("returns null for an empty list", function (assert) {
-    assert.strictEqual(rankTopMember([], WEIGHTS), null);
-    assert.strictEqual(rankTopMember(undefined, WEIGHTS), null);
+module("Espublico Theme | Unit | highlights | leaderboardLeader", function () {
+  test("returns the top position, whatever order the list arrives in", function (assert) {
+    const second = { username: "jorge", total_score: 202, position: 2 };
+    const first = { username: "gustavo", total_score: 352, position: 1 };
+    assert.strictEqual(leaderboardLeader([second, first]), first);
   });
 
-  test("returns the only item when there is one", function (assert) {
-    const only = { post_count: 0, likes_received: 0, days_visited: 3 };
-    assert.strictEqual(rankTopMember([only], WEIGHTS), only);
+  test("skips entries that scored nothing", function (assert) {
+    const idle = { username: "z", total_score: 0, position: 1 };
+    const active = { username: "a", total_score: 3, position: 2 };
+    assert.strictEqual(leaderboardLeader([idle, active]), active);
   });
 
-  test("picks the highest weighted composite, not the highest single field", function (assert) {
-    // `wide` leads every field by a clear margin -> unambiguous winner, no
-    // floating-point knife-edge.
-    const narrow = { post_count: 2, likes_received: 2, days_visited: 2 };
-    const wide = { post_count: 6, likes_received: 6, days_visited: 6 };
-    assert.strictEqual(rankTopMember([narrow, wide], WEIGHTS), wide);
-  });
-
-  test("a big lead on the weighted field beats a big lead on a light one", function (assert) {
-    // `liker` trails on posts and days but its likes lead, at weight 0.5,
-    // outweighs the other's lead at 0.35 + 0.15.
-    // liker.score  = .35*0 + .5*1 + .15*0 = .500
-    // poster.score = .35*1 + .5*0 + .15*1 = 0.35 + 0.15 = .500  -> tie
-    // Make it not a tie: give the liker a sliver on days too.
-    const liker = { post_count: 0, likes_received: 20, days_visited: 1 };
-    const poster = { post_count: 20, likes_received: 0, days_visited: 20 };
-    // liker: 0 + .5*1 + .15*(1/20) = .5075 ; poster: .35 + 0 + .15 = .5
-    assert.strictEqual(rankTopMember([poster, liker], WEIGHTS), liker);
-  });
-
-  test("treats a field whose max is zero as contributing nothing", function (assert) {
-    const x = { post_count: 0, likes_received: 5, days_visited: 0 };
-    const y = { post_count: 0, likes_received: 2, days_visited: 0 };
-    assert.strictEqual(rankTopMember([x, y], WEIGHTS), x);
-  });
-
-  test("a tie keeps the earlier item", function (assert) {
-    // Identical composite scores: the reduce keeps `best` on a non-strict-
-    // greater score, so the first item in the list wins.
-    const first = { post_count: 5, likes_received: 5, days_visited: 5 };
-    const second = { post_count: 5, likes_received: 5, days_visited: 5 };
+  test("null for an empty, all-zero or missing list", function (assert) {
+    assert.strictEqual(leaderboardLeader([]), null);
     assert.strictEqual(
-      rankTopMember([first, second], WEIGHTS),
-      first,
-      "the earlier of two equal items"
+      leaderboardLeader([{ username: "z", total_score: 0, position: 1 }]),
+      null
     );
+    assert.strictEqual(leaderboardLeader(undefined), null);
   });
 });
 
-module("Espublico Theme | Unit | highlights | withoutStaff", function () {
-  test("drops admins and moderators, keeps everyone else in order", function (assert) {
-    const admin = { user: { username: "a", admin: true, moderator: false } };
-    const mod = { user: { username: "m", admin: false, moderator: true } };
-    const first = { user: { username: "x", admin: false, moderator: false } };
-    const second = { user: { username: "y" } };
-
-    assert.deepEqual(withoutStaff([admin, first, mod, second]), [
-      first,
-      second,
-    ]);
+module("Espublico Theme | Unit | highlights | directoryRowFor", function () {
+  test("matches the exact username, not the first row", function (assert) {
+    // The directory's `name` filter also returns the viewer's own row.
+    const viewer = { user: { username: "RicardoPG" }, post_count: 2 };
+    const leader = { user: { username: "gmerida" }, post_count: 11 };
+    assert.strictEqual(directoryRowFor([viewer, leader], "gmerida"), leader);
   });
 
-  test("an empty or missing list yields an empty one", function (assert) {
-    assert.deepEqual(withoutStaff([]), []);
-    assert.deepEqual(withoutStaff(undefined), []);
-  });
-
-  test("staff no longer set the maxima the rest are ranked against", function (assert) {
-    // With the admin in the pool, `liked` and `posted` are scored against the
-    // admin's 100 likes and `posted` wins on posts. Without it, `liked` holds
-    // the likes maximum and its weight decides.
-    const admin = {
-      post_count: 0,
-      likes_received: 100,
-      days_visited: 0,
-      user: { admin: true },
-    };
-    const liked = { post_count: 5, likes_received: 30, days_visited: 5 };
-    const posted = { post_count: 10, likes_received: 10, days_visited: 5 };
-    // with admin:    liked .35*.5 + .5*.3 + .15 = .475 ; posted .35 + .5*.1 + .15 = .55
-    // without admin: liked .35*.5 + .5*1  + .15 = .825 ; posted .35 + .5*(1/3) + .15 = .667
-    assert.strictEqual(rankTopMember([admin, liked, posted], WEIGHTS), posted);
+  test("null when the username is absent or the list is missing", function (assert) {
     assert.strictEqual(
-      rankTopMember(withoutStaff([admin, liked, posted]), WEIGHTS),
-      liked
+      directoryRowFor([{ user: { username: "x" } }], "gmerida"),
+      null
     );
-  });
-});
-
-module("Espublico Theme | Unit | highlights | memberHasActivity", function () {
-  test("true when there are posts or likes", function (assert) {
-    assert.true(memberHasActivity({ post_count: 1, likes_received: 0 }));
-    assert.true(memberHasActivity({ post_count: 0, likes_received: 4 }));
-  });
-
-  test("true for a member who only turned up", function (assert) {
-    // The case that matters here: PRE's 30-day directory has 50 people and not
-    // one post or like between them, only visits. Requiring a post left the
-    // card permanently empty.
-    assert.true(
-      memberHasActivity({ post_count: 0, likes_received: 0, days_visited: 20 })
-    );
-  });
-
-  test("false for a genuinely absent member or nothing", function (assert) {
-    assert.false(
-      memberHasActivity({ post_count: 0, likes_received: 0, days_visited: 0 })
-    );
-    assert.false(memberHasActivity(null));
-    assert.false(memberHasActivity(undefined));
+    assert.strictEqual(directoryRowFor(undefined, "gmerida"), null);
   });
 });
 

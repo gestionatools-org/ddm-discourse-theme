@@ -457,6 +457,12 @@
     font-variant-numeric: tabular-nums;
   }
 
+  // The ranking score leads the figures in full ink: it is what won the card,
+  // the rest explain it.
+  &__score {
+    color: var(--primary);
+  }
+
   // The join date, quietest line on the card — it is context, not a figure.
   &__since {
     margin: 0;

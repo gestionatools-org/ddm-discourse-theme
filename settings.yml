@@ -109,7 +109,7 @@ header_room_category_ids:
 
 # --- Section 2: community highlights ---------------------------------------
 # Four cards below section 1: latest podcast, latest newsletter, latest Gestiona
-# release, and the month's most active member. The three tag settings are matched
+# release, and the leader of the forum's ranking. The three tag settings are matched
 # by slug, exactly as in /tag/<slug>. Each hides its card when empty; a card
 # whose tag is set but currently has no topic shows a "coming soon" placeholder.
 #
@@ -135,8 +135,9 @@ highlights_news_tag:
   type: string
   default: "version-gestiona"
 
-# Rolling window for the "most active member" ranking. Discourse's directory has
-# no calendar-month period — "monthly" is the last 30 days, the same window the
+# Rolling window for the member card: the leaderboard below is read over it, and
+# so are the directory figures the card shows beside the score. Neither has a
+# calendar-month period — "monthly" is the last 30 days, the same window the
 # topbar figures use ("Este mes:").
 highlights_member_period:
   type: enum
@@ -146,6 +147,16 @@ highlights_member_period:
     - quarterly
     - yearly
     - all
+
+# The gamification leaderboard whose leader the member card shows — the one the
+# sidebar's "Ranking usuarios" opens (`/leaderboard`). 1 is the only leaderboard
+# on PROD and on PRE (2026-10-14). It is read over `highlights_member_period`,
+# and it is the leaderboard's own `excluded_groups_ids` that keeps staff off the
+# card. 0 turns the card into its take-part nudge.
+highlights_member_leaderboard_id:
+  type: integer
+  default: 1
+  min: 0
 
 # Which user field carries the member's organisation and which carries their job
 # title, by numeric id. They are ids rather than names because that is what

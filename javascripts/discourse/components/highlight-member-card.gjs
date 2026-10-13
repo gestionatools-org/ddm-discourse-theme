@@ -6,9 +6,10 @@ import dIcon from "discourse/ui-kit/helpers/d-icon";
 import { i18n } from "discourse-i18n";
 import { monthAndYear } from "../lib/highlights";
 
-// The bottom-right twin card. Presentational: the block hands down the ranked
-// directory item, or nothing. With a member it is an avatar, their cargo and
-// the raw figures for the window the block ranked over. With nobody eligible —
+// The bottom-right twin card. Presentational: the block hands down the
+// leaderboard's leader — merged into their directory row when it was found —
+// or nothing. With a member it is an avatar, their cargo, their ranking score
+// and the raw figures for the window the block read. With nobody eligible —
 // or the directory switched off — it is a nudge to take part, which also stops
 // the bento grid growing a hole.
 export default class HighlightMemberCard extends Component {
@@ -25,6 +26,12 @@ export default class HighlightMemberCard extends Component {
     return HighlightMemberCard.WINDOWS.includes(this.args.period)
       ? `homepage.highlights.member.window.${this.args.period}`
       : null;
+  }
+
+  // The figures come from the directory row; without one the member is the
+  // leaderboard entry alone and has none to show.
+  get hasFigures() {
+    return this.args.member?.post_count != null;
   }
 
   get displayName() {
@@ -118,18 +125,28 @@ export default class HighlightMemberCard extends Component {
               }}</p>
           {{/if}}
           <p class="highlight-member__figures">
-            <span>{{i18n
-                (themePrefix "homepage.highlights.member.posts")
-                count=@member.post_count
-              }}</span>
-            <span>{{i18n
-                (themePrefix "homepage.highlights.member.likes")
-                count=@member.likes_received
-              }}</span>
-            <span>{{i18n
-                (themePrefix "homepage.highlights.member.days")
-                count=@member.days_visited
-              }}</span>
+            {{! The score first: it is what won the card, read from the same
+                leaderboard members open from the sidebar. }}
+            {{#if @member.score}}
+              <span class="highlight-member__score">{{i18n
+                  (themePrefix "homepage.highlights.member.points")
+                  count=@member.score
+                }}</span>
+            {{/if}}
+            {{#if this.hasFigures}}
+              <span>{{i18n
+                  (themePrefix "homepage.highlights.member.posts")
+                  count=@member.post_count
+                }}</span>
+              <span>{{i18n
+                  (themePrefix "homepage.highlights.member.likes")
+                  count=@member.likes_received
+                }}</span>
+              <span>{{i18n
+                  (themePrefix "homepage.highlights.member.days")
+                  count=@member.days_visited
+                }}</span>
+            {{/if}}
           </p>
           {{#if this.memberSince}}
             <p class="highlight-member__since">{{i18n

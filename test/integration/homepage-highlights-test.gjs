@@ -42,6 +42,7 @@ const DEFAULT_ARGS = {
   newsletterTag: "newsletter",
   newsTag: "version-gestiona",
   memberPeriod: "monthly",
+  leaderboardId: 1,
 };
 
 module(
@@ -232,6 +233,30 @@ module(
         .exists("and the pair sits directly under the badge");
     });
 
+    test("leads the figures with the ranking score", async function (assert) {
+      const scored = { ...member, score: 352 };
+      await render(
+        <template><HighlightMemberCard @member={{scored}} /></template>
+      );
+
+      assert
+        .dom(".highlight-member__figures .highlight-member__score:first-child")
+        .hasText("352 points in the ranking");
+      assert.dom(".highlight-member__figures").includesText("40 posts");
+    });
+
+    test("with only the leaderboard entry, shows the score and no zero figures", async function (assert) {
+      const bare = { user: member.user, score: 50 };
+      await render(
+        <template><HighlightMemberCard @member={{bare}} /></template>
+      );
+
+      assert
+        .dom(".highlight-member__score")
+        .hasText("50 points in the ranking");
+      assert.dom(".highlight-member__figures").doesNotIncludeText("posts");
+    });
+
     test("names the window the figures were counted over", async function (assert) {
       await render(
         <template>
@@ -354,12 +379,14 @@ module(
   function (hooks) {
     setupRenderingTest(hooks);
 
-    // Wiring `fetchMember` (Task 6) means every render of the section now hits
-    // `/directory_items.json`. Core ships no default handler for it and an
-    // unhandled request throws, so hand every section test an empty directory
-    // by default; the member-cell tests below override this in their own body
-    // (route-recognizer keeps the last registration for an identical path).
+    // `fetchMember` hits the leaderboard on every render of the section, and the
+    // directory once it has a leader. Core ships no handler for either and an
+    // unhandled request throws, so hand every section test an empty
+    // leaderboard and directory by default; the member-cell tests below
+    // override these in their own body (route-recognizer keeps the last
+    // registration for an identical path).
     hooks.beforeEach(function () {
+      pretender.get("/leaderboard/:id.json", () => response({ users: [] }));
       pretender.get("/directory_items.json", () =>
         response({ directory_items: [] })
       );
@@ -826,29 +853,48 @@ module(
         .exists("and back to the placeholder icon");
     });
 
-    test("the member cell crowns the highest composite and shows the figures", async function (assert) {
+    // The leaderboard's leader, as /leaderboard/1.json returns it.
+    const leaderboard = (users) => () => response({ users });
+    const gmerida = {
+      id: 219,
+      username: "gmerida",
+      name: "Gustavo Mérida",
+      avatar_template: "/g/{size}.png",
+      total_score: 352,
+      position: 1,
+    };
+
+    test("the member cell shows the leaderboard's leader, with the directory's figures", async function (assert) {
       stubStore(this.owner, {});
+      let leaderboardUrl = null;
+      pretender.get("/leaderboard/:id.json", (request) => {
+        leaderboardUrl = request.url;
+        return response({
+          users: [
+            { ...gmerida, position: 2, total_score: 202, username: "j" },
+            gmerida,
+          ],
+        });
+      });
       pretender.get("/directory_items.json", () =>
         response({
           directory_items: [
+            // The `name` filter also returns the viewer's own row.
             {
               post_count: 2,
-              likes_received: 1,
-              days_visited: 3,
-              user: {
-                username: "a",
-                name: "A",
-                avatar_template: "/a/{size}.png",
-              },
+              likes_received: 13,
+              days_visited: 24,
+              user: { username: "RicardoPG", name: "Ricardo" },
             },
             {
-              post_count: 40,
-              likes_received: 96,
-              days_visited: 12,
+              post_count: 11,
+              likes_received: 12,
+              days_visited: 27,
               user: {
-                username: "msanz",
-                name: "María Sanz",
-                avatar_template: "/m/{size}.png",
+                username: "gmerida",
+                name: "Gustavo Mérida",
+                avatar_template: "/g/{size}.png",
+                title: "Secretario",
               },
             },
           ],
@@ -863,41 +909,35 @@ module(
       });
       // (newsTag kept non-empty only so the section renders; its cell is a placeholder)
 
+      assert.strictEqual(
+        leaderboardUrl,
+        "/leaderboard/1.json?period=monthly",
+        "reads the configured leaderboard over the configured window"
+      );
       assert
         .dom(".block-highlights__cell.--miembro .highlight-card__title")
-        .hasText("María Sanz");
+        .hasText("Gustavo Mérida");
+      assert
+        .dom(".block-highlights__cell.--miembro .highlight-member__score")
+        .hasText("352 points in the ranking");
       assert
         .dom(".block-highlights__cell.--miembro .highlight-member__figures")
-        .includesText("40 posts");
+        .includesText("11 posts", "the leader's row, not the viewer's");
+      assert
+        .dom(".block-highlights__cell.--miembro .highlight-member__cargo")
+        .hasText("Secretario");
     });
 
-    test("the member cell reads the winner's profile for its extra detail", async function (assert) {
+    test("the member cell reads the leader's profile for its extra detail", async function (assert) {
       stubStore(this.owner, {});
-      pretender.get("/directory_items.json", () =>
-        response({
-          directory_items: [
-            {
-              post_count: 0,
-              likes_received: 0,
-              days_visited: 23,
-              user: {
-                username: "RicardoPG",
-                name: "Ricardo Penalver",
-                avatar_template: "/r/{size}.png",
-              },
-            },
-          ],
-        })
-      );
-      pretender.get("/u/RicardoPG.json", () =>
+      pretender.get("/leaderboard/:id.json", leaderboard([gmerida]));
+      pretender.get("/u/gmerida.json", () =>
         response({
           user: {
             location: "Zaragoza",
-            website: "https://ricardopenalver.es",
-            website_name: "ricardopenalver.es",
             created_at: "2024-01-15T11:31:49.027Z",
             // Field 1 is the NIF, which an administrator's session receives.
-            user_fields: { 1: "03460654M", 2: "Espublico Gestiona" },
+            user_fields: { 1: "03460654M", 2: "Ayuntamiento" },
           },
         })
       );
@@ -912,31 +952,19 @@ module(
 
       assert
         .dom(".block-highlights__cell.--miembro .highlight-member__entity")
-        .hasText("Espublico Gestiona");
+        .hasText("Ayuntamiento");
       assert
         .dom(".block-highlights__cell.--miembro")
         .doesNotIncludeText("03460654M", "the NIF never reaches the page");
     });
 
-    test("an unreadable profile costs the detail, not the member", async function (assert) {
+    test("an unreachable directory costs the figures, not the member", async function (assert) {
       stubStore(this.owner, {});
+      pretender.get("/leaderboard/:id.json", leaderboard([gmerida]));
       pretender.get("/directory_items.json", () =>
-        response({
-          directory_items: [
-            {
-              post_count: 4,
-              likes_received: 2,
-              days_visited: 9,
-              user: {
-                username: "RicardoPG",
-                name: "Ricardo Penalver",
-                avatar_template: "/r/{size}.png",
-              },
-            },
-          ],
-        })
+        response(403, { errors: ["forbidden"] })
       );
-      pretender.get("/u/RicardoPG.json", () =>
+      pretender.get("/u/gmerida.json", () =>
         response(403, { errors: ["forbidden"] })
       );
 
@@ -948,29 +976,23 @@ module(
 
       assert
         .dom(".block-highlights__cell.--miembro .highlight-card__title")
-        .hasText("Ricardo Penalver", "the card still names them");
+        .hasText("Gustavo Mérida", "the card still names them");
+      assert
+        .dom(".block-highlights__cell.--miembro .highlight-member__score")
+        .hasText("352 points in the ranking");
+      assert
+        .dom(".block-highlights__cell.--miembro .highlight-member__figures")
+        .doesNotIncludeText("posts");
       assert
         .dom(".block-highlights__cell.--miembro .highlight-member__entity")
         .doesNotExist();
     });
 
-    test("the member cell falls to the CTA when nobody even turned up", async function (assert) {
+    test("the member cell falls to the CTA when nobody scored", async function (assert) {
       stubStore(this.owner, {});
-      pretender.get("/directory_items.json", () =>
-        response({
-          directory_items: [
-            {
-              post_count: 0,
-              likes_received: 0,
-              days_visited: 0,
-              user: {
-                username: "z",
-                name: "Z",
-                avatar_template: "/z/{size}.png",
-              },
-            },
-          ],
-        })
+      pretender.get(
+        "/leaderboard/:id.json",
+        leaderboard([{ ...gmerida, total_score: 0 }])
       );
 
       await renderHighlights({
@@ -984,10 +1006,10 @@ module(
         .exists();
     });
 
-    test("the member cell falls to the CTA when the directory request fails", async function (assert) {
+    test("the member cell falls to the CTA when the leaderboard request fails", async function (assert) {
       stubStore(this.owner, {});
-      pretender.get("/directory_items.json", () =>
-        response(403, { errors: ["forbidden"] })
+      pretender.get("/leaderboard/:id.json", () =>
+        response(404, { errors: ["not found"] })
       );
 
       await renderHighlights({
@@ -996,6 +1018,27 @@ module(
         newsletterTag: "",
       });
 
+      assert
+        .dom(".block-highlights__cell.--miembro .highlight-member__empty")
+        .exists();
+    });
+
+    test("a leaderboard id of 0 shows the CTA without asking", async function (assert) {
+      stubStore(this.owner, {});
+      let asked = false;
+      pretender.get("/leaderboard/:id.json", () => {
+        asked = true;
+        return response({ users: [gmerida] });
+      });
+
+      await renderHighlights({
+        ...DEFAULT_ARGS,
+        podcastTag: "",
+        newsletterTag: "",
+        leaderboardId: 0,
+      });
+
+      assert.false(asked, "no request for a switched-off card");
       assert
         .dom(".block-highlights__cell.--miembro .highlight-member__empty")
         .exists();
