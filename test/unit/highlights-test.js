@@ -14,6 +14,7 @@ import {
   rankTopMember,
   uploadRefFromShortUrl,
   WEIGHTS,
+  withoutStaff,
   youtubeThumbnail,
 } from "../../discourse/lib/highlights";
 
@@ -402,6 +403,46 @@ module("Espublico Theme | Unit | highlights | rankTopMember", function () {
       rankTopMember([first, second], WEIGHTS),
       first,
       "the earlier of two equal items"
+    );
+  });
+});
+
+module("Espublico Theme | Unit | highlights | withoutStaff", function () {
+  test("drops admins and moderators, keeps everyone else in order", function (assert) {
+    const admin = { user: { username: "a", admin: true, moderator: false } };
+    const mod = { user: { username: "m", admin: false, moderator: true } };
+    const first = { user: { username: "x", admin: false, moderator: false } };
+    const second = { user: { username: "y" } };
+
+    assert.deepEqual(withoutStaff([admin, first, mod, second]), [
+      first,
+      second,
+    ]);
+  });
+
+  test("an empty or missing list yields an empty one", function (assert) {
+    assert.deepEqual(withoutStaff([]), []);
+    assert.deepEqual(withoutStaff(undefined), []);
+  });
+
+  test("staff no longer set the maxima the rest are ranked against", function (assert) {
+    // With the admin in the pool, `liked` and `posted` are scored against the
+    // admin's 100 likes and `posted` wins on posts. Without it, `liked` holds
+    // the likes maximum and its weight decides.
+    const admin = {
+      post_count: 0,
+      likes_received: 100,
+      days_visited: 0,
+      user: { admin: true },
+    };
+    const liked = { post_count: 5, likes_received: 30, days_visited: 5 };
+    const posted = { post_count: 10, likes_received: 10, days_visited: 5 };
+    // with admin:    liked .35*.5 + .5*.3 + .15 = .475 ; posted .35 + .5*.1 + .15 = .55
+    // without admin: liked .35*.5 + .5*1  + .15 = .825 ; posted .35 + .5*(1/3) + .15 = .667
+    assert.strictEqual(rankTopMember([admin, liked, posted], WEIGHTS), posted);
+    assert.strictEqual(
+      rankTopMember(withoutStaff([admin, liked, posted]), WEIGHTS),
+      liked
     );
   });
 });

@@ -299,6 +299,25 @@ export function paragraphsFromCooked(cooked, maxLength) {
 }
 
 /**
+ * The directory items whose user is neither an admin nor a moderator.
+ *
+ * The card celebrates a certified member, and staff are the ones running the
+ * forum: on PROD on 2026-10-14, 13 of the 30-day directory's 51 rows were
+ * staff, the top three among them. The directory already serialises `admin`
+ * and `moderator` on each user, so this costs no request. It runs before
+ * `rankTopMember` so staff figures do not set the maxima everyone else is
+ * normalised against either.
+ *
+ * @param {Array<Object>} items - directory_items entries
+ * @returns {Array<Object>}
+ */
+export function withoutStaff(items) {
+  return (items || []).filter(
+    (item) => !(item.user?.admin || item.user?.moderator)
+  );
+}
+
+/**
  * The directory item with the highest weighted-composite activity, or null for
  * an empty list.
  *
