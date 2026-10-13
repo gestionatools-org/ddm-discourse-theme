@@ -521,7 +521,7 @@ module("Espublico Theme | Integration | homepage lanes", function (hooks) {
 
       await renderLane({ categoryId: fixtureCategory().id });
 
-      assert.dom(".block-certified__title").includesText("Shared resources");
+      assert.dom(".block-certified__title").includesText("Newly certified users");
       assert.dom(".block-certified__title .d-icon-medal").exists();
       assert
         .dom(".block-certified__item .d-icon")
