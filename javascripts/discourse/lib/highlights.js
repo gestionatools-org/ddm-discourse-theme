@@ -1,11 +1,5 @@
 import { definitionTopicIds } from "./category-topics";
 
-// Only decides WHO wins the member card — the card shows raw figures, never
-// this score. A one-line edit changes the emphasis; deliberately not four
-// theme settings. `days_visited` stands in for "time on the platform" because
-// this Discourse version's directory serializer omits `time_read`.
-export const WEIGHTS = { posts: 0.35, likes: 0.5, days: 0.15 };
-
 /**
  * The newest-created non-definition topic carrying `tag`, or null.
  *
@@ -299,77 +293,41 @@ export function paragraphsFromCooked(cooked, maxLength) {
 }
 
 /**
- * The directory items whose user is neither an admin nor a moderator.
+ * The first entry of a gamification leaderboard that actually scored, or null.
  *
- * The card celebrates a certified member, and staff are the ones running the
- * forum: on PROD on 2026-10-14, 13 of the 30-day directory's 51 rows were
- * staff, the top three among them. The directory already serialises `admin`
- * and `moderator` on each user, so this costs no request. It runs before
- * `rankTopMember` so staff figures do not set the maxima everyone else is
- * normalised against either.
+ * The card shows whoever leads the forum's own "Ranking usuarios"
+ * (`/leaderboard`), so it can never disagree with the page members already
+ * read. The plugin returns `users` ordered by `position`; sorting again costs
+ * nothing and keeps this honest if that ever changes. A zero score is no
+ * participation at all, and is what stops the card crowning row zero of a
+ * quiet window.
  *
- * @param {Array<Object>} items - directory_items entries
- * @returns {Array<Object>}
- */
-export function withoutStaff(items) {
-  return (items || []).filter(
-    (item) => !(item.user?.admin || item.user?.moderator)
-  );
-}
-
-/**
- * The directory item with the highest weighted-composite activity, or null for
- * an empty list.
+ * Staff are kept out by the leaderboard itself, not here: its
+ * `excluded_groups_ids` is [1, 2, 3] — administradores, moderadores, personal
+ * — on PROD (2026-10-14). The directory's `admin`/`moderator` flags were the
+ * previous guard, and nothing showed they reach a non-staff viewer.
  *
- * Each of post_count, likes_received and days_visited is normalised against the
- * maximum in `items` (a field whose max is 0 contributes 0), then combined by
- * `weights`. Ties keep the earlier item.
- *
- * @param {Array<Object>} items - directory_items entries
- * @param {{posts:Number,likes:Number,days:Number}} weights
+ * @param {Array<Object>} users - the `users` of /leaderboard/<id>.json
  * @returns {Object|null}
  */
-export function rankTopMember(items, weights) {
-  if (!items?.length) {
-    return null;
-  }
-
-  const ceiling = (key) => Math.max(0, ...items.map((it) => it[key] || 0));
-  const maxPosts = ceiling("post_count");
-  const maxLikes = ceiling("likes_received");
-  const maxDays = ceiling("days_visited");
-
-  const norm = (value, max) => (max > 0 ? (value || 0) / max : 0);
-
-  const score = (it) =>
-    weights.posts * norm(it.post_count, maxPosts) +
-    weights.likes * norm(it.likes_received, maxLikes) +
-    weights.days * norm(it.days_visited, maxDays);
-
-  return items.reduce((best, it) => (score(it) > score(best) ? it : best));
+export function leaderboardLeader(users) {
+  const ranked = [...(users || [])].sort((a, b) => a.position - b.position);
+  return ranked.find((user) => user.total_score > 0) ?? null;
 }
 
 /**
- * Whether a directory item represents any participation in the window.
+ * The directory row belonging to `username`, or null.
  *
- * Turning up counts, not just posting. It used to require a post or a like,
- * which on this instance meant nobody ever qualified: measured 2026-09-07, the
- * 30-day directory returns 50 people and **not one has a post or a like**,
- * only visits. That left the card permanently on its take-part nudge. Counting
- * `days_visited` keeps the card on the month — the window whose figures it
- * shows — instead of reaching into a wider one to find somebody.
+ * The directory's `name` filter is a search, not a lookup, and it also returns
+ * the viewer's own row (measured on PROD, 2026-10-14) — so the exact username
+ * is matched rather than trusting the first row.
  *
- * It still refuses a genuinely absent member, which is what stops the ranking
- * crowning row zero of an all-zero directory.
- *
- * @param {Object|null} item
- * @returns {Boolean}
+ * @param {Array<Object>} items - directory_items entries
+ * @param {String} username
+ * @returns {Object|null}
  */
-export function memberHasActivity(item) {
-  return Boolean(
-    item &&
-    (item.post_count > 0 || item.likes_received > 0 || item.days_visited > 0)
-  );
+export function directoryRowFor(items, username) {
+  return (items || []).find((item) => item.user?.username === username) ?? null;
 }
 
 /**

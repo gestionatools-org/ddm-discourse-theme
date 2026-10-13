@@ -13,18 +13,16 @@ import { i18n } from "discourse-i18n";
 import HighlightMemberCard from "../components/highlight-member-card";
 import HighlightPodcastCard from "../components/highlight-podcast-card";
 import {
+  directoryRowFor,
   extractCoverImage,
   extractPdfUrl,
   extractVideoId,
   extractVideoThumbnail,
+  leaderboardLeader,
   loadLatestTaggedTopic,
-  memberHasActivity,
   paragraphsFromCooked,
   profileDetails,
-  rankTopMember,
   uploadRefFromShortUrl,
-  WEIGHTS,
-  withoutStaff,
 } from "../lib/highlights";
 
 // How much of its own post a card shows — the newsletter and the podcast, the
@@ -143,6 +141,7 @@ const CellLoading = <template>
     newsletterTag: { type: "string", default: "" },
     newsTag: { type: "string", default: "" },
     memberPeriod: { type: "string", default: "monthly" },
+    leaderboardId: { type: "number", default: 0 },
     entityFieldId: { type: "number", default: 0 },
     roleFieldId: { type: "number", default: 0 },
   },
@@ -287,27 +286,56 @@ export default class BlockHighlights extends Component {
 
   @bind
   async fetchMember() {
-    // One window, the configured one, and its own figures — the card shows the
-    // month's activity, so it ranks on the month's activity. `memberHasActivity`
-    // counting a visit is what keeps that possible on a quiet instance; without
-    // it nobody here qualifies and the card is permanently its take-part nudge.
+    // The member is whoever leads the forum's own "Ranking usuarios" — the
+    // gamification leaderboard — over the configured window, so the card and
+    // that page can never name different people. It used to be a weighted
+    // composite of the directory's figures computed here, which on PROD
+    // (2026-10-14) crowned someone the leaderboard placed second.
     //
-    // A directory that is switched off or unreachable is the same as nobody
-    // qualifying. Any `order` works — rankTopMember re-ranks — so the
-    // directory's own default is fine.
-    let member = null;
-    try {
-      const { directory_items } = await ajax(
-        `/directory_items.json?period=${this.args.memberPeriod}&order=likes_received&limit=50`
-      );
-      const top = rankTopMember(withoutStaff(directory_items), WEIGHTS);
-      member = memberHasActivity(top) ? top : null;
-    } catch {
-      // directory switched off or unreachable: nobody qualifies, show the CTA
-    }
-    if (!member) {
+    // A leaderboard id of 0, a plugin that is switched off, or a request that
+    // fails all read as nobody leading: the card shows its take-part nudge.
+    const { leaderboardId, memberPeriod } = this.args;
+    if (!leaderboardId) {
       return { member: null, profile: null };
     }
+
+    let leader = null;
+    try {
+      const { users } = await ajax(
+        `/leaderboard/${leaderboardId}.json?period=${memberPeriod}`
+      );
+      leader = leaderboardLeader(users);
+    } catch {
+      // leaderboard unreachable: nobody leads, show the CTA
+    }
+    if (!leader) {
+      return { member: null, profile: null };
+    }
+
+    // The leaderboard gives a score and a position, not what the member did,
+    // so the figures on the card still come from the directory, for the same
+    // window. Without that row the card names the leader and shows only the
+    // score.
+    let member = {
+      user: {
+        username: leader.username,
+        name: leader.name,
+        avatar_template: leader.avatar_template,
+      },
+      score: leader.total_score,
+    };
+    try {
+      const { directory_items } = await ajax(
+        `/directory_items.json?period=${memberPeriod}&order=likes_received&name=${encodeURIComponent(leader.username)}`
+      );
+      const row = directoryRowFor(directory_items, leader.username);
+      if (row) {
+        member = { ...row, score: leader.total_score };
+      }
+    } catch {
+      // directory unreachable: the card keeps the leaderboard's own fields
+    }
+
     // A second hop, for the six details the directory does not serialise:
     // location, website, the two configured user fields, and the join date.
     // It was skipped once, when the only thing wanted from here was the bio and
