@@ -4,7 +4,7 @@ import { definitionTopicIds } from "./category-topics";
 // this score. A one-line edit changes the emphasis; deliberately not four
 // theme settings. `days_visited` stands in for "time on the platform" because
 // this Discourse version's directory serializer omits `time_read`.
-export const WEIGHTS = { posts: 0.5, likes: 0.35, days: 0.15 };
+export const WEIGHTS = { posts: 0.35, likes: 0.5, days: 0.15 };
 
 /**
  * The newest-created non-definition topic carrying `tag`, or null.
