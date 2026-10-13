@@ -24,6 +24,7 @@ import {
   rankTopMember,
   uploadRefFromShortUrl,
   WEIGHTS,
+  withoutStaff,
 } from "../lib/highlights";
 
 // How much of its own post a card shows — the newsletter and the podcast, the
@@ -299,7 +300,7 @@ export default class BlockHighlights extends Component {
       const { directory_items } = await ajax(
         `/directory_items.json?period=${this.args.memberPeriod}&order=likes_received&limit=50`
       );
-      const top = rankTopMember(directory_items, WEIGHTS);
+      const top = rankTopMember(withoutStaff(directory_items), WEIGHTS);
       member = memberHasActivity(top) ? top : null;
     } catch {
       // directory switched off or unreachable: nobody qualifies, show the CTA
