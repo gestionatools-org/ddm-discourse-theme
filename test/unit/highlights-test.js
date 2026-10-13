@@ -376,15 +376,15 @@ module("Espublico Theme | Unit | highlights | rankTopMember", function () {
   });
 
   test("a big lead on the weighted field beats a big lead on a light one", function (assert) {
-    // `poster` trails on likes and days but its post lead, at weight 0.5,
+    // `liker` trails on posts and days but its likes lead, at weight 0.5,
     // outweighs the other's lead at 0.35 + 0.15.
-    // poster.score = .5*1   + .35*0   + .15*0   = .500
-    // liker.score  = .5*0   + .35*1   + .15*1   = 0.35 + 0.15 = .500  -> tie
-    // Make it not a tie: give the poster a sliver on days too.
-    const poster = { post_count: 20, likes_received: 0, days_visited: 1 };
-    const liker = { post_count: 0, likes_received: 20, days_visited: 20 };
-    // poster: .5*1 + 0 + .15*(1/20) = .5075 ; liker: 0 + .35 + .15 = .5
-    assert.strictEqual(rankTopMember([poster, liker], WEIGHTS), poster);
+    // liker.score  = .35*0 + .5*1 + .15*0 = .500
+    // poster.score = .35*1 + .5*0 + .15*1 = 0.35 + 0.15 = .500  -> tie
+    // Make it not a tie: give the liker a sliver on days too.
+    const liker = { post_count: 0, likes_received: 20, days_visited: 1 };
+    const poster = { post_count: 20, likes_received: 0, days_visited: 20 };
+    // liker: 0 + .5*1 + .15*(1/20) = .5075 ; poster: .35 + 0 + .15 = .5
+    assert.strictEqual(rankTopMember([poster, liker], WEIGHTS), liker);
   });
 
   test("treats a field whose max is zero as contributing nothing", function (assert) {
