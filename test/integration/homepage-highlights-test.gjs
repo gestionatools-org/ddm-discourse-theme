@@ -866,9 +866,9 @@ module(
 
     test("the member cell shows the leaderboard's leader, with the directory's figures", async function (assert) {
       stubStore(this.owner, {});
-      let leaderboardQuery = null;
+      let leaderboardUrl = null;
       pretender.get("/leaderboard/:id.json", (request) => {
-        leaderboardQuery = { id: request.params.id, ...request.queryParams };
+        leaderboardUrl = request.url;
         return response({
           users: [
             { ...gmerida, position: 2, total_score: 202, username: "j" },
@@ -909,9 +909,9 @@ module(
       });
       // (newsTag kept non-empty only so the section renders; its cell is a placeholder)
 
-      assert.deepEqual(
-        leaderboardQuery,
-        { id: "1", period: "monthly" },
+      assert.strictEqual(
+        leaderboardUrl,
+        "/leaderboard/1.json?period=monthly",
         "reads the configured leaderboard over the configured window"
       );
       assert
